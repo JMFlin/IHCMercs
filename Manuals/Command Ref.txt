@@ -1,0 +1,133 @@
+Current IHC Mercs Commands as of 6/1/2019 - Most but not all commands work. Commands are subject to change at any time
+General Commands
+/assistrange - set how far away from character a mob can be before being considered in camp and attackable
+/autoassistat - Mob HP% to start attacking at
+/backoff - Turns off combat (melee and dps spells), autotargeting, engaging and clears current target
+/burnit - Use burns on this one Mob ID then stop using burns
+/burncount - Sets number of mobs in Assist range that will trigger an Auto burn
+/campexact - On = return to exact location /camphere was issued after char is out of combat, otherwise character will only return to /camphere spot if current location exceeds /campradius from where /camphere was issued
+/campfire - Sets down a campfire at current location
+/camphere - Record the characters current X,Y location for camp returns based on other settings ( /campexact and /campradius )
+/campoff - Turns off camp functions
+/campradius - Circular distance from /camphere location consider "camp"
+/chase - Toggles ON/OFF Autofollowing the current target but allows breaking off for combat then refollowing afterward
+/chaseme - Like kissassist, issues a chase command to all characters to chase the character issuing the command.
+/chaseoff - Turns off Autofollowing the current target
+/chaseon - Turns on Autofollowing the current target but allows breaking off for combat then refollowing afterward
+/endmedpct - Set Start medding at this Endurance % if auto med is enabled
+/ihchelp in game gives a list of available commands and options. *This section will be expanded
+/ihcstart - Automatically start the correct IHC macro for your class
+/ihcgroup - Issues a /target id ${Me.ID} and /ihcstart to all group members setting the character who issued the command as the MA for all ihcmac's
+/instantrelease - toggles instantly click release when you die
+/killtarget - Useful for targets that dont show up on the XTarget list like objects. Forces character to attack its current target.
+/medpct - Set Start medding at this mana % if auto med is enabled
+/meleeoff - Turns the use of melee attacking off
+/meleeon - Turns the use of melee attacking on
+/mgx - My Group Execute - eqbc style dannet command - Replaces: /bcg //somecommand. Use: /mgx /somecommand
+/mgax - My Group ALL Execute - eqbc style dannet command - Replaces: /bcga //somecommand. Use: /mgax /somecommand
+/mgt - My Group Tell - eqbc style dannet command - Replaces: /bcg textmsg. Use: /mgax textmsg
+/rallybehind - Connected characters will move behind the issuing character in a arc formation Based on eqmules /sheepmove commands. 
+/rallyfront- Connected characters will move in front of the issuing character in a arc formation Based on eqmules /sheepmove commands. 
+/returntocamp - Toggles ON/OFF returing to camp
+/smartassist - Checks that a mob is in melee range of the MA before attacking. Keeps characters from attacking a mob being pulled to camp that is inside the assist radius and below assist %. TURN OFF if assisting the master of a pet and not the pet itself.
+/tglburn - Toggles ON/OFF using all burn abilites as they become available ( /mgx /tglburn or /mgax /tglburn hotkeys are a nice way to control burns on events that require buring during different phases ) 
+/tglbeg - Turns on begging for a cure in /group chat
+/tglzlogic - Turns on logic that is specific to cetain mobs/events if programmed. EX:Anashti Sul, Damsel of Decay, characters use the proper cure to cycle the debuff and if nav is loaded automatically move from upstairs to down and back when needed )  
+/tglmed - Toggles ON/OFF medding when a character is below either medpct or endmedpct
+/tglmelee - Toggles ON/OFF the use of melee during combat.
+/usefellowship - clicks your fellowship registration insignia for you
+Bard Commands
+/tglaura - Toggles ON/OFF the casting of the bard aura
+/byos - Bring Your Own Spells - Macro not mem any spells and will try to use any spell you have currently memorized if it knows about the spell.
+/tglaoe - Toggles ON/OFF allowing the use of any AOE abilities/songs/spells
+/tglbp - Toggles ON/OFF the casting of any breastplate with a spell cast. BP must be listed in character INI file.
+/tglpet - Toggles ON/OFF the use of your pets
+/tglmanasong - Toggles ON/OFF playing mana regen songs during downtime/non combat
+/tglmezbreak - Toggles ON/OFF allowing a character to attack a mez'd mob ( Tank/MA needs this on )
+/tglselo - Toggles ON/OFF casting Selo's sonata AA during downtime/non combat
+Beastlord Commands
+/byos - Bring Your Own Spells - Macro not mem any spells and will try to use any spell you have currently memorized if it knows about the spell.
+/tglaoe - Toggles ON/OFF allowing the use of any AOE abilities/songs/spells
+/tglbp - Toggles ON/OFF the casting of any breastplate with a spell cast. BP must be listed in character INI file.
+/tgldots - Toggles ON/OFF casting beastlord DoTs
+/tglferocity - Toggles ON/OFF Casting of Ferocity buff.
+/tglpet - Toggles ON/OFF Pets use
+/tglpetslow - Toggles ON/OFF casting pet slow proc buff on pet
+/tglpoison - Toggles ON/OFF buffing with poison procs. Must be listed in character INI
+/tglmezbreak - Toggles ON/OFF allowing a character to attack a mez'd mob ( Tank/MA needs this on )
+/tglslow - Toggles ON/OFF Slowing the MA's target.
+Berserker Commands
+/tglalliance - Toggles ON/OFF the casting of BER Allaince if enough BER are in group.
+/tglaoe - Toggles ON/OFF allowing the use of any AOE abilities/songs/spells
+/tglautoaxe - Toggles ON/OFF the auto summoning of Axe's. Axe info must be listed in character INI
+/tglautoaxe2 - Toggles ON/OFF the auto summoning of a second Axe type. Axe info must be listed in character INI
+/tglbp - Toggles ON/OFF the casting of any breastplate with a spell cast. BP must be listed in character INI file.
+/tglforce - Toggles ON/OFF Forces the casting of Alliance ability when available with no check for other BER
+/tglintim - Toggles ON/OFF the use of Intimidate ability
+/tglmezbreak - Toggles ON/OFF allowing a character to attack a mez'd mob ( Tank/MA needs this on )
+/tglopener - Toggles ON/OFF the use of before combat opening moves
+/tglpet - Toggles ON/OFF Pet use
+/tglpoison - Toggles ON/OFF buffing with poison procs. Must be listed in character INI
+Cleric Commands
+/autorez - Toggles ON/OFF cleric rezzing in or out of combat
+/byos - Bring Your Own Spells - Macro not mem any spells and will try to use any spell you have currently memorized if it knows about the spell.
+/divinebuff - Toggles ON/OFF casting divine life save buff on tank
+/manatonuke - Allow nuking until mana gets to this % then stop
+/newtank - Sets current target as MA/Tank, gets priority healing check over just regular group member
+/nocures - Toggles ON/OFF castign cure spells for poison, disease, curse, including healing spells with a cure component
+/othercures - Toggles ON/OFF attempting to cure other debuffs like snare, charm, mez
+/pethealpoint - Set the pethealth % to start healing a pet at
+/promised - Toggles ON/OFF casting promised( delayed ) heals
+/raidhealpoint - Sets the point to start healing at if in a raid
+/usedruid - Toggles ON/OFF casts symbol buff instead of aego buff to allow stacking with druid hp buffs
+/tbmhealpoint - sets healpoint for HP capped zones like crypt of sul
+/tgldynamic - Toggles ON/OFF auto adjusting heal points, ignores ini settings and adjust based on mob lvl, how many mobs on aggro and if a named is in camp. Good mana conserving setting for less difficult content
+/tglhealnuke - Toggles ON/OFF Using Intervention heals in place of Renewal heals ( interventions are faster stronger heals with a nuke component. Renewals offer an automatic cure option for anyone healed but are slower and less powerful )
+Enchanter Commands
+/autodebuffat - Mob health % to  start trying to cast debuff spells at
+/blurpct - if blur is enabled this is the % of aggro you have to start trying to blur it to drop aggro
+/byos - Bring Your Own Spells - Macro not mem any spells and will try to use any spell you have currently memorized if it knows about the spell.
+/charmstun - Toggles ON/OFF if charm is enabled will try to stun the mob before charming
+/charmtash - Toggles ON/OFF if charm is enabled will tash the mob before charming
+/maxmezcount - maximum number of mobs to try and keep mez'd
+/mezaecount - number of mobs in range before using AE mez spells ( recommend 3 or higher )
+/mezmaxlevel - maximum lvl of a mob to try and mez ( can be auto set based on highest lvl the mez spell will work on )
+/mezminlevel - minimum lvl of a mob to try and mez 
+/mezradius - Circular Area from character to watch for mobs to mez ( can be larger than assistrage to get mobs mez'd farther away from combat area )
+/mezstartcount - Number of mobs in range to start trying to mez ( recommend 2 or higher or will try and mez pulls )
+/mezstophp - mob hp % to stop trying to mez
+/tglblur - Toggles ON/OFF membluring a mob when aggro is to high
+/tglcharm - Toggles ON/OFF trying to charm a mob as a pet, must be atleast 2 mobs in camp area
+/tglcrip - Toggles ON/OFF casting of cripple spell. At higher lvl's slow and cripple are combined, either setting being on will cause this to cast
+/tgldicho - Toggles ON/OFF using enchanter Dicho/Dissident ability
+/tgldots - Toggles ON/OFF use/meming of enchanter DoT's 
+/tgldps - Toggles ON/OFF Casting of all dps spells
+/tglpet - Toggles ON/OFF Pet use
+/tglmez - Toggles ON/OFF Use of mez abilities/spells
+/tglmezmsg - Toggles ON/OFF Broadcasting of Mez target messages
+/tglndt - Toggles ON/OFF Nights dark terror buffing on melee and pets
+/tgltash - Toggles ON/OFF Casting tash debuff on MA's current target
+/tglslow - Toggles ON/OFF casting of slow spell. At higher lvl's slow and cripple are combined, either setting being on will cause this to cast
+/tglstrip - Toggles ON/OFF Stripping of mob beneficial buffs
+Wizzard Commands
+/autodebuffat - Mob health % to  start trying to cast debuff spells at
+/byos - Bring Your Own Spells - Macro not mem any spells and will try to use any spell you have currently memorized if it knows about the spell.
+/harvestat - Mana % to use AA mana harvest at.
+/tglalliance - Toggles ON/OFF Casting of WIZ alliance spell in combat
+/tglaoe- Toggles ON/OFF allowing the use of any AOE abilities/songs/spells
+/tglbp - Toggles ON/OFF the casting of any breastplate with a spell cast. BP must be listed in character INI file.
+/tgldicho - Toggles ON/OFF using wiz Dicho/Dissident nuke.
+/tglmanaburn - Toggles ON/OFF the use of Manaburn AA during a burn.
+/tgldps - Toggles ON/OFF Casting of all dps spells
+/tglmezbreak - Toggles ON/OFF allowing a character to attack a mez'd mob ( Tank/MA needs this on )
+/tglpet - Toggles ON/OFF Pet use
+/tglstrip - Toggles ON/OFF Stripping of mob beneficial buffs
+/tglweave - Toggles ON/OFF casting of AA nukes between spell casts
+Warrior Commands
+/autotank - turns all abilites on: aggro, aeaggro, buffs, auto defensive ability use, targeting, engaging.
+/tglaggro - Toggles ON/OFF use of aggro increasing abilities and checks
+/tglaeaggro - Toggles ON/OFF use of AE ( possible mez breaking ) aggro abilities if other aggro abilites are turned on
+/tglbuff - Toggles ON/OFF Use of warrior buffing
+/tgldefense - Toggles ON/OFF Automatic use of defensive abilities under certain conditions ( low health, Named mob, etc. )
+/tglengage - Toggles ON/OFF Automatically engaging current target if in range and below assist %
+/tgltargeting - Toggles ON/OFF Automatically find targets, either the MA's target or choose one based on lowest health, highest aggro or biggest threat ( Named mobs )

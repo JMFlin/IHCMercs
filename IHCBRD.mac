@@ -1,0 +1,327 @@
+|- IHCBRD.mac - By IHC385
+|- Automatic Bard bot - 
+|- Version 1.0
+|- Updated: 6/1/2019
+|- Credit: Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
+|- Credit: winnower - IHCTwist logic is an attempt at a macro version of the MQ2Medley plugin.
+#Chat group
+#Chat tell
+#Chat raid
+#turbo 80
+#include IHCMercs\ihcsubs.inc
+#include IHCMercs\ihcbrdutil.inc
+#include IHCMercs\ihcevents.inc
+#warning
+#bind SetVarInt	/setvarint
+#bind CmdList        /ihchelp
+#Event NotOnTarget	"#*#You cannot see your target#*#"
+#Event NotOnTarget	"#*#Your target is too far away#*#"
+
+Sub Main
+	/delay ${Math.Rand[10]}
+	/doevents flush
+	/declare MacroName       	string outer IHCBRD**BETA**
+	/declare MacroPath       	string outer IHCMercs\IHCBRD
+	/declare IHCVersion       	string outer 1.3 
+	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
+	/declare SongFileName     	string outer ${MacroPath}_Songs_${EverQuest.Server}_${Me.CleanName}.ini
+
+	/call BrdSetup
+	/call VarSetup
+	/if (${IHCVersion.NotEqual[${IHCMacVersion}]}) {
+		/call ClassAliasSetup
+	}
+	/call CheckSpells
+	/call SetControlToon
+	/call LoadSpellBar
+|-Cursor ID
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
+	}
+	/call WelcomeMsg
+	/if (${assistid}==${Me.ID}) {
+		/echo \aw I am Main Assist
+	} else {
+		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
+	}
+
+	/if (${UseZoneLogic}) {
+		/call ZoneEventChk
+	}
+ :mainloop
+	/if (${changetoini}==1) /call INIChanges
+	/if (${Me.Zoning}) {
+		/call Zoning
+	}
+	/if (${Me.Hovering}) /call DeathSub
+	/if (${Cursor.ID}) /call BagModRods
+	/call IDUpdateCheck
+	/if (!${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Combat}) /call DowntimeSongs
+	/if (${Me.XTarget[1].ID} && ${CurrentMelody.Equal[OOC]}) /call StopTune
+	/if (${ReadyToCast}==0) /call IHCTwist
+	/if ((${Me.XTarget[1].ID} || (${Group.MainAssist.ID} && ${Group.MainAssist.ID}!=${Me.ID} && ${Target.ID}!=${Me.GroupAssistTarget.ID}) || ${SpawnCount[npc radius ${AssistRange} zradius 15 targetable playerstate 4]} || ${FollowMarkTarget}) && !${BackOffFlag} && ${DoAutoTarget}) /call FindTarget
+	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag} && ${DoAutoEngage}) /call EngageTarget
+	/if (${Me.XTarget}>=${MezStartCount} && ${MezOn} && ${Me.GemTimer[${AEMezSong}]}==0) /call DoMezStuff
+	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag}) /call AANDisc
+	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag}) /call Combatdps
+	/if (${Spawn[=${FollowToonName}].ID} && !${MoveTo.Moving} && ${Stick.Status.Equal[OFF]} && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID} || ${Spawn[id ${assistid}].Distance}>${AssistRange} || (!${Spawn[id ${assistid}].LineOfSight}))) /call FollowToon
+	/if (${Spawn[=${FollowToonName}].ID} && (${Me.Casting.ID} || ${Me.XTarget[1].ID}) && ${AdvPath.Following}) /squelch /afollow off
+	/if (!${Me.XTarget[1].ID}&& !${KillTargetID}) /call AutoCampCheck
+	/if (${UseModRods}) /call ClickModRoD
+	/if (${DoMed} && ${spellrememtimer}==0) /call AutoMed
+	/if (${UseZoneLogic} && ${EventSetupFlag}) {
+		/call EventLogic${EventSetupFlag}
+	}
+	/if (((!${Spawn[targetable id ${KillTargetID}].ID}) || ${Spawn[corpse id ${KillTargetID}].ID}) && ${KillTargetID}!=0) {
+		/varset KillTargetID 0
+		/varset SpawnSearchType npc
+		/varset autotargetid 0
+	}
+	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+	/doevents
+	/goto :mainloop
+/return
+Sub Exit
+ :OnExit
+	/stopsong
+	/delay 5
+	/stopcast
+/return
+|----------------------------------------------------------------------------
+|- SUB: IHCTwist
+|---------------------------------------------------------------------------- 
+Sub IHCTwist
+	/if ((${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${DoBurn}==0) {
+		/varset DoBurn 1
+	} else /if (${DoBurn}==1) {
+		/varset DoBurn 0
+	}
+	/if (${Me.Buff[Tune Stuck in Your Head].ID} && ${TuneStuckActive}==0) {
+		/varset TuneStuckActive 1
+	} else {
+		/varset TuneStuckActive 0
+	}
+	/declare twc int local 0
+	/for twc 1 to ${TwistSize}
+		/if (${FindItem[=${Song${twc}.Arg[1,|]}].ID} && ${Me.ItemReady[=${Song${twc}.Arg[1,|]}]} && ${SongTimer${twc}}<=6 && ${ReadyToCast}==0 && (${Song${twc}.Arg[3,|].Replace[^,$]})) {
+			/call StopTune
+			/useitem "${Song${twc}.Arg[1,|]}"
+			/delay 10
+			/break
+		} else /if (${Me.AltAbility[${Song${twc}.Arg[1,|]}].ID} && ${Me.AltAbilityReady[${Song${twc}.Arg[1,|]}]} && ${SongTimer${twc}}<=6 && (${Song${twc}.Arg[3,|].Replace[^,$]})) {
+			/alt act ${Me.AltAbility[${Song${twc}.Arg[1,|]}].ID}
+			/delay 5
+			/break
+		} else /if (${Me.CombatAbility[${Song${twc}.Arg[1,|]}].ID} && ${Me.CombatAbilityReady[${Song${twc}.Arg[1,|]}]} && ${SongTimer${twc}}<=6 && (${Song${twc}.Arg[3,|].Replace[^,$]})) {
+			/disc ${Song${twc}.Arg[1,|]}
+			/delay 5
+			/break
+		} else /if (${Me.GemTimer[${Song${twc}.Arg[1,|]}]}==0 && ${SongTimer${twc}}<=6 && ${ReadyToCast}==0 && ${Me.CurrentMana}>${Spell[${Song${twc}.Arg[1,|]}].Mana} && ${Me.Gem[${Song${twc}.Arg[1,|]}]} && (${Song${twc}.Arg[3,|].Replace[^,$]})) {
+			/call SongQueue "${Song${twc}.Arg[1,|]}"
+			/varset SongTimer${twc} ${Song${twc}.Arg[2,|]}s
+			/break
+		}
+	/next twc
+/return
+|----------------------------------------------------------------------------
+|- SUB: Combatdps
+|---------------------------------------------------------------------------- 
+Sub Combatdps
+	/doevents
+	/declare BurningNow int local 0
+	/if (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) {
+		/if (${Me.CombatAbilityReady[Thousand Blades]}) {
+				/disc Thousand Blades
+				/delay 5
+		}
+		/if (${Me.AltAbilityReady[Dance of Blades]}) {
+				/alt act ${Me.AltAbility[Dance of Blades].ID}
+				/delay 5
+		}
+		/if (${Me.AltAbilityReady[Flurry of Notes]}) {
+				/alt act ${Me.AltAbility[Flurry of Notes].ID}
+				/delay 5
+		}
+		/if (${Me.AltAbilityReady[Song of Stone]} && ${UseSwarmpet}) {
+				/alt act ${Me.AltAbility[Song of Stone].ID}
+				/delay 5
+		}
+		/if (${Me.AltAbilityReady[Frenzied Kicks]}) {
+				/alt act ${Me.AltAbility[Frenzied Kicks].ID}
+				/delay 5
+		}
+		/if (${Me.AltAbilityReady[Funeral Dirge]}) {
+				/alt act ${Me.AltAbility[Funeral Dirge].ID}
+				/delay 5
+		}
+		/varset BurningNow 1
+	}
+|-	/if (${CurrentMelody.NotEqual[CUSTOM]} && ${UseCustomMelody}) {
+|-		/if (${Me.Casting.ID}) /call StopTune
+|-		/melody ${CustomMelody}
+|-		/varset CurrentMelody CUSTOM
+|-		/delay 5
+|-	} else /if (${CurrentMelody.NotEqual[COMBAT]} && !${Me.Buff[Tune Stuck in Your Head].ID} && !${UseCustomMelody} && !${BurningNow}) {
+|-		/if (${Me.Casting.ID}) /call StopTune
+|-		/melody ${BattleMelody}
+|-		/varset CurrentMelody COMBAT
+|-		/delay 5
+|-	} else /if (${CurrentMelody.NotEqual[XTCBT]} && ${Me.Buff[Tune Stuck in Your Head].ID} && !${UseCustomMelody} && !${BurningNow}) {
+|-		/if (${Me.Casting.ID}) /call StopTune
+|-		/melody ${ExtBattleMelody}
+|-		/varset CurrentMelody XTCBT
+|-		/delay 5
+|-	} else /if (${CurrentMelody.NotEqual[BURN]} && !${UseCustomMelody} && ${BurningNow}) {
+|-		/if (${Me.Casting.ID}) /call StopTune
+|-		/melody ${ExtBurnMelody}
+|-		/varset CurrentMelody BURN
+|-		/delay 5
+|-	}
+	/if (${MelodyType.Equal[Caster]} && ${Me.AltAbilityReady[Fundament: Second Spire of the Minstrels]}) {
+		/alt act ${Me.AltAbility[Fundament: Second Spire of the Minstrels].ID}
+		/delay 5
+	} else /if (${Me.AltAbilityReady[Fundament: Third Spire of the Minstrels]}) {
+		/alt act ${Me.AltAbility[Fundament: Third Spire of the Minstrels].ID}
+		/delay 5
+	} else /if (${FindItem[${ChestItemName}].ID} && ${ChestCombatCast} && ${Me.ItemReady[${ChestItemName}]} && !${Me.Buff[Third Spire of the Minstrels].ID} && !${Me.Buff[Second Spire of the Minstrels].ID}) {
+		/useitem "${ChestItemName}"
+		/delay 10	
+	}
+	/if (${Me.AltAbilityReady[Boastful Bellow]} && !${Target.Buff[Boastful Bellow].ID} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
+		/alt act ${Me.AltAbility[Boastful Bellow].ID}
+		/delay 5
+	} else /if (${Me.AltAbilityReady[Lyrical Prankster]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20 && ${UseSwarmpet}) {
+		/alt act ${Me.AltAbility[Lyrical Prankster].ID}
+		/delay 5
+	} else /if (${Me.AltAbilityReady[Cacophony]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
+		/alt act ${Me.AltAbility[Cacophony].ID}
+		/delay 5
+	} else /if (${Me.AltAbilityReady[Bladed Song]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
+		/alt act ${Me.AltAbility[Bladed Song].ID}
+		/delay 5
+	}
+	/if (${Me.AbilityReady[Kick]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${UseMelee}) {
+		/doability Kick
+		/delay 5
+	} else /if (${Me.AbilityReady[Intimidation]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${UseMelee} && ${UseIntimidate}) {
+		/doability Intimidation
+		/delay 5
+	}
+	/varset BurningNow 0
+/return
+|----------------------------------------------------------------------------
+|- SUB: AANDisc
+|---------------------------------------------------------------------------- 
+Sub AANDisc
+	/doevents
+	/if (${FindItem[=${Epicsword}].ID} && ${Me.ItemReady[=${Epicsword}]}) {
+		/call StopTune
+		/useitem "${Epicsword}"
+		/delay 10
+	}
+	/if (${Me.AltAbilityReady[Fierce Eye]}) {
+		/alt act ${Me.AltAbility[Fierce Eye].ID}
+		/delay 5
+	}
+	/if (${Me.AltAbilityReady[Tune Stuck in Your Head]}) {
+		/alt act ${Me.AltAbility[Tune Stuck in Your Head].ID}
+		/delay 5
+	}
+	/if (${Me.AltAbilityReady[Quick Time]} && !${Me.Song[Ruaabri's Fury].ID}) {
+		/alt act ${Me.AltAbility[Quick Time].ID}
+		/delay 5
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: DoMezStuff
+|---------------------------------------------------------------------------- 
+Sub DoMezStuff
+	/doevents
+	/if (${Me.XTarget}>=${MezStartCount} && ${Me.GemTimer[${AEMezSong}]}==0 && ${Me.CurrentMana}>${Spell[${AEMezSong}].Mana} && ${Me.Gem[${AEMezSong}]} && ${Target.Distance}<50 && ${Target.ID}) {
+		/call StopTune
+		/if (${Me.AltAbilityReady[Tune Stuck in Your Head]}) {
+			/alt act ${Me.AltAbility[Tune Stuck in Your Head].ID}
+			/delay 5
+		}
+		/if (${Me.AltAbilityReady[Lure of the Siren's Song]}) {
+			/alt act ${Me.AltAbility[Lure of the Siren's Song].ID}
+			/delay 5
+		}
+		/call SongQueue "${AEMezSong}"
+		/delay 35
+	}
+	:mezdelay
+		/delay 5
+		/if (${ReadyToCast}!=0) /goto :mezdelay
+/return
+|----------------------------------------------------------------------------
+|- SUB: DowntimeSongs
+|---------------------------------------------------------------------------- 
+Sub DowntimeSongs
+|-Out of Combat
+	/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Moving} && !${Me.Invis} && !${Me.Sitting} && ${Me.State.NotEqual[FEIGN]} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${UseAura}) {
+		/if (!${Me.Gem[${BardAura}]}) {
+			/call LoadSpellGem "${BardAura}" ${spellmisc}
+		}
+		/call SongQueue "${BardAura}"
+		/varset spellrememtimer 7s
+		/varset CurrentMelody OOC
+	} else /if (${Group} && ${Me.GemTimer[${PulseRegenSong}]}==0 && !${Me.Invis} && !${Me.Sitting} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${Me.Gem[${PulseRegenSong}]} && ${Me.Song[${PulseRegenSong}].Duration.Seconds}<=6 && ${OOCManaSong}) {
+		/call SongQueue "${PulseRegenSong}"
+		/varset CurrentMelody OOC
+	} else /if (${Group} && ${Me.GemTimer[${ChorusRegenSong}]}==0 && !${Me.Invis} && !${Me.Sitting} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${Me.Gem[${ChorusRegenSong}]} && ${Me.Song[${ChorusRegenSong}].Duration.Seconds}<=6 && ${OOCManaSong}) {
+		/call SongQueue "${ChorusRegenSong}"
+		/varset CurrentMelody OOC
+	} else /if (${Spell[Selo's Sonata].Stacks} && !${Me.Buff[Selo's Sonata].ID} && !${Me.Invis} && ${Me.AltAbilityReady[3704]} && ${Me.State.NotEqual[FEIGN]} && ${UseAASelo}) {
+		/squelch /alt act 3704
+		/delay 10
+	} else /if (${Me.Casting.ID} && ${ReadyToCast}==0) {
+		/call StopTune
+	} else /if (!${Me.Gem[${spellmisc}].Name.Equal[${miscspellremem}]} && ${spellrememtimer}==0 && ${miscspellremem.NotEqual[NULL]} && !${BringYourOwnSpells} && ${ReadyToCast}==0) {
+		/call StopTune
+		/call LoadSpellGem "${miscspellremem}" ${spellmisc}
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: BuffCheck
+|----------------------------------------------------------------------------
+Sub BuffCheck
+	|-Apply poison to weapon if enabled
+	/if (${UsePoisons} && ${FindItem[${PoisonName}].ID} && ${Cast.Ready[${PoisonName}]} && !${Me.Buff[${PoisonBuffName}].ID}) {
+		/useitem "${PoisonName}"
+		/delay 50
+	} else /if (${UsePoisons} && !${FindItem[${PoisonName}].ID}) {
+		/echo No Poison Found in Inventory - Disabling
+		/varset UsePoisons 0
+		/varset changetoini 1
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: StopTune
+|---------------------------------------------------------------------------- 
+Sub StopTune
+		/stopsong 
+		/varset CurrentMelody NULL
+/return
+|----------------------------------------------------------------------------
+|- SUB: SongQueue
+|---------------------------------------------------------------------------- 
+Sub SongQueue(string nextsong)
+	/if (${Me.Casting.ID}) /stopcast
+	/delay 10 !${Me.Casting.ID}
+	/cast ${Me.Gem[${nextsong}]}
+	/varset ReadyToCast ${Math.Calc[(${Spell[${nextsong}].MyCastTime}/100)+5]}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
+Sub Event_NotOnTarget
+	/if (${DoAutoEngage}) {
+		/squelch /attack off
+		/if (${DoAutoTarget}) /call FindTarget
+		/delay 5
+		/if (${Target.Distance}<${AssistRange}) /call EngageTarget
+	}
+	/doevents flush NotOnTarget
+/return 

@@ -1,0 +1,441 @@
+|- IHCBER.mac - By IHC385
+|- Automatic berserker bot - 
+|- Version 2.0
+|- Updated: 4/25/2019
+|- Contributions by kaen01 and toots
+|- Code/Idea's borrowed from noobhax0r and his automac's. Maskoi,ctaylor,treehuggindruid and their team's kisassist
+|- Thanks to Bayne, shadowfall, scotsbiker, and aspire2008 for bug reporting, testing, requests, suggestions and feedback!
+#Chat group
+#Chat tell
+#Chat raid
+#warning
+#turbo 80
+#include IHCMercs\ihcsubs.inc
+#include IHCMercs\ihcberutil.inc
+#include IHCMercs\ihcevents.inc
+#bind SetVarInt	/setvarint
+#bind CmdList        /ihchelp
+#Event NotOnTarget	"#*#You cannot see your target#*#"
+#Event NotOnTarget	"#*#Your target is too far away#*#"
+#Event GroupChange	"#*#has left the group#*#"
+#Event GroupChange	"#*#has joined the group#*#"
+Sub Main
+	/delay ${Math.Rand[5]}
+	/doevents flush
+	/declare MacroName       		string outer IHCBER
+	/declare MacroPath       		string outer IHCMercs\IHCBER
+	/declare IHCVersion       		string outer 2.0
+	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
+
+	/call BerSetup
+	/call VarSetup
+	/call AliasSetup
+	/call SetupDiscs
+	/call SetControlToon
+	/if (${UseAlliance}) {
+		/call AllianceCheck
+	}
+	/call WelcomeMsg
+	/if (${assistid}==${Me.ID}) {
+		/echo \aw I am Main Assist
+	} else {
+		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
+	}
+		/if (${UseZoneLogic}) {
+		/call ZoneEventChk
+	}
+ :mainloop
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call ManualPullCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+/goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualPullCamping
+|---------------------------------------------------------------------------- 
+Sub ManualPullCamping
+	/if (${MakeCamp.Status.Equal[OFF]}) /makecamp on ${AutoCampRadius}
+	/call RemoveTravelBuffs
+	:manualpullcamping
+	/if (${AdvPath.Following}) /afollow off
+	/if (${Me.Hovering}) /call DeathSub
+	/if (${Me.State.Equal[FEIGN]}) /stand
+
+	/if (${State}==0) {
+		/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp
+		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+		/if (${DoMed}) /call AutoMed
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
+		/if (${Me.XTarget[1].ID}) /varset State 1
+	}
+
+	
+	/if (${State}==1) {
+		/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+		/if (${Target.Distance}<50 && ${Target.Type.Equal[NPC]}) {
+			/call PreCombatBuffs
+		}
+		/if (${Target.Distance}<40 && ${Target.ID}!=${Me.ID}) {
+			/varset State 2
+		}
+	}
+
+	/if (${State}==2) {
+		/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+		/if (${Target.Type.Equal[NPC]}) /call PreCombatBuffs
+		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoAssistAt}) /call Engage
+		/call PreCombatBuffs
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
+
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
+
+		/if (${MakeCamp.Status.Equal[ON]}) /call MoveToCamp
+
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+		/if (!${Me.XTarget[1].ID}) /call PostCombat
+	}
+
+	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+	/doevents
+
+	/if (${Mode}==1) /goto :manualpullcamping
+	/if (${Mode}!=1) /return
+|----------------------------------------------------------------------------
+|- SUB: ManualRunAndGun
+|----------------------------------------------------------------------------
+Sub ManualRunAndGun
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	:runandgun
+	/if (${Me.Hovering}) /call DeathSub
+	/if (${Me.State.Equal[FEIGN]}) /stand
+
+	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+
+	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
+
+	/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+	/if (${Target.Distance}<55 && ${Target.Type.Equal[NPC]}) /call PreCombatBuffs
+	/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
+	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
+
+	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
+
+	/if (!${Me.XTarget[1].ID} && !${AdvPath.Following}) {
+		/afollow spawn ${Group.Leader.ID}
+		/delay 10 ${AdvPath.State}==1
+	}
+
+	/if (${Target.Type.Equal[Corpse]}) /target clear
+
+	/if (!${Me.XTarget[1].ID}) /call PostCombat
+
+	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+	/doevents
+	/if (${Mode}==2) /goto :runandgun
+	/if (${Mode}!=2) /return
+|----------------------------------------------------------------------------
+|- SUB: PreCombatBuffs
+|---------------------------------------------------------------------------- 
+Sub PreCombatBuffs
+	/if (${Me.CombatAbilityReady[${cheapshot}]} && ${Me.PctEndurance}>=5) {
+		/Disc ${cheapshot}
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: AANDisc
+|---------------------------------------------------------------------------- 
+Sub AANDisc
+	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
+		/alt act ${Me.AltAbility[Communion of Blood].ID}
+		/delay 5
+	}
+	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap Warcry].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Me.Combat} && ${DoBattleLeap}) {
+		/alt act ${Me.AltAbility[Battle Leap].ID}
+	}
+	/if (${Me.AltAbilityReady[Desperation]} && !${Me.Buff[Desperation].ID} && ${Me.Haste}<224) {
+		/alt act ${Me.AltAbility[Desperation].ID}
+		/delay 5
+	}
+	/if (${Me.CombatAbilityReady[${Spell[${CryHavoc}].RankName}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${CryHavoc}].ID} && ${Me.ActiveDisc.ID}!=${CleavingDiscID}) {
+		/Disc ${Spell[${CryHavoc}].RankName}
+		/delay 5
+	}
+	/if (${Me.AltAbilityReady[Blood Pact]} && !${Me.Buff[Blood Pact].ID} && ${Target.PctHPs}>1) {
+		/alt act ${Me.AltAbility[Blood Pact].ID}
+		/delay 5
+	}
+	/if (${Me.CombatAbilityReady[${Spell[Sapping Strikes].RankName}]} && ${Target.PctHPs}>1 && ${Me.PctEndurance}<90) {
+		/disc ${Spell[Sapping Strikes].RankName}
+		/delay 5
+	}	
+	/if (${Me.CombatAbilityReady[${RageStrike}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
+		/Disc ${RageStrike}
+		/delay 5
+	}
+	/if (${Me.CombatAbilityReady[${SharedBuff}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${SharedBuffName}].ID} && ${Target.Aggressive}) {
+		/Disc ${SharedBuff}
+		/delay 5
+	}	
+	/if (${Me.CombatAbilityReady[${FrenzyBoost}]} && !${Me.Buff[${FrenzyBoostBuff}].ID}) {
+		/if (${Me.PctHPs}>80) {
+			/alt act 752
+			/delay 5
+		}
+		/Disc ${FrenzyBoost}
+		/delay 5
+	}
+	/if (${Target.AggroHolder.ID}==${Me.ID} && ${Me.PctAggro}>90 && (${Target.PctHPs}>20 || ${Target.Named}) && ${Target.Level}>=105 && ${Me.AltAbilityReady[Uncanny Resilience]}) {
+			/echo Looks like I'm Tanking, GL!
+			/alt act ${Me.AltAbility[Uncanny Resilience].ID}
+			/delay 5
+	}
+	/if (${Me.AltAbilityReady[Savage Spirit]} && ${Me.Combat} && ${Target.PctHPs}<99 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
+		/alt act ${Me.AltAbility[Savage Spirit].ID}
+		/delay 5
+	}
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && ${Me.Buff[Savage Spirit].ID}) {
+		/if (${Me.ActiveDisc.ID}) /stopdisc
+		/delay 5
+		/disc ${PrimaryBurnDisc}
+		/delay 5
+	}
+	/if ((${Me.XTarget}>1 || ${Me.Buff[Savage Spirit].ID}) && ${Me.AltAbilityReady[Fundament: Second Spire of Savagery]} && ${Target.PctHPs}>40 && ${Me.Combat} && ${Target.PctHPs}<99) {
+		/alt act ${Me.AltAbility[Fundament: Second Spire of Savagery].ID}
+		/delay 5
+	}
+	/if (${Me.AltAbilityReady[Blinding Fury]} && ${Me.Buff[Savage Spirit].ID}) {
+		/alt act ${Me.AltAbility[Blinding Fury].ID}
+		/delay 5
+	}
+	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Untamed Rage]} && !${Me.Song[Quick Time V].ID}) {
+		/alt act ${Me.AltAbility[Untamed Rage].ID}
+		/delay 5
+	}	
+	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Silent Strikes]}) {
+		/alt act ${Me.AltAbility[Silent Strikes].ID}
+		/delay 5
+	}	
+	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Focused Furious Rampage]} && !${UseAoE}) {
+		/alt act ${Me.AltAbility[Focused Furious Rampage].ID}
+		/delay 5
+	}
+	/if (${Me.AltAbilityReady[Furious Rampage]} && ${UseAoE} && ${Me.XTarget}>1) {
+		/alt act ${Me.AltAbility[Furious Rampage].ID}
+		/delay 5
+	}	
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && ${Me.ActiveDisc.ID}!=${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID}!=${FlurryDiscID} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
+		/if (${Me.ActiveDisc.ID}) /stopdisc
+		/delay 5
+		/disc ${CleavingDisc}
+		/delay 5
+	}
+	/if (${Me.AltAbilityReady[Reckless Abandon]} && ${Me.ActiveDisc.ID}==${CleavingDiscID}) {
+		/alt act ${Me.AltAbility[Reckless Abandon].ID}
+		/delay 5
+	}	
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${Spell[${FlurryDisc}].RankName}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && !${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.ActiveDisc.ID}!=${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID}!=${CleavingDiscID} &&(${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
+		/if (${Me.ActiveDisc.ID}) /stopdisc
+		/delay 5
+		/disc ${FlurryDisc}
+		/delay 5
+	}
+	/if ((${Me.XTarget}>1 || ${Me.ActiveDisc.ID}==${FlurryDiscID}) && ${Me.AltAbilityReady[Vehement Rage]} && ${Me.Combat} && ${Target.PctHPs}>20 && ${Target.PctHPs}<99) {
+		/alt act ${Me.AltAbility[Vehement Rage].ID}
+		/delay 5
+	}	
+	/if (${Me.CombatAbilityReady[${HHEBuff}]} && ${Me.Combat} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${PrimaryBurnDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
+		/disc ${HHEBuff}
+		/delay 5
+	}	
+	/if (${Cast.Ready[${epicaxe}]} && ${Target.PctHPs}>1 && ${Me.ActiveDisc.ID}!=${DisconDiscID} && ${UseEpic}) { 
+		/useitem "${epicaxe}"
+		/delay 10
+	}
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${DisconDisc}]} && ${Target.PctHPs}>1 && !${Me.ActiveDisc.ID} && !${Me.Song[Strike of Savagery].ID}) {
+		/disc ${DisconDisc}
+		/delay 10
+	}
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${ResolveDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.ActiveDisc.ID} && (${ReturnToCamp}==1 || (${BurnAlways} && ${ChaseAssist}==0))) {
+		/if (${Me.PctHPs}>80) {
+			/alt act ${Me.AltAbility[Bloodfury].ID}
+			/delay 5
+		}
+		/disc ${ResolveDisc}
+		/delay 5
+	}
+	/if ((${Me.XTarget}>1 || ${Me.ActiveDisc.ID}==${ResolveDiscID}) && ${Me.AltAbilityReady[Juggernaut Surge]} && ${Me.Combat} && ${Target.PctHPs}>20 && ${Target.PctHPs}<99) {
+		/alt act ${Me.AltAbility[Juggernaut Surge].ID}
+		/delay 5
+	}
+ /return
+|----------------------------------------------------------------------------
+|- SUB: Combatdps
+|---------------------------------------------------------------------------- 
+Sub Combatdps	
+	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Demolisher's Alliance Trigger].ID} && ${UseAlliance} && (${ZerkerCount}>=3 || ${ForceAlliance})) {
+		/Disc ${Alliance}
+		/delay 5
+	}
+	/if (${FindItem[${ChestItemName}].ID} && ${ChestCombatCast} && ${Cast.Ready[${ChestItemName}]}) {
+		/useitem "${ChestItemName}"
+		/delay 10	
+	}
+	/if (${UseAoE}) {
+		/if (${Me.AltAbilityReady[Rampage]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
+			/alt act ${Me.AltAbility[Rampage].ID}
+			/delay 5
+		}
+	}
+	/if (${Me.CombatAbilityReady[${AEVicious}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 25 zradius 15 targetable playerstate 4]}<2) {
+		/Disc ${AEVicious}
+		/delay 5
+	}
+	/if (${Me.CombatAbilityReady[${AESlice}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 40 zradius 15 targetable playerstate 4]}<2) {
+		/Disc ${AESlice}
+		/delay 5
+	}
+	/if (!${Target.Buff[Sarnak Finesse].ID} && ${Target.Type.Equal[npc]} && ${Me.Combat} && ${Me.AltAbilityReady[War Cry of the Braxi]} && ${Me.CombatAbilityReady[${DichoSpell}]}) {
+		/alt act 1013
+		/delay 5
+		/doability "${DichoSpell}"
+	}	
+	/if (${Me.AltAbilityReady[Binding Axe]} && ${Target.PctHPs}>1 && ${Me.Combat}) {
+		/alt act 642
+		/delay 5
+	}	
+	/if (${Me.AbilityReady[Frenzy]} && ${Me.Combat}) {
+		/doability Frenzy
+		/delay 5
+	}	
+	/if (${Me.CombatAbilityReady[${Dfrenzy}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
+		/Disc ${Dfrenzy}
+		/delay 5
+	}	
+	/if (${Me.CombatAbilityReady[${Dvolley}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
+		/Disc ${Dvolley}
+		/delay 5
+	}
+	/if (${Me.CombatAbilityReady[${Daxethrow}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
+		/Disc ${Daxethrow}
+		/delay 5
+	}
+	/if (${Me.CombatAbilityReady[${Daxeof}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
+		/Disc ${Daxeof}
+		/delay 5
+	}
+	/if (${Me.CombatAbilityReady[${Phantom}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>50 && ${Me.Combat} && ${UsePet}) {
+		/Disc ${Phantom}
+		/delay 5
+	}
+	/if (${Me.AbilityReady[Intimidation]} && ${Me.Combat} && ${UseIntimidate}) {
+		/doability Intimidation
+		/delay 5
+	}
+ /return
+|----------------------------------------------------------------------------
+|- SUB: DowntimeDiscs
+|---------------------------------------------------------------------------- 
+Sub DowntimeDiscs
+	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
+		/alt act ${Me.AltAbility[Communion of Blood].ID}
+		/delay 5
+	}	
+	/if (${Me.PctEndurance}<21 && ${Me.Endurance}>313 && ${Me.CombatAbilityReady[${endregen}]} && !${Me.CombatState.Equal[combat]} && !${Me.Invis}) {
+		/disc ${endregen}
+		/delay 5
+	}
+	/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Moving} && !${Me.Invis} && ${Me.State.NotEqual[FEIGN]} && ${Me.CombatAbility[${Spell[${beraura}].RankName}]}&& ${Me.PctEndurance}>10 && ${DoBuffs}) {
+		/disc ${beraura}
+		/delay 8s
+	}
+	/if (${FindItemCount[${AutoAxeName}]}<${AutoAxeMin} && ${AutoAxe} && ${AutoAxeCount}>0) {
+		:axecast
+		/if (${Cursor.ID}) /autoinventory
+		/if (${Me.Combat}) /return
+		/if (${FindItemCount[${AutoAxeComponents}]} && !${Me.Casting.ID} && !${Cursor.ID} && ${Me.CombatAbilityReady[${AutoAxeName}]}) {
+			/disc ${AutoAxeName}
+			/delay 8s
+			/if (${Cursor.ID}) /autoinventory
+		} else /if (!${FindItemCount[${AutoAxeComponents}]}) {
+			/echo \ar OUT OF AXE COMPONENTS \aw - Turning \ar OFF \aw Auto Axe
+			/multiline ; /beep ; /timed 1 /beep ; /timed 1 /beep
+			/varset AutoAxe 0
+		}
+		/if (${AutoAxe} && ${FindItemCount[${AutoAxeName}]}<${AutoAxeCount}) /goto :axecast
+		/if (${Cursor.ID}) /autoinventory
+	}
+	/if (${FindItemCount[${AutoAxe2Name}]}<${AutoAxe2Min} && ${AutoAxe2} && ${AutoAxe2Count}>0) {
+		:axe2cast
+		/if (${Cursor.ID}) /autoinventory
+		/if (${Me.Combat}) /return
+		/if (${FindItemCount[${AutoAxe2Components}]} && !${Me.Casting.ID} && !${Cursor.ID} && ${Me.CombatAbilityReady[${AutoAxe2Name}]}) {
+			/disc ${AutoAxe2Name}
+			/delay 8s
+			/if (${Cursor.ID}) /autoinventory
+		} else /if (!${FindItemCount[${AutoAxe2Components}]}) {
+			/echo \ar OUT OF AXE COMPONENTS \aw - Turning \ar OFF \aw Auto Axe 2
+			/multiline ; /beep ; /timed 1 /beep ; /timed 1 /beep
+			/varset AutoAxe2 0
+		}
+		/if (${AutoAxe2} && ${FindItemCount[${AutoAxe2Name}]}<${AutoAxe2Count}) /goto :axe2cast
+		/if (${Cursor.ID}) /autoinventory
+	}
+	/if (${UsePoisons} && ${FindItem[${PoisonName}].ID} && ${Cast.Ready[${PoisonName}]} && !${Me.Buff[${PoisonBuffName}].ID}) {
+		/useitem "${PoisonName}"
+		/delay 50
+	} else /if (${UsePoisons} && !${FindItem[${PoisonName}].ID}) {
+		/echo \aw No Poison Found in Inventory - \ar Disabling
+		/varset UsePoisons 0
+		/varset changetoini 1
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: AllianceCheck - check for other zerkers in group
+|---------------------------------------------------------------------------- 
+Sub AllianceCheck
+	/if (${UseAlliance}) {
+		/echo \aw Alliance Use is \ag on \aw, checking for other Berserkers!
+		/declare Gsize int local 0
+		/declare i int local
+		/varcalc Gsize ${Group.GroupSize}-1
+		/varset ZerkerCount 1
+		/for i 1 to ${Gsize}
+			/if (${Group.Member[${i}].Class.ShortName.Equal[BER]}) {
+				/varcalc ZerkerCount ${ZerkerCount}+1
+			}
+		/next i
+		/if (${ZerkerCount}>=3) {
+			/echo \aw Woot! \ag ${ZerkerCount} \aw Zerkers found
+			/echo \aw Shits about to blow up!
+		} else /if (${ZerkerCount}<3) {
+			/echo \aw Sorry only \ag ${ZerkerCount} \aw Zerker(s) found :(
+			/echo \aw No Alliance for joo!
+		}
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
+Sub Event_NotOnTarget
+	/if ((${Me.Rooted.ID} || ${Me.ActiveDisc.ID}==30436) && ${Me.AltAbilityReady[Drawn to Blood]} && ${Me.Combat}) {
+		/alt act ${Me.AltAbility[Drawn to Blood].ID}
+	} else /if (${DoAutoEngage}) {
+		/squelch /attack off
+		/if (${DoAutoTarget}) /call FindTarget
+		/delay 5
+		/if (${Target.Distance}<${AssistRange}) /call EngageTarget
+	}
+	/doevents flush NotOnTarget
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event GroupChange
+|----------------------------------------------------------------------------
+Sub Event_GroupChange
+	/if (${UseAlliance}) {
+		/call AllianceCheck
+	}
+/return 

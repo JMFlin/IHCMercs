@@ -1,0 +1,18 @@
+Installation:
+Unzip into your macro's folder, this will add ihcinstall.mac and create a new folder named IHCMercs. The IHCMercs directory is where all your characters ini files will be created, there will also be a manuals folder giving an explanation of each classes ini setting and what they do.
+
+Use:
+*first time use* 
+type /mac ihcinstall and wait for the pop up message.
+
+Check the ini file and make any adjustments you might want to make, most have an out of the box config to preform their general role, ex: IHCENC is going to do full debuffing tash, slow, cripple, strip buffs...this might be a waste of time for your group or content, if mobs are dead before they are slowed or crippled...turn it off!
+After the initial load and adjustments
+ **target your main assist/tank
+type /ihcstart on each char or all at once using bc....ex: /bcga //ihstart will start the mac on all supported classes.
+*** Use the above command as written....NOT /mac ihcstart***
+
+**Main assist must make sense, it is enforced by certain mac's....ex: the enchanter cant be MA because some of the roles like CC...if the ench is the MA and goes to CC a target everyone would jump on it!
+
+*UPGRADE ONLY*
+Backup then delete your old INI's
+A lot of settings are the same, transfer them over, some have changed names or are new, please refer to the documentation.

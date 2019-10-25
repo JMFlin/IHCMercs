@@ -1,0 +1,479 @@
+|- IHCENC.mac - By IHC385
+|- Automatic Enchanter bot - 
+|- Version 2.0
+|- Updated: 4/25/2019
+|- Credit: Noobhax0r, Maskoi, Ctaylor, Treehuggindruid, Devstator. A lot of ideas were borrowed and modified from their macros
+#turbo 80
+#include IHCMercs\ihcsubs.inc
+#include IHCMercs\ihcenchmez.inc
+|-#include IHCMercs\ihcxtenchmez.inc
+#include IHCMercs\ihcenchutil.inc
+#include IHCMercs\ihcevents.inc
+#warning
+#Chat group
+#Chat tell
+#Chat raid
+#Event MezBroke          "#1# has been awakened by #2#."
+#Event WornOff      "Your #1# spell has worn off of #*#."
+#bind SetVarInt			/setvarint
+#bind CmdList			/ihchelp
+#bind SingleBanish		/banish
+#bind AEBanish			/aebanish
+Sub Main
+	/delay ${Math.Rand[3]}
+	/doevents flush
+	/declare MacroName       		string outer IHCENC
+	/declare MacroPath       		string outer IHCMercs\IHCENC
+	/declare IHCVersion       		string outer 2.0
+	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini	
+
+	/call EnchSetup
+	/call VarSetup
+	/call AliasSetup
+	/call SetEncSpells
+	/call SetControlToon
+	/call LoadSpellBar
+	/call CheckOptions
+	/call WelcomeMsg
+	/if (${assistid}==${Me.ID}) {
+		/echo \aw I am Main Assist
+	} else {
+		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
+	}
+	/if (${UseZoneLogic}) {
+		/call ZoneEventChk
+	}
+ :mainloop
+  	/if (${changetoini}==1) /call INIChanges
+	/if (${Me.Zoning}) /call Zoning
+	/if (${Me.Hovering}) /call DeathSub
+	/if (${Cursor.ID}) /call BagModRods
+	/call IDUpdateCheck
+	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call IllusionCheck
+	/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
+	/if (${UseCharmPet} && !${BackOffFlag} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
+	/if (((${Me.XTarget[1].ID} || ${KillTargetID}) || (${MezMobCount} && ${Me.GroupAssistTarget.ID}) || ${FollowMarkTarget}) && (!${MezWait}) && !${BackOffFlag} && (${Target.ID}!=${Me.GroupAssistTarget.ID}) && ${DoAutoTarget}) /call FindTarget
+	/if (((${Me.XTarget[1].ID} || ${KillTargetID}) || (${MezMobCount} && ${Me.GroupAssistTarget.ID}==${autotargetid})) && (!${MezWait}) && !${BackOffFlag} && (${Target.ID}==${autotargetid}) && ${DoAutoEngage}) /call EngageTarget
+	/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
+	/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && !${BackOffFlag} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt} && ${Ok2Assist} && ${DeBuffTimer}==0) /call DebuffMobs
+	/if (${Me.XTarget[1].ID} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && !${BackOffFlag}) /call AANDisc
+	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.ID}==${autotargetid} && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${DoDPS} && (!${MezWait}) && (${DPSRecastTimer}==0) && !${BackOffFlag} && ${Ok2Assist}) /call Combatdps
+	/if (${Me.PctMana}<=70) /call CheckMana
+	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${DoBuffs}) /call BuffCheck
+	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
+	/if (${Spawn[=${FollowToonName}].ID} && !${MoveTo.Moving} && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID} || ${Spawn[id ${assistid}].Distance}>${AssistRange} || (!${Spawn[id ${assistid}].LineOfSight}))) /call FollowToon
+	/if (${Spawn[=${FollowToonName}].ID} && (${Me.Casting.ID} || ${Me.XTarget[1].ID}) && ${AdvPath.Following}) /squelch /afollow off
+	/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call AutoCampCheck
+	/if (${UseModRods}) /call ClickModRoD
+	/if (${DoMed}) /call AutoMed
+	/if (${UseZoneLogic} && ${EventSetupFlag}) {
+		/call EventLogic${EventSetupFlag}
+	}
+	/if (((!${Spawn[targetable id ${KillTargetID}].ID}) || ${Spawn[corpse id ${KillTargetID}].ID}) && ${KillTargetID}!=0) {
+		/varset KillTargetID 0
+		/varset SpawnSearchType npc
+		/varset autotargetid 0
+	}
+|	/if (${Me.Pet.Combat} && !${Ok2Assist}) {
+|		/pet back off
+|	}
+	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+	/doevents
+ /goto :mainloop   
+/return
+|----------------------------------------------------------------------------
+|- SUB: DebuffMobs
+|---------------------------------------------------------------------------- 
+Sub DebuffMobs
+	/declare x int local 0
+
+	/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+		/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
+			/alt act ${Me.AltAbility[${StripBuffSpell}].ID}
+			/delay 10 ${Window[CastingWindow].Open}
+			/delay 10 !${Me.Casting.ID}
+		} else /if (${Me.SpellReady[${StripBuffSpell}]}) {
+			/call CastSpell "${StripBuffSpell}" ${autotargetid} dbf
+		}
+	}
+	/if (${DoBlurr} && ${Me.PctAggro}>=${BlurrAggroPct}) /call ManageAggro "BlrFlg"
+
+	/for x 1 to ${Me.XTarget}
+
+		/target id ${Me.XTarget[${x}].ID}
+
+		/if (!${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+
+			/if (${DoTash} && ${Me.SpellReady[${TashSpell}]} && !${Target.Tashed.ID} && ${Cast.Status.Equal[I]} && ${Me.CurrentMana}>${Spell[${TashSpell}].Mana}) {
+				/call CastSpell "${TashSpell}" ${Target.ID} dbf
+				/delay 16
+			}
+			/if (${DoSlow} && !${Target.Slowed.ID} && !${Me.Casting.ID}) {
+				/if (${Me.AltAbilityReady[Dreary Deeds]} && !${DoCripple}) {
+					/alt act ${Me.AltAbility[Dreary Deeds].ID}
+					/delay 10 ${Window[CastingWindow].Open}
+					/delay 10 !${Me.Casting.ID}
+				} else /if (${Me.SpellReady[${SlowSpell}]}) {
+					/call CastSpell "${SlowSpell}" ${Target.ID} dbf
+				}
+			}
+			/if (${DoCripple} && ${Me.SpellReady[${CrippleSpell1}]} && !${Target.Crippled.ID} && !${Me.Casting.ID}) {
+				/call CastSpell "${CrippleSpell1}" ${Target.ID} dbf
+			}
+			/if (${DoBlurr} && ${Me.PctAggro}>=${BlurrAggroPct}) /call ManageAggro "BlrFlg"
+		}
+	/next x
+	/varset groupbufftimer 1m
+	/varset DeBuffTimer 1s
+/return
+|----------------------------------------------------------------------------
+|- SUB: AANDisc
+|---------------------------------------------------------------------------- 
+Sub AANDisc
+|-Defensive AA's for Name Mobs or Low HP on MA
+	/if (${Me.AltAbilityReady[Glyphy Spray]} && ((${Target.Named} && ${Target.Level}>${Me.Level}) || ${Target.Level}>(${Me.Level}+3) || (${Group.Member[${assistname}]${TnKCond}PctHPs}<45 && ${Group.Member[${assistname}]${TnKCond}PctHPs}>5))) {
+		/alt act ${Me.AltAbility[Glyphy Spray].ID}
+		/delay 10
+	}
+	/if (${Me.AltAbilityReady[Reactive Rune]} && ((${Target.Named} && ${Target.Level}>${Me.Level}) || ${Target.Level}>(${Me.Level}+3) || (${Group.Member[${assistname}]${TnKCond}PctHPs}<45 && ${Group.Member[${assistname}]${TnKCond}PctHPs}>5))) {
+		/alt act ${Me.AltAbility[Reactive Rune].ID}
+		/delay 10
+	}
+|-Constant Use AA's
+	/if (${Me.AltAbilityReady[Focus of Arcanum]}) {
+		/alt act ${Me.AltAbility[Focus of Arcanum].ID}
+		/delay 10
+	} else /if (${Me.AltAbilityReady[Chromatic Haze]} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
+		/alt act ${Me.AltAbility[Chromatic Haze].ID}
+		/delay 10
+	}
+	/varset groupbufftimer 1m
+/return
+|----------------------------------------------------------------------------
+|- SUB: Combatdps ${PetAssistTimer}==0 && /varset PetAssistTimer 5s
+|---------------------------------------------------------------------------- 
+Sub Combatdps
+	/if ((${UsePet} || ${UseCharmPet}) && ${Me.Pet.ID} && (!${Me.Pet.Combat} || ${Pet.Target.ID}!=${autotargetid}) && ${Target.ID}) {
+		/squelch /pet attack
+		/delay 5
+	}
+	/if (${Me.AltAbilityReady[Crippling Aurora]} && ${Me.XTarget}>2 && !${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+		/call AANow ${Me.AltAbility[Crippling Aurora].ID} ${Target.ID}
+		/delay 2s
+	}
+	/if (${UseDicho} && ${Me.SpellReady[${DichoSpell}]} && ((${Me.XTarget}>=${BurnMobCount} && ${Me.PctMana}>30) || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && !${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+			/call CastSpell "${DichoSpell}" ${Target.ID} dps
+			/if (${CastResult.Equal[CAST_SUCCESS]}) /delay 16
+	}
+	/if ((${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.AltAbilityReady[Calculated Insanity]} || ${Me.AltAbilityReady[Improved Twincast]}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+		/call BurnRoutine
+	}
+	
+	/if (!${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.ID}) {
+		/if (!${UseDoTs}) {
+			/if (${Target.Level}>=${Me.Level}) {
+				/varset FastNukePct 30
+			} else /if (${Target.Level}<${Me.Level} && ${Target.Level}>${Math.Calc[${Me.Level}-2].Int}) {
+				/varset FastNukePct 60
+			} else {
+				/varset FastNukePct 99
+			}
+		}
+		/if (!${UseDoTs} && (${Target.PctHPs}<=${FastNukePct} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${Me.Gem[${NukeSpell3}]} && ${Cast.Status.Equal[I]} && (${Me.SpellReady[${NukeSpell3}]}) && ${Me.CurrentMana}>${Spell[${NukeSpell3}].Mana}) {
+				/call CastSpell "${NukeSpell3}" ${autotargetid} dps
+		} else /if (!${UseDoTs} && (${Target.PctHPs}<=${FastNukePct} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${Me.Gem[${NukeSpell4}]} && ${Cast.Status.Equal[I]} && (${Me.SpellReady[${NukeSpell4}]}) && ${Me.CurrentMana}>${Spell[${NukeSpell4}].Mana}) {
+				/call CastSpell "${NukeSpell4}" ${autotargetid} dps
+		} else /if (${Me.Gem[${DoTSpell1}]} && ${Cast.Status.Equal[I]} && !${Me.Buff[Improved Twincast].ID} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow} || ${UseDoTs}) && (${Me.SpellReady[${DoTSpell1}]}) && ${Me.CurrentMana}>${Spell[${DoTSpell1}].Mana} && (!${Target.Buff[${DoTSpell1}].ID}) && ${Target.PctHPs}>40) {
+				/call CastSpell "${DoTSpell1}" ${autotargetid} dps
+		} else /if (${Me.Gem[${DoTSpell2}]} && ${Cast.Status.Equal[I]} && !${Me.Buff[Improved Twincast].ID} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow} || ${UseDoTs}) && (${Me.SpellReady[${DoTSpell2}]}) && ${Me.CurrentMana}>${Spell[${DoTSpell2}].Mana} && (!${Target.Buff[${DoTSpell2}].ID}) && ${Target.PctHPs}>40) {
+				/call CastSpell "${DoTSpell2}" ${autotargetid} dps
+		} else /if (${Me.Gem[${DoTSpell3}]} && ${Cast.Status.Equal[I]} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow} || ${UseDoTs}) && (${Me.SpellReady[${DoTSpell3}]}) && ${Me.CurrentMana}>${Spell[${DoTSpell3}].Mana} && (!${Target.Buff[${DoTSpell3}].ID}) && ${Target.PctHPs}>40) {
+				/call CastSpell "${DoTSpell3}" ${autotargetid} dps
+		} else /if (${Cast.Status.Equal[I]} && (${Me.SpellReady[${NukeSpell1}]}) && ${Me.CurrentMana}>${Spell[${NukeSpell1}].Mana}) {
+				/call CastSpell "${NukeSpell1}" ${autotargetid} dps
+		} else /if (${Cast.Status.Equal[I]} && (${Me.SpellReady[${NukeSpell2}]}) && ${Me.CurrentMana}>${Spell[${NukeSpell2}].Mana}) {
+				/call CastSpell "${NukeSpell2}" ${autotargetid} dps
+		}
+		/if (${CastResult.Equal[CAST_SUCCESS]} || ${CastResult.Equal[CAST_RESIST]}) /varset DPSRecastTimer 16
+	}
+	/varset groupbufftimer 1m
+/return
+|----------------------------------------------------------------------------
+|- SUB: BurnRoutine
+|---------------------------------------------------------------------------- 
+Sub BurnRoutine
+	/if (${Me.AltAbilityReady[Illusions of Grandeur]}) {
+		/alt act ${Me.AltAbility[Illusions of Grandeur].ID}
+		/delay 10
+	}
+	/if (${Me.AltAbilityReady[Fundament: Third Spire of Enchantment]}) {
+		/alt act ${Me.AltAbility[Fundament: Third Spire of Enchantment].ID}
+		/delay 10
+	} 
+	/if (${Me.AltAbilityReady[Improved Twincast]}) {
+		/alt act ${Me.AltAbility[Improved Twincast].ID}
+		/delay 10
+	}
+	/if (${Me.AltAbilityReady[Forceful Rejuvenation]} && ${Me.Buff[Improved Twincast].ID}) {
+		/if (${Me.SpellReady[${NukeSpell1}]} && ${Cast.Status.Equal[I]} && ${Me.CurrentMana}>${Spell[${NukeSpell1}].Mana} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+			/call CastSpell "${NukeSpell1}" ${Target.ID} brn
+			/delay 16
+		}
+		/if (${Me.AltAbilityReady[Calculated Insanity]} && (!${Me.Casting.ID}) && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+			/alt act ${Me.AltAbility[Calculated Insanity].ID}
+			/delay 10 ${Window[CastingWindow].Open}
+			/delay 20 !${Window[CastingWindow].Open}
+		}
+		/if (${Me.SpellReady[${NukeSpell2}]} && ${Cast.Status.Equal[I]} && ${Me.CurrentMana}>${Spell[${NukeSpell2}].Mana} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+			/call CastSpell "${NukeSpell2}" ${Target.ID} brn
+			/delay 16
+		}
+		/alt act ${Me.AltAbility[Forceful Rejuvenation].ID}
+		/delay 10 !${Me.Casting.ID}
+		/if (${Me.SpellReady[${NukeSpell1}]} && ${Cast.Status.Equal[I]} && ${Me.CurrentMana}>${Spell[${NukeSpell1}].Mana} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+			/call CastSpell "${NukeSpell1}" ${Target.ID} brn
+			/delay 16
+		}
+		/if (${Me.SpellReady[${NukeSpell2}]} && ${Cast.Status.Equal[I]} && ${Me.CurrentMana}>${Spell[${NukeSpell2}].Mana} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+			/call CastSpell "${NukeSpell2}" ${Target.ID} brn
+			/delay 16
+		}	
+	} else /if (${Me.AltAbilityReady[Calculated Insanity]}) {
+		/alt act ${Me.AltAbility[Calculated Insanity].ID}
+		/delay 10
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: BuffCheck
+|---------------------------------------------------------------------------- 
+Sub BuffCheck
+	/if (!${Me.Buff[${SelfHPBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfHPBuff}].Stacks}) && ${Me.Book[${SelfHPBuff}]} && ${Me.CurrentMana}>${Spell[${SelfHPBuff}].Mana}) {
+				/call SpellQueue "${SelfHPBuff}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[${GroupMana}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupMana}].Stacks}) && ${Me.Book[${GroupMana}]} && ${Me.CurrentMana}>${Spell[${GroupMana}].Mana}) {
+				/call SpellQueue "${GroupMana}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[${GroupHaste}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupHaste}].Stacks}) && ${Me.Book[${GroupHaste}]} && ${Me.CurrentMana}>${Spell[${GroupHaste}].Mana}) {
+				/call SpellQueue "${GroupHaste}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[${MezBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${MezBuff}].Stacks}) && ${Me.Book[${MezBuff}]} && ${Me.CurrentMana}>${Spell[${MezBuff}].Mana}) {
+				/call SpellQueue "${MezBuff}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[Eldritch Rune].ID} && !${Me.Buff[${SelfRune1}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfRune1}].Stacks}) && ${Me.Book[${SelfRune1}]} && ${Me.CurrentMana}>${Spell[${SelfRune1}].Mana}) {
+				/call SpellQueue "${SelfRune1}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[${SelfRune2}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfRune2}].Stacks}) && ${Me.Book[${SelfRune2}]} && ${Me.CurrentMana}>${Spell[${SelfRune2}].Mana}) {
+				/call SpellQueue "${SelfRune2}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[${GroupSpellShield}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupSpellShield}].Stacks}) && ${Me.Book[${GroupSpellShield}]} && ${Me.CurrentMana}>${Spell[${GroupSpellShield}].Mana} && ${UseSpellRune}) {
+				/call SpellQueue "${GroupSpellShield}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[${GroupDoTShield}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupDoTShield}].Stacks}) && ${Me.Book[${GroupDoTShield}]} && ${Me.CurrentMana}>${Spell[${GroupDoTShield}].Mana} && ${UseDoTRune}) {
+				/call SpellQueue "${GroupDoTShield}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[${GroupAuspiceBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupAuspiceBuff}].Stacks}) && ${Me.Book[${GroupAuspiceBuff}]} && ${Me.CurrentMana}>${Spell[${GroupAuspiceBuff}].Mana} && ${UseAuspice}) {
+				/call SpellQueue "${GroupAuspiceBuff}" ${Me.ID}
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Buff[Veil of Mindshadow].ID} && ${Cast.Status.Equal[I]} && (${Spell[Veil of Mindshadow].Stacks}) && ${Me.AltAbilityReady[Veil of Mindshadow]}) {
+				/alt act 791
+				/delay 5
+				/varset spellrememtimer 5s 
+	} else /if (${Bool[${AuraBuff1}]} && ${Cast.Status.Equal[I]} && (${AuraRecastDelay}==0) && !${Me.Aura[1].Name.Find[${AuraBuff1Name}]} && !${Me.Aura[2].Name.Find[${AuraBuff1Name}]} && ${Me.Book[${AuraBuff1}]} && ${Me.CurrentMana}>${Spell[${AuraBuff1}].Mana}) {
+				/varset AuraRecastDelay 10s
+				/call SpellQueue "${AuraBuff1}" ${Me.ID}
+				/varset spellrememtimer 5s 
+				/delay 5
+	} else /if (${Bool[${MeleeAura}]} && ${Cast.Status.Equal[I]} && (${AuraRecastDelay}==0) && !${Me.Aura[1].Name.Find[${MeleeAuraName}]} && !${Me.Aura[2].Name.Find[${MeleeAuraName}]} && ${Me.Book[${MeleeAura}]} && ${Me.CurrentMana}>${Spell[${MeleeAura}].Mana}) {
+				/varset AuraRecastDelay 10s
+				/call SpellQueue "${MeleeAura}" ${Me.ID}
+				/varset spellrememtimer 5s 
+				/delay 5
+	} else /if (${UsePet} && !${UseCharmPet} && !${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetSpell}]} && ${Me.CurrentMana}>${Spell[${PetSpell}].Mana}) {
+				/call SpellQueue "${PetSpell}" ${Me.ID}
+				/varset spellrememtimer 15s 
+				/delay 5
+	} else /if (${UsePet} && !${UseCharmPet} && ${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetBuffSpell}]} && ${Me.CurrentMana}>${Spell[${PetBuffSpell}].Mana} && !${Me.Pet.Buff[${PetBuffSpell}]}) {
+				/call SpellQueue "${PetBuffSpell}" ${Me.Pet.ID}
+				/varset spellrememtimer 5s 
+	} else /if (${Me.PctMana}>90 && !${FindItem[Azure Mind Crystal].ID} && !${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.AltAbilityReady[Azure Mind Crystal]}) {
+				/alt act ${Me.AltAbility[Azure Mind Crystal].ID}
+				/delay 20s !${Me.Casting.ID}
+				/delay 2s ${Cursor.Name.Equal[Azure Mind Crystal]}
+				/autoinventory
+				/delay 2s
+				/varset spellrememtimer 5s 
+	} else /if (!${Me.Gem[${spellmisc}].Name.Equal[${miscspellremem}]} && ${spellrememtimer}==0 && ${miscspellremem.NotEqual[NULL]}) {
+				/call LoadSpellGem "${miscspellremem}" ${spellmisc}
+				/varset spellrememtimer 5s 
+	}
+	/if (${Group.MainAssist.ID} && ${ReTargetDelay}==0 && ${Target.ID}!=${Group.MainAssist.ID}) {
+		/target id ${Group.MainAssist.ID}
+		/varset ReTargetDelay 1m
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: BuffGroup && ${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower}]}
+|---------------------------------------------------------------------------- 
+Sub BuffGroup
+	/declare bmember			int local 0
+	/varset acverbose 1
+	/if (${groupbufftimer}==0) /varset groupbufftimer 10s
+	/for bmember 0 to ${Group}
+		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID})) {
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupHaste}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupHaste}].Stacks" "tmpstackcheck" "bool"
+			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${GroupHaste}]}  && ${Me.CurrentMana}>${Spell[${GroupHaste}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
+				/call SpellQueue "${GroupHaste}" ${Group.Member[${bmember}].ID}
+				/varset spellrememtimer 5s
+				/delay 10
+			}
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupMana}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupMana}].Stacks" "tmpstackcheck" "bool"
+			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${GroupMana}]} && ${Me.CurrentMana}>${Spell[${GroupMana}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+				/call SpellQueue "${GroupMana}" ${Group.Member[${bmember}].ID}
+				/varset spellrememtimer 5s
+				/delay 10
+			}
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${ProcBuff}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${ProcBuff}].Stacks" "tmpstackcheck" "bool"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[Illusion Benefit Greater Jann].ID" "jaanbuffid" "int"
+			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Me.Book[${ProcBuff}]} && ${Me.CurrentMana}>${Spell[${ProcBuff}].Mana} && ${Select[${Group.Member[${bmember}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD,WAR]} && ${DoNDTBuff}) {
+				/call SpellQueue "${ProcBuff}" ${Group.Member[${bmember}].ID}
+				/varset spellrememtimer 5s
+				/delay 10
+			}
+		}
+	/next bmember
+	|- Delete variable's
+	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
+	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
+	/if (${Defined[jaanbuffid]}) /deletevar jaanbuffid
+	/if (${Group.MainAssist.ID} && ${Target.ID}!=${Group.MainAssist.ID}) {
+		/target id ${Group.MainAssist.ID}
+		/if (${ReTargetDelay}==0) /varset ReTargetDelay 1m
+		/if (${autotargetid}) /varset autotargetid 0
+	}
+	/varset acverbose 0
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManageAggro
+|---------------------------------------------------------------------------- 
+Sub ManageAggro(string OptFlag)
+	/if (!${Me.Buff[Eldritch Rune].ID} && !${Me.Buff[${SelfRune1}].ID} && ${Cast.Status.Equal[I]} && (${Spell[Eldritch Rune].Stacks}) && ${Me.AltAbilityReady[Eldritch Rune]}) {
+		/alt act 173
+		/delay 5 
+	}
+	/if (${OptFlag.Equal[BlrFlg]} && ${Me.PctAggro}>=${BlurrAggroPct}) {
+		/if (${DoBlurr} && ${Me.SpellReady[${BlurSpell}]} && (!${Me.Casting.ID}) && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+			/call CastSpell "${BlurSpell}" ${autotargetid} dbf
+		}
+	}
+	/if (${Me.TargetOfTarget.ID}==${Me.ID} && ${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.ID}==${Me.GroupAssistTarget.ID}) {
+		/if (${Me.PctHPs}<=30 && ${Me.AltAbilityReady[Self Stasis]}) {
+			/call AANow ${Me.AltAbility[Self Stasis].ID} ${Target.ID}
+		} else /if (${Me.PctHPs}<=30 && ${Me.AltAbilityReady[Dimensional Instability]}) {
+			/call AANow ${Me.AltAbility[Dimensional Instability].ID} ${Target.ID}
+		} else /if (${Me.PctHPs}<=40 && ${Me.AltAbilityReady[Beguiler's Directed Banishment]}) {
+			/call AANow ${Me.AltAbility[Beguiler's Directed Banishment].ID} ${Target.ID}
+		} else /if (${Me.PctHPs}<=50 && ${Me.AltAbilityReady[Beguiler's Banishment]} && ${SpawnCount[npc radius 20]} > 2) {
+			/call AANow ${Me.AltAbility[Beguiler's Banishment].ID} ${Target.ID}
+		} else /if (${Me.PctHPs}<=60 && ${Me.AltAbilityReady[Doppelganger]}) {
+			/call AANow ${Me.AltAbility[Doppelganger].ID} ${Target.ID}
+		} else /if (${Me.PctHPs}<=60 && ${Me.AltAbilityReady[Phantasmal Opponent]}) {
+			/call AANow ${Me.AltAbility[Phantasmal Opponent].ID} ${Target.ID}
+		} else /if (${Me.PctHPs}<=80 && ${Me.AltAbilityReady[Dimensional Shield]}) {
+			/call AANow ${Me.AltAbility[Dimensional Shield].ID} ${Target.ID}
+		}
+	}
+	/if (${Target.ID}==${Me.GroupAssistTarget.ID} && (${Me.PctAggro}>=90 || ${Me.TargetOfTarget.ID}==${Me.ID})) {
+		/if (${Me.AltAbilityReady[Arcane Whisper]}) {
+			/call AANow ${Me.AltAbility[Arcane Whisper].ID} ${Target.ID}
+		} else /if (${Me.AltAbilityReady[Silent Casting]}) {
+			/call AANow ${Me.AltAbility[Silent Casting].ID} ${Target.ID}
+		}
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: CheckMana
+|---------------------------------------------------------------------------- 
+Sub CheckMana
+	/if (${Me.PctMana}<=55 && ${Me.AltAbilityReady[Gather Mana]}) {
+		/call AANow ${Me.AltAbility[Gather Mana].ID} ${Me.ID}
+	} else /if (${Me.PctMana}<=40 && ${FindItem[Azure Mind Crystal].ID}) {
+		/call ItemNow "Azure Mind Crystal"
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Handle Buff Requests
+|----------------------------------------------------------------------------
+|-Sub Event_Chat(string ChatType,string ChatSender,string ChatText)
+|-	/if (${Spawn[pc ${ChatSender}].ID} && ${ChatType.Equal[tell]}) /mqlog ${ChatSender} -- ${ChatText}
+|-	/if (${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}) {
+|-		/if (${Select[${ChatText},voice,crack,clarity,kei]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<100)) /call SpellQueue "${SingleMana}" ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
+|-		/if (${Select[${ChatText},haste,speed,zing]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<100)) /call SpellQueue "${SingleHaste}" ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
+|-	}
+|-/return
+|----------------------------------------------------------------------------
+|- SUB: Event_WornOff
+|----------------------------------------------------------------------------
+Sub Event_WornOff
+	/varset groupbufftimer 0
+	/doevents flush WornOff
+/return 
+|----------------------------------------------------------------------------
+|- SUB: CharmCheck
+|----------------------------------------------------------------------------
+Sub CharmCheck
+	/declare nArray int local
+	/declare nArray2 int local
+	/if (${CharmDelay}) /return
+	/if (${CharmedID} && !${Spawn[ID ${CharmedID}].ID}) /varset CharmedID 0
+	/if (${OldCharmedID} && !${Spawn[ID ${OldCharmedID}].ID}) /varset OldCharmedID 0
+	
+	/if (${UseCharmPet} && !${Me.Pet.ID} && ${CharmSpell1.NotEqual[NULL]} && ${Me.SpellReady[${CharmSpell1}]}) {
+		/if (${CharmedID} && ${Spawn[${CharmedID}].ID} && ${Spawn[${CharmedID}].Type.Equal[NPC]} && ${Spawn[${CharmedID}].Distance}<${Math.Calc[${Spell[${CharmSpell1}].Range}-25]}) {
+			/squelch /target ID ${CharmedID}
+			/delay 1s ${Target.ID}==${CharmedID}
+		} else /if (${OldCharmedID} && ${Spawn[${OldCharmedID}].ID} && ${Spawn[${OldCharmedID}].Type.Equal[NPC]} && ${Spawn[${OldCharmedID}].Distance}<${Math.Calc[${Spell[${CharmSpell1}].Range}-25]}) {
+			/squelch /target ID ${OldCharmedID}
+			/delay 1s ${Target.ID}==${OldCharmedID}
+		} else {
+			/call MezRadar
+			/if (${MezCheckElements}==0) /return
+			/if (${MezCheckElements}>=${CharmMinMobs}) {
+				/for nArray 1 to ${MezCheckElements}
+					/if (${Defined[CCTarget${nArray}Info]}) {
+						/if (${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].ID} && ${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].ID}!=${Me.GroupAssistTarget.ID} && ${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].Distance}<=${AssistRange} && ${CCTarget${nArray}Info.Arg[2,|]}>=${CharmMinLvl} && ${CCTarget${nArray}Info.Arg[2,|]}<=${CharmMaxLvl}) {
+							/squelch /target ID ${CCTarget${nArray}Info.Arg[1,|]}
+							/varset CharmedID ${CCTarget${nArray}Info.Arg[1,|]}
+						}
+					}
+				/next nArray
+				/delay 1s ${Target.ID}==${CharmedID}
+			}
+		}
+		/if (${Target.ID}==${CharmedID} && ${Target.Type.Equal[NPC]}) {
+			/if (${CharmPreStun} && ${SingleStunSpell1.NotEqual[NULL]} && ${Me.SpellReady[${SingleStunSpell1}]}) {
+				/call CastSpell "${SingleStunSpell1}" ${Target.ID} Charm
+			}
+			/if (${CharmPreTash} && ${TashSpell.NotEqual[NULL]} && ${Me.SpellReady[${TashSpell}]}) {
+				/call CastSpell "${TashSpell}" ${Target.ID} Charm
+			}
+			/call CastSpell "${CharmSpell1}" ${Target.ID} Charm
+			/if (${CastResult.Equal[CAST_SUCCESS]}) {
+				/echo Successfully Charmed ${Me.Pet.CleanName} | ${Me.Pet.ID}
+			} else {
+				/echo Failed to Charm ${Spawn[${CharmedID}].CleanName} | ${CharmedID}
+				/varset OldCharmedID ${CharmedID}
+				/varset CharmedID 0
+			}
+		}
+	} else /if (${MezCheckElements}>0) {
+		/for nArray2 1 to ${MezCheckElements}
+			/if (${Defined[CCTarget${nArray2}Info]}) {
+				/if (${CCTarget${nArray2}Info.Arg[3,|].Find[corpse]} || !${Spawn[${CCTarget${nArray2}Info.Arg[1,|]}].ID} || ${Spawn[${CCTarget${nArray2}Info.Arg[1,|]}].Type.Equal[Corpse]}) /call RemoveCCTarget ${nArray2}
+				/if (${Spawn[${CCTarget${nArray2}Info.Arg[1,|]}].ID}==${Me.Pet.ID}) /call RemoveCCTarget ${nArray2}
+			}
+		/next nArray2
+	}
+/return 
