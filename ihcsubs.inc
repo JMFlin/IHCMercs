@@ -123,6 +123,7 @@ Sub VarSetup
 
 |- Modes
 	/declare Mode 				int outer 0
+	/declare PreviousMode 		int outer 0
 
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
@@ -294,6 +295,27 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 	}
 /return
 |----------------------------------------------------------------------------
+|- SUB: ModeSet
+|----------------------------------------------------------------------------
+Sub ModeSet
+	/if (${PreviousMode}!=${Mode}) {
+ 		/docommand /dgt \ag Previous mode ${PreviousMode} \ar Current mode ${Mode}
+		/varset PreviousMode ${Mode}
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: MakeCamp
+|----------------------------------------------------------------------------
+Sub MakeCamp
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/delay 5
+	/varset PullAutoCampY ${Me.Y}
+	/varset PullAutoCampX ${Me.X}
+	/varset PullAutoCampZ ${Me.Z}
+	/delay 5
+	/if (${Navigation.Active}) /nav stop
+/return
+|----------------------------------------------------------------------------
 |- SUB: RemoveTravelBuffs
 |---------------------------------------------------------------------------- 
 Sub RemoveTravelBuffs
@@ -317,10 +339,12 @@ Sub Engage
 	/delay 2
 /return
 |----------------------------------------------------------------------------
-|- SUB: EngageCasters
+|- SUB: CastersEngage
 |---------------------------------------------------------------------------- 
-Sub EngageCasters
+Sub CastersEngage
 	/if (${AdvPath.Following}) /afollow off
+	/if (${Me.Class.ShortName.Find[CLR]}) /target id ${Group.MainTank.ID}
+	/if (${Me.Class.ShortName.Find[SHM]} || ${Me.Class.ShortName.Find[ENC]}) /assist ${Group.MainAssist.Name}
 	/if (${Target.ID}) /face fast
 /return
 |----------------------------------------------------------------------------
@@ -337,22 +361,21 @@ Sub PostCombat
 |- SUB: Travel
 |----------------------------------------------------------------------------
 Sub Travel
-	:travel
 	/if (${Stick.Active}) /stick off
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	/if (${PullAutoCampZ}) /varset PullAutoCampZ 0
 	/attack off
-	/if (!${AdvPath.Following} && ${Group.Leader.ID}!=${Me.ID}) {
-		/afollow spawn ${Group.Leader.ID}
-		/delay 10 ${AdvPath.State}==1
+	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID}!=${Me.ID}) {
+		/target id ${Group.Leader.ID}
+		/delay 5s ${Target.ID}==${Group.Leader.ID}
+		/if (!${Navigation.Active} && ${Target.Distance}>10) /nav id ${Target.ID}
+		/if (${Navigation.Active} && ${Target.Distance}<10) /nav stop
 	}
 	/if (${Me.Pet.ID} && ${Me.Combat}) /pet back off
 	/if (!${Me.Buff[Communion of the Cheetah].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) {
 		/call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
 		/delay 1
 	}
-	/if (${Mode}==0) /goto :travel
-	/if (${Mode}!=0) /return
+/return
 |----------------------------------------------------------------------------
 |- SUB: AFKPull
 |---------------------------------------------------------------------------- 
@@ -365,9 +388,9 @@ Sub AFKPull
 	}
 	/if (${Target.ID}==${Me.ID} || !${Target.ID}) /return
 
-	/if (!${Navigation.PathExists[id ${Target.ID}]}) {
-		/if (${NearestSpawn[next npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[next npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
-	}
+|-	/if (!${Navigation.PathExists[id ${Target.ID}]}) {
+|-		/if (${NearestSpawn[next npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[next npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
+|-	}
     /if (${Target.ID} && ${Navigation.MeshLoaded}) /nav id ${Target.ID}
     
     /delay 15s ${Target.Distance}<=90
@@ -385,53 +408,28 @@ Sub AFKPull
 		/nav stop
 		/return
 	}
-	/if (${Target.PctAggro}>0) /return
 	/if (${Target.PctAggro}<10) /goto :pull
     /delay 1s
 
-    /nav locxyz ${MakeCamp.AnchorX} ${MakeCamp.AnchorY} ${PullAutoCampZ}
-|-    /delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${MakeCamp.AnchorY},${MakeCamp.AnchorX},${PullAutoCampZ}]}<15
+    /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 	/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<15
     /if (${Target.ID}) /face fast
  /return
 |----------------------------------------------------------------------------
 |- SUB: MoveToCamp
 |---------------------------------------------------------------------------- 
-Sub MoveToCamp
-	/if (${MakeCamp.CampDist}>${AutoCampRadius}) {
+Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]}>${Distance}) {
 		/if (${Stick.Active}) /stick off
-|-		/moveto loc ${MakeCamp.AnchorY} ${MakeCamp.AnchorX}|on
-		/nav locxyz ${MakeCamp.AnchorX} ${MakeCamp.AnchorY} ${PullAutoCampZ}
+		/nav locxyz ${Xloc} ${Yloc} ${Zloc}
 		:movinghome
-			/if (${Mode}==0 || ${Mode}==2) {
+			/if (${PreviousMode}!=${Mode}) {
 				/moveto off
 				/return
 			}
 			/delay 5
-			|-${MoveTo.Moving}
-			/if (${MakeCamp.CampDist}>${AutoCampRadius} && ${Navigation.Active}) /goto :movinghome
-		/moveto off
-		/if (${Target.ID}) /face fast
-		/delay 10
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: MoveToCampManualPuller
-|---------------------------------------------------------------------------- 
-Sub MoveToCampManualPuller
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}>${AutoCampRadius}) {
-		/if (${Stick.Active}) /stick off
-|-		/moveto loc ${PullAutoCampY} ${PullAutoCampX}|on
-		/nav locxyz ${PullAutoCampX} ${PullAutoCampX} ${PullAutoCampZ}
-		:movinghome
-			/if (${Mode}==0 || ${Mode}==2) {
-				/moveto off
-				/return
-			}
-			/delay 5
-			/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}>${AutoCampRadius} && ${Navigation.Active}) /goto :movinghome
-		/moveto off
-		/delay 10
+			/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]}>${Distance} && ${Navigation.Active}) /goto :movinghome
+		/nav stop
 		/if (${Target.ID}) /face fast
 		/delay 10
 	}

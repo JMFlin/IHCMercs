@@ -45,6 +45,7 @@ Sub Main
 		/call ZoneEventChk
 	}
  :mainloop
+	/call ModeSet
 	/if (${Mode}==0) /call Travel
 	/if (${Mode}==1) /call ManualPullCamping
 	/if (${Mode}==2) /call ManualRunAndGun
@@ -57,15 +58,15 @@ Sub Main
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub ManualPullCamping
-	/if (${MakeCamp.Status.Equal[OFF]}) /makecamp on ${AutoCampRadius}
-	/call RemoveTravelBuffs
+	/call MakeCamp
+    /call RemoveTravelBuffs  
 	:manualpullcamping
 	/if (${AdvPath.Following}) /afollow off
 	/if (${Me.Hovering}) /call DeathSub
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
 	/if (${State}==0) {
-		/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
 		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 		/if (${DoMed}) /call AutoMed
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
@@ -92,7 +93,7 @@ Sub ManualPullCamping
 
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
-		/if (${MakeCamp.Status.Equal[ON]}) /call MoveToCamp
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 		/if (!${Me.XTarget[1].ID}) /call PostCombat

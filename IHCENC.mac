@@ -43,12 +43,27 @@ Sub Main
 	/if (${UseZoneLogic}) {
 		/call ZoneEventChk
 	}
- :mainloop
-  	/if (${changetoini}==1) /call INIChanges
-	/if (${Me.Zoning}) /call Zoning
+:mainloop
+	/call ModeSet
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call ManualPullCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+/goto :mainloop
+/return 
+ |----------------------------------------------------------------------------
+|- SUB: ManualPullCamping
+|----------------------------------------------------------------------------
+Sub ManualPullCamping
+	/call MakeCamp
+    /call RemoveTravelBuffs  
+	:manualpullcamping
+  	/if (${AdvPath.Following}) /afollow off
 	/if (${Me.Hovering}) /call DeathSub
-	/if (${Cursor.ID}) /call BagModRods
-	/call IDUpdateCheck
+	/if (${Me.State.Equal[FEIGN]}) /stand
+
 	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call IllusionCheck
 	/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
 	/if (${UseCharmPet} && !${BackOffFlag} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
@@ -61,26 +76,15 @@ Sub Main
 	/if (${Me.PctMana}<=70) /call CheckMana
 	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${DoBuffs}) /call BuffCheck
 	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
-	/if (${Spawn[=${FollowToonName}].ID} && !${MoveTo.Moving} && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID} || ${Spawn[id ${assistid}].Distance}>${AssistRange} || (!${Spawn[id ${assistid}].LineOfSight}))) /call FollowToon
-	/if (${Spawn[=${FollowToonName}].ID} && (${Me.Casting.ID} || ${Me.XTarget[1].ID}) && ${AdvPath.Following}) /squelch /afollow off
-	/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call AutoCampCheck
 	/if (${UseModRods}) /call ClickModRoD
 	/if (${DoMed}) /call AutoMed
-	/if (${UseZoneLogic} && ${EventSetupFlag}) {
-		/call EventLogic${EventSetupFlag}
-	}
-	/if (((!${Spawn[targetable id ${KillTargetID}].ID}) || ${Spawn[corpse id ${KillTargetID}].ID}) && ${KillTargetID}!=0) {
-		/varset KillTargetID 0
-		/varset SpawnSearchType npc
-		/varset autotargetid 0
-	}
-|	/if (${Me.Pet.Combat} && !${Ok2Assist}) {
-|		/pet back off
-|	}
+	/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+
+
 	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	/doevents
- /goto :mainloop   
-/return
+	/if (${Mode}==1) /goto :manualpullcamping
+	/if (${Mode}!=1) /return
 |----------------------------------------------------------------------------
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 

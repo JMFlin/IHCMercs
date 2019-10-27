@@ -52,10 +52,40 @@ Sub Main
 	/if (${UseZoneLogic}) {
 		/call ZoneEventChk
 	}
+
  :mainloop
-	/if (${Me.Zoning}) /call Zoning
-  	/if (${changetoini}==1) /call INIChanges
+	/call ModeSet
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call ManualPullCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+/goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualRunAndGun
+|----------------------------------------------------------------------------
+Sub ManualRunAndGun
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/call RemoveTravelBuffs
+	:runandgun
 	/if (${Me.Hovering}) /call DeathSub
+	/if (${Me.State.Equal[FEIGN]}) /stand
+
+
+	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+	/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
+	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
+	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffSelf
+	
+	/call TankChangeCheck
+
+	/if (${Me.XTarget[1].ID}) /call CastersEngage
+	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Type.Equal[NPC]}) /call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z}
+
+
 	/if (${Cursor.ID}) /call BagModRods
 	/call TankChangeCheck
 	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call IllusionCheck
@@ -65,19 +95,55 @@ Sub Main
 	/if ((${Me.PctAggro}>90||${Me.XTarget[2].PctAggro}>90 || ${Me.XTarget[3].PctAggro}>90) && (${Me.PctHPs}<=${grouphealpoint}) && (!${Me.Buff[Sanctuary].ID})) /call AggroCheck
 	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealXT
 	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
-	/if ((${Me.PctMana}<=98) && !${Me.Moving} && !${Me.Invis}) /call MedTime
 	/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
+
 	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${Group.Member[${assistname}].Hovering} && ${Group.Member[${assistname}].Type.NotEqual[Corpse]} && ${Group.Member[${assistname}].PctHPs}>=1 && ${DoBuffs}) /call BuffCheck
 	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
-	/if (${Spawn[=${FollowToonName}].ID} && !${MoveTo.Moving} && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID} || ${Spawn[id ${assistid}].Distance}>${AssistRange} || (!${Spawn[id ${assistid}].LineOfSight}))) /call FollowToon
-	/if (${Spawn[=${FollowToonName}].ID} && (${Me.Casting.ID} || ${Me.XTarget[1].ID}) && ${AdvPath.Following}) /squelch /afollow off
-	/if (!${Me.XTarget[1].ID}) /call AutoCampCheck
-	/if (${UseZoneLogic} && ${EventSetupFlag}) {
-		/call EventLogic${EventSetupFlag}
-	}
+
+
+	/if (!${Me.XTarget[1].ID}) /call Travel
+
+	/if (${Target.Type.Equal[Corpse]}) /target clear
+
+	/if (!${Me.XTarget[1].ID}) /call PostCombat
+
 	/doevents
- /goto :mainloop
-/return
+	/if (${Mode}==2) /goto :runandgun
+	/if (${Mode}!=2) /return
+|----------------------------------------------------------------------------
+|- SUB: ManualPullCamping
+|---------------------------------------------------------------------------- 
+Sub ManualPullCamping
+	/call MakeCamp
+    /call RemoveTravelBuffs 
+	:manualpullcamping
+	/if (${AdvPath.Following}) /afollow off
+	/if (${Me.Hovering}) /call DeathSub
+	/if (${Me.State.Equal[FEIGN]}) /stand
+
+	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+	/if (${DoMed}) /call AutoMed
+
+	/if (${Cursor.ID}) /call BagModRods
+	/call TankChangeCheck
+	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call IllusionCheck
+	/if (${DynamicHealing}) /call ConfigHeal
+	/call ExtraHeal
+	/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
+	/if ((${Me.PctAggro}>90||${Me.XTarget[2].PctAggro}>90 || ${Me.XTarget[3].PctAggro}>90) && (${Me.PctHPs}<=${grouphealpoint}) && (!${Me.Buff[Sanctuary].ID})) /call AggroCheck
+	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealXT
+	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
+	/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
+
+	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${Group.Member[${assistname}].Hovering} && ${Group.Member[${assistname}].Type.NotEqual[Corpse]} && ${Group.Member[${assistname}].PctHPs}>=1 && ${DoBuffs}) /call BuffCheck
+	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
+
+	/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+
+	/doevents
+
+	/if (${Mode}==1) /goto :manualpullcamping
+	/if (${Mode}!=1) /return
 |----------------------------------------------------------------------------
 |- SUB: ExtraHeal - Extra Actions to Perform
 |---------------------------------------------------------------------------- 
@@ -513,52 +579,63 @@ Sub Offense
 |-------------------------------------------------------------------------------------
 Sub RezCheck    
     /declare RezID int local
-	
+	/declare RezName string local
+
+	/hidecorpse off
 	/if (${reztimer}==0 && ${Alert[3].Size}>0) /alert clear 3
 	|-Will not rez in Guild lobby - Guild Hall - Plane of Knowledge
     /if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}) {
 		/varset RezID ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}
+		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
 		/target id ${RezID}
 		/delay 5 ${Target.ID}==${RezID}
 		/if (${Target.Distance}>25) /corpse
 		/delay 5 ${Target.Distance}<25
 		/if (${Me.AltAbilityReady[Blessing of Resurrection]}) {
+			/docommand /dgt \ag Rezzing ${RezName}
 			/call AANow 3800 ${RezID}
 			/delay 4s !${Me.Casting.ID}
 			/alert add 3 id ${RezID}
 			/varset reztimer ${RetryRezDelay}s
 		} else /if ((${FindItem[${epicwand}].ID}) && (${FindItem[${epicwand}].Timer}==0) && !${Me.AltAbility[3800]}) {
+			/docommand /dgt \ag Rezzing ${RezName}
 			/cast item "${epicwand}"
 			/delay 10s !${Me.Casting.ID}
 			/alert add 3 id ${RezID}
 			/varset reztimer ${RetryRezDelay}s
 		} else /if (${Me.Book[Reviviscence]} && ${Me.CurrentMana}>${Spell[Reviviscence].Mana} && !${Me.AltAbility[Blessing of Resurrection]}) {
+			/docommand /dgt \ag Rezzing ${RezName}
 			/call SpellQueue "Reviviscence" ${RezID}
 			/alert add 3 id ${RezID}
 			/varset reztimer ${RetryRezDelay}s
 		}
 	} else /if (${Spawn[pccorpse ${Me} noalert 3 radius 100 zradius 50].ID}) {
 		/varset RezID ${Spawn[pccorpse ${Me} noalert 3 radius 100 zradius 50].ID}
+		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
 		/target id ${RezID}
 		/delay 5 ${Target.ID}==${RezID}
 		/if (${Target.Distance}>25) /corpse
 		/delay 5 ${Target.Distance}<25
 		/if (${Me.AltAbilityReady[Blessing of Resurrection]}) {
+			/docommand /dgt \ag Battle rezzing ${RezName}
 			/call AANow 3800 ${RezID}
 			/delay 4s !${Me.Casting.ID}
 			/alert add 3 id ${RezID}
 			/varset reztimer ${RetryRezDelay}s
 		} else /if ((${FindItem[${epicwand}].ID}) && (${FindItem[${epicwand}].Timer}==0) && !${Me.AltAbility[3800]}) {
+			/docommand /dgt \ag Battle rezzing ${RezName}
 			/cast item "${epicwand}"
 			/delay 10s !${Me.Casting.ID}
 			/alert add 3 id ${RezID}
 			/varset reztimer ${RetryRezDelay}s
 		} else /if (${Me.Book[Reviviscence]} && ${Me.CurrentMana}>${Spell[Reviviscence].Mana} && !${Me.AltAbility[Blessing of Resurrection]}) {
+			/docommand /dgt \ag Battle rezzing ${RezName}
 			/call SpellQueue "Reviviscence" ${RezID}
 			/alert add 3 id ${RezID}
 			/varset reztimer ${RetryRezDelay}s
 		}
 	}
+	/hidecorpse npc
 /return
 |----------------------------------------------------------------------------
 |- SUB: BuffCheck

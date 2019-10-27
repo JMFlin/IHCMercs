@@ -54,6 +54,7 @@ Sub Main
 	}
 
  :mainloop
+ 	/call ModeSet
 	/if (${Mode}==0) /call Travel
 	/if (${Mode}==1) /call ManualPullCamping
 	/if (${Mode}==2) /call ManualRunAndGun
@@ -67,6 +68,7 @@ Sub Main
 |----------------------------------------------------------------------------
 Sub ManualRunAndGun
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/call RemoveTravelBuffs
 	:runandgun
 	/if (${Me.Hovering}) /call DeathSub
 	/if (${Me.State.Equal[FEIGN]}) /stand
@@ -84,8 +86,8 @@ Sub ManualRunAndGun
 	/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
 	/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
 
-	/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call EngageCasters
+	/if (${Me.XTarget[1].ID}) /call CastersEngage
+	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Type.Equal[NPC]}) /call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z} ${AutoCampRadius}
 
 	/if (${Me.XTarget[1].ID}) /call AANDisc
 
@@ -102,8 +104,9 @@ Sub ManualRunAndGun
 	/if (${UseModRods}) /call ClickModRoD
 
 	/if (!${Me.XTarget[1].ID} && !${AdvPath.Following}) {
-		/afollow spawn ${Group.Leader.ID}
-		/delay 10 ${AdvPath.State}==1
+		/target ${Group.Leader.ID}
+		/delay 5s ${Target.ID}==${Group.Leader.ID}
+		/call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z} 10
 	}
 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -117,9 +120,8 @@ Sub ManualRunAndGun
 |- SUB: ManualPullCamping
 |----------------------------------------------------------------------------
 Sub ManualPullCamping
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	/if (${MakeCamp.Status.Equal[OFF]}) /makecamp on ${AutoCampRadius}
-	/call RemoveTravelBuffs
+	/call MakeCamp
+    /call RemoveTravelBuffs 
 	:manualpullcamping
 	/if (${AdvPath.Following}) /afollow off
 	/if (${Me.Hovering}) /call DeathSub
@@ -128,7 +130,7 @@ Sub ManualPullCamping
 	/if (${State}==0) {
 		/if (!${Me.Buff[Communion of the Cheetah].ID} && !${Me.XTarget[1].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) /call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp
+		/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
 		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 		/if (${DoMed}) /call AutoMed
 		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffGroup
@@ -158,7 +160,7 @@ Sub ManualPullCamping
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (${MakeCamp.Status.Equal[ON]}) /call MoveToCamp
+		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
 		/if (!${Me.XTarget[1].ID}) /call PostCombat
 	}
 	/doevents
@@ -481,7 +483,6 @@ Sub DebuffMobs
 		/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
 		/if (!${Me.Casting.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.Distance}<200 && ${Target.LineOfSight}) {
 			/if (${Me.AltAbilityReady[Malaise]} && !${Target.Buff[Malosinata].ID} && !${Target.Buff[${Malo}].ID} && !${Target.Maloed.ID}) {
-				/echo !${Target.Buff[${Malo}].ID}
 				/alt act ${Me.AltAbility[Malaise].ID}
 				/delay 5s !${Me.Casting.ID}
 				/delay 5s !${Me.AltAbilityReady[Malaise]}
@@ -763,30 +764,37 @@ Sub TankChangeCheck
 |-------------------------------------------------------------------------------------
 Sub RezCheck
     /declare RezID int local
+	/declare RezName string local
 	
+	/hidecorpse off
     /if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID} && !${Me.Combat} && !${Me.XTarget[1].ID}) {
 		/varset RezID ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}
+		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
 		/target id ${RezID}
 		/delay 5 ${Target.ID}==${RezID}
 		/if (${Target.Distance}>25) /corpse
 		/delay 5 ${Target.Distance}<25
 		/if (${Me.AltAbilityReady[Rejuvenation of Spirit]}) {
-			/call AANow 2051 ${RezID}
-			/delay 4s !${Me.Casting.ID}
+			/docommand /dgt \ag Rezzing ${RezName}
+			/alt act 2051
+			/delay 6s !${Me.Casting.ID}
 		} 
 	}
 
 	/if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID} && ${Me.XTarget[1].ID}) {
 		/varset RezID ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}
+		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
 		/target id ${RezID}
 		/delay 5 ${Target.ID}==${RezID}
 		/if (${Target.Distance}>25) /corpse
 		/delay 5 ${Target.Distance}<25
 		/if (${Me.AltAbilityReady[Call of the Wild]}) {
-			/call AANow 404 ${RezID}
-			/delay 4s !${Me.Casting.ID}
+			/docommand /dgt \ag Battle rezzing ${RezName}
+			/alt act 404
+			/delay 6s !${Me.Casting.ID}
 		} 
 	}
+	/hidecorpse npc
 /return
 |----------------------------------------------------------------------------
 |- SUB: Symbol - HP Buff Single use
