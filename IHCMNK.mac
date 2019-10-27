@@ -57,6 +57,19 @@ Sub Main
 /goto :mainloop
 /return
 |----------------------------------------------------------------------------
+|- SUB: Raid
+|---------------------------------------------------------------------------- 
+Sub Raid
+    :raid
+	/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /attack on
+    /if (${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID}) /call CombatdpsItems
+    /if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
+    /if (${Me.PctHPs}<45) /call Defense
+	/if (${Target.Type.Equal[Corpse]}) /target clear
+    /doevents
+    /if (${Mode}==6) /goto :raid
+    /if (${Mode}!=6) /return
+|----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub ManualPullCamping
