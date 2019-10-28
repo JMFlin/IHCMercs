@@ -66,7 +66,7 @@ Sub ManualPullCamping
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
 	/if (${State}==0) {
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 		/if (${DoMed}) /call AutoMed
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
@@ -93,7 +93,7 @@ Sub ManualPullCamping
 
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AssistRange}
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 		/if (!${Me.XTarget[1].ID}) /call PostCombat
@@ -125,10 +125,7 @@ Sub ManualRunAndGun
 
 	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
-	/if (!${Me.XTarget[1].ID} && !${AdvPath.Following}) {
-		/afollow spawn ${Group.Leader.ID}
-		/delay 10 ${AdvPath.State}==1
-	}
+	/if (!${Me.XTarget[1].ID}) /call Travel
 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
 

@@ -144,7 +144,7 @@ Sub AFKRadiusCamping
 	/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
-	/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+	/if ((${Target.PctAggro}>0 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 	/if (!${Me.XTarget[1].ID}) /call PostCombat
 
 	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
@@ -166,7 +166,7 @@ Sub ManualPullCamping
 
 	/if (${State}==0) {
 		/if (${Target.ID}) /target clear
-		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 		/if (${DoMed}) /call AutoMed
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
@@ -183,7 +183,7 @@ Sub ManualPullCamping
 		} else /if (${Target.Distance}<(${AssistRange}+15) && ${Target.ID}!=${Me.ID}) {
 			/varset State 2
 		}
-		/if (!${Target.ID}) /target id ${NearestSpawn[los npc aggressive radius 10 zradius 10].ID}
+		/if (!${Target.ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
 	}
 
 	/if (${State}==2) {
@@ -196,7 +196,7 @@ Sub ManualPullCamping
 		/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
 		/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
 		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
-		/if (!${Target.Type.Equal[NPC]} && ${NearestSpawn[los npc radius 10 zradius 10].ID}) /target id ${NearestSpawn[los npc aggressive radius 10 zradius 10].ID}
+		/if (!${Target.Type.Equal[NPC]} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
 
 		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoMashRangeAggro
@@ -206,7 +206,7 @@ Sub ManualPullCamping
 		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=(${AssistRange}+25) && ${Target.Type.Equal[NPC]}) /call CombatBuffs
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/if (!${Me.XTarget[1].ID}) /call PostCombat
 	}
 

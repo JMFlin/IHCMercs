@@ -103,11 +103,7 @@ Sub ManualRunAndGun
 
 	/if (${UseModRods}) /call ClickModRoD
 
-	/if (!${Me.XTarget[1].ID} && !${AdvPath.Following}) {
-		/target ${Group.Leader.ID}
-		/delay 5s ${Target.ID}==${Group.Leader.ID}
-		/call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z} 10
-	}
+	/if (!${Me.XTarget[1].ID}) /call Travel
 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
 
@@ -130,7 +126,7 @@ Sub ManualPullCamping
 	/if (${State}==0) {
 		/if (!${Me.Buff[Communion of the Cheetah].ID} && !${Me.XTarget[1].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) /call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+		/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 		/if (${DoMed}) /call AutoMed
 		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffGroup
@@ -156,11 +152,12 @@ Sub ManualPullCamping
 		/if (${DynamicHealing}) /call ConfigHeal
 		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
 		/if (${UseModRods}) /call ClickModRoD
+		/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
 
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/if (!${Me.XTarget[1].ID}) /call PostCombat
 	}
 	/doevents
@@ -766,7 +763,7 @@ Sub RezCheck
     /declare RezID int local
 	/declare RezName string local
 	
-	/hidecorpse off
+	/hidecorpse npc
     /if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID} && !${Me.Combat} && !${Me.XTarget[1].ID}) {
 		/varset RezID ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}
 		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
@@ -794,7 +791,6 @@ Sub RezCheck
 			/delay 6s !${Me.Casting.ID}
 		} 
 	}
-	/hidecorpse npc
 /return
 |----------------------------------------------------------------------------
 |- SUB: Symbol - HP Buff Single use

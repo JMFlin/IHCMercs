@@ -112,14 +112,12 @@ Sub VarSetup
 
 |- AFK camping
     /declare AggressiveRadius 	int outer 25
-    /declare PullAutoCampZ		int outer 0
+	/declare AssistRangeZ 		int outer 40
     /declare PullAbility		string outer NULL
     /declare PullAbility2 		int outer 0
-    /declare AssistRangeZ 		int outer 40
-
-|- Info for manual pulling
 	/declare PullAutoCampX		int outer 0
     /declare PullAutoCampY		int outer 0
+	/declare PullAutoCampZ		int outer 0
 
 |- Modes
 	/declare Mode 				int outer 0
@@ -160,7 +158,6 @@ Sub VarSetup
 Sub IllusionCheck
 	/varset IllusionNum ${Math.Rand[10]}
 	/if (!${Me.Buff[Illusion: Plaguebringer].ID} && !${Me.Buff[Illusion: Frost Bone].ID} && !${Me.Buff[Night's Terror].ID} && !${Me.Buff[Illusion: Bear].ID} && (${FindItem[=Polymorph Wand: Plaguebringer].ID} || ${FindItem[=Bone Mask of Horror].ID}) && !${Me.Casting.ID}) {
-
 		/if (${IllusionNum}<1) {
 			/cast item "Polymorph Wand: Plaguebringer"
 			/delay 10
@@ -394,7 +391,7 @@ Sub AFKPull
     /if (${Target.ID} && ${Navigation.MeshLoaded}) /nav id ${Target.ID}
     
     /delay 15s ${Target.Distance}<=90
-    /if (${Mode}!=3) {
+    /if (${PreviousMode}!=${Mode}) {
 		/nav stop
 		/return
 	}
@@ -404,7 +401,7 @@ Sub AFKPull
     :pull
 	/if (${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
 	/if (${Me.AltAbilityReady[${PullAbility}]}) /alt act ${PullAbility}
-	/if (${Mode}!=3) {
+	/if (${PreviousMode}!=${Mode}) {
 		/nav stop
 		/return
 	}
@@ -424,7 +421,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/nav locxyz ${Xloc} ${Yloc} ${Zloc}
 		:movinghome
 			/if (${PreviousMode}!=${Mode}) {
-				/moveto off
+				/nav stop
 				/return
 			}
 			/delay 5

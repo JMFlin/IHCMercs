@@ -53,7 +53,42 @@ Sub Main
 	/if (${Mode}==5) /call DoEvent
 /goto :mainloop
 /return 
- |----------------------------------------------------------------------------
+|----------------------------------------------------------------------------
+|- SUB: ManualRunAndGun
+|----------------------------------------------------------------------------
+Sub ManualRunAndGun
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/call RemoveTravelBuffs
+	:runandgun
+	/if (${Me.Hovering}) /call DeathSub
+	/if (${Me.State.Equal[FEIGN]}) /stand
+
+	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+	/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
+	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffCheck
+	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
+	
+	/if (${Me.XTarget[1].ID}) /call CastersEngage
+	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Type.Equal[NPC]}) /call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z} ${AssistRange}
+
+	/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
+	/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && ${Target.Distance}<${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
+	/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
+	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${DoDPS} && !${MezWait}) /call Combatdps
+	/if (${Me.PctMana}<=70) /call CheckMana
+	/if (${UseModRods}) /call ClickModRoD
+
+	/if (!${Me.XTarget[1].ID}) /call Travel
+
+	/if (${Target.Type.Equal[Corpse]}) /target clear
+
+	/if (!${Me.XTarget[1].ID}) /call PostCombat
+
+	/doevents
+	/if (${Mode}==2) /goto :runandgun
+	/if (${Mode}!=2) /return
+|----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |----------------------------------------------------------------------------
 Sub ManualPullCamping
@@ -78,7 +113,7 @@ Sub ManualPullCamping
 	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
 	/if (${UseModRods}) /call ClickModRoD
 	/if (${DoMed}) /call AutoMed
-	/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+	/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 
 	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
@@ -154,7 +189,7 @@ Sub AANDisc
 	/varset groupbufftimer 1m
 /return
 |----------------------------------------------------------------------------
-|- SUB: Combatdps ${PetAssistTimer}==0 && /varset PetAssistTimer 5s
+|- SUB: Combatdps
 |---------------------------------------------------------------------------- 
 Sub Combatdps
 	/if ((${UsePet} || ${UseCharmPet}) && ${Me.Pet.ID} && (!${Me.Pet.Combat} || ${Pet.Target.ID}!=${autotargetid}) && ${Target.ID}) {

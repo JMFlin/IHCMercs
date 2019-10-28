@@ -83,7 +83,7 @@ Sub ManualRunAndGun
 	/call TankChangeCheck
 
 	/if (${Me.XTarget[1].ID}) /call CastersEngage
-	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Type.Equal[NPC]}) /call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z}
+	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Type.Equal[NPC]}) /call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z} ${AssistRange}
 
 
 	/if (${Cursor.ID}) /call BagModRods
@@ -138,7 +138,7 @@ Sub ManualPullCamping
 	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${Group.Member[${assistname}].Hovering} && ${Group.Member[${assistname}].Type.NotEqual[Corpse]} && ${Group.Member[${assistname}].PctHPs}>=1 && ${DoBuffs}) /call BuffCheck
 	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
 
-	/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 10
+	/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 	/doevents
 
@@ -581,7 +581,7 @@ Sub RezCheck
     /declare RezID int local
 	/declare RezName string local
 
-	/hidecorpse off
+	/hidecorpse npc
 	/if (${reztimer}==0 && ${Alert[3].Size}>0) /alert clear 3
 	|-Will not rez in Guild lobby - Guild Hall - Plane of Knowledge
     /if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}) {
@@ -635,7 +635,6 @@ Sub RezCheck
 			/varset reztimer ${RetryRezDelay}s
 		}
 	}
-	/hidecorpse npc
 /return
 |----------------------------------------------------------------------------
 |- SUB: BuffCheck
