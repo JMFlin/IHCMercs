@@ -495,7 +495,7 @@ Sub DebuffMobs
 	/next x
 /return
 |----------------------------------------------------------------------------
-|- SUB: AANDisc
+|- SUB: AANDisc 
 |---------------------------------------------------------------------------- 
 Sub AANDisc
 	/if (!${FindItem[=${EpicSpiritStaff}].TimerReady} && !${Me.Casting.ID} && ${Me.XTarget[1].Distance}<=75) {

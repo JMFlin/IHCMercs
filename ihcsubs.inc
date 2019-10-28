@@ -122,6 +122,9 @@ Sub VarSetup
 |- Modes
 	/declare Mode 				int outer 0
 	/declare PreviousMode 		int outer 0
+	/declare ModeName 			string outer NULL
+	/declare PreviousModeName 	string outer NULL
+	
 
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
@@ -296,7 +299,24 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 |----------------------------------------------------------------------------
 Sub ModeSet
 	/if (${PreviousMode}!=${Mode}) {
- 		/docommand /dgt \ag Previous mode ${PreviousMode} \ar Current mode ${Mode}
+
+		/if (${PreviousMode}==0) /varset PreviousModeName Travel
+		/if (${PreviousMode}==1) /varset PreviousModeName ManualPullCamping
+		/if (${PreviousMode}==2) /varset PreviousModeName ManualRunAndGun
+		/if (${PreviousMode}==3) /varset PreviousModeName AFKPullCamping
+		/if (${PreviousMode}==4) /varset PreviousModeName AFKRunAndGun
+		/if (${PreviousMode}==5) /varset PreviousModeName DoEvent
+		/if (${PreviousMode}==6) /varset PreviousModeName Raid
+
+		/if (${Mode}==0) /varset ModeName Travel
+		/if (${Mode}==1) /varset ModeName ManualPullCamping
+		/if (${Mode}==2) /varset ModeName ManualRunAndGun
+		/if (${Mode}==3) /varset ModeName AFKPullCamping
+		/if (${Mode}==4) /varset ModeName AFKRunAndGun
+		/if (${Mode}==5) /varset ModeName DoEvent
+		/if (${Mode}==6) /varset ModeName Raid
+
+ 		/docommand /dgt \ar Previous mode ${PreviousModeName} \ag Current mode ${ModeName}
 		/varset PreviousMode ${Mode}
 	}
 /return
