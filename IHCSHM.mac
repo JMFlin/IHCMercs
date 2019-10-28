@@ -507,10 +507,10 @@ Sub AANDisc
 		/delay 5
 	}
 
-|-	/if (${Me.AltAbilityReady[Spirit Guardian]}) {
-|-		/call AANow ${Me.AltAbility[Spirit Guardian].ID} ${assistid}
-|-		/delay 3
-|-	}
+	/if (${Me.AltAbilityReady[Spirit Guardian]}) {
+		/call AANow ${Me.AltAbility[Spirit Guardian].ID} ${assistid}
+		/delay 3
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
@@ -542,8 +542,8 @@ Sub Combatdps
 |-				/call SpellQueue "${CurseDoT2}" ${Target.ID}
 |-				/delay 5
 |-			}
-			/if (${DoDot} && ${Me.SpellReady[${FastPoisonDoT}]} && !${Target.Buff[${FastPoisonDoT}].ID} && (${Target.PctHPs}>=10 || ${Target.Named})) {
-				/call SpellQueue "${FastPoisonDoT}" ${Target.ID}
+			/if (${DoDot} && ${Me.SpellReady[${ChaoticPoisonDoT}]} && !${Target.Buff[${ChaoticPoisonDoT}].ID} && (${Target.PctHPs}>=10 || ${Target.Named})) {
+				/call SpellQueue "${ChaoticPoisonDoT}" ${Target.ID}
 				/delay 5
 			}
 			/if (${DoDot} && ${Me.SpellReady[${FastDiseaseDoT}]} && !${Target.Buff[${FastDiseaseDoT}].ID} && (${Target.PctHPs}>=10) || ${Target.Named}) {

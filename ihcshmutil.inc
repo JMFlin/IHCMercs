@@ -30,7 +30,7 @@ Sub ShmSetup
 	/declare PoisonNuke				string outer NULL
 	/declare FastPoisonNuke			string outer NULL
 	/declare FrostNuke				string outer NULL
-	/declare ChaoticDoT				string outer NULL
+	/declare ChaoticPoisonDoT		string outer NULL
 	/declare AllianceBuff			string outer NULL
 	/declare GroupHealProcBuff		string outer NULL
 	/declare CureSpell				string outer NULL
@@ -497,36 +497,12 @@ Sub CheckSpells
 	} else /if (${Me.Level}>=${Spell[Ice Floe].Level} && ${Me.Book[${Spell[Ice Floe].RankName}]}) {
 		/varset FrostNuke ${Spell[Ice Floe].RankName}
 	}
-|- ChaoticDoT
+|- ChaoticPoisonDoT
 	/if (${Me.Level}>=${Spell[Chaotic Poison].Level} && ${Me.Book[${Spell[Chaotic Poison].RankName}]}) {
-		/varset ChaoticDoT ${Spell[Chaotic Poison].RankName}
+		/varset ChaoticPoisonDoT ${Spell[Chaotic Poison].RankName}
 	} else /if (${Me.Level}>=${Spell[Chaotic Venom].Level} && ${Me.Book[${Spell[Chaotic Venom].RankName}]}) {
 		/varset ChaoticPoisonDoT ${Spell[Chaotic Venom].RankName}
 	}
-|- ChaoticDoT
-	/if (${Me.Level}>=${Spell[Elkikatar's Pandemic].Level} && ${Me.Book[${Spell[Elkikatar's Pandemic].RankName}]}) {
-		/varset ChaoticDiseaseDoT ${Spell[Elkikatar's Pandemic].RankName}
-	}
-
-
-	/if (${Me.Level}>=${Spell[Vermistipus's Pandemic].Level} && ${Me.Book[${Spell[Vermistipus's Pandemic].RankName}]}) {
-		/varset LongDisease1 ${Spell[Vermistipus's Pandemic].RankName}
-	}
-	/if (${Me.Level}>=${Spell[Rirwech's Affliction].Level} && ${Me.Book[${Spell[Rirwech's Affliction].RankName}]}) {
-		/varset LongDisease2 ${Spell[Rirwech's Affliction].RankName}
-	}
-	/if (${Me.Level}>=${Spell[Breath of Elkikatar].Level} && ${Me.Book[${Spell[Breath of Elkikatar].RankName}]}) {
-		/varset LongDisease3 ${Spell[Breath of Elkikatar].RankName}
-	}
-	/if (${Me.Level}>=${Spell[Nectar of Suffering].Level} && ${Me.Book[${Spell[Nectar of Suffering].RankName}]}) {
-		/varset LongPoison1 ${Spell[Nectar of Suffering].RankName}
-	}
-	/if (${Me.Level}>=${Spell[Scorpikis Blood].Level} && ${Me.Book[${Spell[Scorpikis Blood].RankName}]}) {
-		/varset LongPoison2 ${Spell[Scorpikis Blood].RankName}
-	}
-
-
-
 
 |- AllianceBuff
 	/if (${Me.Level}>=${Spell[Ancient Alliance].Level} && ${Me.Book[${Spell[Ancient Alliance].RankName}]}) {
@@ -645,7 +621,11 @@ Sub CheckSpells
 		/varset miscspellremem ${Spell12}
 	} else /if (${spellmisc}==13) {
 		/varset Spell12 ${FastDiseaseDoT}
-		/varset Spell13 ${FastPoisonDoT}
+		/if (${ChaoticPoisonDoT.NotEqual[NULL]}) {
+			/varset Spell13 ${ChaoticPoisonDoT}
+		} else {
+			/varset Spell13 ${FastPoisonDoT}
+		}
 		/varset miscspellremem ${Spell13}
 	}
 /return
