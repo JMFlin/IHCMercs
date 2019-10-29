@@ -69,8 +69,7 @@ Sub ManualRunAndGun
 	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffCheck
 	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
 	
-	/if (${Me.XTarget[1].ID}) /call CastersEngage
-	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Type.Equal[NPC]}) /call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z} ${AssistRange}
+	/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
 
 	/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 	/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && ${Target.Distance}<${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
@@ -79,11 +78,9 @@ Sub ManualRunAndGun
 	/if (${Me.PctMana}<=70) /call CheckMana
 	/if (${UseModRods}) /call ClickModRoD
 
-	/if (!${Me.XTarget[1].ID}) /call Travel
+	/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
-
-	/if (!${Me.XTarget[1].ID}) /call PostCombat
 
 	/doevents
 	/if (${Mode}==2) /goto :runandgun
@@ -118,8 +115,8 @@ Sub ManualPullCamping
 
 	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	/doevents
-	/if (${Mode}==1) /goto :manualpullcamping
-	/if (${Mode}!=1) /return
+	/if (${Mode}==1 || ${Mode}==3) /goto :manualpullcamping
+	/if (${Mode}!=1 && ${Mode}!=3) /return
 |----------------------------------------------------------------------------
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 

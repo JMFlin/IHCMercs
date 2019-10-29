@@ -44,6 +44,7 @@ Sub Main
 		/if (${UseZoneLogic}) {
 		/call ZoneEventChk
 	}
+	
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -59,7 +60,8 @@ Sub Main
 |---------------------------------------------------------------------------- 
 Sub ManualPullCamping
 	/call MakeCamp
-    /call RemoveTravelBuffs  
+    /call RemoveTravelBuffs 
+	/target clear 
 	:manualpullcamping
 	/if (${AdvPath.Following}) /afollow off
 	/if (${Me.Hovering}) /call DeathSub
@@ -102,39 +104,36 @@ Sub ManualPullCamping
 	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	/doevents
 
-	/if (${Mode}==1) /goto :manualpullcamping
-	/if (${Mode}!=1) /return
+	/if (${Mode}==1 || ${Mode}==3) /goto :manualpullcamping
+	/if (${Mode}!=1 && ${Mode}!=3) /return
 |----------------------------------------------------------------------------
 |- SUB: ManualRunAndGun
 |----------------------------------------------------------------------------
 Sub ManualRunAndGun
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	:runandgun
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
+	/while (${Mode}==2) {
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
 
-	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
 
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
-	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
+		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
 
-	/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
-	/if (${Target.Distance}<55 && ${Target.Type.Equal[NPC]}) /call PreCombatBuffs
-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
-	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
+		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /assist ${Group.MainAssist.Name}
+		/if (${Target.Distance}<55 && ${Target.Type.Equal[NPC]}) /call PreCombatBuffs
+		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call Engage
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 
-	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
-	/if (!${Me.XTarget[1].ID}) /call Travel
+		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
 
-	/if (${Target.Type.Equal[Corpse]}) /target clear
+		/if (${Target.Type.Equal[Corpse]}) /target clear
 
-	/if (!${Me.XTarget[1].ID}) /call PostCombat
-
-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
-	/if (${Mode}==2) /goto :runandgun
-	/if (${Mode}!=2) /return
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
+/if (${Mode}!=2) /return
 |----------------------------------------------------------------------------
 |- SUB: PreCombatBuffs
 |---------------------------------------------------------------------------- 
@@ -288,12 +287,12 @@ Sub Combatdps
 			/delay 5
 		}
 	}
-	/if (${Me.CombatAbilityReady[${AEVicious}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 25 zradius 15 targetable playerstate 4]}<2) {
-		/Disc ${AEVicious}
-		/delay 5
-	}
 	/if (${Me.CombatAbilityReady[${AESlice}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 40 zradius 15 targetable playerstate 4]}<2) {
 		/Disc ${AESlice}
+		/delay 5
+	}
+	/if (${Me.CombatAbilityReady[${AEVicious}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 25 zradius 15 targetable playerstate 4]}<2) {
+		/Disc ${AEVicious}
 		/delay 5
 	}
 	/if (!${Target.Buff[Sarnak Finesse].ID} && ${Target.Type.Equal[npc]} && ${Me.Combat} && ${Me.AltAbilityReady[War Cry of the Braxi]} && ${Me.CombatAbilityReady[${DichoSpell}]}) {

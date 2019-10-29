@@ -47,6 +47,7 @@ Sub Main
 		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
 	}
 	/call PullAbilitySetup
+	
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -62,46 +63,43 @@ Sub Main
 |----------------------------------------------------------------------------
 Sub ManualRunAndGun
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	:runandgun
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
+	/while (${Mode}==2) {
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
 
-	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
 
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
-	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
-	/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
+		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
 
-	/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
+		/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
 
-	/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
-		/varset TimeForMez 6s
-		/varset TimeForMezVariable 1
-	}
+		/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
+			/varset TimeForMez 6s
+			/varset TimeForMezVariable 1
+		}
 
-	/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
-	
-	/if (${Me.XTarget[1].ID}) /target id ${Me.XTarget[1].ID}
-	/if (${Me.XTarget[1].ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call Engage
+		/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
+		
+		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /target id ${Me.XTarget[1].ID}
+		/if (${Me.XTarget[1].ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange} && ${Group.Leader.ID}!=${Me.ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call Engage
 
-	/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
+		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0 && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CheckXTargetMezRoot
 
-	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call DoMashRangeAggro
-	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call AoEAggro
-	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=(${AssistRange}+25)) /call DoDisc
-	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call DoCombat
-	/if (${Me.XTarget[1].ID}) /call CombatBuffs
+		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call DoMashRangeAggro
+		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call AoEAggro
+		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=(${AssistRange}+25)) /call DoDisc
+		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call DoCombat
+		/if (${Me.XTarget[1].ID}) /call CombatBuffs
 
-	/if (!${Me.XTarget[1].ID}) /call Travel
+		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
 
-	/if (${Target.Type.Equal[Corpse]}) /target clear
+		/if (${Target.Type.Equal[Corpse]}) /target clear
 
-	/if (!${Me.XTarget[1].ID}) /call PostCombat
-
-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
-	/if (${Mode}==2) /goto :runandgun
-	/if (${Mode}!=2) /return
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
+/if (${Mode}!=2) /return
 |----------------------------------------------------------------------------
 |- SUB: AFKRadiusCamping 
 |---------------------------------------------------------------------------- 
@@ -110,48 +108,49 @@ Sub AFKRadiusCamping
     /varset PullAutoCampY ${Me.Y}
     /varset PullAutoCampX ${Me.X}
 	/varset PullAutoCampZ ${Me.Z}
-    /call RemoveTravelBuffs    
+    /call RemoveTravelBuffs 
+	/target clear   
 
-	:afkradiuscamping
-	/if (${AdvPath.Following}) /afollow off
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
-	/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
+	/while (${Mode}==3) {
+		/if (${AdvPath.Following}) /afollow off
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
 
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
-	/if (!${Me.XTarget[1].ID} && ${DoMed}) /call AutoMed
-	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
-	/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
+		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+		/if (!${Me.XTarget[1].ID} && ${DoMed}) /call AutoMed
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
+		/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
 
-	/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20 && (${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /call AFKPull
+		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID}) /call PullerCheckGroupManaEnd 
+		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20 && (${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /call AFKPull
 
-	/if ((${Target.ID}==${Me.ID} || !${Target.ID}) && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
+		/if ((${Target.ID}==${Me.ID} || !${Target.ID} || !${Target.Type.Equal[NPC]}) && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
 
-	/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
-		/varset TimeForMez 6s
-		/varset TimeForMezVariable 1
-	}
+		/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
+			/varset TimeForMez 6s
+			/varset TimeForMezVariable 1
+		}
 
-	/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
+		/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
 
-	/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
+		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
 
-	/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call Engage
-	/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoMashRangeAggro
-	/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call AoEAggro
-	/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
-	/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoCombat
-	/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call Engage
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoMashRangeAggro
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call AoEAggro
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoCombat
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
 
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-	/if ((${Target.PctAggro}>0 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-	/if (!${Me.XTarget[1].ID}) /call PostCombat
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/if (!${Me.XTarget[1].ID}) /call PostCombat
 
-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
 
-	/if (${Mode}==3) /goto :afkradiuscamping
-	/if (${Mode}!=3) /return
+/if (${Mode}!=3) /return
 |----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 

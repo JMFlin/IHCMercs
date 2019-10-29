@@ -73,7 +73,6 @@ Sub ManualRunAndGun
 	/if (${Me.Hovering}) /call DeathSub
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
-
 	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
 	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
 	/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
@@ -82,9 +81,7 @@ Sub ManualRunAndGun
 	
 	/call TankChangeCheck
 
-	/if (${Me.XTarget[1].ID}) /call CastersEngage
-	/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Type.Equal[NPC]}) /call MoveToCamp ${Target.Y} ${Target.X} ${Target.Z} ${AssistRange}
-
+	/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
 
 	/if (${Cursor.ID}) /call BagModRods
 	/call TankChangeCheck
@@ -101,11 +98,9 @@ Sub ManualRunAndGun
 	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
 
 
-	/if (!${Me.XTarget[1].ID}) /call Travel
+	/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
-
-	/if (!${Me.XTarget[1].ID}) /call PostCombat
 
 	/doevents
 	/if (${Mode}==2) /goto :runandgun
@@ -142,8 +137,8 @@ Sub ManualPullCamping
 
 	/doevents
 
-	/if (${Mode}==1) /goto :manualpullcamping
-	/if (${Mode}!=1) /return
+	/if (${Mode}==1 || ${Mode}==3) /goto :manualpullcamping
+	/if (${Mode}!=1 && ${Mode}!=3) /return
 |----------------------------------------------------------------------------
 |- SUB: ExtraHeal - Extra Actions to Perform
 |---------------------------------------------------------------------------- 
@@ -581,10 +576,10 @@ Sub RezCheck
     /declare RezID int local
 	/declare RezName string local
 
-	/hidecorpse npc
 	/if (${reztimer}==0 && ${Alert[3].Size}>0) /alert clear 3
 	|-Will not rez in Guild lobby - Guild Hall - Plane of Knowledge
     /if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}) {
+		/hidecorpse npc
 		/varset RezID ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}
 		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
 		/target id ${RezID}
@@ -610,6 +605,7 @@ Sub RezCheck
 			/varset reztimer ${RetryRezDelay}s
 		}
 	} else /if (${Spawn[pccorpse ${Me} noalert 3 radius 100 zradius 50].ID}) {
+		/hidecorpse npc
 		/varset RezID ${Spawn[pccorpse ${Me} noalert 3 radius 100 zradius 50].ID}
 		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
 		/target id ${RezID}

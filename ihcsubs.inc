@@ -110,14 +110,19 @@ Sub VarSetup
 	/declare IllusionNum		int outer 0
 	/declare RunAndGunMedTimer	timer outer	0
 
+	/declare UseItems 			int outer 0
+
 |- AFK camping
-    /declare AggressiveRadius 	int outer 25
-	/declare AssistRangeZ 		int outer 40
+    /declare AggressiveRadius 	int outer 100
+	/declare AssistRangeZ 		int outer 20
     /declare PullAbility		string outer NULL
+	/declare PullAbilityAA 		int outer 0
     /declare PullAbility2 		int outer 0
 	/declare PullAutoCampX		int outer 0
     /declare PullAutoCampY		int outer 0
 	/declare PullAutoCampZ		int outer 0
+	/declare PullDistance 		int outer 0
+	/declare ResourceChecker 	int outer 1
 
 |- Modes
 	/declare Mode 				int outer 0
@@ -161,6 +166,7 @@ Sub VarSetup
 Sub IllusionCheck
 	/varset IllusionNum ${Math.Rand[10]}
 	/if (!${Me.Buff[Illusion: Plaguebringer].ID} && !${Me.Buff[Illusion: Frost Bone].ID} && !${Me.Buff[Night's Terror].ID} && !${Me.Buff[Illusion: Bear].ID} && (${FindItem[=Polymorph Wand: Plaguebringer].ID} || ${FindItem[=Bone Mask of Horror].ID}) && !${Me.Casting.ID}) {
+		/if (${Me.Sitting}) /stand
 		/if (${IllusionNum}<1) {
 			/cast item "Polymorph Wand: Plaguebringer"
 			/delay 10
@@ -233,15 +239,7 @@ Sub SaveCommonConfig
 	/call SetIni Options DoBuffs				int ${DoBuffs}
 	/call SetIni Options DoGroupBeg				int ${DoGroupBeg}
 /return
-|----------------------------------------------------------------------------
-|- SUB: PullAbilitySetup
-|----------------------------------------------------------------------------
-Sub PullAbilitySetup
-	/if (${Me.Class.ShortName.Find[MNK]}) /varset PullAbility 376
-	/if (${Me.Class.ShortName.Find[WAR]}) /varset PullAbility ${insult}
-	/if (${FindItem[Staff of Viral Flux]}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-/return
---------------------------------------------------------------------
+|--------------------------------------------------------------------
 |- SUB: Bind Change Var Int resets various interger settings from ini file
 |- Removed mez and slow toggles. Class specific abilities will be handled in the class specific mac's
 |----------------------------------------------------------------------------
@@ -293,6 +291,16 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 			/echo \ar Invalid \ag ${IName}% \aw - Set between 0-100
 		}
 	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: PullAbilitySetup
+|----------------------------------------------------------------------------
+Sub PullAbilitySetup
+	/if (${Me.Class.ShortName.Find[MNK]}) /varset PullAbility 376
+	/if (${Me.Class.ShortName.Find[WAR]}) /varset PullAbility ${insult}
+	/if (${FindItem[Staff of Viral Flux]}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
+	/if (${Me.Class.ShortName.Find[MNK]}) /varset PullDistance 190
+	/if (${Me.Class.ShortName.Find[WAR]}) /varset PullDistance 90
 /return
 |----------------------------------------------------------------------------
 |- SUB: ModeSet
@@ -378,7 +386,7 @@ Sub PostCombat
 |- SUB: Travel
 |----------------------------------------------------------------------------
 Sub Travel
-	/if (${Stick.Active}) /stick off
+	/if (${Stick.Status.Equal[ON]}) /stick off
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
 	/attack off
 	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID}!=${Me.ID}) {
@@ -388,19 +396,48 @@ Sub Travel
 		/if (${Navigation.Active} && ${Target.Distance}<10) /nav stop
 	}
 	/if (${Me.Pet.ID} && ${Me.Combat}) /pet back off
-	/if (!${Me.Buff[Communion of the Cheetah].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) {
+	/if (!${Me.Invis} && !${Me.Buff[Communion of the Cheetah].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) {
 		/call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
 		/delay 1
 	}
 /return
 |----------------------------------------------------------------------------
+|- SUB: PullerCheckGroupManaEnd
+|---------------------------------------------------------------------------- 
+Sub PullerCheckGroupManaEnd
+	/declare bmember	int local 0
+	/varset ResourceChecker 1
+	/for bmember 0 to ${Group}
+		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
+			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ManaPct" "int"
+				/if (${ManaPct}<20) {
+					/varset ResourceChecker 0 
+					/delay 5
+				}
+			}
+			/if (${ResourceChecker}==0) /return
+			/if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "EndPct" "int"
+				/if (${EndPct}<20) {
+					/varset ResourceChecker 0
+					/delay 5
+				}
+			}
+			/if (${ResourceChecker}==0) /return
+		}
+	/next bmember
+/return
+|----------------------------------------------------------------------------
 |- SUB: AFKPull
 |---------------------------------------------------------------------------- 
 Sub AFKPull
+	/if (${ResourceChecker}==0) /return
 	/if (${AdvPath.Following}) /afollow off
 	/if (${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
+	/delay 5s ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}==${Target.ID}
 	/if (${Mode}!=3) {
-		/nav stop
+		/if (${Navigation.Active}) /nav stop
 		/return
 	}
 	/if (${Target.ID}==${Me.ID} || !${Target.ID}) /return
@@ -408,26 +445,27 @@ Sub AFKPull
 |-	/if (!${Navigation.PathExists[id ${Target.ID}]}) {
 |-		/if (${NearestSpawn[next npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[next npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 |-	}
-    /if (${Target.ID} && ${Navigation.MeshLoaded}) /nav id ${Target.ID}
-    
-    /delay 15s ${Target.Distance}<=90
-    /if (${PreviousMode}!=${Mode}) {
-		/nav stop
-		/return
-	}
-    
-    /if (${Target.Distance}<=90 && ${Spawn[id ${Target.ID} los].ID}) /nav stop
-    /delay 1s
-    :pull
-	/if (${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
-	/if (${Me.AltAbilityReady[${PullAbility}]}) /alt act ${PullAbility}
-	/if (${PreviousMode}!=${Mode}) {
-		/nav stop
-		/return
-	}
-	/if (${Target.PctAggro}<10) /goto :pull
-    /delay 1s
 
+	
+    /if (${Target.ID} && ${Navigation.MeshLoaded} && (${Target.Distance}>${PullDistance} || !${Spawn[id ${Target.ID} los].ID})) /nav id ${Target.ID}
+
+	/while (${Navigation.Active}) {
+		/delay 1s ${Target.Distance}<=${PullDistance}
+		/if (${Navigation.Active} && ${Target.Distance}<=${PullDistance} && ${Spawn[id ${Target.ID} los].ID}) /nav stop
+    }
+
+	/delay 5
+    /while (${Target.PctAggro}<=0 || ${Target.Distance}>=${PullDistance}) {
+		/docommand /dgt \ag Pulling
+		/if (${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
+		/if (${Me.AltAbilityReady[Distant Strike]}) /alt act 376
+		/if (${Mode}!=3) {
+			/if (${Navigation.Active}) /nav stop
+			/return
+		}
+		/if (${Target.Distance}>${PullDistance} && ${Me.XTarget[1].ID}) /break
+		/delay 5
+	}
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 	/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<15
     /if (${Target.ID}) /face fast
@@ -440,13 +478,13 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (${Stick.Active}) /stick off
 		/nav locxyz ${Xloc} ${Yloc} ${Zloc}
 		:movinghome
-			/if (${PreviousMode}!=${Mode}) {
+			/if (${Mode}==0) {
 				/nav stop
 				/return
 			}
 			/delay 5
 			/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]}>${Distance} && ${Navigation.Active}) /goto :movinghome
-		/nav stop
+		/if (${Navigation.Active}) /nav stop
 		/if (${Target.ID}) /face fast
 		/delay 10
 	}

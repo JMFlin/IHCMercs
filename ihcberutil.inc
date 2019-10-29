@@ -298,7 +298,9 @@ Sub SetupDiscs
 		/varset Daxeof ${Spell[Axe of Rallos].RankName}
 	}
 |---AE Slice Attack - 4 targets or less DIRECTIONAL Range 40
-	/if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Arcslice].RankName}]})  {
+	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Arcsteel].RankName}]})  {
+		/varset AESlice ${Spell[Arcsteel].RankName}
+	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Arcslice].RankName}]})  {
 		/varset AESlice ${Spell[Arcslice].RankName}
 	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Arcblade].RankName}]})  {
 		/varset AESlice ${Spell[Arcblade].RankName}
