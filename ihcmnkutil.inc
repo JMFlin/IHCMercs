@@ -89,12 +89,19 @@ Sub INIChanges
 	/call SetIni Item ChestCombatCast		int ${ChestCombatCast}
 	/call SetIni Item UsePoisons		 	int ${UsePoisons}
 	/call SetIni General Drive		 		int ${Drive}
-/return 
+/return
+|----------------------------------------------------------------------------
+|- SUB: PullAbilitySetup
+|----------------------------------------------------------------------------
+Sub PullAbilitySetup
+	/varset PullAbility 376
+	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
+	/varset PullDistance 190
+/return
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs
 |---------------------------------------------------------------------------- 
 Sub SetupDiscs
-|---One off abilities
 
 |--RejectDeath line
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Reject Death].RankName}]}) {
@@ -119,39 +126,39 @@ Sub SetupDiscs
 		/varset Alliance ${Spell[Doomwalker's Alliance].RankName}
 	}
 |---Synergy Line
-	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Firewalker's Synergy].RankName}]})  {
+	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Firewalker's Synergy].RankName}]}) {
 		/varset Synergy ${Spell[Firewalker's Synergy].RankName}
 	}
 |---DM Line
-	/if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Drunken Monkey Style].RankName}]})  {
+	/if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Drunken Monkey Style].RankName}]}) {
 		/varset Drunken ${Spell[Drunken Monkey Style].RankName}
 	} 
 |---Curse Line
-	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Curse of Fourteen Fists].RankName}]})  {
+	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Curse of Fourteen Fists].RankName}]}) {
 		/varset Curse ${Spell[Curse of Fourteen Fists].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Curse of the Thirteen Fingers].RankName}]})  {
+	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Curse of the Thirteen Fingers].RankName}]}) {
 		/varset Curse ${Spell[Curse of the Thirteen Fingers].RankName}
 	} 
 |---Fang Line
-	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Hoshkar's Fang].RankName}]})  {
+	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Hoshkar's Fang].RankName}]}) {
 		/varset Fang ${Spell[Hoshkar's Fang].RankName}
 	} 
 |---Fists Line
-	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Firestorm of Fists].RankName}]})  {
+	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Firestorm of Fists].RankName}]}) {
 		/varset Fists ${Spell[Firestorm of Fists].RankName}
 	}
 |---Precision Line
-	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Firewalker's Precision Strike].RankName}]})  {
+	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Firewalker's Precision Strike].RankName}]}) {
 		/varset Precision ${Spell[Firewalker's Precision Strike].RankName}
 	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Doomwalker's Precision Strike].RankName}]}) {
 		/varset Precision ${Spell[Doomwalker's Precision Strike].RankName}
 	}
 |---Shuriken Line
-	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Vigorous Shuriken].RankName}]})  {
+	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Vigorous Shuriken].RankName}]}) {
 		/varset Shuriken ${Spell[Vigorous Shuriken].RankName}
 	} 
 |---Crane Line
-	/if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Crane Stance].RankName}]})  {
+	/if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Crane Stance].RankName}]}) {
 		/varset Crane ${Spell[Crane Stance].RankName}
 	} 
 |-Dicho Spell*
@@ -161,19 +168,19 @@ Sub SetupDiscs
 		/varset DichoSpell ${Spell[Dichotomic Form].RankName}
 	}
 |---Fast Endurance regen - No Update
-	/if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Breather].RankName}]})  {
+	/if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Breather].RankName}]}) {
 		/varset endregen ${Spell[Breather].RankName}
-	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[${Spell[Rest].RankName}]})  {
+	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[${Spell[Rest].RankName}]}) {
 		/varset endregen ${Spell[Rest].RankName}
-	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[${Spell[Reprieve].RankName}]})  {
+	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[${Spell[Reprieve].RankName}]}) {
 		/varset endregen ${Spell[Reprieve].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Respite].RankName}]})  {
+	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Respite].RankName}]}) {
 		/varset endregen ${Spell[Respite].RankName}
-	} else /if (${Me.Level}>=82 && ${Me.CombatAbility[${Spell[Fourth Wind].RankName}]})  {
+	} else /if (${Me.Level}>=82 && ${Me.CombatAbility[${Spell[Fourth Wind].RankName}]}) {
 		/varset endregen ${Spell[Fourth Wind].RankName}
-	} else /if (${Me.Level}>=77 && ${Me.CombatAbility[${Spell[Third Wind].RankName}]})  {
+	} else /if (${Me.Level}>=77 && ${Me.CombatAbility[${Spell[Third Wind].RankName}]}) {
 		/varset endregen ${Spell[Third Wind].RankName}
-	} else /if (${Me.Level}>=72 && ${Me.CombatAbility[${Spell[Second Wind].RankName}]})  {
+	} else /if (${Me.Level}>=72 && ${Me.CombatAbility[${Spell[Second Wind].RankName}]}) {
 		/varset endregen ${Spell[Second Wind].RankName}
 	}
 |-Aura Set up	
@@ -217,7 +224,7 @@ Sub Bind_SetVarInt(string ISection, string IName, int IVar)
  |-Toggles
 	/if (${ISection.Equal[Toggle]}) {
   |--Alliance
-		} else /if (${IName.Equal[UseAlliance]}) {
+		/if (${IName.Equal[UseAlliance]}) {
 			/if (!${UseAlliance}) {
 				/echo \aw Setting UseAlliance to \ag ON
 				/varset UseAlliance 1

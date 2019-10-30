@@ -125,6 +125,14 @@ Sub INIChanges
 	/call SetIni Options DoBuffs		int ${DoBuffs}
 /return 
 |----------------------------------------------------------------------------
+|- SUB: PullAbilitySetup
+|----------------------------------------------------------------------------
+Sub PullAbilitySetup
+	/varset PullAbility ${insult}
+	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
+	/varset PullDistance 90
+/return
+|----------------------------------------------------------------------------
 |- SUB: SetupDiscs
 |---------------------------------------------------------------------------- 
 Sub SetupDiscs

@@ -293,16 +293,6 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: PullAbilitySetup
-|----------------------------------------------------------------------------
-Sub PullAbilitySetup
-	/if (${Me.Class.ShortName.Find[MNK]}) /varset PullAbility 376
-	/if (${Me.Class.ShortName.Find[WAR]}) /varset PullAbility ${insult}
-	/if (${FindItem[Staff of Viral Flux]}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-	/if (${Me.Class.ShortName.Find[MNK]}) /varset PullDistance 190
-	/if (${Me.Class.ShortName.Find[WAR]}) /varset PullDistance 90
-/return
-|----------------------------------------------------------------------------
 |- SUB: ModeSet
 |----------------------------------------------------------------------------
 Sub ModeSet

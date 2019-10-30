@@ -44,9 +44,7 @@ Sub Main
 	/if (${UseZoneLogic}) {
 		/call ZoneEventChk
 	}
-	/if (${Me.Class.ShortName.Find[MNK]}) /varset PullAbility 376
-	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-	/if (${Me.Class.ShortName.Find[MNK]}) /varset PullDistance 190
+	/call PullAbilitySetup
 :mainloop
 	/call ModeSet
     /if (${Mode}==0) /call Travel
