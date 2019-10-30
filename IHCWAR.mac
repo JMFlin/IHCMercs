@@ -57,12 +57,75 @@ Sub Main
 	/if (${Mode}==4) /call AFKRunAndGun
 	/if (${Mode}==5) /call DoEvent
 /goto :mainloop
-/return 
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualPullCamping
+|---------------------------------------------------------------------------- 
+Sub ManualPullCamping
+	/call MakeCamp
+    /call RemoveTravelBuffs
+
+	/while (${Mode}==1) {
+		/if (${AdvPath.Following}) /afollow off
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+
+		/if (${State}==0) {
+			/if (${Target.ID}) /target clear
+			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+			/if (${DoMed}) /call AutoMed
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
+			/if (${TimeForMezVariable}==1) /varset TimeForMezVariable 0
+			/if (${Me.XTarget[1].ID}) /varset State 1
+		}
+		
+		/if (${State}==1) {
+			/if (${Me.XTarget[1].Distance}>150 || ${Target.Distance}>150 || !${Target.ID} || ${Target.ID}==${Me.ID} || !${Target.Type.Equal[NPC]}) {
+				/call CheckXTargetDistance
+			} else /if (${Target.Distance}<150 && ${Target.Distance}>70 && ${Target.Type.Equal[NPC]}) {
+				/call CombatBuffs
+				/call DoDisc
+			} else /if (${Target.Distance}<(${AssistRange}+15) && ${Target.ID}!=${Me.ID}) {
+				/varset State 2
+			}
+			/if (!${Target.ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
+		}
+
+		/if (${State}==2) {
+
+			/if (${TimeForMezVariable}==0 && ${Target.Distance}<=${AssistRange}) {
+				/varset TimeForMez 6s
+				/varset TimeForMezVariable 1
+			}
+
+			/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
+			/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
+			/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
+			/if (!${Target.Type.Equal[NPC]} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
+
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
+			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoMashRangeAggro
+			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call AoEAggro
+			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange} && ${Target.Distance}<=(${AssistRange}+25)) /call DoDisc
+			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoCombat
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=(${AssistRange}+25) && ${Target.Type.Equal[NPC]}) /call CombatBuffs
+
+			/if (${Target.Type.Equal[Corpse]}) /target clear
+			/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (!${Me.XTarget[1].ID}) /call PostCombat
+		}
+
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
+	}
+/return
 |----------------------------------------------------------------------------
 |- SUB: ManualRunAndGun
 |----------------------------------------------------------------------------
 Sub ManualRunAndGun
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+
 	/while (${Mode}==2) {
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
@@ -99,15 +162,13 @@ Sub ManualRunAndGun
 
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
-/if (${Mode}!=2) /return
+	}
+/return
 |----------------------------------------------------------------------------
 |- SUB: AFKRadiusCamping 
 |---------------------------------------------------------------------------- 
 Sub AFKRadiusCamping
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-    /varset PullAutoCampY ${Me.Y}
-    /varset PullAutoCampX ${Me.X}
-	/varset PullAutoCampZ ${Me.Z}
+    /call MakeCamp
     /call RemoveTravelBuffs 
 	/target clear   
 
@@ -149,71 +210,8 @@ Sub AFKRadiusCamping
 
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
-
-/if (${Mode}!=3) /return
-|----------------------------------------------------------------------------
-|- SUB: ManualPullCamping
-|---------------------------------------------------------------------------- 
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs
-
-	:manualpullcamping
-	/if (${AdvPath.Following}) /afollow off
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
-
-	/if (${State}==0) {
-		/if (${Target.ID}) /target clear
-		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
-		/if (${DoMed}) /call AutoMed
-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
-		/if (${TimeForMezVariable}==1) /varset TimeForMezVariable 0
-		/if (${Me.XTarget[1].ID}) /varset State 1
 	}
-	
-	/if (${State}==1) {
-		/if (${Me.XTarget[1].Distance}>150 || ${Target.Distance}>150 || !${Target.ID} || ${Target.ID}==${Me.ID} || !${Target.Type.Equal[NPC]}) {
-			/call CheckXTargetDistance
-		} else /if (${Target.Distance}<150 && ${Target.Distance}>70 && ${Target.Type.Equal[NPC]}) {
-			/call CombatBuffs
-			/call DoDisc
-		} else /if (${Target.Distance}<(${AssistRange}+15) && ${Target.ID}!=${Me.ID}) {
-			/varset State 2
-		}
-		/if (!${Target.ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
-	}
-
-	/if (${State}==2) {
-
-		/if (${TimeForMezVariable}==0 && ${Target.Distance}<=${AssistRange}) {
-			/varset TimeForMez 6s
-			/varset TimeForMezVariable 1
-		}
-
-		/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
-		/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
-		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
-		/if (!${Target.Type.Equal[NPC]} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
-
-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoMashRangeAggro
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call AoEAggro
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange} && ${Target.Distance}<=(${AssistRange}+25)) /call DoDisc
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoCombat
-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=(${AssistRange}+25) && ${Target.Type.Equal[NPC]}) /call CombatBuffs
-
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (!${Me.XTarget[1].ID}) /call PostCombat
-	}
-
-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
-
-	/if (${Mode}==1) /goto :manualpullcamping
-	/if (${Mode}!=1) /return
+/return
 |----------------------------------------------------------------------------
 |- SUB: CheckXTargetDistance  
 |---------------------------------------------------------------------------- 

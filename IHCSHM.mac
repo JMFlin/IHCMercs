@@ -62,102 +62,104 @@ Sub Main
 	/if (${Mode}==4) /call AFKRunAndGun
 	/if (${Mode}==5) /call DoEvent
 /goto :mainloop
-/return 
-|----------------------------------------------------------------------------
-|- SUB: ManualRunAndGun
-|----------------------------------------------------------------------------
-Sub ManualRunAndGun
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	/call RemoveTravelBuffs
-	:runandgun
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
-
-	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
-	/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
-	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
-	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffSelf
-
-	/call TankChangeCheck
-
-	/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
-	/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
-
-	/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
-	
-	/if (${Me.XTarget[1].ID}) /call AANDisc
-
-	/if (!${Me.Casting.ID} && !${Me.Moving} && (${Me.XTarget[1].ID} || !${Me.Invis}) && ((${DoAACanni} && ${Me.PctMana}<${AACanniManaPct}) || (${DoSpellCanni} && ${Me.PctMana}<${CanniManaPct}))) /call HealthToMana
-
-	/if (${AutoRez} && !${Me.Moving}) /call RezCheck
-
-	/if (${DynamicHealing}) /call ConfigHeal
-
-	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
-
-	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
-
-	/if (${UseModRods}) /call ClickModRoD
-
-	/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
-
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-
-	/doevents
-	/if (${Mode}==2) /goto :runandgun
-	/if (${Mode}!=2) /return
+/return
 |----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |----------------------------------------------------------------------------
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs 
-	:manualpullcamping
-	/if (${AdvPath.Following}) /afollow off
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
 
-	/if (${State}==0) {
-		/if (!${Me.Buff[Communion of the Cheetah].ID} && !${Me.XTarget[1].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) /call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
-		/if (${DoMed}) /call AutoMed
-		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffGroup
-		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffSelf
-		/call TankChangeCheck
-		/if (${Me.XTarget[1].ID}) /varset State 1
-	}
+	/while (${Mode}==1 || ${Mode}==3) {
+		/if (${AdvPath.Following}) /afollow off
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
 
-	/if (${State}==1) {
-		/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
-		/if (!${Me.Casting.ID} && ${Me.Song[${GroupRenewalHoT}].ID} && ${Me.PctMana}>=20) /call BuffGroupMember "${GroupRenewalHoT}" ${Group.Member[0].ID}
-		/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
-		/if (${Me.XTarget[1].Distance}<40 && ${Target.ID}!=${Me.ID}) {
-			/varset State 2
+		/if (${State}==0) {
+			/if (!${Me.Buff[Communion of the Cheetah].ID} && !${Me.XTarget[1].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) /call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
+			/if (${Target.Type.Equal[Corpse]}) /target clear
+			/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+			/if (${DoMed}) /call AutoMed
+			/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffGroup
+			/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffSelf
+			/call TankChangeCheck
+			/if (${Me.XTarget[1].ID}) /varset State 1
 		}
-	}
 
-	/if (${State}==2) {
-		/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
-		/if (${Me.XTarget[1].ID}) /call AANDisc
-		/if (!${Me.Casting.ID} && !${Me.Moving} && (${Me.XTarget[1].ID} || !${Me.Invis}) && ((${DoAACanni} && ${Me.PctMana}<${AACanniManaPct}) || (${DoSpellCanni} && ${Me.PctMana}<${CanniManaPct}))) /call HealthToMana
-		/if (${AutoRez} && !${Me.Moving}) /call RezCheck
-		/if (${DynamicHealing}) /call ConfigHeal
-		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
-		/if (${UseModRods}) /call ClickModRoD
+		/if (${State}==1) {
+			/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
+			/if (!${Me.Casting.ID} && ${Me.Song[${GroupRenewalHoT}].ID} && ${Me.PctMana}>=20) /call BuffGroupMember "${GroupRenewalHoT}" ${Group.Member[0].ID}
+			/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
+			/if (${Me.XTarget[1].Distance}<40 && ${Target.ID}!=${Me.ID}) {
+				/varset State 2
+			}
+		}
+
+		/if (${State}==2) {
+			/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
+			/if (${Me.XTarget[1].ID}) /call AANDisc
+			/if (!${Me.Casting.ID} && !${Me.Moving} && (${Me.XTarget[1].ID} || !${Me.Invis}) && ((${DoAACanni} && ${Me.PctMana}<${AACanniManaPct}) || (${DoSpellCanni} && ${Me.PctMana}<${CanniManaPct}))) /call HealthToMana
+			/if (${AutoRez} && !${Me.Moving}) /call RezCheck
+			/if (${DynamicHealing}) /call ConfigHeal
+			/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
+			/if (${UseModRods}) /call ClickModRoD
+			/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
+
+			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
+
+			/if (${Target.Type.Equal[Corpse]}) /target clear
+			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (!${Me.XTarget[1].ID}) /call PostCombat
+		}
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualRunAndGun
+|----------------------------------------------------------------------------
+Sub ManualRunAndGun
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/call RemoveTravelBuffs
+	
+	/while (${Mode}==2) {
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+
+		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
+		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
+		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffSelf
+
+		/call TankChangeCheck
+
 		/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
+		/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
+
+		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
+		
+		/if (${Me.XTarget[1].ID}) /call AANDisc
+
+		/if (!${Me.Casting.ID} && !${Me.Moving} && (${Me.XTarget[1].ID} || !${Me.Invis}) && ((${DoAACanni} && ${Me.PctMana}<${AACanniManaPct}) || (${DoSpellCanni} && ${Me.PctMana}<${CanniManaPct}))) /call HealthToMana
+
+		/if (${AutoRez} && !${Me.Moving}) /call RezCheck
+
+		/if (${DynamicHealing}) /call ConfigHeal
+
+		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
 
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
+		/if (${UseModRods}) /call ClickModRoD
+
+		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
+
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (!${Me.XTarget[1].ID}) /call PostCombat
+
+		/doevents
 	}
-	/doevents
-	/if (${Mode}==1 || ${Mode}==3) /goto :manualpullcamping
-	/if (${Mode}!=1 && ${Mode}!=3) /return
+/return
 |----------------------------------------------------------------------------
 |- SUB: HealthToMana
 |---------------------------------------------------------------------------- 

@@ -62,55 +62,56 @@ Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs 
 	/target clear 
-	:manualpullcamping
-	/if (${AdvPath.Following}) /afollow off
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
 
-	/if (${State}==0) {
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
-		/if (${DoMed}) /call AutoMed
-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
-		/if (${Me.XTarget[1].ID}) /varset State 1
-	}
+	/while (${Mode}==1 || ${Mode}==3) {
+		/if (${AdvPath.Following}) /afollow off
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
 
-	
-	/if (${State}==1) {
-		/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
-		/if (${Target.Distance}<50 && ${Target.Type.Equal[NPC]}) {
+		/if (${State}==0) {
+			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+			/if (${DoMed}) /call AutoMed
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
+			/if (${Me.XTarget[1].ID}) /varset State 1
+		}
+
+		
+		/if (${State}==1) {
+			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+			/if (${Target.Distance}<50 && ${Target.Type.Equal[NPC]}) {
+				/call PreCombatBuffs
+			}
+			/if (${Target.Distance}<40 && ${Target.ID}!=${Me.ID}) {
+				/varset State 2
+			}
+		}
+
+		/if (${State}==2) {
+			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+			/if (${Target.Type.Equal[NPC]}) /call PreCombatBuffs
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoAssistAt}) /call Engage
 			/call PreCombatBuffs
+			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
+
+			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
+
+			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AssistRange}
+
+			/if (${Target.Type.Equal[Corpse]}) /target clear
+			/if (!${Me.XTarget[1].ID}) /call PostCombat
 		}
-		/if (${Target.Distance}<40 && ${Target.ID}!=${Me.ID}) {
-			/varset State 2
-		}
+
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
 	}
-
-	/if (${State}==2) {
-		/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
-		/if (${Target.Type.Equal[NPC]}) /call PreCombatBuffs
-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoAssistAt}) /call Engage
-		/call PreCombatBuffs
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
-
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
-
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AssistRange}
-
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.XTarget[1].ID}) /call PostCombat
-	}
-
-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
-
-	/if (${Mode}==1 || ${Mode}==3) /goto :manualpullcamping
-	/if (${Mode}!=1 && ${Mode}!=3) /return
+/return
 |----------------------------------------------------------------------------
 |- SUB: ManualRunAndGun
 |----------------------------------------------------------------------------
 Sub ManualRunAndGun
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	
 	/while (${Mode}==2) {
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
@@ -133,7 +134,8 @@ Sub ManualRunAndGun
 
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
-/if (${Mode}!=2) /return
+	}
+/return
 |----------------------------------------------------------------------------
 |- SUB: PreCombatBuffs
 |---------------------------------------------------------------------------- 

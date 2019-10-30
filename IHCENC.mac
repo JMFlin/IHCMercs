@@ -52,71 +52,73 @@ Sub Main
 	/if (${Mode}==4) /call AFKRunAndGun
 	/if (${Mode}==5) /call DoEvent
 /goto :mainloop
-/return 
-|----------------------------------------------------------------------------
-|- SUB: ManualRunAndGun
-|----------------------------------------------------------------------------
-Sub ManualRunAndGun
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	/call RemoveTravelBuffs
-	:runandgun
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
-
-	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
-	/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
-	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffCheck
-	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
-	
-	/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
-
-	/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-	/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && ${Target.Distance}<${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
-	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${DoDPS} && !${MezWait}) /call Combatdps
-	/if (${Me.PctMana}<=70) /call CheckMana
-	/if (${UseModRods}) /call ClickModRoD
-
-	/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
-
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-
-	/doevents
-	/if (${Mode}==2) /goto :runandgun
-	/if (${Mode}!=2) /return
+/return
 |----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |----------------------------------------------------------------------------
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs  
-	:manualpullcamping
-  	/if (${AdvPath.Following}) /afollow off
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
 
-	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call IllusionCheck
-	/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
-	/if (${UseCharmPet} && !${BackOffFlag} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
-	/if (((${Me.XTarget[1].ID} || ${KillTargetID}) || (${MezMobCount} && ${Me.GroupAssistTarget.ID}) || ${FollowMarkTarget}) && (!${MezWait}) && !${BackOffFlag} && (${Target.ID}!=${Me.GroupAssistTarget.ID}) && ${DoAutoTarget}) /call FindTarget
-	/if (((${Me.XTarget[1].ID} || ${KillTargetID}) || (${MezMobCount} && ${Me.GroupAssistTarget.ID}==${autotargetid})) && (!${MezWait}) && !${BackOffFlag} && (${Target.ID}==${autotargetid}) && ${DoAutoEngage}) /call EngageTarget
-	/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-	/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && !${BackOffFlag} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt} && ${Ok2Assist} && ${DeBuffTimer}==0) /call DebuffMobs
-	/if (${Me.XTarget[1].ID} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && !${BackOffFlag}) /call AANDisc
-	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.ID}==${autotargetid} && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${DoDPS} && (!${MezWait}) && (${DPSRecastTimer}==0) && !${BackOffFlag} && ${Ok2Assist}) /call Combatdps
-	/if (${Me.PctMana}<=70) /call CheckMana
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${DoBuffs}) /call BuffCheck
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
-	/if (${UseModRods}) /call ClickModRoD
-	/if (${DoMed}) /call AutoMed
-	/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+	/while (${Mode}==1 || ${Mode}==3) {
+		/if (${AdvPath.Following}) /afollow off
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call IllusionCheck
+		/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
+		/if (${UseCharmPet} && !${BackOffFlag} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
+		/if (((${Me.XTarget[1].ID} || ${KillTargetID}) || (${MezMobCount} && ${Me.GroupAssistTarget.ID}) || ${FollowMarkTarget}) && (!${MezWait}) && !${BackOffFlag} && (${Target.ID}!=${Me.GroupAssistTarget.ID}) && ${DoAutoTarget}) /call FindTarget
+		/if (((${Me.XTarget[1].ID} || ${KillTargetID}) || (${MezMobCount} && ${Me.GroupAssistTarget.ID}==${autotargetid})) && (!${MezWait}) && !${BackOffFlag} && (${Target.ID}==${autotargetid}) && ${DoAutoEngage}) /call EngageTarget
+		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
+		/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && !${BackOffFlag} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt} && ${Ok2Assist} && ${DeBuffTimer}==0) /call DebuffMobs
+		/if (${Me.XTarget[1].ID} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && !${BackOffFlag}) /call AANDisc
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.ID}==${autotargetid} && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${DoDPS} && (!${MezWait}) && (${DPSRecastTimer}==0) && !${BackOffFlag} && ${Ok2Assist}) /call Combatdps
+		/if (${Me.PctMana}<=70) /call CheckMana
+		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${DoBuffs}) /call BuffCheck
+		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
+		/if (${UseModRods}) /call ClickModRoD
+		/if (${DoMed}) /call AutoMed
+		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 
-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
-	/if (${Mode}==1 || ${Mode}==3) /goto :manualpullcamping
-	/if (${Mode}!=1 && ${Mode}!=3) /return
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualRunAndGun
+|----------------------------------------------------------------------------
+Sub ManualRunAndGun
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/call RemoveTravelBuffs
+	
+	/while (${Mode}==2) {
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+
+		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
+		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffCheck
+		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
+		
+		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
+
+		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
+		/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && ${Target.Distance}<${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
+		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${DoDPS} && !${MezWait}) /call Combatdps
+		/if (${Me.PctMana}<=70) /call CheckMana
+		/if (${UseModRods}) /call ClickModRoD
+
+		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
+
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+
+		/doevents
+	}
+/return
 |----------------------------------------------------------------------------
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 

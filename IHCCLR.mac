@@ -64,81 +64,82 @@ Sub Main
 /goto :mainloop
 /return
 |----------------------------------------------------------------------------
-|- SUB: ManualRunAndGun
-|----------------------------------------------------------------------------
-Sub ManualRunAndGun
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	/call RemoveTravelBuffs
-	:runandgun
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
-
-	/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
-	/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
-	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
-	/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffSelf
-	
-	/call TankChangeCheck
-
-	/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
-
-	/if (${Cursor.ID}) /call BagModRods
-	/call TankChangeCheck
-	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call IllusionCheck
-	/if (${DynamicHealing}) /call ConfigHeal
-	/call ExtraHeal
-	/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
-	/if ((${Me.PctAggro}>90||${Me.XTarget[2].PctAggro}>90 || ${Me.XTarget[3].PctAggro}>90) && (${Me.PctHPs}<=${grouphealpoint}) && (!${Me.Buff[Sanctuary].ID})) /call AggroCheck
-	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealXT
-	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
-	/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
-
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${Group.Member[${assistname}].Hovering} && ${Group.Member[${assistname}].Type.NotEqual[Corpse]} && ${Group.Member[${assistname}].PctHPs}>=1 && ${DoBuffs}) /call BuffCheck
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
-
-
-	/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
-
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-
-	/doevents
-	/if (${Mode}==2) /goto :runandgun
-	/if (${Mode}!=2) /return
-|----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs 
-	:manualpullcamping
-	/if (${AdvPath.Following}) /afollow off
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Me.State.Equal[FEIGN]}) /stand
+	
+	/while (${Mode}==1 || ${Mode}==3) {
+		/if (${AdvPath.Following}) /afollow off
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
 
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
-	/if (${DoMed}) /call AutoMed
+		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+		/if (${DoMed}) /call AutoMed
 
-	/if (${Cursor.ID}) /call BagModRods
-	/call TankChangeCheck
-	/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call IllusionCheck
-	/if (${DynamicHealing}) /call ConfigHeal
-	/call ExtraHeal
-	/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
-	/if ((${Me.PctAggro}>90||${Me.XTarget[2].PctAggro}>90 || ${Me.XTarget[3].PctAggro}>90) && (${Me.PctHPs}<=${grouphealpoint}) && (!${Me.Buff[Sanctuary].ID})) /call AggroCheck
-	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealXT
-	/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
-	/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
+		/if (${Cursor.ID}) /call BagModRods
+		/call TankChangeCheck
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call IllusionCheck
+		/if (${DynamicHealing}) /call ConfigHeal
+		/call ExtraHeal
+		/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
+		/if ((${Me.PctAggro}>90||${Me.XTarget[2].PctAggro}>90 || ${Me.XTarget[3].PctAggro}>90) && (${Me.PctHPs}<=${grouphealpoint}) && (!${Me.Buff[Sanctuary].ID})) /call AggroCheck
+		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealXT
+		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
+		/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
 
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${Group.Member[${assistname}].Hovering} && ${Group.Member[${assistname}].Type.NotEqual[Corpse]} && ${Group.Member[${assistname}].PctHPs}>=1 && ${DoBuffs}) /call BuffCheck
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
+		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${Group.Member[${assistname}].Hovering} && ${Group.Member[${assistname}].Type.NotEqual[Corpse]} && ${Group.Member[${assistname}].PctHPs}>=1 && ${DoBuffs}) /call BuffCheck
+		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
 
-	/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
-	/doevents
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualRunAndGun
+|----------------------------------------------------------------------------
+Sub ManualRunAndGun
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/call RemoveTravelBuffs
+	
+	/while (${Mode}==2) {
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
 
-	/if (${Mode}==1 || ${Mode}==3) /goto :manualpullcamping
-	/if (${Mode}!=1 && ${Mode}!=3) /return
+		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
+		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
+		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffSelf
+		
+		/call TankChangeCheck
+
+		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
+
+		/if (${Cursor.ID}) /call BagModRods
+		/call TankChangeCheck
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call IllusionCheck
+		/if (${DynamicHealing}) /call ConfigHeal
+		/call ExtraHeal
+		/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
+		/if ((${Me.PctAggro}>90||${Me.XTarget[2].PctAggro}>90 || ${Me.XTarget[3].PctAggro}>90) && (${Me.PctHPs}<=${grouphealpoint}) && (!${Me.Buff[Sanctuary].ID})) /call AggroCheck
+		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealXT
+		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
+		/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
+
+		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${Group.Member[${assistname}].Hovering} && ${Group.Member[${assistname}].Type.NotEqual[Corpse]} && ${Group.Member[${assistname}].PctHPs}>=1 && ${DoBuffs}) /call BuffCheck
+		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
+
+
+		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
+
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+
+		/doevents
+	}
+/return
 |----------------------------------------------------------------------------
 |- SUB: ExtraHeal - Extra Actions to Perform
 |---------------------------------------------------------------------------- 
