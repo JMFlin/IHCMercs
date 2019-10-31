@@ -423,6 +423,9 @@ Sub PullerCheckGroupManaEnd
 |---------------------------------------------------------------------------- 
 Sub AddToAlert
 	/declare i int local 0
+	/squelch /alert clear 1
+
+	/docommand /dgt \aw Creating alert list for \ag ${Zone.Name} \aw from eq.db
 	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT CLEAN_NAME, NAME, ID, ZONE_NAME, ZONE_ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
 	/for i 1 to ${sqlite.rows[ignore_list]}
 		/squelch /add alert 1 ${sqlite.result[ignore_list ${i} NAME]}
