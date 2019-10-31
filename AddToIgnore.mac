@@ -1,0 +1,41 @@
+#turbo 80
+Sub Main
+	/plugin mq2sqlite
+	/declare Update 				int outer 1
+	/declare PreviousTarget 		int outer 0
+	/declare i 						int outer 0
+	/declare InDataBase				int outer 0
+	
+	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db query CREATE TABLE IF NOT EXISTS ignore_pulling(CLEAN_NAME TEXT NOT NULL, NAME TEXT NOT NULL, ID INT NOT NULL, ZONE_NAME TEXT NOT NULL,  ZONE_ID int NOT NULL, MET_INSERT_TIME TIMESTAMP NOT NULL);
+	/target id ${Me.ID}
+	:mainloop
+		/if (${InDataBase}==1) /varset InDataBase 	0
+		/if (${Update}) {
+			/docommand /dgt \aw Updating from eq.ignore_pulling \ax
+			/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db table SELECT DISTINCT CLEAN_NAME, NAME, ID, ZONE_NAME, ZONE_ID FROM ignore_pulling;
+			/varset Update 		0
+		}
+
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Target.ID}!=${PreviousTarget} && ${sqlite.rows[table]}) {
+			/for i 1 to ${sqlite.rows[table]}
+				/if (${sqlite.result[table ${i} ID]}==${Target.ID} && ${sqlite.result[table ${i} NAME].Equal[${Target.Name}]}) {
+					/docommand /dgt \ar ${Target.CleanName} ${Target.ID} \aw already in database \ar
+					/varset InDataBase 1
+					/if (${Target.ID}!=${PreviousTarget} && ${Target.Type.Equal[NPC]}) /varset PreviousTarget  ${Target.ID}
+				}
+			/next i
+		}
+		
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${InDataBase}==0 && ${Target.ID}!=${PreviousTarget}) {
+			/docommand /dgt \aw Inserting to eq.ignore_pulling: \n Target clean name: \ag ${Target.CleanName} \n Target name: \ag ${Target.Name} \n Target id: \ag ${Target.ID} \n Zone name: \ag ${Zone.Name} \n Zone id: \ag ${Zone.ID} \ax
+			/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db query INSERT INTO ignore_pulling VALUES("${Target.CleanName}", "${Target.Name}", ${Target.ID}, "${Zone.Name}", ${Zone.ID}, CURRENT_TIMESTAMP);			
+			|/varset PreviousTarget ${Target.ID}
+			/varset Update 		1
+			/varset InDataBase 	0
+			/delay 1s
+			/docommand /dgt \ag Insert complete \ag
+		}
+		/if (${Target.ID}!=${PreviousTarget} && ${Target.Type.Equal[NPC]}) /varset PreviousTarget  ${Target.ID}
+	/delay 1s
+	/goto :mainloop
+/return

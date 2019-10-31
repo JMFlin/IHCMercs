@@ -41,7 +41,7 @@ Sub Main
 	} else {
 		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
 	}
-		/if (${UseZoneLogic}) {
+	/if (${UseZoneLogic}) {
 		/call ZoneEventChk
 	}
 	
@@ -187,6 +187,9 @@ Sub AANDisc
 		/Disc ${FrenzyBoost}
 		/delay 5
 	}
+
+	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
+
 	/if (${Target.AggroHolder.ID}==${Me.ID} && ${Me.PctAggro}>90 && (${Target.PctHPs}>20 || ${Target.Named}) && ${Target.Level}>=105 && ${Me.AltAbilityReady[Uncanny Resilience]}) {
 			/echo Looks like I'm Tanking, GL!
 			/alt act ${Me.AltAbility[Uncanny Resilience].ID}
@@ -242,6 +245,9 @@ Sub AANDisc
 		/disc ${FlurryDisc}
 		/delay 5
 	}
+
+	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
+
 	/if ((${Me.XTarget}>1 || ${Me.ActiveDisc.ID}==${FlurryDiscID}) && ${Me.AltAbilityReady[Vehement Rage]} && ${Me.Combat} && ${Target.PctHPs}>20 && ${Target.PctHPs}<99) {
 		/alt act ${Me.AltAbility[Vehement Rage].ID}
 		/delay 5
@@ -293,6 +299,9 @@ Sub Combatdps
 		/Disc ${AESlice}
 		/delay 5
 	}
+
+	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
+
 	/if (${Me.CombatAbilityReady[${AEVicious}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 25 zradius 15 targetable playerstate 4]}<2) {
 		/Disc ${AEVicious}
 		/delay 5
@@ -314,6 +323,9 @@ Sub Combatdps
 		/Disc ${Dfrenzy}
 		/delay 5
 	}	
+
+	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
+
 	/if (${Me.CombatAbilityReady[${Dvolley}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
 		/Disc ${Dvolley}
 		/delay 5

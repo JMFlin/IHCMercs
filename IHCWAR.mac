@@ -435,7 +435,7 @@ Sub DoCombat
 		/call AbilityNow "Disarm"
 	}
 
-	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID}) /return
+	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
 	/if (${SpawnCount[NPC radius 45 zradius 45]}<2 && ${Me.AbilityReady[Rampage]} && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Rampage].ID}
@@ -465,6 +465,9 @@ Sub DoCombat
 	/if (${Me.AltAbilityReady[Ageless Enmity]} && ${Me.SecondaryPctAggro}>=100 && ${Target.PctHPs}<=98) {
 		/call AANow ${Me.AltAbility[Ageless Enmity].ID}
 	}
+
+	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
+
 	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
 		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
 	}

@@ -419,9 +419,21 @@ Sub PullerCheckGroupManaEnd
 	/next bmember
 /return
 |----------------------------------------------------------------------------
+|- SUB: AddToAlert
+|---------------------------------------------------------------------------- 
+Sub AddToAlert
+	/declare i int local 0
+	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT CLEAN_NAME, NAME, ID, ZONE_NAME, ZONE_ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
+	/for i 1 to ${sqlite.rows[ignore_list]}
+		/squelch /add alert 1 ${sqlite.result[ignore_list ${i} NAME]}
+		/docommand /dgt \aw Added \ag ${sqlite.result[ignore_list ${i} NAME]} \aw to ignore
+	/next i
+/return
+|----------------------------------------------------------------------------
 |- SUB: AFKPull
 |---------------------------------------------------------------------------- 
 Sub AFKPull
+
 	/if (${ResourceChecker}==0) /return
 	/if (${AdvPath.Following}) /afollow off
 	/if (${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
@@ -449,6 +461,7 @@ Sub AFKPull
 		/docommand /dgt \ag Pulling
 		/if (${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
 		/if (${Me.AltAbilityReady[Distant Strike]}) /alt act 376
+		/if (${Target.Type.Equal[Corpse]} || !${Target.Type.Equal[NPC]}) /return
 		/if (${Mode}!=3) {
 			/if (${Navigation.Active}) /nav stop
 			/return
@@ -833,7 +846,7 @@ Sub BagModRods
 |----------------------------------------------------------------------------
 |- SUB: Event Gain Something - DanNet message 
 |----------------------------------------------------------------------------    
-Sub Event_GainSomething(string Line,string text)
+Sub Event_GainSomething(string Line, string text)
     /if (${Line.Find["ABILITY POINT!"]}) {
         /docommand /dgt \aw ${Me.Name} gained an AA, now has ${Me.AAPoints} unspent \ax
     } else /if (${Line.Find[LEVEL]}) {
@@ -841,9 +854,17 @@ Sub Event_GainSomething(string Line,string text)
 	}
 /return 
 |----------------------------------------------------------------------------
+|- SUB: Event Unpullable - DanNet message 
+|----------------------------------------------------------------------------    
+Sub Event_Unpullable(string Line, string text)
+    /if (${Line.Find["You cannot cast Distant Strike"]}) {
+        /docommand /dgt \aw Adding ${Target.Name} to unpullable list \ax
+    }
+/return 
+|----------------------------------------------------------------------------
 |- SUB: Event Task Update - DanNet message 
 |----------------------------------------------------------------------------    
-Sub Event_TaskUpdate(string Line,string name) 
+Sub Event_TaskUpdate(string Line, string name) 
     /if (${acverbose}!=0) /docommand /dgt \at Task updated...(${name})\ax    
 /return
 |----------------------------------------------------------------------------

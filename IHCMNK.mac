@@ -499,20 +499,6 @@ Sub AllianceCheck
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if ((${Me.Rooted.ID} || ${Me.ActiveDisc.ID}==30436) && ${Me.AltAbilityReady[Drawn to Blood]} && ${Me.Combat}) {
-		/alt act ${Me.AltAbility[Drawn to Blood].ID}
-	} else /if (${DoAutoEngage}) {
-		/squelch /attack off
-		/if (${DoAutoTarget}) /call FindTarget
-		/delay 5
-		/if (${Target.Distance}<${AssistRange}) /call EngageTarget
-	}
-	/doevents flush NotOnTarget
-/return
-|----------------------------------------------------------------------------
 |- SUB: Event GroupChange
 |----------------------------------------------------------------------------
 Sub Event_GroupChange
