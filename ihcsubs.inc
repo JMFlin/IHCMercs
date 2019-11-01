@@ -436,45 +436,41 @@ Sub AddToAlert
 |- SUB: AFKPull
 |---------------------------------------------------------------------------- 
 Sub AFKPull
-
+	/declare PullTarget int local 0
 	/if (${ResourceChecker}==0) /return
 	/if (${AdvPath.Following}) /afollow off
-	/if (${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
-	/delay 5s ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}==${Target.ID}
+|-	/if (${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
+	
+	/if (${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset PullTarget ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}]} 
+	/if (!${PullTarget}) /return
+	
 	/if (${Mode}!=3) {
 		/if (${Navigation.Active}) /nav stop
 		/return
 	}
-	/if (${Target.ID}==${Me.ID} || !${Target.ID}) /return
 
-|-	/if (!${Navigation.PathExists[id ${Target.ID}]}) {
-|-		/if (${NearestSpawn[next npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[next npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
-|-	}
-
-	
-    /if (${Target.ID} && ${Navigation.MeshLoaded} && (${Target.Distance}>${PullDistance} || !${Spawn[id ${Target.ID} los].ID})) /nav id ${Target.ID}
-
-	/while (${Navigation.Active}) {
-		/delay 1s ${Target.Distance}<=${PullDistance}
-		/if (${Navigation.Active} && ${Target.Distance}<=${PullDistance} && ${Spawn[id ${Target.ID} los].ID}) /nav stop
-    }
-
+	/if (${Navigation.MeshLoaded} && (${Spawn[id ${PullTarget.ID}].Distance}>${PullDistance} || !${Spawn[id ${PullTarget.ID} los].ID})) /nav id ${PullTarget.ID}
+	/delay 1s ${Spawn[id ${PullTarget.ID}].Distance}<=${PullDistance}
+	/if (${Navigation.Active} && ${Spawn[id ${PullTarget}].Distance}<=${PullDistance} && ${Spawn[id ${PullTarget.ID} los].ID}) /nav stop
+    
 	/delay 5
-    /while (${Target.PctAggro}<=0 || ${Target.Distance}>=${PullDistance}) {
+    /while (${Spawn[id ${PullTarget.ID}].PctAggro}<=0 || ${Spawn[id ${PullTarget.ID}].Distance}>=${PullDistance}) {
 		/docommand /dgt \ag Pulling
-		/if (${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
-		/if (${Me.AltAbilityReady[Distant Strike]}) /alt act 376
-		/if (${Target.Type.Equal[Corpse]} || !${Target.Type.Equal[NPC]}) /return
+		/if (${Spawn[id ${PullTarget.ID} los].ID}) /target id ${Spawn[id ${PullTarget.ID} los].ID}
+		/if (${Target.ID}==${Spawn[id ${PullTarget.ID} los].ID} && ${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
+		/if (${Target.ID}==${Spawn[id ${PullTarget.ID} los].ID} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
+		/if (${PullTarget.Type.Equal[Corpse]} || !${PullTarget.Type.Equal[NPC]}) /return
 		/if (${Mode}!=3) {
 			/if (${Navigation.Active}) /nav stop
 			/return
 		}
-		/if (${Target.Distance}>${PullDistance} && ${Me.XTarget[1].ID}) /break
+		/if (${Spawn[id ${PullTarget.ID}].Distance}>${PullDistance} && ${Me.XTarget[1].ID}) /break
 		/delay 5
 	}
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 	/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<15
-    /if (${Target.ID}) /face fast
+    /if (${PullTarget.ID}) /face fast
+	/if (${Defined[PullTarget]}) /deletevar PullTarget
  /return
 |----------------------------------------------------------------------------
 |- SUB: MoveToCamp

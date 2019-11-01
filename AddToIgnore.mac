@@ -3,15 +3,25 @@ Sub Main
 	/plugin mq2sqlite
 	/declare Update 				int outer 1
 	/declare PreviousTarget 		int outer 0
-	/declare i 						int outer 0
 	/declare InDataBase				int outer 0
-	
+	/declare DBModeAdd				int outer 1 
+
 	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db query CREATE TABLE IF NOT EXISTS ignore_pulling(CLEAN_NAME TEXT NOT NULL, NAME TEXT NOT NULL, ID INT NOT NULL, ZONE_NAME TEXT NOT NULL,  ZONE_ID int NOT NULL, MET_INSERT_TIME TIMESTAMP NOT NULL);
 	/target id ${Me.ID}
 	:mainloop
+		/if (${DBModeAdd}) /call AddToDB
+		/if (!${DBModeAdd}) /call DeleteFromDB
+	/goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: AddToDB
+|----------------------------------------------------------------------------
+Sub AddToDB
+	/declare i	int local 0
+	/while (${DBModeAdd}) {
 		/if (${InDataBase}==1) /varset InDataBase 	0
 		/if (${Update}) {
-			/docommand /dgt \aw Updating from eq.ignore_pulling \ax
+			/docommand /dgt \aw Updating from database \ax
 			/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db table SELECT DISTINCT CLEAN_NAME, NAME, ID, ZONE_NAME, ZONE_ID FROM ignore_pulling;
 			/varset Update 		0
 		}
@@ -27,15 +37,51 @@ Sub Main
 		}
 		
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${InDataBase}==0 && ${Target.ID}!=${PreviousTarget}) {
-			/docommand /dgt \aw Inserting to eq.ignore_pulling: \n Target clean name: \ag ${Target.CleanName} \n Target name: \ag ${Target.Name} \n Target id: \ag ${Target.ID} \n Zone name: \ag ${Zone.Name} \n Zone id: \ag ${Zone.ID} \ax
+			/docommand /dgt \aw Inserting to database: \n Target clean name: \ag ${Target.CleanName} \n Target name: \ag ${Target.Name} \n Target id: \ag ${Target.ID} \n Zone name: \ag ${Zone.Name} \n Zone id: \ag ${Zone.ID} \ax
 			/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db query INSERT INTO ignore_pulling VALUES("${Target.CleanName}", "${Target.Name}", ${Target.ID}, "${Zone.Name}", ${Zone.ID}, CURRENT_TIMESTAMP);			
-			|/varset PreviousTarget ${Target.ID}
 			/varset Update 		1
 			/varset InDataBase 	0
 			/delay 1s
 			/docommand /dgt \ag Insert complete \ag
 		}
 		/if (${Target.ID}!=${PreviousTarget} && ${Target.Type.Equal[NPC]}) /varset PreviousTarget  ${Target.ID}
-	/delay 1s
-	/goto :mainloop
+		/delay 1s
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: DeleteFromDB
+|----------------------------------------------------------------------------
+Sub DeleteFromDB
+	/declare i	int local 0
+	/while (!${DBModeAdd}) {
+		/if (${InDataBase}==0) /varset InDataBase 	1
+		/if (${Update}) {
+			/docommand /dgt \aw Updating from database \ax
+			/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db table SELECT DISTINCT CLEAN_NAME, NAME, ID, ZONE_NAME, ZONE_ID FROM ignore_pulling;
+			/varset Update 		0
+		}
+		
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Target.ID}!=${PreviousTarget} && ${sqlite.rows[table]}) {
+			/for i 1 to ${sqlite.rows[table]}
+				/if (${sqlite.result[table ${i} ID]}==${Target.ID} && ${sqlite.result[table ${i} NAME].Equal[${Target.Name}]}) {
+					/docommand /dgt \aw Deleting \ar ${Target.Name} \aw from database
+					/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db delete DELETE FROM ignore_pulling WHERE ${sqlite.result[table ${i} NAME]} = ${Target.Name} AND ${sqlite.result[table ${i} ZONE_ID]} = ${Zone.ID};
+					/varset InDataBase 	0
+					/varset Update 		1
+					/delay 1s
+					/docommand /dgt \ag Delete complete \ag
+				}
+			/next i
+		}
+
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${InDataBase}==0 && ${Target.ID}!=${PreviousTarget}) {
+			/docommand /dgt \ar ${Target.Name} \aw not in database
+			/varset InDataBase 	1
+			/if (${Target.ID}!=${PreviousTarget} && ${Target.Type.Equal[NPC]}) /varset PreviousTarget  ${Target.ID}
+			/delay 1s
+		}
+		
+		/if (${Target.ID}!=${PreviousTarget} && ${Target.Type.Equal[NPC]}) /varset PreviousTarget  ${Target.ID}
+		/delay 1s
+	}
 /return
