@@ -79,7 +79,7 @@ Sub ManualPullCamping
 			/if (!${Me.Buff[Communion of the Cheetah].ID} && !${Me.XTarget[1].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) /call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
 			/if (${Target.Type.Equal[Corpse]}) /target clear
 			/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 			/if (${DoMed}) /call AutoMed
 			/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffGroup
 			/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffSelf
@@ -97,6 +97,8 @@ Sub ManualPullCamping
 		}
 
 		/if (${State}==2) {
+			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+			/call PetAttack
 			/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
 			/if (${Me.XTarget[1].ID}) /call AANDisc
 			/if (!${Me.Casting.ID} && !${Me.Moving} && (${Me.XTarget[1].ID} || !${Me.Invis}) && ((${DoAACanni} && ${Me.PctMana}<${AACanniManaPct}) || (${DoSpellCanni} && ${Me.PctMana}<${CanniManaPct}))) /call HealthToMana
@@ -107,7 +109,6 @@ Sub ManualPullCamping
 			/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
 
 			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
-
 			/if (${Target.Type.Equal[Corpse]}) /target clear
 			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 			/if (!${Me.XTarget[1].ID}) /call PostCombat
@@ -127,7 +128,7 @@ Sub ManualRunAndGun
 		/if (${Me.State.Equal[FEIGN]}) /stand
 
 		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
-		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
 		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
 		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
 		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffSelf
@@ -152,6 +153,7 @@ Sub ManualRunAndGun
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
 		/if (${UseModRods}) /call ClickModRoD
+		/call PetAttack
 
 		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
 
@@ -514,18 +516,7 @@ Sub AANDisc
 |---------------------------------------------------------------------------- 
 Sub Combatdps
 
-	/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
-
-	/if (${Target.CurrentHPs}<=${AutoAssistAt} && ${Target.Distance}<=${AssistRange} && ${Target.Type.Equal[NPC]}) {
-		|- Pet Attack
-		/if (${Target.PctHPs}>=30 && ${Me.AltAbilityReady[Spirit Call]}) {
-			/alt act 177
-			/delay 2
-		}
-		/if (${Target.Type.Equal[NPC]}) {
-			/pet attack 
-			/pet swarm
-		}
+	/if (${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<=${AssistRange} && ${Target.Type.Equal[NPC]}) {
 		/if (${Me.AltAbilityReady[Focus of Arcanum]}) {
 			/call AANow ${Me.AltAbility[Focus of Arcanum].ID} ${Me.ID}
 		}
@@ -539,7 +530,7 @@ Sub Combatdps
 |-				/call SpellQueue "${CurseDoT2}" ${Target.ID}
 |-				/delay 5
 |-			}
-			/if (${DoDot} && ${Me.SpellReady[${ChaoticPoisonDoT}]} && !${Target.Buff[${ChaoticPoisonDoT}].ID} && (${Target.PctHPs}>=10 || ${Target.Named})) {
+			/if (${DoDot} && ${Me.SpellReady[${ChaoticPoisonDoT}]} && !${Target.Buff[${ChaoticPoisonDoT}].ID} && ${Target.PctHPs}>=5 && ${Target.Named}) {
 				/call SpellQueue "${ChaoticPoisonDoT}" ${Target.ID}
 				/delay 5
 			}

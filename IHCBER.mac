@@ -70,7 +70,7 @@ Sub ManualPullCamping
 
 		/if (${State}==0) {
 			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 			/if (${DoMed}) /call AutoMed
 			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
 			/if (${Me.XTarget[1].ID}) /varset State 1
@@ -118,7 +118,7 @@ Sub ManualRunAndGun
 
 		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
 
-		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
 
 		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /assist ${Group.MainAssist.Name}

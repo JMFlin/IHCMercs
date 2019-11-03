@@ -131,7 +131,7 @@ Sub ManualRunAndGun
 
 		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
 
-		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
 		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
 
@@ -169,6 +169,7 @@ Sub ManualRunAndGun
 Sub AFKRadiusCamping
     /call MakeCamp
     /call RemoveTravelBuffs 
+	/if (${Group.Puller.ID}==${Me.ID}) /call AddToAlert
 	/target clear   
 
 	/while (${Mode}==3) {
@@ -176,8 +177,9 @@ Sub AFKRadiusCamping
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
 		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
+		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${PCRadiusCheck}]}>6) && !${Me.XTarget}) /call DummyMode
 
-		/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 		/if (!${Me.XTarget[1].ID} && ${DoMed}) /call AutoMed
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
 		/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
@@ -185,8 +187,8 @@ Sub AFKRadiusCamping
 		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID}) /call PullerCheckGroupManaEnd 
 		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20 && (${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /call AFKPull
 
-		/if ((${Target.ID}==${Me.ID} || !${Target.ID} || !${Target.Type.Equal[NPC]}) && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
-
+		/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
+		
 		/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
 			/varset TimeForMez 6s
 			/varset TimeForMezVariable 1

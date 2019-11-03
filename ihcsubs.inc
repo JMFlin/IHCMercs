@@ -30,20 +30,9 @@
 |----------------------------------------------------------------------------
 Sub AliasSetup
 	|- KissAssist and AutoMac Common Commands
-	/squelch /alias /camphere       /togglevariable ReturnToCamp 1
-	/squelch /alias /campoff	    /togglevariable ReturnToCamp 0
 	/squelch /alias /campradius     /changevarint General CampRadius
-	/squelch /alias /chase          /togglevariable ChaseAssist
-	/squelch /alias /chaseoff       /changevarint General ChaseAssist 0        
-	/squelch /alias /chaseon        /changevarint General ChaseAssist 1 
-	/noparse /alias /instantrelease /togglevariable InstantRelease
-	/squelch /alias /meleeon        /togglevariable MeleeOn 1
-	/squelch /alias /meleeoff       /togglevariable MeleeOn 0
-	/squelch /alias /returntocamp   /togglevariable ReturnToCamp
-	/squelch /alias /usefellowship 	/togglevariable UseFellowship
 	|- IHC Mac common commands
-	/alias /ihcstart /macro IHCMercs\IHC${Me.Class.ShortName}.mac
-	/alias /ihcgroup /multiline ; /docommand /dgaex group_${EverQuest.Server}_${Group.Leader} /target ${Me.CleanName} ; /docommand /timed 10 /dgaex group_${EverQuest.Server}_${Group.Leader} /ihcstart
+	/alias /addicted /macro IHCMercs\IHC${Me.Class.ShortName}.mac
 	/squelch /alias /assistrange	/changevarint Set AssistRange
 	/squelch /alias /autoassistat	/changevarint Set AutoAssistAt
 	/squelch /alias /burnit			/togglevariable BurnNow
@@ -123,6 +112,10 @@ Sub VarSetup
 	/declare PullAutoCampZ		int outer 0
 	/declare PullDistance 		int outer 0
 	/declare ResourceChecker 	int outer 1
+	/declare Limit 				int outer 20
+	/declare DummyTime        	int outer  30
+	/declare DummyMsg         	string outer  "Gone for More Beer - BRB."
+	/declare PCRadiusCheck 		int outer 100
 
 |- Modes
 	/declare Mode 				int outer 0
@@ -130,6 +123,8 @@ Sub VarSetup
 	/declare ModeName 			string outer NULL
 	/declare PreviousModeName 	string outer NULL
 	
+|- Raiding
+	/declare RangeToTarget 		int outer 15
 
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
@@ -345,6 +340,7 @@ Sub RemoveTravelBuffs
 |- SUB: Engage
 |---------------------------------------------------------------------------- 
 Sub Engage
+	/assist id ${Group.MainAssist.ID}
 	/if (${AdvPath.Following}) /afollow off
 	/if (${Target.ID}) /face fast
 	/delay 2
@@ -396,12 +392,15 @@ Sub Travel
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
 	/declare bmember	int local 0
+	/if (${Limit}==20 && ${ResourceChecker}==0) /varset Limit 50
+	/if (${Limit}==50 && ${ResourceChecker}==1) /varset Limit 20
 	/varset ResourceChecker 1
+	
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
 			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ManaPct" "int"
-				/if (${ManaPct}<20) {
+				/if (${ManaPct}<${Limit}) {
 					/varset ResourceChecker 0 
 					/delay 5
 				}
@@ -409,7 +408,7 @@ Sub PullerCheckGroupManaEnd
 			/if (${ResourceChecker}==0) /return
 			/if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "EndPct" "int"
-				/if (${EndPct}<20) {
+				/if (${EndPct}<${Limit}) {
 					/varset ResourceChecker 0
 					/delay 5
 				}
@@ -426,50 +425,70 @@ Sub AddToAlert
 	/squelch /alert clear 1
 
 	/docommand /dgt \aw Creating alert list for \ag ${Zone.Name} \aw from eq.db
-	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT CLEAN_NAME, NAME, ID, ZONE_NAME, ZONE_ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
+	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT NAME, ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
 	/for i 1 to ${sqlite.rows[ignore_list]}
-		/squelch /add alert 1 ${sqlite.result[ignore_list ${i} NAME]}
+		/squelch /alert add 1 id ${sqlite.result[ignore_list ${i} ID]}
 		/docommand /dgt \aw Added \ag ${sqlite.result[ignore_list ${i} NAME]} \aw to ignore
+		/delay 1
 	/next i
 /return
 |----------------------------------------------------------------------------
 |- SUB: AFKPull
 |---------------------------------------------------------------------------- 
 Sub AFKPull
-	/declare PullTarget int local 0
+	/declare PullTargetID 	int local 0
+	/declare i 				int local 1
+	/declare MobsInRadius 	int local 0
+
 	/if (${ResourceChecker}==0) /return
 	/if (${AdvPath.Following}) /afollow off
-|-	/if (${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
-	
-	/if (${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset PullTarget ${NearestSpawn[npc radius ${AggressiveRadius} zradius ${AssistRangeZ}]} 
-	/if (!${PullTarget}) /return
+
+	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
+
+	/while (${i}<${MobsInRadius}) {
+		/if (${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset PullTargetID ${NearestSpawn[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID} 
+		/if (${PullTargetID}) /break
+		/varset i ${i}+1
+		/delay 1s
+	}
+
+	/if (!${PullTargetID}) /return
+
+	/if (${Navigation.PathLength[id ${PullTargetID}]}>(${AggressiveRadius}+100)) /return
 	
 	/if (${Mode}!=3) {
 		/if (${Navigation.Active}) /nav stop
 		/return
 	}
 
-	/if (${Navigation.MeshLoaded} && (${Spawn[id ${PullTarget.ID}].Distance}>${PullDistance} || !${Spawn[id ${PullTarget.ID} los].ID})) /nav id ${PullTarget.ID}
-	/delay 1s ${Spawn[id ${PullTarget.ID}].Distance}<=${PullDistance}
-	/if (${Navigation.Active} && ${Spawn[id ${PullTarget}].Distance}<=${PullDistance} && ${Spawn[id ${PullTarget.ID} los].ID}) /nav stop
-    
-	/delay 5
-    /while (${Spawn[id ${PullTarget.ID}].PctAggro}<=0 || ${Spawn[id ${PullTarget.ID}].Distance}>=${PullDistance}) {
-		/docommand /dgt \ag Pulling
-		/if (${Spawn[id ${PullTarget.ID} los].ID}) /target id ${Spawn[id ${PullTarget.ID} los].ID}
-		/if (${Target.ID}==${Spawn[id ${PullTarget.ID} los].ID} && ${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
-		/if (${Target.ID}==${Spawn[id ${PullTarget.ID} los].ID} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
-		/if (${PullTarget.Type.Equal[Corpse]} || !${PullTarget.Type.Equal[NPC]}) /return
+	/if (${Navigation.MeshLoaded} && (${Spawn[id ${PullTargetID}].Distance}>${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight})) /nav id ${PullTargetID}
+	/while (${Navigation.Active}) {
+		/delay 1s ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance}
+		/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
+		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
+	}
+	
+	/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
+	/delay 1s ${Target.ID}==${PullTargetID}
+
+    /while (${PullTargetID}==${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
+		/if (${Me.Sitting}) /stand
+		/if (${PullTargetID}!=${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
+		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
+		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
+		/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
 		/if (${Mode}!=3) {
 			/if (${Navigation.Active}) /nav stop
 			/return
 		}
-		/if (${Spawn[id ${PullTarget.ID}].Distance}>${PullDistance} && ${Me.XTarget[1].ID}) /break
+		/if (${Spawn[id ${PullTargetID}].Distance}<${PullDistance} && ${Me.XTarget[1].ID}) /break
 		/delay 5
 	}
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
+	/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
 	/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<15
-    /if (${PullTarget.ID}) /face fast
+	/if (${Navigation.Active}) /nav stop
+    /if (${Target.ID}) /face fast
 	/if (${Defined[PullTarget]}) /deletevar PullTarget
  /return
 |----------------------------------------------------------------------------
@@ -490,6 +509,25 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (${Target.ID}) /face fast
 		/delay 10
 	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: PetAttack
+|---------------------------------------------------------------------------- 
+Sub PetAttack
+	/assist ${Group.MainAssist.Name}
+	/if (${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<=${AssistRange} && ${Target.Type.Equal[NPC]}) {
+		|- Pet Attack
+		/if (${Target.PctHPs}>=30 && ${Me.AltAbilityReady[Spirit Call]}) {
+			/alt act 177
+			/delay 2
+		}
+		/if (!${Me.Pet.Combat}) {
+			/pet attack 
+			/pet swarm
+		}
+	}
+	/if (!${Spawn[${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
+	/if (${Spawn[${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: Bind_ToggleVariable  Check whenever the player is changing any variable via /echo
@@ -841,6 +879,7 @@ Sub BagModRods
 		/autoinventory
 		/varset ShitOnCursor NULL
 	}
+	/if (${Cursor.ID} && ${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.FreeInventory}>1) /autoinventory
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Gain Something - DanNet message 
@@ -1155,7 +1194,7 @@ Sub EngageAttack
 |-------------------------------------------------------------------------------------
 |- SUB: CastSpell - Taken from kissassist and modified. Better spell casting control for longer casting spells plus return messages for monitoring resists, interruptions, immune
 |-------------------------------------------------------------------------------------
-Sub CastSpell(string WhatSpell,int WhatID,string sentFrom)
+Sub CastSpell(string WhatSpell, int WhatID, string sentFrom)
     /declare MaxTryNum int local 2
 	/varset CastResult CAST_NO_RESULT
     /if (!${Target.CanSplashLand} && ${Spell[${WhatSpell}].TargetType.Equal[Free Target]}) {
@@ -1389,6 +1428,28 @@ Sub WelcomeMsg
 	/echo \awVersion \ag${IHCVersion}
 	/echo \aw****************************
 	/echo \aw use \ag /ihchelp \aw for a list of commands
+/return
+|-------------------------------------------------------------------------------- 
+| Sub DummyMode
+|--------------------------------------------------------------------------------
+Sub DummyMode
+	/declare i int local
+
+	/echo Entering Dummy Mode... 
+	/delay 1s 
+	/afk ${DummyMsg}
+
+	:waitabit 
+	/for i 1 to ${DummyTime}
+		/echo (${i}/${DummyTime})
+		/if (${Me.XTarget}) /afk off 
+		/if (${Me.XTarget}) /return
+		/delay 1s 
+	/next i
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${PCRadiusCheck}]}>6)) /goto :waitabit 
+	
+	/afk off 
+	/delay 1s 
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: NavgationDelay

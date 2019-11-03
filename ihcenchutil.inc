@@ -84,14 +84,14 @@ Sub EnchSetup
 	/declare ManaDrainSpell1		string 	outer 	"NULL"
   |-DPS
 	/declare DichoSpell				string 	outer	"NULL"
-	/declare DoTSpell1				string 	outer	"NULL"
+	/declare Drown				string 	outer	"NULL"
 	/declare DoTSpell2				string 	outer	"NULL"
 	/declare DoTSpell3				string 	outer	"NULL"
 	/declare DPSRecastTimer			timer 	outer	0
 	/declare FastNukePct 			int 	outer	90
-	/declare NukeSpell1				string 	outer	"NULL"
-	/declare NukeSpell2				string 	outer	"NULL"
-	/declare NukeSpell3				string 	outer	"NULL"
+	/declare MindNukeMain				string 	outer	"NULL"
+	/declare MindNukeSub				string 	outer	"NULL"
+	/declare Chromatic				string 	outer	"NULL"
 	/declare NukeSpell4				string 	outer	"NULL"
   |-Pet
 	/declare PetSpell				string	outer	"NULL"
@@ -169,6 +169,7 @@ Sub EnchSetup
 	/call LoadIni Rune DoTRuneHeal				int 0
 	/call LoadIni Item ChestItemName			string "${Me.Inventory[17].Name}"
 	/varcalc MezWatchRadius ${MezRadius}*2
+	/varset ChestItemName		"${Me.Inventory[17].Name}"
 	|-Set AA DurationMod for mez timer from Spell Casting Reinforcement AA
     /if (${Me.AltAbility[Mesmerization Mastery].Rank}==1) /varset MezMod 6
     /if (${Me.AltAbility[Mesmerization Mastery].Rank}==2) /varset MezMod 12
@@ -300,8 +301,8 @@ Sub LoadSpellBar
 			} else {
 				/call LoadSpellGem "${PBAEStunSpell}" 6
 			}
-			/call LoadSpellGem "${NukeSpell1}" 7
-			/call LoadSpellGem "${NukeSpell2}" 8
+			/call LoadSpellGem "${MindNukeMain}" 7
+			/call LoadSpellGem "${MindNukeSub}" 8
 			/if (${UseCharmPet}) {
 				/call LoadSpellGem "${CharmSpell1}" 11
 			} else /if (${UseDoTs}) {
@@ -310,10 +311,10 @@ Sub LoadSpellBar
 				/call LoadSpellGem "${MezPBAESpell}" 11
 			}
 			/if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell1}" 9
+				/call LoadSpellGem "${Drown}" 9
 				/call LoadSpellGem "${DoTSpell2}" 10
 			} else {
-				/call LoadSpellGem "${NukeSpell3}" 9
+				/call LoadSpellGem "${Chromatic}" 9
 				/call LoadSpellGem "${NukeSpell4}" 10
 			}
 			/call LoadSpellGem "${ProcBuff}" 12
@@ -332,17 +333,17 @@ Sub LoadSpellBar
 					/call LoadSpellGem "${PBAEStunSpell}" 6
 				}
 				/if (${UseDoTs}) {
-					/call LoadSpellGem "${DoTSpell1}" 9
+					/call LoadSpellGem "${Drown}" 9
 					/call LoadSpellGem "${DoTSpell2}" 10
 				} else {
-					/call LoadSpellGem "${NukeSpell3}" 9
+					/call LoadSpellGem "${Chromatic}" 9
 					/call LoadSpellGem "${NukeSpell4}" 10
 				}
-				/call LoadSpellGem "${NukeSpell2}" 8
+				/call LoadSpellGem "${MindNukeSub}" 8
 			} else /if (${Me.Level}>=96) {
 				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${NukeSpell2}" 8
-				/call LoadSpellGem "${DoTSpell1}" 9
+				/call LoadSpellGem "${MindNukeSub}" 8
+				/call LoadSpellGem "${Drown}" 9
 				/if (${UseCharmPet}) {
 					/call LoadSpellGem "${CharmSpell1}" 10
 					/call LoadSpellGem "${SingleStunSpell1}" 6
@@ -350,13 +351,13 @@ Sub LoadSpellBar
 					/call LoadSpellGem "${DoTSpell2}" 10
 					/call LoadSpellGem "${DoTSpell3}" 6
 				} else {
-					/call LoadSpellGem "${NukeSpell3}" 10
+					/call LoadSpellGem "${Chromatic}" 10
 					/call LoadSpellGem "${SingleStunSpell1}" 6
 				}
 			} else /if (${Me.Level}>=89) {
 				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${NukeSpell2}" 8
-				/call LoadSpellGem "${DoTSpell1}" 9
+				/call LoadSpellGem "${MindNukeSub}" 8
+				/call LoadSpellGem "${Drown}" 9
 				/if (${UseCharmPet}) {
 					/call LoadSpellGem "${CharmSpell1}" 10
 					/call LoadSpellGem "${SingleStunSpell1}" 6
@@ -365,39 +366,39 @@ Sub LoadSpellBar
 					/call LoadSpellGem "${DoTSpell2}" 10
 				} else {
 					/call LoadSpellGem "${SingleStunSpell1}" 6
-					/call LoadSpellGem "${NukeSpell3}" 10
+					/call LoadSpellGem "${Chromatic}" 10
 				}
 			} else /if (${Me.Level}>=88) {
 			|- Level 88 - Slow+Cripple in 1 spell
 				/call LoadSpellGem "${StripBuffSpell}" 5
 				/call LoadSpellGem "${SingleStunSpell1}" 6
-				/call LoadSpellGem "${NukeSpell2}" 8
-				/call LoadSpellGem "${DoTSpell1}" 9
+				/call LoadSpellGem "${MindNukeSub}" 8
+				/call LoadSpellGem "${Drown}" 9
 				/if (${UseCharmPet}) {
 					/call LoadSpellGem "${CharmSpell1}" 10
 				} else /if (${UseDoTs}) {
 					/call LoadSpellGem "${DoTSpell2}" 10
 				} else {
-					/call LoadSpellGem "${NukeSpell3}" 10
+					/call LoadSpellGem "${Chromatic}" 10
 				}
 			} else /if (${Me.Level}>=86) {
 			|- Level 86 - AA slow becomes available 
 				/call LoadSpellGem "${StripBuffSpell}" 5
 				/call LoadSpellGem "${CrippleSpell1}" 6
-				/call LoadSpellGem "${DoTSpell1}" 9
-				/call LoadSpellGem "${NukeSpell2}" 8
+				/call LoadSpellGem "${Drown}" 9
+				/call LoadSpellGem "${MindNukeSub}" 8
 				/if (${UseCharmPet}) {
 					/call LoadSpellGem "${CharmSpell1}" 10
 				} else /if (${UseDoTs}) {
 					/call LoadSpellGem "${DoTSpell2}" 10
 				} else {
-					/call LoadSpellGem "${NukeSpell3}" 10
+					/call LoadSpellGem "${Chromatic}" 10
 				}
 			} else /if (${Me.Level}>=81) {
 			|- Level 81 - AA Single Memblur becomes available? 
 				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${DoTSpell1}" 9
-				/call LoadSpellGem "${NukeSpell2}" 8
+				/call LoadSpellGem "${Drown}" 9
+				/call LoadSpellGem "${MindNukeSub}" 8
 				/if (${UseCharmPet}) {
 					/call LoadSpellGem "${CharmSpell1}" 6
 					/call LoadSpellGem "${SingleStunSpell1}" 10
@@ -419,12 +420,12 @@ Sub LoadSpellBar
 				/if (${UseDoTs}) {
 					/call LoadSpellGem "${DoTSpell2}" 8
 				} else {
-					/call LoadSpellGem "${NukeSpell2}" 8
+					/call LoadSpellGem "${MindNukeSub}" 8
 				}
-				/call LoadSpellGem "${DoTSpell1}" 9
+				/call LoadSpellGem "${Drown}" 9
 				/call LoadSpellGem "${BlurSpell}" 10
 			}
-			/call LoadSpellGem "${NukeSpell1}" 7
+			/call LoadSpellGem "${MindNukeMain}" 7
 			/call LoadSpellGem "${ProcBuff}" 11
 			/if (${UseDicho} && ${Me.Level}>=101 && ${DichoSpell.NotEqual[null]}) {
 				/call LoadSpellGem "${DichoSpell}" 12
@@ -442,11 +443,11 @@ Sub LoadSpellBar
 				/call LoadSpellGem "${StripBuffSpell}" 5
 				/call LoadSpellGem "${CrippleSpell1}" 6
 			}
-			/call LoadSpellGem "${NukeSpell1}" 7
+			/call LoadSpellGem "${MindNukeMain}" 7
 			/if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell1}" 8
+				/call LoadSpellGem "${Drown}" 8
 			} else {
-				/call LoadSpellGem "${NukeSpell2}" 8
+				/call LoadSpellGem "${MindNukeSub}" 8
 			}
 			/call LoadSpellGem "${BlurSpell}" 9
 			/call LoadSpellGem "${ProcBuff}" 10
@@ -461,11 +462,11 @@ Sub LoadSpellBar
 				/call LoadSpellGem "${StripBuffSpell}" 5
 				/call LoadSpellGem "${CrippleSpell1}" 6
 			}
-			/call LoadSpellGem "${NukeSpell1}" 7
+			/call LoadSpellGem "${MindNukeMain}" 7
 			/if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell1}" 8
+				/call LoadSpellGem "${Drown}" 8
 			} else {
-				/call LoadSpellGem "${NukeSpell2}" 8
+				/call LoadSpellGem "${MindNukeSub}" 8
 			}
 			/call LoadSpellGem "${ProcBuff}" 9
 			/call LoadSpellGem "${BlurSpell}" 10
@@ -480,9 +481,9 @@ Sub LoadSpellBar
 				/call LoadSpellGem "${CrippleSpell1}" 6
 			}
 			/if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell1}" 7
+				/call LoadSpellGem "${Drown}" 7
 			} else {
-				/call LoadSpellGem "${NukeSpell1}" 7
+				/call LoadSpellGem "${MindNukeMain}" 7
 			}
 			/call LoadSpellGem "${ProcBuff}" 8
 			/call LoadSpellGem "${BlurSpell}" 9
@@ -497,9 +498,9 @@ Sub LoadSpellBar
 				/call LoadSpellGem "${CrippleSpell1}" 6
 			}
 			/if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell1}" 7
+				/call LoadSpellGem "${Drown}" 7
 			} else {
-				/call LoadSpellGem "${NukeSpell1}" 7
+				/call LoadSpellGem "${MindNukeMain}" 7
 			}
 			/call LoadSpellGem "${BlurSpell}" 8
 			/varset spellmisc 8
@@ -641,117 +642,117 @@ Sub SetEncSpells
 	} else /if (${Me.Level}>=9 && ${Me.Book[${Spell[Languid Pace].RankName}]}) {
 		/varset SlowSpell ${Spell[Languid Pace].RankName}
 	}
-|-Nuke 1 * Var Name: NukeSpell1 string outer
+|-Nuke 1 * Var Name: MindNukeMain string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mindslash].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Mindslash].RankName}
+		/varset MindNukeMain ${Spell[Mindslash].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Mindsunder].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Mindsunder].RankName}
+		/varset MindNukeMain ${Spell[Mindsunder].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Mindcleave].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Mindcleave].RankName}
+		/varset MindNukeMain ${Spell[Mindcleave].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Mindscythe].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Mindscythe].RankName}
+		/varset MindNukeMain ${Spell[Mindscythe].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Mindblade].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Mindblade].RankName}
+		/varset MindNukeMain ${Spell[Mindblade].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Spectral Assault].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Spectral Assault].RankName}
+		/varset MindNukeMain ${Spell[Spectral Assault].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Chromarcana].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Chromarcana].RankName}
+		/varset MindNukeMain ${Spell[Chromarcana].RankName}
 	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Chromatic Jab].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Chromatic Jab].RankName}
+		/varset MindNukeMain ${Spell[Chromatic Jab].RankName}
 	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Polychaotic Assault].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Polychaotic Assault].RankName}
+		/varset MindNukeMain ${Spell[Polychaotic Assault].RankName}
 	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Multichromatic Assault].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Multichromatic Assault].RankName}
+		/varset MindNukeMain ${Spell[Multichromatic Assault].RankName}
 	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Polychromatic Assault].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Polychromatic Assault].RankName}
+		/varset MindNukeMain ${Spell[Polychromatic Assault].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Ancient Neurosis].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Ancient Neurosis].RankName}
+		/varset MindNukeMain ${Spell[Ancient Neurosis].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Colored Chaos].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Colored Chaos].RankName}
+		/varset MindNukeMain ${Spell[Colored Chaos].RankName}
 	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Psychosis].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Psychosis].RankName}
+		/varset MindNukeMain ${Spell[Psychosis].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Ancient Chaos Madness].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Ancient Chaos Madness].RankName}
+		/varset MindNukeMain ${Spell[Ancient Chaos Madness].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Madness of Ikkibi].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Madness of Ikkibi].RankName}
+		/varset MindNukeMain ${Spell[Madness of Ikkibi].RankName}
 	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Insanity].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Insanity].RankName}
+		/varset MindNukeMain ${Spell[Insanity].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Ancient Chaotic Visions].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Ancient Chaotic Visions].RankName}
+		/varset MindNukeMain ${Spell[Ancient Chaotic Visions].RankName}
 	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Dementing Visions].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Dementing Visions].RankName}
+		/varset MindNukeMain ${Spell[Dementing Visions].RankName}
 	} else /if (${Me.Level}>=54 && ${Me.Book[${Spell[Dementia].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Dementia].RankName}
+		/varset MindNukeMain ${Spell[Dementia].RankName}
 	} else /if (${Me.Level}>=43 && ${Me.Book[${Spell[Discordant Mind].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Discordant Mind].RankName}
+		/varset MindNukeMain ${Spell[Discordant Mind].RankName}
 	} else /if (${Me.Level}>=32 && ${Me.Book[${Spell[Anarchy].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Anarchy].RankName}
+		/varset MindNukeMain ${Spell[Anarchy].RankName}
 	} else /if (${Me.Level}>=21 && ${Me.Book[${Spell[Chaos Flux].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Chaos Flux].RankName}
+		/varset MindNukeMain ${Spell[Chaos Flux].RankName}
 	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Sanity Warp].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Sanity Warp].RankName}
+		/varset MindNukeMain ${Spell[Sanity Warp].RankName}
 	} else /if (${Me.Level}>=7 && ${Me.Book[${Spell[Chaotic Feedback].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Chaotic Feedback].RankName}
+		/varset MindNukeMain ${Spell[Chaotic Feedback].RankName}
 	}
-|-Nuke 2 * Var Name: NukeSpell2 string outer
+|-Nuke 2 * Var Name: MindNukeSub string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mindsunder].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Mindsunder].RankName}
+		/varset MindNukeSub ${Spell[Mindsunder].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Mindcleave].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Mindcleave].RankName}
+		/varset MindNukeSub ${Spell[Mindcleave].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Mindscythe].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Mindscythe].RankName}
+		/varset MindNukeSub ${Spell[Mindscythe].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Mindblade].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Mindblade].RankName}
+		/varset MindNukeSub ${Spell[Mindblade].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Spectral Assault].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Spectral Assault].RankName}
+		/varset MindNukeSub ${Spell[Spectral Assault].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Chromarcana].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Chromarcana].RankName}
+		/varset MindNukeSub ${Spell[Chromarcana].RankName}
 	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Polychaotic Assault].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Polychaotic Assault].RankName}
+		/varset MindNukeSub ${Spell[Polychaotic Assault].RankName}
 	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Multichromatic Assault].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Multichromatic Assault].RankName}
+		/varset MindNukeSub ${Spell[Multichromatic Assault].RankName}
 	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Polychromatic Assault].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Polychromatic Assault].RankName}
+		/varset MindNukeSub ${Spell[Polychromatic Assault].RankName}
 	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Ancient Neurosis].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Ancient Neurosis].RankName}
+		/varset MindNukeSub ${Spell[Ancient Neurosis].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Colored Chaos].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Colored Chaos].RankName}
+		/varset MindNukeSub ${Spell[Colored Chaos].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Psychosis].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Psychosis].RankName}
+		/varset MindNukeSub ${Spell[Psychosis].RankName}
 	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Ancient Chaos Madness].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Ancient Chaos Madness].RankName}
+		/varset MindNukeSub ${Spell[Ancient Chaos Madness].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Madness of Ikkibi].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Madness of Ikkibi].RankName}
+		/varset MindNukeSub ${Spell[Madness of Ikkibi].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Insanity].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Insanity].RankName}
+		/varset MindNukeSub ${Spell[Insanity].RankName}
 	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Ancient Chaotic Visions].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Ancient Chaotic Visions].RankName}
+		/varset MindNukeSub ${Spell[Ancient Chaotic Visions].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Dementing Visions].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Dementing Visions].RankName}
+		/varset MindNukeSub ${Spell[Dementing Visions].RankName}
 	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Dementia].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Dementia].RankName}
+		/varset MindNukeSub ${Spell[Dementia].RankName}
 	} else /if (${Me.Level}>=54 && ${Me.Book[${Spell[Discordant Mind].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Discordant Mind].RankName}
+		/varset MindNukeSub ${Spell[Discordant Mind].RankName}
 	} else /if (${Me.Level}>=43 && ${Me.Book[${Spell[Anarchy].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Anarchy].RankName}
+		/varset MindNukeSub ${Spell[Anarchy].RankName}
 	} else /if (${Me.Level}>=32 && ${Me.Book[${Spell[Chaos Flux].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Chaos Flux].RankName}
+		/varset MindNukeSub ${Spell[Chaos Flux].RankName}
 	} else /if (${Me.Level}>=21 && ${Me.Book[${Spell[Sanity Warp].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Sanity Warp].RankName}
+		/varset MindNukeSub ${Spell[Sanity Warp].RankName}
 	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Chaotic Feedback].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Chaotic Feedback].RankName}
+		/varset MindNukeSub ${Spell[Chaotic Feedback].RankName}
 	}
-|-Nuke 3 - Fast * Var Name: NukeSpell3 string outer
+|-Nuke 3 - Fast * Var Name: Chromatic string outer
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Chromatic Flicker].RankName}]}) {
-		/varset NukeSpell3 ${Spell[Chromatic Flicker].RankName}
+		/varset Chromatic ${Spell[Chromatic Flicker].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Chromatic Blink].RankName}]}) {
-		/varset NukeSpell3 ${Spell[Chromatic Blink].RankName}
+		/varset Chromatic ${Spell[Chromatic Blink].RankName}
 	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Chromatic Percussion].RankName}]}) {
-		/varset NukeSpell3 ${Spell[Chromatic Percussion].RankName}
+		/varset Chromatic ${Spell[Chromatic Percussion].RankName}
 	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Chromatic Flash].RankName}]}) {
-		/varset NukeSpell3 ${Spell[Chromatic Flash].RankName}
+		/varset Chromatic ${Spell[Chromatic Flash].RankName}
 	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Chromatic Jab].RankName}]}) {
-		/varset NukeSpell3 ${Spell[Chromatic Jab].RankName}
+		/varset Chromatic ${Spell[Chromatic Jab].RankName}
 	}
 |-Nuke 4 - Fast * Var Name: NukeSpell4 string outer
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Psychic Appropriation].RankName}]}) {
@@ -761,39 +762,39 @@ Sub SetEncSpells
 	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Mental Appropriation].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Mental Appropriation].RankName}
 	}
-|-DoT 1 * Var Name: DoTSpell1 string outer
+|-DoT 1 * Var Name: Drown string outer
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Strangulate].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Strangulate].RankName}
+		/varset Drown ${Spell[Strangulate].RankName}
 	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Drown].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Drown].RankName}
+		/varset Drown ${Spell[Drown].RankName}
 	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Stifle].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Stifle].RankName}
+		/varset Drown ${Spell[Stifle].RankName}
 	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Suffocation].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Suffocation].RankName}
+		/varset Drown ${Spell[Suffocation].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Constrict].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Constrict].RankName}
+		/varset Drown ${Spell[Constrict].RankName}
 	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Smother].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Smother].RankName}
+		/varset Drown ${Spell[Smother].RankName}
 	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Strangling Air].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Strangling Air].RankName}
+		/varset Drown ${Spell[Strangling Air].RankName}
 	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Thin Air].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Thin Air].RankName}
+		/varset Drown ${Spell[Thin Air].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Arcane Noose].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Arcane Noose].RankName}
+		/varset Drown ${Spell[Arcane Noose].RankName}
 	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Strangle].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Strangle].RankName}
+		/varset Drown ${Spell[Strangle].RankName}
 	} else /if (${Me.Level}>=59 && ${Me.Book[${Spell[Asphyxiate].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Asphyxiate].RankName}
+		/varset Drown ${Spell[Asphyxiate].RankName}
 	} else /if (${Me.Level}>=47 && ${Me.Book[${Spell[Gasping Embrace].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Gasping Embrace].RankName}
+		/varset Drown ${Spell[Gasping Embrace].RankName}
 	} else /if (${Me.Level}>=26 && ${Me.Book[${Spell[Suffocate].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Suffocate].RankName}
+		/varset Drown ${Spell[Suffocate].RankName}
 	} else /if (${Me.Level}>=11 && ${Me.Book[${Spell[Choke].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Choke].RankName}
+		/varset Drown ${Spell[Choke].RankName}
 	} else /if (${Me.Level}>=4 && ${Me.Book[${Spell[Suffocating Sphere].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Suffocating Sphere].RankName}
+		/varset Drown ${Spell[Suffocating Sphere].RankName}
 	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Shallow Breath].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Shallow Breath].RankName}
+		/varset Drown ${Spell[Shallow Breath].RankName}
 	}
 |-DoT 2 * Var Name: DoTSpell2 string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mind Tempest].RankName}]}) {

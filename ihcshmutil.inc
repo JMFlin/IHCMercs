@@ -127,6 +127,7 @@ Sub ShmSetup
 	/call LoadIni Options AutoRez 				int 1
 	/call LoadIni Pet UsePet		 			int 1
 	/call LoadIni Pet UseSwarmpet		 		int 0
+	/varset ChestItemName		"${Me.Inventory[17].Name}"
 	/if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==1) /varset DurationMod 1.15
     /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==2) /varset DurationMod 1.3
     /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==3) /varset DurationMod 1.5

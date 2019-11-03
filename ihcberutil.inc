@@ -75,7 +75,7 @@ Sub BerSetup
 	/call LoadIni Options AutoAxe2Min			int 60
 	/call LoadIni Options AutoAxe2Name			string NULL
 	/call LoadIni Options AutoAxe2Components	string NULL
-	
+	/varset ChestItemName		"${Me.Inventory[17].Name}"
 	/declare ZerkerCount			int outer 1
 	/declare epicaxe				string outer NULL
 	/declare UseEpic				int outer 0
