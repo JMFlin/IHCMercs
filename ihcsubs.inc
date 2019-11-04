@@ -342,10 +342,11 @@ Sub RemoveTravelBuffs
 Sub Engage
 	/assist id ${Group.MainAssist.ID}
 	/if (${AdvPath.Following}) /afollow off
-	/if (${Target.ID}) /face fast
-	/delay 2
-	/stick ${StickHow} 11
-	/delay 10 ${Stick.Active}
+	/nav id ${Target.ID}
+	/while (${Navigation.Active}) {
+		/delay 5 ${Target.Distance}<=${RangeToTarget}
+		/if (${Navigation.Active} && ${Target.Distance}<=${RangeToTarget}) /nav stop
+	}
 	/squelch /attack on
 	/delay 2
 /return
