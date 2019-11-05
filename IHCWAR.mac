@@ -15,8 +15,8 @@
 #bind CmdList       /ihchelp
 #bind DefenseDisc    /defdisc
 #bind FortitudeDisc  /evadedisc
-#Event NotOnTarget	"#*#You cannot see your target#*#"
-#Event NotOnTarget	"#*#Your target is too far away#*#"
+|-#Event NotOnTarget	"#*#You cannot see your target#*#"
+|-#Event NotOnTarget	"#*#Your target is too far away#*#"
 #Event Iamsnared	"#*#You are entangled by webs#*#"
 #Event Buff 			"Your #1# spell has worn off of #*#."
 |- #Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
@@ -637,18 +637,6 @@ Sub DowntimeDiscs
 	} else /if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Moving} && !${Me.Invis} && ${Me.State.NotEqual[FEIGN]} && ${Me.CombatAbility[${Spell[${waraura}].RankName}]} && ${Me.PctEndurance}>10) {
 		/call DiscNow "${waraura}"
 	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if (${DoAutoEngage}) {
-		/squelch /attack off
-		/if (${DoAutoTarget}) /call FindTarget
-		/delay 5
-		/if (${Target.Distance}<${AssistRange}) /call EngageTarget
-	}
-	/doevents flush NotOnTarget
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Iamsnared

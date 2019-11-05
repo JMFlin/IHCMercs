@@ -117,6 +117,9 @@ Sub VarSetup
 	/declare DummyMsg         	string outer  "Gone for More Beer - BRB."
 	/declare PCRadiusCheck 		int outer 100
 
+|- Tanking variables
+	/declare Tagged 			int outer 0
+
 |- Modes
 	/declare Mode 				int outer 0
 	/declare PreviousMode 		int outer 0
@@ -140,10 +143,17 @@ Sub VarSetup
 	/call CheckPlugin MQ2MoveUtils
 	/call CheckPlugin MQ2DanNet
 	/call CheckPlugin MQ2Nav
+	/call CheckPlugin MQ2Autoloot
+	/call CheckPlugin AAspend
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on
     /squelch /rez loot off
 	/squelch /rez pct 90
+	/aaspend order 3521
+	/aaspend brute on
+	/aaspend bonus on
+	|- Set the order of the tabs to be spent when brute force is on. 1=general,2=archetype,3=class,4=special,5=focus
+	|- /aaspend order 32541 - Brute force mode would buy all AAs in this order Class, Archetype, Focus, Special, General
 	|-Disable mq2melee if its running
 	/if (${Plugin[MQ2Melee].Name.Length}) {
 		/if (${Melee.Enable}) {
@@ -318,12 +328,12 @@ Sub ModeSet
 |----------------------------------------------------------------------------
 Sub MakeCamp
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/if (${Navigation.Active}) /nav stop
 	/delay 5
 	/varset PullAutoCampY ${Me.Y}
 	/varset PullAutoCampX ${Me.X}
 	/varset PullAutoCampZ ${Me.Z}
 	/delay 5
-	/if (${Navigation.Active}) /nav stop
 /return
 |----------------------------------------------------------------------------
 |- SUB: RemoveTravelBuffs
@@ -340,13 +350,12 @@ Sub RemoveTravelBuffs
 |- SUB: Engage
 |---------------------------------------------------------------------------- 
 Sub Engage
-	/assist id ${Group.MainAssist.ID}
 	/if (${AdvPath.Following}) /afollow off
-	/nav id ${Target.ID}
-	/while (${Navigation.Active}) {
-		/delay 5 ${Target.Distance}<=${RangeToTarget}
-		/if (${Navigation.Active} && ${Target.Distance}<=${RangeToTarget}) /nav stop
-	}
+	/if (${Stick.Active}) /stick off
+	/if (${Target.ID}) /face fast
+	/delay 2
+	/stick ${StickHow} 11
+	/delay 10 ${Stick.Active}
 	/squelch /attack on
 	/delay 2
 /return
@@ -496,6 +505,7 @@ Sub AFKPull
 |- SUB: MoveToCamp
 |---------------------------------------------------------------------------- 
 Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
+	/if (${Stick.Active}) /stick off
 	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]}>${Distance}) {
 		/if (${Stick.Active}) /stick off
 		/nav locxyz ${Xloc} ${Yloc} ${Zloc}

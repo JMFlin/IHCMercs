@@ -60,14 +60,15 @@ Sub Main
 |- SUB: Raid
 |---------------------------------------------------------------------------- 
 Sub Raid
+	/call UnCheckPlugin MQ2MoveUtils
+	/call UnCheckPlugin MQ2Autoloot
     /while (${Mode}==6) {
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
-		/if (${Stick.Status.Equal[ON]}) /stick off
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /attack on
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${UseItems}) /call CombatdpsItems
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID} && ${Me.ActiveDisc.ID}==${Spell[${Heel}].ID} && ${Me.ActiveDisc.ID}==${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}==${Spell[${Palm}].ID} && ${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Firewalker's Covenant Trigger].ID} && !${Target.Buff[Doomwalker's Alliance Trigger].ID}) /Disc ${Alliance}
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /attack on
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${UseItems}) /call CombatdpsItems
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && (${Me.ActiveDisc.ID}==${Spell[${Heel}].ID} || ${Me.ActiveDisc.ID}==${Spell[${Speed}].ID} || ${Me.ActiveDisc.ID}==${Spell[${Palm}].ID}) && ${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Firewalker's Covenant Trigger].ID} && !${Target.Buff[Doomwalker's Alliance Trigger].ID}) /Disc ${Alliance}
 		/if (${Me.PctHPs}<45) /call Defense
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 		/while (${Navigation.Active}) {
@@ -86,7 +87,6 @@ Sub ManualPullCamping
     /call RemoveTravelBuffs  
 
     /while (${Mode}==1) {
-		/if (${AdvPath.Following}) /afollow off
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.ID}!=${Group.Puller.ID} && ${Me.State.Equal[FEIGN]}) /stand
 
@@ -475,6 +475,15 @@ Sub DowntimeDiscs
 		/disc ${mnkaura}
 		/delay 8s
 	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
+Sub Event_NotOnTarget
+	/if (${DoAutoEngage}) {
+		/call Engage
+	}
+	/doevents flush NotOnTarget
 /return
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for other monks in group
