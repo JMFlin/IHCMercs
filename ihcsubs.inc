@@ -113,7 +113,7 @@ Sub VarSetup
 	/declare PullDistance 		int outer 0
 	/declare ResourceChecker 	int outer 1
 	/declare Limit 				int outer 20
-	/declare DummyTime        	int outer  30
+	/declare DummyTime        	int outer  10
 	/declare DummyMsg         	string outer  "Gone for More Beer - BRB."
 	/declare PCRadiusCheck 		int outer 100
 
@@ -351,10 +351,9 @@ Sub RemoveTravelBuffs
 |---------------------------------------------------------------------------- 
 Sub Engage
 	/if (${AdvPath.Following}) /afollow off
-	/if (${Stick.Active}) /stick off
 	/if (${Target.ID}) /face fast
 	/delay 2
-	/stick ${StickHow} 11
+	/stick ${StickHow} 7
 	/delay 10 ${Stick.Active}
 	/squelch /attack on
 	/delay 2
@@ -408,7 +407,7 @@ Sub PullerCheckGroupManaEnd
 	
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
-			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
+			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SK,PAL]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ManaPct" "int"
 				/if (${ManaPct}<${Limit}) {
 					/varset ResourceChecker 0 
@@ -451,6 +450,7 @@ Sub AFKPull
 	/declare MobsInRadius 	int local 0
 
 	/if (${ResourceChecker}==0) /return
+	/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /return
 	/if (${AdvPath.Following}) /afollow off
 
 	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
@@ -958,7 +958,8 @@ Sub AutoMed
 |---SIT Check
    /if ((${Me.Moving} || ${Me.XTarget[1].ID} || ${MoveTo.Moving} || ${Me.CombatState.Equal[COMBAT]} || ${Stick.Status.Equal[ON]} || ${AdvPath.Following}) && (${enablesit}==1)) /varset enablesit 0
 |--Out of Combat MedTime - Sitting
-	/if (${Me.Standing} && !${Me.Moving} && ${Stick.Status.Equal[OFF]} && !${Me.XTarget[1].ID} && !${MoveTo.Moving} && !${AdvPath.Following} && ${Me.CombatState.NotEqual[COMBAT]} && ${Me.CombatState.NotEqual[DEBUFFED]} && ${enablesit}==0 && ((${Me.PctMana}<=${MedPct} && ${Me.MaxMana}>1000) || (${Me.PctEndurance}<=${EndMedPct} && ${Me.MaxEndurance}>1000))) {
+	|-/if (${Me.Standing} && !${Me.Moving} && ${Stick.Status.Equal[OFF]} && !${Me.XTarget[1].ID} && !${MoveTo.Moving} && !${AdvPath.Following} && ${Me.CombatState.NotEqual[COMBAT]} && ${Me.CombatState.NotEqual[DEBUFFED]} && ${enablesit}==0 && ((${Me.PctMana}<=${MedPct} && ${Me.MaxMana}>1000) || (${Me.PctEndurance}<=${EndMedPct} && ${Me.MaxEndurance}>1000))) {
+	/if (${Me.Standing} && !${Me.Moving} && ${Stick.Status.Equal[OFF]} && !${Me.XTarget[1].ID} && !${MoveTo.Moving} && !${AdvPath.Following} && ${Me.CombatState.NotEqual[COMBAT]} && ${Me.CombatState.NotEqual[DEBUFFED]} && ${enablesit}==0 && ((${Me.PctMana}<=${MedPct}) || (${Me.PctEndurance}<=${EndMedPct}))) {
 		/varset enablesit 1
 	} else /if (${sittimer}==0 && ${enablesit}==0 && ${Me.Sitting} && (${Me.Moving} || ${Me.XTarget[1].ID} || ${MoveTo.Moving} || ${Me.CombatState.Equal[COMBAT]} || ${Stick.Status.Equal[ON]} || ${AdvPath.Following})) {
 		/stand
@@ -1453,6 +1454,7 @@ Sub DummyMode
 	:waitabit 
 	/for i 1 to ${DummyTime}
 		/echo (${i}/${DummyTime})
+		/afk ${DummyMsg}
 		/if (${Me.XTarget}) /afk off 
 		/if (${Me.XTarget}) /return
 		/delay 1s 
@@ -1520,6 +1522,30 @@ Sub BegForCure
 	/if (${Defined[tmpCureSpellName]}) /deletevar tmpCureSpellName
 	/if (${Defined[tmpCureSpellReady]}) /deletevar tmpCureSpellReady
 	/delay 5
+/return
+|----------------------------------------------------------------------------
+|- SUB: AFKLowLevel
+|----------------------------------------------------------------------------
+Sub AFKLowLevel
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+
+	/while (${Mode}==10) {
+		/if (${Me.PctHPs}<60 && !${Me.XTarget}) /sit
+		/if (${Me.PctHPs}>60) /stand
+		/if (${Me.ID}==${Target.ID}) /target clear
+		/if (${Me.PctHPs}>60 && !${Target.ID} && ${Me.ID}==${Group.MainAssist.ID} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
+		
+		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /target id ${Me.XTarget[1].ID}
+		
+		/if (${Me.PctHPs}>60 && ${Me.ID}!=${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
+		/if (${Me.PctHPs}>60 && ${Target.Type.Equal[NPC]} && ${Target.Level}<=${Me.Level}+3) /call Engage
+
+		/if (${Me.SpellReady[${FuseNuke}]} && ${Me.CurrentMana}>${Spell[${FuseNuke}].Mana})
+
+		/if (${Me.PctHPs}>60 && !${Me.XTarget} && ${Me.ID}!=${Group.MainAssist.ID}) /call Travel
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+		/if (!${Me.XTarget[1].ID}) /call PostCombat
+	}
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: BIND KillMATarget

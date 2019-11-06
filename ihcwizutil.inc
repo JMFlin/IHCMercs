@@ -206,6 +206,7 @@ Sub LoadSpellBar
 			/call LoadSpellGem "${HarvestSpell}" 7
 		}
 	}
+	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
 /return 
@@ -443,6 +444,8 @@ Sub SetWizSpells
 		/varset ClawNuke ${Spell[Claw of Vox].RankName}
 	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Claw of Frost].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of Frost].RankName}
+	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Blast of Cold].RankName}]}) {
+		/varset ClawNuke ${Spell[Blast of Cold].RankName}
 	}
 |-CloudburstNuke
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Cloudburst Thunderbolt].RankName}]}) {
@@ -581,7 +584,7 @@ Sub SetWizSpells
 		/varset ColdEtherealNuke ${Spell[Ethereal Iceblight].RankName}
 	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[Ethereal Rime].RankName}]}) {
 		/varset ColdEtherealNuke ${Spell[Ethereal Rime].RankName}
-	}
+	} 
 |-EvacSpell
 	/if (${Me.Level}>=57 && ${Me.Book[${Spell[Evacuate].RankName}]}) {
 		/varset EvacSpell ${Spell[Evacuate].RankName}

@@ -507,6 +507,7 @@ Sub LoadSpellBar
 			/varset miscspellremem ${BlurSpell}
 		}
 	}
+	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
 /return 

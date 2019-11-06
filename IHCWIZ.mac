@@ -42,43 +42,72 @@ Sub Main
 		/call ZoneEventChk
 	}
 	/varset UseSpellInterrupt 1
- :mainloop
-  	/if (${changetoini}==1) /call INIChanges
-	/if (${Me.Zoning}) /call Zoning
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Cursor.ID}) /call BagModRods
-	/call IDUpdateCheck
-	/if ((${Me.XTarget[1].ID} || (${Group.MainAssist.ID} && ${Group.MainAssist.ID}!=${Me.ID} && ${Target.ID}!=${Me.GroupAssistTarget.ID}) || ${SpawnCount[npc radius ${AssistRange} zradius 15 targetable playerstate 4]} || ${FollowMarkTarget}) && !${BackOffFlag} && ${DoAutoTarget}) /call FindTarget
-	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag} && ${DoAutoEngage}) /call EngageTarget
-|-	/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-	/if (${Me.XTarget[1].ID} && ${StripBuffs} && !${BackOffFlag} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt} && ${Ok2Assist}) /call DebuffMobs
-	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.ID}==${autotargetid} && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${DoDPS} && (${DPSRecastTimer}==0) && !${BackOffFlag} && ${Ok2Assist}) /call Combatdps
-	/if (${Me.PctMana}<=${HarvestManaPct} && (!${AdvPath.Following})) /call CheckMana
-	/if (${Spawn[=${FollowToonName}].ID} && !${MoveTo.Moving} && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID} || ${Spawn[id ${assistid}].Distance}>${AssistRange} || (!${Spawn[id ${assistid}].LineOfSight}))) /call FollowToon
-	/if (${Spawn[=${FollowToonName}].ID} && (${Me.Casting.ID} || ${Me.XTarget[1].ID}) && ${AdvPath.Following}) /squelch /afollow off
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && (!${AdvPath.Following}) && !${MoveTo.Moving} && !${Me.Moving} && (!${SpawnCount[npc radius ${AssistRange} targetable los playerstate 4]}) && ${DoBuffs}) /call BuffCheck
-	/if (!${Me.XTarget[1].ID}&& !${KillTargetID}) /call AutoCampCheck
-	/if (${UseModRods}) /call ClickModRoD
-	/if (${DoMed}) /call AutoMed
-	/if (${UseZoneLogic} && ${EventSetupFlag}) {
-		/call EventLogic${EventSetupFlag}
+
+:mainloop
+	/call ModeSet
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call ManualPullCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+/goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualPullCamping
+|----------------------------------------------------------------------------
+Sub ManualPullCamping
+	/call MakeCamp
+    /call RemoveTravelBuffs  
+
+	/while (${Mode}==1 || ${Mode}==3) {
+		/if (${AdvPath.Following}) /afollow off
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+		/if (${State}==0) {
+			/if (${Target.Type.Equal[Corpse]}) /target clear
+			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+|-			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffCheck
+			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call IllusionCheck
+|-			/if (${DoMed}) /call AutoMed
+			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
+|-			/call CheckMana
+			/call BagModRods
+			/if (${Me.XTarget[1].ID}) /varset State 1
+		}
+		
+		/if (${State}==1) {
+			/if (${Me.Sitting}) /stand
+			/if (${Me.XTarget[1].ID}) /call DebuffMobs
+			/if (${Me.XTarget[1].Distance}<40) {
+				/varset State 2
+			}
+		}
+
+		/if (${State}==2) {
+			/if (${Me.Sitting}) /stand
+			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+			/call PetAttack
+|-			/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
+			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange}) /call Combatdps
+|-			/call CheckMana
+			
+			/if (${UseModRods}) /call ClickModRoD
+			
+			/if (${Target.Type.Equal[Corpse]}) /target clear
+			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (!${Me.XTarget[1].ID}) /call PostCombat
+		}
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
 	}
-	/if (((!${Spawn[targetable id ${KillTargetID}].ID}) || ${Spawn[corpse id ${KillTargetID}].ID}) && ${KillTargetID}!=0) {
-		/varset KillTargetID 0
-		/varset SpawnSearchType npc
-		/varset autotargetid 0
-	}
-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
- /goto :mainloop   
 /return
 |----------------------------------------------------------------------------
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 
 Sub DebuffMobs
-	/if (${Me.GroupAssistTarget.ID} && ${Me.GroupAssistTarget.ID}!=${Target.ID}) {
-		/call FindTarget
-	}
 	/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 		/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
 			/alt act ${Me.AltAbility[${StripBuffSpell}].ID}

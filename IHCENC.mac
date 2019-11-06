@@ -72,6 +72,7 @@ Sub ManualPullCamping
 			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call IllusionCheck
 			/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
 			/if (${DoMed}) /call AutoMed
+			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
 			/call CheckMana
 			/call BagModRods
 			/if (${Me.XTarget[1].ID}) /varset State 1
@@ -212,7 +213,7 @@ Sub Combatdps
 			/if (${CastResult.Equal[CAST_SUCCESS]}) /delay 16
 	}
 	/if (!${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
-		/if (${Me.Gem[${Drown}]} && ${Target.Named} && ${Cast.Status.Equal[I]} && !${Me.Buff[Improved Twincast].ID} && (${Me.SpellReady[${Drown}]}) && ${Me.CurrentMana}>${Spell[${Drown}].Mana} && (!${Target.Buff[${Drown}].ID}) && ${Target.PctHPs}>60) {
+		/if (${Me.Gem[${Drown}]} && (${Target.Named} || ${Me.Level}<105) && ${Cast.Status.Equal[I]} && !${Me.Buff[Improved Twincast].ID} && (${Me.SpellReady[${Drown}]}) && ${Me.CurrentMana}>${Spell[${Drown}].Mana} && (!${Target.Buff[${Drown}].ID}) && ${Target.PctHPs}>60) {
 			/call CastSpell "${Drown}" ${Target.ID} dps
 			/delay 5s !${Me.Casting.ID}
 		}

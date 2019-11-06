@@ -128,9 +128,11 @@ Sub INIChanges
 |- SUB: PullAbilitySetup
 |----------------------------------------------------------------------------
 Sub PullAbilitySetup
-	/varset PullAbility ${insult}
+	/if (${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${insult}
+	/if (${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 90
+	/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${Spell[Throw Stone].RankName}
+	/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 68
 	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-	/varset PullDistance 90
 /return
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs

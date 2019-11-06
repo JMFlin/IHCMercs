@@ -185,7 +185,7 @@ Sub AFKRadiusCamping
 		/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
 
 		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID}) /call PullerCheckGroupManaEnd 
-		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20 && (${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /call AFKPull
+		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20) /call AFKPull
 
 		/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
 		
@@ -435,6 +435,12 @@ Sub DoCombat
 	}
 	/if (${Me.AbilityReady[Disarm]} && ${Target.PctHPs}>1) {
 		/call AbilityNow "Disarm"
+	}
+	/if (${Me.AbilityReady[Bash]} && ${Target.PctHPs}>1) {
+		/call AbilityNow "Bash"
+	}
+	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs}>1) {
+		/call AbilityNow "Kick"
 	}
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return

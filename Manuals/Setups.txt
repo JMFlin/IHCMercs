@@ -1,7 +1,7 @@
-Classes
+Classes RAID
 1.
 war war war sk clr clr
-war sk pal clr clr clr
+war sk sk clr clr clr
 
 2.
 wiz wiz wiz wiz dru ench
@@ -14,7 +14,28 @@ ber ber ber mnk brd shm
 ber ber ber mnk brd shm
 ber ber ber mnk brd shm
 
-Names
+Classes GROUP
+
+1. war wiz wiz wiz ench clr 
+2. war mag mag wiz ench clr 
+
+3. sk wiz wiz mag ench clr
+4. sk wiz wiz wiz mag dru 
+
+5. sk ber ber ber brd dru
+6. war ber ber ber brd clr
+
+
+7. merc merc merc dru mnk wiz
+8. merc merc merc dru mnk wiz 
+9. merc merc merc shm ber brd 
+10. merc merc merc shm ber wiz 
+
+
+
+
+
+Names RAID
 1.
 Panasonic Coppertop Rayovac Powercheck Eveready Exide
 Powersonic Powerking Prevailer Fiamm Odyssey Optima
