@@ -103,7 +103,7 @@ Sub ManualPullCamping
 			/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
 			/if (!${Target.Type.Equal[NPC]} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
 
-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AutoCampRadius} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
 			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoMashRangeAggro
 			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call AoEAggro
 			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange} && ${Target.Distance}<=(${AssistRange}+25)) /call DoDisc
@@ -198,7 +198,7 @@ Sub AFKRadiusCamping
 
 		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
 
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call Engage
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AutoCampRadius}) /call Engage
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoMashRangeAggro
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call AoEAggro
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
