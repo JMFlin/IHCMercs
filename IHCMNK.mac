@@ -44,7 +44,11 @@ Sub Main
 	/if (${UseZoneLogic}) {
 		/call ZoneEventChk
 	}
+	/delay 2s
 	/call PullAbilitySetup
+	/delay 2s
+	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
+	
 :mainloop
 	/call ModeSet
     /if (${Mode}==0) /call Travel
@@ -181,7 +185,6 @@ Sub ManualRunAndGun
 Sub AFKRadiusCamping
 	/call MakeCamp
     /call RemoveTravelBuffs
-	/if (${Group.Puller.ID}==${Me.ID}) /call AddToAlert
 	/target clear  
 
 	/while (${Mode}==3) {

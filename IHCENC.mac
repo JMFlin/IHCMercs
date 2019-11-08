@@ -69,7 +69,7 @@ Sub ManualPullCamping
 			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffCheck
 			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffGroup
-			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call IllusionCheck
+			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call check_illusion
 			/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
 			/if (${DoMed}) /call AutoMed
 			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit

@@ -150,7 +150,7 @@ Sub VarSetup
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on
     /squelch /rez loot off
-	/squelch /rez pct 90
+	/squelch /rez pct 20
 	/aaspend order 3521
 	/aaspend brute on
 	/aaspend bonus on
@@ -170,18 +170,9 @@ Sub VarSetup
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion
 |----------------------------------------------------------------------------
-Sub IllusionCheck
-	/varset IllusionNum ${Math.Rand[10]}
-	/if (!${Me.Buff[Illusion: Plaguebringer].ID} && !${Me.Buff[Illusion: Frost Bone].ID} && !${Me.Buff[Night's Terror].ID} && !${Me.Buff[Illusion: Bear].ID} && (${FindItem[=Polymorph Wand: Plaguebringer].ID} || ${FindItem[=Bone Mask of Horror].ID}) && !${Me.Casting.ID}) {
-		/if (${Me.Sitting}) /stand
-		/if (${IllusionNum}<1) {
-			/cast item "Polymorph Wand: Plaguebringer"
-			/delay 10
-		} else {
-			/cast item "Bone Mask of Horror"
-		}
-	}
-/return
+Sub check_illusion(bool _debug, string _illusionItem)
+	/if (${validate_cast[FALSE, alt, ${_illusionItem}, ${Me.ID}]}) /cast item  ${_illusionItem}
+/return TRUE
 |----------------------------------------------------------------------------
 |- SUB IHC Common Config Options - Config options that will be the same across all mac's
 |----------------------------------------------------------------------------
@@ -306,6 +297,12 @@ Sub UseItemsCommon
 	/if (!${FindItem["Combat Spellbook"].TimerReady}) /useitem "Combat Spellbook"
 	/delay 5s !${Me.Casting.ID}
 /return
+
+Sub check_state(bool _debug, int _myState)
+	/if (${_myState}==0 && ${Me.XTarget}) /varset State 1
+	/if (${_myState}==1 && ${Target.Distance}<50) /varset State 2
+	/if (!${Me.XTarget}) /varset State 0
+/return TRUE
 |----------------------------------------------------------------------------
 |- SUB: ModeSet
 |----------------------------------------------------------------------------
@@ -381,11 +378,17 @@ Sub CastersEngage
 |---------------------------------------------------------------------------- 
 Sub PostCombat
 	/if (${Stick.Status.Equal[ON]}) /stick off
-	/varset State 0
 	/attack off
 	/if (${Target.ID}) /target clear
 	/if (${Me.Pet.ID}) /pet back off
 /return
+|----------------------------------------------------------------------------
+|- SUB: PostCombat
+|---------------------------------------------------------------------------- 
+Sub PreCombat(bool _debug)
+	/if (${Target.Type.Equal[Corpse]}) /target clear
+	/if (${Me.Sitting}) /stand
+/return TRUE
 |----------------------------------------------------------------------------
 |- SUB: Travel
 |----------------------------------------------------------------------------
@@ -506,15 +509,30 @@ Sub AFKPull
 	}
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 	/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
-	/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<15
+	/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<7
 	/if (${Navigation.Active}) /nav stop
     /if (${Target.ID}) /face fast
 	/if (${Defined[PullTarget]}) /deletevar PullTarget
  /return
+ |----------------------------------------------------------------------------
+|- SUB: meditate
+|---------------------------------------------------------------------------- 
+Sub meditate(bool _debug)
+	/if (${Me.Moving}) /return
+	/if (${Me.Casting}) /return
+	/if (${Me.XTarget}) /return
+	/if (${Navigation.Active}) /return
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampX},${PullAutoCampY},${PullAutoCampZ}]}>${AutoCampRadius}) /return
+	/if (${Me.Standing}) /sit
+/return
 |----------------------------------------------------------------------------
 |- SUB: MoveToCamp
 |---------------------------------------------------------------------------- 
 Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
+	
+	| if casting return
+	/if (!${Me.Casting.ID}) /return
+	
 	/if (${Stick.Active}) /stick off
 	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]}>${Distance}) {
 		/if (${Stick.Active}) /stick off
@@ -1472,16 +1490,233 @@ Sub DummyMode
 	/afk off 
 	/delay 1s 
 /return
-|-------------------------------------------------------------------------------------
-|- SUB: NavgationDelay
-|-------------------------------------------------------------------------------------
-Sub NavgationDelay
-	:naving
-	/delay 1s
-	|-/echo Navigating...
-	/if (${Navigation.Active}) /goto :naving
-	|-/echo Navigation Finished!
-/return 
+
+|***
+ *	DES: validates casting of "things on a target
+ *	USE: /call ${validate_cast[[TRUE|FALSE], [spell|alt|disc|item|pulse|FIND], name, targetID, ForceTarget]
+ *	NOTE: This is designed tomake sure whatever we are attempting to cast, is castable. be it a disc, item, spell, booger flick.. whatever.. IS IT READY TO BE USED?
+ ***|
+sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
+	DEBUG \a-tvalidate_cast\ax(\a-w${_type}, ${_spell}, ${_tmpID}\ax)
+	
+	| _spell set to false
+	/if (!${Bool[${_spell}]}) /return FALSE
+
+	| obey invis
+	/if (${Me.Invis}) /return FALSE
+	
+	| is the issued target dead?
+	/if (${_tmpID}) {
+		/if (!${Spawn[${_tmpID}].ID}) /return FALSE
+	}
+
+	| is the target an NPC?
+	/if (!${Spawn[npc id ${_tmpID}].ID} && !${Spell[${_spell}].SpellType.Equal[Beneficial]}) /return FALSE
+
+	CHECKINPUTS
+	
+	| what type is it?
+	/if (${_type.Equal[FIND]}) {
+|		DEBUG ${dep}FIND${dep}${_type}
+		/if (${Me.AltAbilityReady[${_spell}]}) {	
+			/varset _type alt
+		} else /if (${Me.Book[${Spell[${_spell}].RankName}]}) {
+			/varset _type spell
+		} else /if (${Me.CombatAbilityReady[${Me.CombatAbility[${Spell[${_spell}].RankName}]}]}) {
+			/varset _type disc
+		} else /if (${Me.ItemReady[${_spell}]}) {
+			/varset _type item
+		} else {
+			/return FALSE
+		}
+|		DEBUG FOUND${dep}${_type}
+	}
+		
+	| check spell
+	/if (${_type.Equal[spell]}) {
+|		DEBUG ${dep}spell\ax${dep}name:${_spell}
+		
+		| buff on me i shouldnt cast with?
+|		/if (${check_no_cast_buff[FALSE]}) /return FALSE
+		
+		| am i casting a spell?
+		/if (${Me.Casting.ID}) /return FALSE
+		
+		| global cooldown? is this shit broke?
+		/if (${Me.SpellInCooldown}) /return FALSE
+		
+		| are we moving?
+		/if (${Me.Moving}) /return FALSE
+		/if (${Stick.Active}) /return FALSE
+		/if (${Navigation.Active}) /return FALSE
+		/if (${AdvPath.Following}) /return FALSE
+		
+		| correct rank name
+|		/varset _spell ${Spell[${_spell}].RankName}
+		
+		| gem in cooldown?
+		/if (${Me.GemTimer[${_spell}]}) /return FALSE
+		
+		| enough manna to cast?
+		/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
+		
+		| /if (!${Me.SpellReady[${_spell}]} && !${Spell[${_spell}].SpellType.Equal[Utility Beneficial]}) /return FALSE
+		| /if (!${Me.SpellReady[${_spell}]} && !${Spell[${_spell}].SpellType.Equal[Beneficial]} && !${Spell[${_spell}].Category.Equal[Heals]}) /return FALSE
+
+		| dont fail buffs so they can be memed when needed
+		/if (!${Me.SpellReady[${_spell}]} && !${Spell[${_spell}].Category.Equal[Heals]}) {
+			/declare _pass bool local FALSE
+			/if (${Spell[${_spell}].SpellType.Equal[Beneficial]}) /varset _pass TRUE
+			/if (${Spell[${_spell}].SpellType.Equal[Pet]}) /varset _pass TRUE
+			/if (${Spell[${_spell}].SpellType.Equal[aura]}) /varset _pass TRUE
+			
+			/if (!${_pass}) /return FALSE
+		}
+		
+		| check cast range
+		/if (${Spell[${_spell}].Range}) {
+			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
+		}
+		| check AE range
+|		/if (${Spell[${_spell}].TargetType.Equal[Group V2]}) {
+|			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].AERange}) /return FALSE
+|		}
+	
+		| restist types vs zone control
+|		/if (!${Spell[${_spell}].SpellType.Equal[Beneficial]}) {
+|			/if (${NoDiseaseList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Disease]}) /return FALSE
+|			/if (${NoMagicList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Magic]}) /return FALSE
+|			/if (${NoPoisonList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Poison]}) /return FALSE
+|			/if (${NoFireList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Fire]}) /return FALSE
+|			/if (${NoColdList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Cold]}) /return FALSE
+|			/if (${NoCorruptionList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Corruption]}) /return FALSE
+|		}
+		
+		| check for stacking issues
+		/if (${_tmpID} == ${Me.ID}) {
+			/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && !${Spell[${_spell}].Category.Equal[Heals]}) {
+				/if (!${Spell[${_spell}].NewStacks}) /return FALSE
+				/if (${Me.Buff[${_spell}].ID}) /return FALSE
+				/if (${Me.Song[${_spell}].ID}) /return FALSE		
+			}
+		}
+		
+		/if (!${Bool[${Me.Book[${_spell}]}]}) /return FALSE
+|		DEBUG ${dep}validate spell END: ${Spell[${_spell}].RankName}
+
+
+	| check alt ability
+	} else /if (${_type.Equal[alt]}) {
+|		DEBUG ${dep}alt\ax${dep}name:${_spell}
+		/if (!${Me.AltAbilityReady[${_spell}]}) /return FALSE
+		/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
+		/if (${Spell[${_spell}].Range}) {
+			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
+		}		
+		| stacking
+		/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && (${_tmpID} == ${Me.ID})) {
+			/if (!${Spell[${_spell}].NewStacks}) /return FALSE
+			/if (${Me.Buff[${_spell}].ID}) /return FALSE
+			/if (${Me.Song[${_spell}].ID}) /return FALSE		
+		}
+	
+	| check disc
+	} else /if (${_type.Equal[disc]}) {
+|		DEBUG ${dep}disc\ax${dep}name:${_spell}
+		/varset _spell ${Spell[${_spell}].RankName}
+		/if (!${Bool[${_spell}]}) /return FALSE
+		/if (!${Me.CombatAbilityReady[${Me.CombatAbility[${Spell[${_spell}].RankName}]}]}) /return FALSE
+		/if (${Me.CurrentEndurance} < ${Spell[${_spell}].EnduranceCost}) /return FALSE
+		/if (${Spell[${_spell}].Range}) {
+			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
+		}
+		/if (${Bool[${Me.Song[${_spell}].Duration}]}) /return FALSE
+		/if (${Bool[${Me.Buff[${_spell}].Duration}]}) /return FALSE		
+					
+		| stacking
+		| /if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && (${_tmpID} == ${Me.ID})) {
+		| 	/if (!${Spell[${_spell}].NewStacks}) /return FALSE
+		| }
+
+	| check disc that requires running disc slot
+	} else /if (${_type.Equal[activedisc]}) {
+		/varset _spell ${Spell[${_spell}].RankName}
+|		DEBUG ${dep}activedisc\ax${dep}name:${_spell}
+		/if (!${Bool[${_spell}]}) /return FALSE
+		/if (${Bool[${Me.ActiveDisc}]}) /return FALSE
+		/if (!${Me.CombatAbilityReady[${Me.CombatAbility[${Spell[${_spell}].RankName}]}]}) /return FALSE
+		/if (${Me.CurrentEndurance} < ${Spell[${_spell}].EnduranceCost}) /return FALSE
+
+	| check item
+	} else /if (${_type.Equal[item]}) {
+|		DEBUG ${dep}item\ax${dep}name:${_spell}
+		/if (!${FindItem[${_spell}].Timer.TotalSeconds}==0 && !${Me.ItemReady[=${_spell}]}) /return FALSE
+
+		| check the distance
+		/if (${_tmpID} != ${Me.ID}) {
+			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${FindItem[=${_spell}].Spell}].MyRange} && ${Spell[${FindItem[=${_spell}].Spell}].Range} != 0) /return FALSE
+		}
+		
+		| do we already have the effect?
+		/if (${_tmpID} == ${Me.ID}) {
+			/if (${Me.Buff[${FindItem[=${_spell}].Spell}].ID}) /return FALSE
+			/if (${Me.Song[${FindItem[=${_spell}].Spell}].ID}) /return FALSE
+		}
+					
+		| stacking
+		| /if (${Spell[${FindItem[=${_spell}].Spell}].SpellType.Equal[Beneficial]} && (${_tmpID} == ${Me.ID})) {
+		| 	/if (!${Spell[${FindItem[=${_spell}].Spell}].NewStacks}) /return FALSE
+		| }
+
+	
+	| check bard shit.. gotta be difficult..
+	} else /if (${_type.Equal[pulse]}) {
+		/varset _spell ${Spell[${_spell}].RankName}
+		/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
+		/if (${Me.Buff[${_spell}].Duration.Seconds} > 6) /return FALSE
+		/if (${Me.Song[${_spell}].Duration.Seconds} > 6) /return FALSE
+		/if (!${Spell[${_spell}].NewStacks}) /return FALSE
+	}
+	| epic clicks
+|	else /if (${_type.Equal[epicitem]}) {
+|		DEBUG ${dep}epicitem\ax${dep}name:${_spell}
+|		/if (!${Me.ItemReady[=${${Me.Class.ShortName}Epic${_spell}}]}) /return FALSE
+|		/if (${_tmpID} != ${Me.ID}) {
+|			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].MyRange} && ${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].Range} != 0) /return FALSE
+|		}
+|		/if (${Me.Buff[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].ID}) /return FALSE
+|		/if (${Me.Song[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].ID}) /return FALSE
+|		
+|		/if (${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].SpellType.Equal[Beneficial]} && (${Target.ID} == ${Me.ID})) {
+|			/if (!${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].NewStacks}) /return FALSE
+|		}
+
+	
+|	} 
+	
+/return TRUE
+
+|***
+ *	DES: checks your toon for buffs that should stop casting for some reason
+ *	USE: /call check_no_cast_buff
+ *	NOTE: this is by toon.
+ ***|
+|sub check_no_cast_buff(bool _debug)
+|	DEBUG \a-tcheck_no_cast_buff\ax()
+	
+	| disabled?
+|	/if (${lstNoCastWith.Arg[1,|].Equal[FALSE]} || !${Bool[${lstNoCastWith}]}) /return FALSE
+
+|	/declare _count int local 0
+|	/for _count 1 to ${lstNoCastWith.Count[|]}
+|		AMIDEAD
+|		CHECKINPUTS
+|		/if (${Bool[${Me.Buff[${lstNoCastWith.Arg[${_count},|]}]}]}) /return TRUE
+|		/if (${Bool[${Target.Buff[${lstNoCastWith.Arg[${_count},|]}]}]}) /return TRUE
+|		/if (${Bool[${Me.Song[${lstNoCastWith.Arg[${_count},|]}]}]}) /return TRUE
+|	/next _count
+	
+|/return FALSE
 |-------------------------------------------------------------------------------------
 |- SUB: KillTarget
 |-------------------------------------------------------------------------------------

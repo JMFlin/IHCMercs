@@ -75,12 +75,11 @@ Sub ManualPullCamping
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
 
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 		/if (${DoMed}) /call AutoMed
 
 		/if (${Cursor.ID}) /call BagModRods
 		/call TankChangeCheck
-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call IllusionCheck
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call check_illusion
 		/if (${DynamicHealing}) /call ConfigHeal
 		/call ExtraHeal
 		/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
@@ -350,11 +349,11 @@ Sub BuffGroup
 	/declare bmember			int local 0
 	/if (${groupbufftimer}==0) /varset groupbufftimer 10s
 	/for bmember 1 to ${Group}
-		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID}) ) {
+		/if (${Group.Member[${bmember}].Distance}<${Spell[${HPBuff}].MyRange} && !${Group.Member[${bmember}].OtherZone} && !${Me.Casting.ID}) {
 
 			/if (!${Me.Book[${GroupHPBuff}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${HPBuff}].ID" "tmpbuffid" "bool"
-				/if (!${tmpbuffid} && ${Me.Book[${HPBuff}]} && ${Me.CurrentMana}>${Spell[${HPBuff}].Mana} && (!${Me.Casting.ID})) {
+				/if (!${tmpbuffid} && ${Me.Book[${HPBuff}]} && ${Me.CurrentMana}>${Spell[${HPBuff}].Mana} && !${Me.Casting.ID}) {
 					/call SpellQueue "${HPBuff}" ${Group.Member[${bmember}].ID}
 					/varset spellrememtimer 5s
 					/delay 10
@@ -365,34 +364,30 @@ Sub BuffGroup
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupBuff}].Stacks" "tmpstackcheck" "bool"
-			/if (${tmpstackcheck} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && (!${Me.Casting.ID})) {
+			/if (${tmpstackcheck} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && !${Me.Casting.ID}) {
 				/call SpellQueue "${GroupBuff}" ${Group.Member[${bmember}].ID}
 				/varset spellrememtimer 5s
 				/delay 10
 			}
 
-
-
-
-
-				/if (${Me.CurrentMana}>${Spell[${TankBuff}].Mana} && ${Group.Member[${bmember}].ID}==${assistid} && (!${Me.Casting.ID}) && ${Me.Book[${TankBuff}]}) {
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${TankBuffMatch}].ID" "tmpbuffid" "int"
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${TankBuff}].Stacks" "tmpstackcheck" "bool"
-					/if (!${tmpbuffid} && ${tmpstackcheck}) {
-						/call SpellQueue "${TankBuff}" ${Group.Member[${bmember}].ID}
-						/varset spellrememtimer 5s
-						/delay 10
-					}
+			/if (${Me.CurrentMana}>${Spell[${TankBuff}].Mana} && ${Group.Member[${bmember}].ID}==${assistid} && !${Me.Casting.ID} && ${Me.Book[${TankBuff}]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${TankBuffMatch}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${TankBuff}].Stacks" "tmpstackcheck" "bool"
+				/if (!${tmpbuffid} && ${tmpstackcheck}) {
+					/call SpellQueue "${TankBuff}" ${Group.Member[${bmember}].ID}
+					/varset spellrememtimer 5s
+					/delay 10
 				}
-				/if (${Me.CurrentMana}>${Spell[${DivineBuff}].Mana} && ${Group.Member[${bmember}].ID}==${assistid} && (!${Me.Casting.ID}) && ${Me.SpellReady[${DivineBuff}]} && ${DivineBuffOn}) {
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${DivineBuff}].ID" "tmpbuffid" "int"
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${DivineBuff}].Stacks" "tmpstackcheck" "bool"
-					/if (!${tmpbuffid} && ${tmpstackcheck}) {
-						/call DivineUsage
-						/varset spellrememtimer 5s
-						/delay 10
-					}
+			}
+			/if (${Me.CurrentMana}>${Spell[${DivineBuff}].Mana} && ${Group.Member[${bmember}].ID}==${assistid} && !${Me.Casting.ID} && ${Me.SpellReady[${DivineBuff}]} && ${DivineBuffOn}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${DivineBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${DivineBuff}].Stacks" "tmpstackcheck" "bool"
+				/if (!${tmpbuffid} && ${tmpstackcheck}) {
+					/call DivineUsage
+					/varset spellrememtimer 5s
+					/delay 10
 				}
+			}
 		}
 	/next bmember
 	|- Delete variable's

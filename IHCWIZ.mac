@@ -65,42 +65,39 @@ Sub ManualPullCamping
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
 		/if (${State}==0) {
-			/if (${Target.Type.Equal[Corpse]}) /target clear
-			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-|-			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffCheck
-			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call IllusionCheck
+			/call self_buff_check FALSE
+			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/call check_illusion FALSE
 |-			/if (${DoMed}) /call AutoMed
-			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
+			/call meditate FALSE
 |-			/call CheckMana
 			/call BagModRods
-			/if (${Me.XTarget[1].ID}) /varset State 1
+			/call check_state FALSE ${State}
 		}
 		
 		/if (${State}==1) {
-			/if (${Me.Sitting}) /stand
-			/if (${Me.XTarget[1].ID}) /call DebuffMobs
-			/if (${Me.XTarget[1].Distance}<40) {
-				/varset State 2
-			}
+			/call PreCombat FALSE
+			/call DebuffMobs
+			/call check_state FALSE ${State}
 		}
 
 		/if (${State}==2) {
-			/if (${Me.Sitting}) /stand
-			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+			/call PreCombat FALSE
+			/if (${Me.XTarget}) /assist ${AssistCharacter}
 |-			/call PetAttack
 |-			/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 |-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
 |-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
-			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange}) /call Combatdps
+			/call Combatdps
 |-			/call CheckMana
 
 |-			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
 			
 |-			/if (${UseModRods}) /call ClickModRoD
 			
-			/if (${Target.Type.Equal[Corpse]}) /target clear
-			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/if (!${Me.XTarget[1].ID}) /call PostCombat
+			
+			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/call PostCombat FALSE
 		}
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
@@ -110,7 +107,8 @@ Sub ManualPullCamping
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 
 Sub DebuffMobs
-	/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
+	/if (${Me.Casting.ID}) /return
+	/if (${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 		/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
 			/alt act ${Me.AltAbility[${StripBuffSpell}].ID}
 			/delay 10 ${Window[CastingWindow].Open}
@@ -199,6 +197,8 @@ Sub AANDisc
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
 Sub Combatdps
+	/if (!(${Target.PctHPs}<=${AutoAssistAt})) /return FALSE
+	/if (!(${Target.Distance}<${AssistRange})) /return FALSE
 	/call AANDisc
 	/if (!${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.ID} && ${Cast.Status.Equal[I]}) {
 		/if (${Target.PctHPs}>=30 && ${Target.PctHPs}<=99 && ${Me.PctMana}<=${HarvestManaPct} && ${Me.SpellReady[${GambitSpell}]} && ${Me.CurrentMana}>${Spell[${GambitSpell}].Mana}) {
@@ -231,48 +231,42 @@ Sub Combatdps
 			/call CastSpell "${CloudburstNuke}" ${autotargetid} dps
 		} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FastNuke1}]}) && ${Me.CurrentMana}>${Spell[${FastNuke1}].Mana}) {
 			/call CastSpell "${FastNuke1}" ${autotargetid} dps
-		} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${GeneralNuke1}]}) && ${Me.CurrentMana}>${Spell[${GeneralNuke1}].Mana}) {
+		} else /if (${validate_cast[FALSE, spell, ${GeneralNuke1}, ${autotargetid}]}) {
 			/call CastSpell "${GeneralNuke1}" ${autotargetid} dps
 		} else /if ((${Me.SpellReady[${ClawNuke}]}) && ${Me.CurrentMana}>${Spell[${ClawNuke}].Mana}) {
 			/call CastSpell "${ClawNuke}" ${autotargetid} dps
 		} 
+
 		/if (${CastResult.Equal[CAST_SUCCESS]} || ${CastResult.Equal[CAST_RESIST]}) /varset DPSRecastTimer 0
 		/if (${WeaveAANukes} && !${AANukeRecasttimer}) /call AANukes
 	}
 /return
+|***
+ *	DES: Class self buffs
+ *	USE: /call ${validate_cast[[TRUE|FALSE], [spell|alt|disc|item|pulse|FIND], name, targetID, ForceTarget]
+ *	NOTE: This is designed tomake sure whatever we are attempting to cast, is castable. be it a disc, item, spell, booger flick.. whatever.. IS IT READY TO BE USED?
+ ***|
+
+Sub self_buff_check(bool _debug)
+
+	/if (${validate_cast[FALSE, alt, ${ACPyromancy}, ${Me.ID}]}) /alt act ${Me.AltAbility[${ACPyromancy}].ID}
+	
+	/if (${validate_cast[FALSE, alt, ${FamiliarBuff}, ${Me.ID}]}) /alt act ${Me.AltAbility[${FamiliarBuff}].ID}
+	
+	/if (${validate_cast[FALSE, alt, ${SelfHPBuff}, ${Me.ID}]}) /call SpellQueue "${SelfHPBuff}" ${Me.ID}
+
+	/if (${validate_cast[FALSE, alt, ${SelfRune1}, ${Me.ID}]}) /call SpellQueue "${SelfRune1}" ${Me.ID}
+
+	/if (!${Me.Gem[${spellmisc}].Name.Equal[${miscspellremem}]} && ${spellrememtimer}==0 && ${miscspellremem.NotEqual[NULL]}) {
+		/call LoadSpellGem "${miscspellremem}" ${spellmisc}
+		/varset spellrememtimer 5s 
+	}
+/return TRUE
 |----------------------------------------------------------------------------
 |- SUB: BurnRoutine
 |---------------------------------------------------------------------------- 
 Sub BurnRoutine
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: BuffCheck
-|---------------------------------------------------------------------------- 
-Sub BuffCheck
-	/if (!${Me.Buff[${ACPyromancy}].ID} && ${Cast.Status.Equal[I]} && ${Me.AltAbilityReady[${ACPyromancy}]}) {
-		/alt act ${Me.AltAbility[${ACPyromancy}].ID}
-		/delay 5
-	} else /if (!${Me.Buff[${FamiliarBuff}].ID} && ${Cast.Status.Equal[I]}) {
-		/if (${Me.AltAbilityReady[${FamiliarBuff}]}) {
-			/alt act ${Me.AltAbility[${FamiliarBuff}].ID}
-			/delay 5
-		} else /if (${Me.AltAbility[${FamiliarBuff}].Rank}<1 && ${Me.Book[${FamiliarBuff}]} && ${Me.CurrentMana}>${Spell[${FamiliarBuff}].Mana}) {
-			/call SpellQueue "${FamiliarBuff}" ${Me.ID}
-		}
-	} else /if (${Me.Buff[summon].ID}) {
-		/removebuff ${Me.Buff[summon improved].Name}
-		/delay 16
-	} else /if (!${Me.Buff[${SelfHPBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfHPBuff}].Stacks}) && ${Me.Book[${SelfHPBuff}]} && ${Me.CurrentMana}>${Spell[${SelfHPBuff}].Mana}) {
-		/call SpellQueue "${SelfHPBuff}" ${Me.ID}
-		/varset spellrememtimer 5s 
-	} else /if (!${Me.Buff[${SelfRune1}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfRune1}].Stacks}) && ${Me.Book[${SelfRune1}]} && ${Me.CurrentMana}>${Spell[${SelfRune1}].Mana}) {
-		/call SpellQueue "${SelfRune1}" ${Me.ID}
-		/varset spellrememtimer 5s 
-	} else /if (!${Me.Gem[${spellmisc}].Name.Equal[${miscspellremem}]} && ${spellrememtimer}==0 && ${miscspellremem.NotEqual[NULL]}) {
-		/call LoadSpellGem "${miscspellremem}" ${spellmisc}
-		/varset spellrememtimer 5s 
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: ManageAggro

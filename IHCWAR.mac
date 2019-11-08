@@ -49,6 +49,7 @@ Sub Main
 	/delay 2s
 	/call PullAbilitySetup
 	/delay 2s
+	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -171,8 +172,6 @@ Sub ManualRunAndGun
 Sub AFKRadiusCamping
     /call MakeCamp
     /call RemoveTravelBuffs
-	/call PullAbilitySetup
-	/if (${Group.Puller.ID}==${Me.ID}) /call AddToAlert
 	/target clear   
 
 	/while (${Mode}==3) {
@@ -182,7 +181,7 @@ Sub AFKRadiusCamping
 		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
 		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${PCRadiusCheck}]}>6) && !${Me.XTarget}) /call DummyMode
 
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call check_illusion
 		/if (!${Me.XTarget[1].ID} && ${DoMed}) /call AutoMed
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
 		/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
@@ -211,7 +210,7 @@ Sub AFKRadiusCamping
 |-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} 7 |${AutoCampRadius}
 		/if (!${Me.XTarget[1].ID}) /call PostCombat
 
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
