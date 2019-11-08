@@ -459,6 +459,7 @@ Sub AFKPull
 	/declare MobsInRadius 	int local 0
 
 	/if (${ResourceChecker}==0) /return
+	/if (${Me.Snared.ID}) /return
 	/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /return
 	/if (${AdvPath.Following}) /afollow off
 
