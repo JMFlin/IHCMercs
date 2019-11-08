@@ -444,8 +444,6 @@ Sub SetWizSpells
 		/varset ClawNuke ${Spell[Claw of Vox].RankName}
 	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Claw of Frost].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of Frost].RankName}
-	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Blast of Cold].RankName}]}) {
-		/varset ClawNuke ${Spell[Blast of Cold].RankName}
 	}
 |-CloudburstNuke
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Cloudburst Thunderbolt].RankName}]}) {
@@ -464,7 +462,16 @@ Sub SetWizSpells
 		/varset CloudburstNuke ${Spell[Cloudburst Bolts].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Cloudburst Strike].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Cloudburst Strike].RankName}
+	} else /if (${Me.Level}>=24 && ${Me.Book[${Spell[Inferno Shock].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Inferno Shock].RankName}
+	} else /if (${Me.Level}>=24 && ${Me.Book[${Spell[Frost Shock].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Frost Shock].RankName}
+	} else /if (${Me.Level}>=8 && ${Me.Book[${Spell[Shock of Ice].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Shock of Ice].RankName}
+	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Blast of Cold].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Blast of Cold].RankName}
 	}
+	||| Shock of Lightning
 |-FuseNuke
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Braid].RankName}
@@ -657,6 +664,7 @@ Sub SetWizSpells
 	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Sothgar's Flame].RankName}]}) {
 		/varset GeneralNuke1 ${Spell[Sothgar's Flame].RankName}
 	}
+
 /return 
 |----------------------------------------------------------------------------
 |- SUB: Bind Set Var Int resets various interger settings from ini file

@@ -31,13 +31,22 @@ Classes GROUP
 9. merc merc merc shm ber brd 
 10. merc merc merc shm ber wiz 
 
+###########################################
+Names RAID
+1.
+Powercheck Eveready 
+Powersonic Powerking Prevailer Fiamm Odyssey Optima
 
 
+2.
+
+
+##########################################
 
 
 Names RAID
 1.
-Panasonic Coppertop Rayovac Powercheck Eveready Exide
+Panasonic (Coppertop) Rayovac Powercheck Eveready Exide
 Powersonic Powerking Prevailer Fiamm Odyssey Optima
 
 

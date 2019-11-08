@@ -133,6 +133,8 @@ Sub ManualRunAndGun
 		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
 
 
+|-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
+
 		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -350,6 +352,14 @@ Sub BuffGroup
 	/for bmember 1 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID}) ) {
 
+			/if (!${Me.Book[${GroupHPBuff}]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${HPBuff}].ID" "tmpbuffid" "bool"
+				/if (!${tmpbuffid} && ${Me.Book[${HPBuff}]} && ${Me.CurrentMana}>${Spell[${HPBuff}].Mana} && (!${Me.Casting.ID})) {
+					/call SpellQueue "${HPBuff}" ${Group.Member[${bmember}].ID}
+					/varset spellrememtimer 5s
+					/delay 10
+				}
+			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"

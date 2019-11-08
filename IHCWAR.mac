@@ -46,7 +46,9 @@ Sub Main
 	} else {
 		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
 	}
+	/delay 2s
 	/call PullAbilitySetup
+	/delay 2s
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -71,7 +73,7 @@ Sub ManualPullCamping
 
 		/if (${State}==0) {
 			/if (${Target.ID}) /target clear
-			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (${Me.ID}!=${Group.Puller.ID} && !${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 			/if (${DoMed}) /call AutoMed
 			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
@@ -111,7 +113,7 @@ Sub ManualPullCamping
 			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=(${AssistRange}+25) && ${Target.Type.Equal[NPC]}) /call CombatBuffs
 
 			/if (${Target.Type.Equal[Corpse]}) /target clear
-			/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if ((${Me.XTarget[1].ID} || ${Me.ID}!=${Group.Puller.ID}) && (${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && ${Target.PctHPs}>10) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 			/if (!${Me.XTarget[1].ID}) /call PostCombat
 		}
 
@@ -168,7 +170,8 @@ Sub ManualRunAndGun
 |---------------------------------------------------------------------------- 
 Sub AFKRadiusCamping
     /call MakeCamp
-    /call RemoveTravelBuffs 
+    /call RemoveTravelBuffs
+	/call PullAbilitySetup
 	/if (${Group.Puller.ID}==${Me.ID}) /call AddToAlert
 	/target clear   
 
@@ -198,12 +201,14 @@ Sub AFKRadiusCamping
 
 		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
 
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AutoCampRadius}) /call Engage
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<=${AutoCampRadius}+7) /call Engage
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoMashRangeAggro
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call AoEAggro
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoCombat
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
+
+|-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}

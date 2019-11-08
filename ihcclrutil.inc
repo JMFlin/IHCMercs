@@ -823,7 +823,7 @@ Sub CheckSpells
 		/varset HPBuff ${Spell[Aegolism].RankName}
 	} else /if (${Me.Level}>=40 && ${Me.Book[${Spell[Temperance].RankName}]})  {
 		/varset HPBuff ${Spell[Temperance].RankName}
-	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Heroism].RankName}]})  {
+|	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Heroism].RankName}]})  {
 		/varset HPBuff ${Spell[Heroism].RankName}
 	} else /if (${Me.Level}>=32 && ${Me.Book[${Spell[Valor].RankName}]})  {
 		/varset HPBuff ${Spell[Valor].RankName}

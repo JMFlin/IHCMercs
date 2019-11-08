@@ -105,16 +105,18 @@ Sub VarSetup
     /declare AggressiveRadius 	int outer 100
 	/declare AssistRangeZ 		int outer 20
     /declare PullAbility		string outer NULL
+	/declare PullAbility3		string outer NULL
 	/declare PullAbilityAA 		int outer 0
     /declare PullAbility2 		int outer 0
 	/declare PullAutoCampX		int outer 0
     /declare PullAutoCampY		int outer 0
 	/declare PullAutoCampZ		int outer 0
 	/declare PullDistance 		int outer 0
+	/declare PullDistance3 		int outer 0
 	/declare ResourceChecker 	int outer 1
 	/declare Limit 				int outer 20
 	/declare DummyTime        	int outer  10
-	/declare DummyMsg         	string outer  "Gone for More Beer - BRB."
+	/declare DummyMsg         	string outer  "BRB, can't talk."
 	/declare PCRadiusCheck 		int outer 100
 
 |- Tanking variables
@@ -298,6 +300,13 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 	}
 /return
 |----------------------------------------------------------------------------
+|- SUB: UseItemsCommon
+|---------------------------------------------------------------------------- 
+Sub UseItemsCommon
+	/if (!${FindItem["Combat Spellbook"].TimerReady}) /useitem "Combat Spellbook"
+	/delay 5s !${Me.Casting.ID}
+/return
+|----------------------------------------------------------------------------
 |- SUB: ModeSet
 |----------------------------------------------------------------------------
 Sub ModeSet
@@ -401,8 +410,8 @@ Sub Travel
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
 	/declare bmember	int local 0
-	/if (${Limit}==20 && ${ResourceChecker}==0) /varset Limit 50
-	/if (${Limit}==50 && ${ResourceChecker}==1) /varset Limit 20
+	/if (${Limit}==20 && ${ResourceChecker}==0) /varset Limit 85
+	/if (${Limit}==85 && ${ResourceChecker}==1) /varset Limit 20
 	/varset ResourceChecker 1
 	
 	/for bmember 0 to ${Group}
@@ -1453,9 +1462,7 @@ Sub DummyMode
 
 	:waitabit 
 	/for i 1 to ${DummyTime}
-		/echo (${i}/${DummyTime})
-		/afk ${DummyMsg}
-		/if (${Me.XTarget}) /afk off 
+		/echo ${i}/${DummyTime}
 		/if (${Me.XTarget}) /return
 		/delay 1s 
 	/next i
@@ -1522,30 +1529,6 @@ Sub BegForCure
 	/if (${Defined[tmpCureSpellName]}) /deletevar tmpCureSpellName
 	/if (${Defined[tmpCureSpellReady]}) /deletevar tmpCureSpellReady
 	/delay 5
-/return
-|----------------------------------------------------------------------------
-|- SUB: AFKLowLevel
-|----------------------------------------------------------------------------
-Sub AFKLowLevel
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-
-	/while (${Mode}==10) {
-		/if (${Me.PctHPs}<60 && !${Me.XTarget}) /sit
-		/if (${Me.PctHPs}>60) /stand
-		/if (${Me.ID}==${Target.ID}) /target clear
-		/if (${Me.PctHPs}>60 && !${Target.ID} && ${Me.ID}==${Group.MainAssist.ID} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
-		
-		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /target id ${Me.XTarget[1].ID}
-		
-		/if (${Me.PctHPs}>60 && ${Me.ID}!=${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
-		/if (${Me.PctHPs}>60 && ${Target.Type.Equal[NPC]} && ${Target.Level}<=${Me.Level}+3) /call Engage
-
-		/if (${Me.SpellReady[${FuseNuke}]} && ${Me.CurrentMana}>${Spell[${FuseNuke}].Mana})
-
-		/if (${Me.PctHPs}>60 && !${Me.XTarget} && ${Me.ID}!=${Group.MainAssist.ID}) /call Travel
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.XTarget[1].ID}) /call PostCombat
-	}
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: BIND KillMATarget

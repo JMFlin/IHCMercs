@@ -200,7 +200,7 @@ Sub AFKRadiusCamping
 		/if (${Me.XTarget[1].ID} && ${Me.ID}!=${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
 
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatdpsItems
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AutoCampRadius} && ${Target.PctAggro}<100) /call Engage
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<=${AutoCampRadius} && ${Target.PctAggro}<100) /call Engage
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100) /call CombatdpsDiscs
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100) /call CombatdpsMash
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100 && (${Target.Named} || ${Me.XTarget[1].Named})) /call DoNamed

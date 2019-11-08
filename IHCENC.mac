@@ -97,6 +97,8 @@ Sub ManualPullCamping
 			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange}) /call Combatdps
 			/call CheckMana
 			
+|-			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
+
 			/if (${UseModRods}) /call ClickModRoD
 			
 			/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -213,7 +215,7 @@ Sub Combatdps
 			/if (${CastResult.Equal[CAST_SUCCESS]}) /delay 16
 	}
 	/if (!${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
-		/if (${Me.Gem[${Drown}]} && (${Target.Named} || ${Me.Level}<105) && ${Cast.Status.Equal[I]} && !${Me.Buff[Improved Twincast].ID} && (${Me.SpellReady[${Drown}]}) && ${Me.CurrentMana}>${Spell[${Drown}].Mana} && (!${Target.Buff[${Drown}].ID}) && ${Target.PctHPs}>60) {
+		/if (${Me.Gem[${Drown}]} && ${Target.Named} && ${Cast.Status.Equal[I]} && !${Me.Buff[Improved Twincast].ID} && (${Me.SpellReady[${Drown}]}) && ${Me.CurrentMana}>${Spell[${Drown}].Mana} && (!${Target.Buff[${Drown}].ID}) && ${Target.PctHPs}>60) {
 			/call CastSpell "${Drown}" ${Target.ID} dps
 			/delay 5s !${Me.Casting.ID}
 		}
@@ -343,6 +345,17 @@ Sub BuffGroup
 	/varset acverbose 1
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID})) {
+			
+			/if (!${Me.Book[${GroupMana}]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SingleMana}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleMana}].Stacks" "tmpstackcheck" "bool"
+				/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${SingleMana}]}  && ${Me.CurrentMana}>${Spell[${SingleMana}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+					/call SpellQueue "${SingleMana}" ${Group.Member[${bmember}].ID}
+					/varset spellrememtimer 5s
+					/delay 10
+				}
+			}
+			
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupHaste}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupHaste}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${GroupHaste}]}  && ${Me.CurrentMana}>${Spell[${GroupHaste}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {

@@ -87,14 +87,16 @@ Sub ManualPullCamping
 		/if (${State}==2) {
 			/if (${Me.Sitting}) /stand
 			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
-			/call PetAttack
+|-			/call PetAttack
 |-			/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
+|-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
+|-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
 			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange}) /call Combatdps
 |-			/call CheckMana
+
+|-			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
 			
-			/if (${UseModRods}) /call ClickModRoD
+|-			/if (${UseModRods}) /call ClickModRoD
 			
 			/if (${Target.Type.Equal[Corpse]}) /target clear
 			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}

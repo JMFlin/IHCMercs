@@ -90,7 +90,7 @@ Sub ManualPullCamping
 		/if (${State}==2) {
 			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
 			/if (${Target.Type.Equal[NPC]}) /call PreCombatBuffs
-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AutoCampRadius} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoAssistAt}) /call Engage
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AutoCampRadius} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoCampRadius}) /call Engage
 			/call PreCombatBuffs
 			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 
