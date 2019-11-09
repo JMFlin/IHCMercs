@@ -118,20 +118,14 @@ Sub VarSetup
 	/declare ResourceChecker 	int outer 1
 	/declare Limit 				int outer 20
 	/declare DummyTime        	int outer  10
-	/declare DummyMsg         	string outer  "BRB, can't talk."
+	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
 	/declare PCRadiusCheck 		int outer 100
-
-|- Tanking variables
-	/declare Tagged 			int outer 0
 
 |- Modes
 	/declare Mode 				int outer 0
 	/declare PreviousMode 		int outer 0
 	/declare ModeName 			string outer NULL
 	/declare PreviousModeName 	string outer NULL
-
-|- Assisting
-	/declare _assistChecker		int outer 0	
 	
 |- Raiding
 	/declare RangeToTarget 		int outer 15
@@ -299,7 +293,7 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 |----------------------------------------------------------------------------
 |- SUB: check_state
 |---------------------------------------------------------------------------- 
-Sub check_state(bool _debug, string _assistCharacter)
+Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 
 	/if (${Me.Moving}) /return
 	
@@ -314,7 +308,7 @@ Sub check_state(bool _debug, string _assistCharacter)
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
 	| do I need resources?
-	|/if (${validate_cast[FALSE, FIND, ${HarvestSpell}, ${Me.ID}]} && ${Me.PctMana}<${HarvestManaPct}) /call core_cast2 "${HarvestSpell}" spell ${Me.ID} FALSE
+	/if (${validate_cast[FALSE, FIND, "${_harvest}", ${Me.ID}]}) /call core_cast2 "${_harvest}" FIND ${Me.ID} FALSE
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
@@ -323,8 +317,6 @@ Sub check_state(bool _debug, string _assistCharacter)
 		/if (${Target.ID}) /target clear
 		/if (${Me.Pet.ID}) /pet back off
 |		/call check_illusion FALSE ${_illusionItem}
-		
-		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampX},${PullAutoCampY},${PullAutoCampZ}]}<${AutoCampRadius}) /return
 		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 	}
 
@@ -357,7 +349,7 @@ Sub ModeSet
 		/if (${Mode}==5) /varset ModeName DoEvent
 		/if (${Mode}==6) /varset ModeName Raid
 
- 		/docommand /dgt \ar Previous mode ${PreviousModeName} \ag Current mode ${ModeName}
+ 		/docommand /dgga \ar Previous mode ${PreviousModeName} \ag Current mode ${ModeName}
 		/varset PreviousMode ${Mode}
 	}
 /return
@@ -568,6 +560,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 |- SUB: PetAttack
 |---------------------------------------------------------------------------- 
 Sub PetAttack
+	/if (!${Me.Pet.ID}) /return
 	/assist ${Group.MainAssist.Name}
 	/if (${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<=${AssistRange} && ${Target.Type.Equal[NPC]}) {
 		|- Pet Attack
@@ -917,23 +910,24 @@ Sub AutoCampCheck
 |- SUB: BagModRods
 |----------------------------------------------------------------------------
 Sub BagModRods
+	/if (!${Cursor.ID} ) /return
 	/if ((${Cursor.ID}) && ${CursorTimer}==0 && ${ShitOnCursor.Equal[NULL]} && (${Me.FreeInventory}>1)) {
 		/varset ShitOnCursor ${Cursor}
 		/varset CursorTimer 1m
-	} else /if (${Cursor.ID} && ${CursorTimer}==0 && ${ShitOnCursor.NotEqual[NULL]} && (${Me.FreeInventory}>1)) {
+	} else /if (${CursorTimer}==0 && ${ShitOnCursor.NotEqual[NULL]} && (${Me.FreeInventory}>1)) {
 		/echo \aw Something has been left on cursor for over a minute Bagging it
 		/autoinventory
 		/varset ShitOnCursor NULL
-	} else /if (${Cursor.ID} && ${ShitOnCursor.Find[Transvergence]} && (${Me.FreeInventory}>1)) {
+	} else /if (${ShitOnCursor.Find[Transvergence]} && (${Me.FreeInventory}>1)) {
 		/echo \aw Bagging Mod Rod
 		/autoinventory
 		/varset ShitOnCursor NULL
-	} else /if (${Cursor.ID} && ${ShitOnCursor.Find[Modulation]} && (${Me.FreeInventory}>1)) {
+	} else /if (${ShitOnCursor.Find[Modulation]} && (${Me.FreeInventory}>1)) {
 		/echo \aw Bagging Mod Rod
 		/autoinventory
 		/varset ShitOnCursor NULL
 	}
-	/if (${Cursor.ID} && ${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.FreeInventory}>1) /autoinventory
+	/if (${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.FreeInventory}>1) /autoinventory
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Gain Something - DanNet message 
