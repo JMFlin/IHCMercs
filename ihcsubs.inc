@@ -101,6 +101,8 @@ Sub VarSetup
 
 	/declare UseItems 			int outer 0
 
+	/declare _illusionItem 		string outer "Bone Mask of Horror"
+
 |- AFK camping
     /declare AggressiveRadius 	int outer 100
 	/declare AssistRangeZ 		int outer 20
@@ -127,6 +129,9 @@ Sub VarSetup
 	/declare PreviousMode 		int outer 0
 	/declare ModeName 			string outer NULL
 	/declare PreviousModeName 	string outer NULL
+
+|- Assisting
+	/declare _assistChecker		int outer 0	
 	
 |- Raiding
 	/declare RangeToTarget 		int outer 15
@@ -171,8 +176,9 @@ Sub VarSetup
 |- SUB: IllusionCheck - Check for Plaguebringer illusion
 |----------------------------------------------------------------------------
 Sub check_illusion(bool _debug, string _illusionItem)
-	/if (${validate_cast[FALSE, alt, ${_illusionItem}, ${Me.ID}]}) /cast item  ${_illusionItem}
-/return TRUE
+	/if (${Me.XTarget}) /return
+	/if (${validate_cast[FALSE, item, ${_illusionItem}, ${Me.ID}]}) /cast item ${_illusionItem}
+/return
 |----------------------------------------------------------------------------
 |- SUB IHC Common Config Options - Config options that will be the same across all mac's
 |----------------------------------------------------------------------------
@@ -291,18 +297,44 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: UseItemsCommon
+|- SUB: check_state
 |---------------------------------------------------------------------------- 
-Sub UseItemsCommon
-	/if (!${FindItem["Combat Spellbook"].TimerReady}) /useitem "Combat Spellbook"
-	/delay 5s !${Me.Casting.ID}
-/return
+Sub check_state(bool _debug, string _assistCharacter)
 
-Sub check_state(bool _debug, int _myState)
-	/if (${_myState}==0 && ${Me.XTarget}) /varset State 1
-	/if (${_myState}==1 && ${Target.Distance}<50) /varset State 2
-	/if (!${Me.XTarget}) /varset State 0
-/return TRUE
+	/if (${Me.Moving}) /return
+	
+	/if (${Me.Casting.ID}) /return
+	
+	/if (${Navigation.Active}) /return
+
+	| am I dead?
+	/if (${Me.Hovering}) /call DeathSub
+	
+	| have I been knocked down?
+	/if (${Me.State.Equal[FEIGN]}) /stand
+
+	| do I need resources?
+	|/if (${validate_cast[FALSE, FIND, ${HarvestSpell}, ${Me.ID}]} && ${Me.PctMana}<${HarvestManaPct}) /call core_cast2 "${HarvestSpell}" spell ${Me.ID} FALSE
+
+	| if I don't have a target: relax
+	/if (!${Me.XTarget}) {
+		/if (${Stick.Status.Equal[ON]}) /stick off
+		/attack off
+		/if (${Target.ID}) /target clear
+		/if (${Me.Pet.ID}) /pet back off
+|		/call check_illusion FALSE ${_illusionItem}
+		
+		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampX},${PullAutoCampY},${PullAutoCampZ}]}<${AutoCampRadius}) /return
+		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+	}
+
+	| if I have a target: assist and get ready
+	/if (${Me.XTarget}) {
+		/if (${Me.Sitting}) /stand
+		/assist ${_assistCharacter}
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+	}
+/return
 |----------------------------------------------------------------------------
 |- SUB: ModeSet
 |----------------------------------------------------------------------------
@@ -359,7 +391,7 @@ Sub Engage
 	/if (${AdvPath.Following}) /afollow off
 	/if (${Target.ID}) /face fast
 	/delay 2
-	/stick ${StickHow} 7
+	/stick ${StickHow} 10
 	/delay 10 ${Stick.Active}
 	/squelch /attack on
 	/delay 2
@@ -376,19 +408,13 @@ Sub CastersEngage
 |----------------------------------------------------------------------------
 |- SUB: PostCombat
 |---------------------------------------------------------------------------- 
-Sub PostCombat
+Sub PostCombat(bool _debug)
+	/if (${Me.XTarget}) /return
 	/if (${Stick.Status.Equal[ON]}) /stick off
 	/attack off
 	/if (${Target.ID}) /target clear
 	/if (${Me.Pet.ID}) /pet back off
 /return
-|----------------------------------------------------------------------------
-|- SUB: PostCombat
-|---------------------------------------------------------------------------- 
-Sub PreCombat(bool _debug)
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-	/if (${Me.Sitting}) /stand
-/return TRUE
 |----------------------------------------------------------------------------
 |- SUB: Travel
 |----------------------------------------------------------------------------
@@ -497,8 +523,8 @@ Sub AFKPull
     /while (${PullTargetID}==${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
 		/if (${Me.Sitting}) /stand
 		/if (${PullTargetID}!=${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
-		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.CombatAbilityReady[${PullAbility}]}) /disc ${PullAbility}
-		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
+		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]} && ${Spawn[id ${PullTargetID}].LineOfSight}) /disc ${PullAbility}
+		|/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
 		/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
 		/if (${Mode}!=3) {
 			/if (${Navigation.Active}) /nav stop
@@ -514,24 +540,13 @@ Sub AFKPull
     /if (${Target.ID}) /face fast
 	/if (${Defined[PullTarget]}) /deletevar PullTarget
  /return
- |----------------------------------------------------------------------------
-|- SUB: meditate
-|---------------------------------------------------------------------------- 
-Sub meditate(bool _debug)
-	/if (${Me.Moving}) /return
-	/if (${Me.Casting}) /return
-	/if (${Me.XTarget}) /return
-	/if (${Navigation.Active}) /return
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampX},${PullAutoCampY},${PullAutoCampZ}]}>${AutoCampRadius}) /return
-	/if (${Me.Standing}) /sit
-/return
 |----------------------------------------------------------------------------
 |- SUB: MoveToCamp
 |---------------------------------------------------------------------------- 
 Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 	
 	| if casting return
-	/if (!${Me.Casting.ID}) /return
+	/if (${Me.Casting.ID}) /return
 	
 	/if (${Stick.Active}) /stick off
 	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]}>${Distance}) {
@@ -1257,6 +1272,7 @@ Sub CastSpell(string WhatSpell, int WhatID, string sentFrom)
         /echo \aw Skip Casting \ag ${WhatSpell}. \ar Sell Not Memed.
         /varset CastResult CAST_CANCELLED
     }
+	/delay 4s
 /return ${CastResult}  
 |-------------------------------------------------------------------------------------
 |- SUB: CastWait - Cast Spell sub routine from kissassist
@@ -1497,7 +1513,7 @@ Sub DummyMode
  *	NOTE: This is designed tomake sure whatever we are attempting to cast, is castable. be it a disc, item, spell, booger flick.. whatever.. IS IT READY TO BE USED?
  ***|
 sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
-	DEBUG \a-tvalidate_cast\ax(\a-w${_type}, ${_spell}, ${_tmpID}\ax)
+	|DEBUG \a-tvalidate_cast\ax(\a-w${_type}, ${_spell}, ${_tmpID}\ax)
 	
 	| _spell set to false
 	/if (!${Bool[${_spell}]}) /return FALSE
@@ -1511,9 +1527,11 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	}
 
 	| is the target an NPC?
-	/if (!${Spawn[npc id ${_tmpID}].ID} && !${Spell[${_spell}].SpellType.Equal[Beneficial]}) /return FALSE
+	/if (!${Spell[${_spell}].SpellType.Equal[Beneficial]}) {
+		/if (!${Spawn[npc los id ${_tmpID}].ID}) /return FALSE
+	}
 
-	CHECKINPUTS
+	|CHECKINPUTS
 	
 	| what type is it?
 	/if (${_type.Equal[FIND]}) {
@@ -1560,9 +1578,6 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		| enough manna to cast?
 		/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
 		
-		| /if (!${Me.SpellReady[${_spell}]} && !${Spell[${_spell}].SpellType.Equal[Utility Beneficial]}) /return FALSE
-		| /if (!${Me.SpellReady[${_spell}]} && !${Spell[${_spell}].SpellType.Equal[Beneficial]} && !${Spell[${_spell}].Category.Equal[Heals]}) /return FALSE
-
 		| dont fail buffs so they can be memed when needed
 		/if (!${Me.SpellReady[${_spell}]} && !${Spell[${_spell}].Category.Equal[Heals]}) {
 			/declare _pass bool local FALSE
@@ -1717,6 +1732,353 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 |	/next _count
 	
 |/return FALSE
+
+
+|***
+ *	DES: spell/disc/aa/item cast wrapper
+ *	USE: /call core_cast2 "SPELLNAME" [alt|activedisc|disc|gem#|item|epicitem|pulse] [TargetID|0 (for castless skills)] [subname|FALSE]
+ *	NOTE: MQ2Cast ["spell name"|"item name"|"AA name"|"AA#"] [[item|slotname]|alt|gem#] [give up time][s|m] [custom subroutine name] [-targetid|###] [-maxtries|#] [-recast|#] [-setin|setname] [-bandolier|setname]
+ *  NOTE2: the note above is full of crap... i wouldn't trust a thing it says..!
+ *	Note3: lets be honest. i dont think i would trust any note anywhere in this script.
+ ***|
+sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug)
+	|DEBUG \a-tcore_cast2\ax(\a-w${_spell}, ${_type}, ${_tmpID}, ${_sub}\ax)
+	| /if ((${Me.Casting.ID} || ${Window[CastingWindow].Open}) && !${Select[${Me.Class.ShortName},BRD]}) /return
+	|AMIDEAD
+
+	| obey invis
+	/if (${Me.Invis}) /return FALSE
+
+	|CLOSEBOOK
+		
+	| make sure we have our target 
+	/if (${Bool[${_tmpID}]}) {
+		/if (${Target.ID} != ${_tmpID}) {
+			/squelch /target ID ${_tmpID}
+			/delay 1s ${Target.ID} == ${_tmpID}
+		}
+	}
+	
+	| what type is it?
+	| /if (${_type.Equal[FIND]}) {
+	/if (${Select[${_type},FIND,FORCE]}) {
+		|DEBUG ${dep}_type${dep}\a-w${_type}\ax
+		/if (${Me.AltAbilityReady[${_spell}]}) {	
+			/varset _type alt
+		} else /if (${Me.Book[${Spell[${_spell}].RankName}]}) {
+			/if (${_type.Equal[FIND]}) {
+				/varset _type 0
+			} else /if (${_type.Equal[FORCE]}) {
+				/varset _type ${buffGem}
+			}
+		} else /if (${Me.CombatAbilityReady[${Me.CombatAbility[${Spell[${_spell}].RankName}]}]}) {
+			/varset _type disc
+		} else /if (${Me.ItemReady[${_spell}]}) {
+			/varset _type item
+		} else {
+		|	DEBUG FIND${dep}\arFAIL\ax${dep}${_spell}${dep}\a-wnot found or not ready\az
+			/return FALSE
+		}
+	} 	
+
+
+	| spell
+	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
+		|DEBUG ${dep}spell${dep}${_spell}
+		/declare _castLoop int local 1
+		/varset castReturn CAST_NOTREADY
+		/varset castBreak FALSE
+
+		|/if (${Select[${Me.Class.ShortName},BRD]}) {
+		|	| /if (${Me.BardSongPlaying}) /call pulse_stop 9
+		|	/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
+		|		CHECKFACE ${Target2Kill} FALSE
+		|		/call stick_to_target ${Target2Kill}
+		|	}
+		|}
+
+		| check any subs? yes.. no.. maybe??
+		/if (${SubDefined[${_sub}]}) {
+		|	DEBUG ${dep}/call ${_sub}
+			/call ${_sub}
+			/if (${castBreak}) {
+				/varset castReturn CAST_BREAK
+				/return CAST_BREAK
+			}
+		}
+
+
+		| cast GOM if song proc?
+		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && !${Select[${Me.Class.ShortName},CLR]} && ${Spawn[${Target.ID}].Type.NotEqual[pc]}) {
+		
+			| nuke 1
+			/if (${Me.SpellReady[${Spell[${GoMNuke}].RankName}]}) {
+				/varset _spell ${GoMNuke}
+
+			| nuke 2
+			} else /if (${Me.SpellReady[${Spell[${GoMNuke2}].RankName}]}) {
+				/varset _spell ${GoMNuke2}
+			}	
+		}
+				
+		| correct the rank
+		|/varset _spell ${Spell[${_spell}].RankName}
+
+		| mem spell if needed??
+		|/if (${_type.Equal[${buffGem}]} && !${Me.Gem[${_spell}]}) /call mem_spell FALSE TRUE "${_spell}" ${_type} TRUE
+		
+		| is the spell memed
+		/if (${Me.Gem[${_spell}]}) {
+
+			| echos
+			|/if (${_tmpID} == 0) {
+			|	VSPELL Spell ${sep} ${csp}${_spell}\ax
+			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
+			|	VSPELL Spell ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
+			|}
+			|VBC Spell "${_spell}" ${_tmpID} 0 		
+
+			| give this a try
+			/while (${_castLoop}) {
+			
+				/if (${Me.Invis} || ${Select[${Me.Class.ShortName},ROG]}) /return FALSE
+			
+				| can we say no MQ2Cast ???
+				/cast ${Me.Gem[${_spell}]}
+	
+				| set delays for casting. GTFO out of this as fast as possible
+				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
+
+				| delay for longer casts if there is any, cooldowns or open spell cast windows
+				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) {
+					/delay 3
+				}
+ 				
+ 				|CHECKINPUTS
+ 			| /call check_cast_events 1
+						
+				| good cast
+				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
+				
+				| spell is not ready
+				/if (${Select[${castReturn},CAST_NOTREADY]}) {
+					/varcalc _castLoop ${_castLoop}-1
+					/delay 2
+				}
+
+			}
+
+		}
+		/return
+
+
+	| AA
+	} else /if (${Select[${_type},alt]}) {
+		|DEBUG ${dep}alt${dep}${_spell}
+		
+		/declare _castLoop int local 1
+		/varset castReturn CAST_NOTREADY
+		/varset castBreak FALSE
+		
+		|/if (${Select[${Me.Class.ShortName},BRD]}) {
+		|	| /if (${Me.BardSongPlaying}) /call pulse_stop 9
+		|	/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange})) {
+		|		CHECKFACE ${Target2Kill} FALSE
+		|		/call stick_to_target ${Target2Kill}
+		|	}
+		|}
+		
+		| delay for aa casting
+		/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
+		
+		| .AltAbility .AltAbilityReady .AltAbilityTimer .AltCurrency .AltTimer .AltTimerReady
+		
+		| is the spell memed
+		/if (${Me.AltAbilityReady[${_spell}]}) {
+
+			| echos
+			|/if (${_tmpID} == 0) {
+			|	VALT AA ${sep} ${csp}${_spell}\ax
+			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
+			|	VALT AA ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
+			|}
+			|VBC Alt "${_spell}" ${_tmpID} 0
+
+			| gonna try this 3 times.
+			/while (${_castLoop}) {
+			
+				/alt act ${Me.AltAbility[${_spell}].ID}
+				
+				/delay 8
+				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
+
+				| delay for longer casts if there is any, cooldowns or open spell cast windows
+				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open}) {
+					/delay 3
+				}
+ 				
+ 				|CHECKINPUTS
+				| /call check_cast_events 2
+						
+				| good cast
+				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
+				
+				| spell is not ready
+				/if (${Select[${castReturn},CAST_NOTREADY]}) {
+					/varcalc _castLoop ${_castLoop}-1
+					/delay 2
+				}
+
+			}
+
+		}
+		/return		
+		
+		
+	| item
+	} else /if (${Select[${_type},item,epicitem]}) {
+	|	DEBUG ${dep}item,epicitem${dep}${_spell}
+		/declare _castLoop int local 1
+		/varset castReturn CAST_NOTREADY
+
+		|/if (${Select[${Me.Class.ShortName},BRD]}) {
+		|	| /if (${Me.BardSongPlaying}) /call pulse_stop 9
+	||		/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
+	||			CHECKFACE ${Target2Kill} FALSE
+	|			/call stick_to_target ${Target2Kill}
+	|		}
+	|	}
+
+		| is the item ready?
+		/if (${Me.ItemReady[${_spell}]}) {
+
+			| echos
+			|/if (${_tmpID} == 0) {
+			|	VITEM Item ${sep} ${citem}${_spell}\ax
+			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
+			|	VITEM Item ${sep} ${citem}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]	
+			|}
+			|VBC Item "${_spell}" ${_tmpID} 0 		
+
+
+			| try this 2 times
+			/while (${_castLoop}) {
+			
+				/useitem "${_spell}" 
+				/delay 2s ${Me.Casting.ID}
+				| /delay 2s !${Me.Casting.ID}
+ 	
+				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open}) {
+					/delay 3
+				} 	
+
+				/if (${Target2Kill}) {
+					/if (${is_target_dead[${Target2Kill}]}) /break
+				}
+ 				
+ 				|CHECKINPUTS
+				| /call check_cast_events 2
+						
+				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
+				
+				| spell is not ready
+				/if (${Select[${castReturn},CAST_NOTREADY]}) {
+					/varcalc _castLoop ${_castLoop}-1
+					/delay 2
+				}
+
+			}
+
+		}
+		/return		
+		
+
+		
+	| disc
+	} else /if (${Select[${_type},disc,activedisc]}) {
+		|DEBUG ${dep}disc,activedisc${dep}${_spell}
+		|/varset _spell ${Spell[${_spell}].RankName}
+
+		|/if (${Select[${Me.Class.ShortName},BRD]}) {
+			| /if (${Me.BardSongPlaying}) /call pulse_stop 9
+		|	/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
+		|		CHECKFACE ${Target2Kill} FALSE
+		|		/call stick_to_target ${Target2Kill}
+		|	}
+		|}
+
+		|/if (${_tmpID} == 0) VDISC Disc ${sep} ${csp}${_spell}\ax
+		|/if (${_tmpID} != 0 && ${Target.ID}) VDISC Disc ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
+		|VBC Disc "${_spell}" ${_tmpID} 0 
+		/disc ${Me.CombatAbility[${Me.CombatAbility[${_spell}]}].ID}
+		| /disc ${_spell}
+		/delay 5
+		/while (${Me.Casting.ID} && ${Window[CastingWindow].Open}) {
+			/delay 5
+		}	
+			
+
+
+	| bard song	
+	} else /if (${Select[${_type},pulse]}) {
+	|	DEBUG ${dep}pulse${dep}${_spell}
+
+		/declare _castLoop int local 1
+		/varset castReturn CAST_NOTREADY
+		/varset _spell ${Spell[${_spell}].RankName}
+		
+		/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
+		|/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
+		|	CHECKFACE ${Target2Kill} FALSE
+		|	/call stick_to_target ${Target2Kill}
+		|}
+
+		| is the gem ready?
+		/if (${Me.Gem[${_spell}]}) {
+
+			| echos
+			|/if (${_tmpID} == 0) {
+			|	VPULSE Pulse ${sep} ${csp}${_spell}\ax
+			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
+			|	VPULSE Pulse ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
+			|}
+			|VBC Pulse "${_spell}" ${_tmpID} 0 		
+
+			| gonna try this 2 times.
+			/while (${_castLoop}) {
+			
+				/cast ${Me.Gem[${_spell}]}
+				/delay 5 
+
+				| adjust delay for Metronome AA (fuck bards)
+				/if (${Me.AltAbility[Metronome]}) {
+					/delay ${Spell[${_spell}].CastTime.Seconds}s
+				} else {
+					/delay ${Math.Calc[${Spell[${_spell}].CastTime.Seconds}+${Math.Calc[${Spell[${_spell}].CastTime.Seconds}*.05]}]}s
+				}
+
+				/while (${Window[CastingWindow].Open}) {
+					/delay 3
+				}
+ 				
+ 				|CHECKINPUTS
+				| /call check_cast_events 2
+						
+				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
+				
+				/if (${Select[${castReturn},CAST_NOTREADY]}) {
+				 	/varcalc _castLoop ${_castLoop}-1
+				 	/delay 2
+				}
+
+			}
+			
+		}
+		/return
+	
+	}
+
+/return FALSE
 |-------------------------------------------------------------------------------------
 |- SUB: KillTarget
 |-------------------------------------------------------------------------------------

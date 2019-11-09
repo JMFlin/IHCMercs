@@ -75,7 +75,7 @@ Sub ManualPullCamping
 		/if (${State}==0) {
 			/if (${Target.ID}) /target clear
 			/if (${Me.ID}!=${Group.Puller.ID} && !${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call check_illusion
 			/if (${DoMed}) /call AutoMed
 			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
 			/if (${TimeForMezVariable}==1) /varset TimeForMezVariable 0
@@ -134,7 +134,7 @@ Sub ManualRunAndGun
 
 		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
 
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call check_illusion
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
 		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
 

@@ -61,46 +61,24 @@ Sub ManualPullCamping
     /call RemoveTravelBuffs  
 
 	/while (${Mode}==1 || ${Mode}==3) {
-		/if (${AdvPath.Following}) /afollow off
-		/if (${Me.Hovering}) /call DeathSub
-		/if (${Me.State.Equal[FEIGN]}) /stand
-		/if (${State}==0) {
-			/call self_buff_check FALSE
-			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/call check_illusion FALSE
-|-			/if (${DoMed}) /call AutoMed
-			/call meditate FALSE
-|-			/call CheckMana
-			/call BagModRods
-			/call check_state FALSE ${State}
-		}
+
+		/call check_state FALSE ${Group.MainAssist}
+|-		/call self_buff_check FALSE
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+|-		/if (${DoMed}) /call AutoMed
+		/call BagModRods
+|-		/call PetAttack
+|-		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
+|-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
+|-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
+|-		/if (${_assistChecker}==${Target.ID}) 
+		/call Combatdps
+
 		
-		/if (${State}==1) {
-			/call PreCombat FALSE
-			/call DebuffMobs
-			/call check_state FALSE ${State}
-		}
-
-		/if (${State}==2) {
-			/call PreCombat FALSE
-			/if (${Me.XTarget}) /assist ${AssistCharacter}
-|-			/call PetAttack
-|-			/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-|-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
-|-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
-			/call Combatdps
-|-			/call CheckMana
-
-|-			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
-			
-|-			/if (${UseModRods}) /call ClickModRoD
-			
-			
-			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/call PostCombat FALSE
-		}
-		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/doevents
+|-		/if (${UseModRods}) /call ClickModRoD
+		
+		
+	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	}
 /return
 |----------------------------------------------------------------------------
@@ -197,49 +175,49 @@ Sub AANDisc
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
 Sub Combatdps
-	/if (!(${Target.PctHPs}<=${AutoAssistAt})) /return FALSE
-	/if (!(${Target.Distance}<${AssistRange})) /return FALSE
-	/call AANDisc
-	/if (!${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.ID} && ${Cast.Status.Equal[I]}) {
-		/if (${Target.PctHPs}>=30 && ${Target.PctHPs}<=99 && ${Me.PctMana}<=${HarvestManaPct} && ${Me.SpellReady[${GambitSpell}]} && ${Me.CurrentMana}>${Spell[${GambitSpell}].Mana}) {
-			/call CastSpell "${GambitSpell}" ${autotargetid} dps
-		} else /if (${Me.XTarget}<2 && ${SpawnCount[npc los radius 60 zradius 10]}<2 && ${Target.Distance}>=30 && ${Target.Distance}<=60 && ${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${MagmaticAENuke}]}) && ${Me.CurrentMana}>${Spell[${MagmaticAENuke}].Mana}) {
-			/call CastSpell "${MagmaticAENuke}" ${autotargetid} dps
-		} else /if ((${Me.Song[${GambitSpell}].ID} || ${Me.Song[Evoker's Synergy I].ID}) && (${Me.SpellReady[${CloudburstNuke}]}) && ${Me.CurrentMana}>${Spell[${CloudburstNuke}].Mana}) {
-			/call CastSpell "${CloudburstNuke}" ${autotargetid} dps
-		} else /if (${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${WildNuke}]}) && ${Me.CurrentMana}>${Spell[${WildNuke}].Mana}) {
-			/call CastSpell "${WildNuke}" ${autotargetid} dps
-		} else /if (${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${ChaosNuke}]}) && ${Me.CurrentMana}>${Spell[${ChaosNuke}].Mana}) {
-			/call CastSpell "${ChaosNuke}" ${autotargetid} dps
-		} else /if (${Target.BuffsPopulated} && ((!${Me.Song[Evoker's Synergy I].ID}) || (!${Target.Buff[${VortexNuke}].ID})) && ${Me.SpellReady[${VortexNuke}]} && ${Me.CurrentMana}>${Spell[${VortexNuke}].Mana}) {
-			/call CastSpell "${VortexNuke}" ${autotargetid} dps
-		} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID}) && !${Me.Song[${GambitSpell}].ID} && !${Me.Buff[Twincast].ID} && !${Me.Buff[Improved Twincast].ID} && (${Me.SpellReady[${DichoSpell}]}) && ${Me.CurrentMana}>${Spell[${DichoSpell}].Mana}) {
-			/call CastSpell "${DichoSpell}" ${autotargetid} dps
-		} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${FuseNuke}]}) && ${Me.CurrentMana}>${Spell[${FuseNuke}].Mana}) {
-			/call CastSpell "${FuseNuke}" ${autotargetid} dps
-		} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${FireEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${FireEtherealNuke}].Mana}) {
-			/call CastSpell "${FireEtherealNuke}" ${autotargetid} dps
-		} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${ColdEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${ColdEtherealNuke}].Mana}) {
-			/call CastSpell "${ColdEtherealNuke}" ${autotargetid} dps
-		} else /if (${Me.Level}>=96 && (${Me.SpellReady[${ClawNuke}]}) && ${Me.CurrentMana}>${Spell[${ClawNuke}].Mana}) {
-			/call CastSpell "${ClawNuke}" ${autotargetid} dps
-		} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FuseNuke}]}) && ${Me.CurrentMana}>${Spell[${FuseNuke}].Mana}) {
-			/call CastSpell "${FuseNuke}" ${autotargetid} dps
-		} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FireEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${FireEtherealNuke}].Mana}) {
-			/call CastSpell "${FireEtherealNuke}" ${autotargetid} dps
-		} else /if ((${Me.SpellReady[${CloudburstNuke}]}) && ${Me.CurrentMana}>${Spell[${CloudburstNuke}].Mana}) {
-			/call CastSpell "${CloudburstNuke}" ${autotargetid} dps
-		} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FastNuke1}]}) && ${Me.CurrentMana}>${Spell[${FastNuke1}].Mana}) {
-			/call CastSpell "${FastNuke1}" ${autotargetid} dps
-		} else /if (${validate_cast[FALSE, spell, ${GeneralNuke1}, ${autotargetid}]}) {
-			/call CastSpell "${GeneralNuke1}" ${autotargetid} dps
-		} else /if ((${Me.SpellReady[${ClawNuke}]}) && ${Me.CurrentMana}>${Spell[${ClawNuke}].Mana}) {
-			/call CastSpell "${ClawNuke}" ${autotargetid} dps
-		} 
-
-		/if (${CastResult.Equal[CAST_SUCCESS]} || ${CastResult.Equal[CAST_RESIST]}) /varset DPSRecastTimer 0
-		/if (${WeaveAANukes} && !${AANukeRecasttimer}) /call AANukes
-	}
+	/if (${Target.PctHPs}>${AutoAssistAt}) /return
+	/if (${Target.Distance}>${AssistRange}) /return
+	/if (${Me.Casting.ID}) /return
+|	/call AANDisc
+	/if (${Target.PctHPs}>=30 && ${Target.PctHPs}<=99 && ${Me.PctMana}<=${HarvestManaPct} && ${Me.SpellReady[${GambitSpell}]} && ${Me.CurrentMana}>${Spell[${GambitSpell}].Mana}) {
+		/call CastSpell "${GambitSpell}" ${autotargetid} dps
+	} else /if (${Me.XTarget}<2 && ${SpawnCount[npc los radius 60 zradius 10]}<2 && ${Target.Distance}>=30 && ${Target.Distance}<=60 && ${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${MagmaticAENuke}]}) && ${Me.CurrentMana}>${Spell[${MagmaticAENuke}].Mana}) {
+		/call CastSpell "${MagmaticAENuke}" ${autotargetid} dps
+	} else /if ((${Me.Song[${GambitSpell}].ID} || ${Me.Song[Evoker's Synergy I].ID}) && (${Me.SpellReady[${CloudburstNuke}]}) && ${Me.CurrentMana}>${Spell[${CloudburstNuke}].Mana}) {
+		/call CastSpell "${CloudburstNuke}" ${autotargetid} dps
+	} else /if (${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${WildNuke}]}) && ${Me.CurrentMana}>${Spell[${WildNuke}].Mana}) {
+		/call CastSpell "${WildNuke}" ${autotargetid} dps
+	} else /if (${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${ChaosNuke}]}) && ${Me.CurrentMana}>${Spell[${ChaosNuke}].Mana}) {
+		/call CastSpell "${ChaosNuke}" ${autotargetid} dps
+	} else /if (${Target.BuffsPopulated} && ((!${Me.Song[Evoker's Synergy I].ID}) || (!${Target.Buff[${VortexNuke}].ID})) && ${Me.SpellReady[${VortexNuke}]} && ${Me.CurrentMana}>${Spell[${VortexNuke}].Mana}) {
+		/call CastSpell "${VortexNuke}" ${autotargetid} dps
+	} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID}) && !${Me.Song[${GambitSpell}].ID} && !${Me.Buff[Twincast].ID} && !${Me.Buff[Improved Twincast].ID} && (${Me.SpellReady[${DichoSpell}]}) && ${Me.CurrentMana}>${Spell[${DichoSpell}].Mana}) {
+		/call CastSpell "${DichoSpell}" ${autotargetid} dps
+	} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${FuseNuke}]}) && ${Me.CurrentMana}>${Spell[${FuseNuke}].Mana}) {
+		/call CastSpell "${FuseNuke}" ${autotargetid} dps
+	} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${FireEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${FireEtherealNuke}].Mana}) {
+		/call CastSpell "${FireEtherealNuke}" ${autotargetid} dps
+	} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${ColdEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${ColdEtherealNuke}].Mana}) {
+		/call CastSpell "${ColdEtherealNuke}" ${autotargetid} dps
+	} else /if (${Me.Level}>=96 && (${Me.SpellReady[${ClawNuke}]}) && ${Me.CurrentMana}>${Spell[${ClawNuke}].Mana}) {
+		/call CastSpell "${ClawNuke}" ${autotargetid} dps
+	} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FuseNuke}]}) && ${Me.CurrentMana}>${Spell[${FuseNuke}].Mana}) {
+		/call CastSpell "${FuseNuke}" ${autotargetid} dps
+	} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FireEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${FireEtherealNuke}].Mana}) {
+		/call CastSpell "${FireEtherealNuke}" ${autotargetid} dps
+	} else /if ((${Me.SpellReady[${CloudburstNuke}]}) && ${Me.CurrentMana}>${Spell[${CloudburstNuke}].Mana}) {
+		/call CastSpell "${CloudburstNuke}" ${autotargetid} dps
+	} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FastNuke1}]}) && ${Me.CurrentMana}>${Spell[${FastNuke1}].Mana}) {
+		/call CastSpell "${FastNuke1}" ${autotargetid} dps
+	} else /if (${validate_cast[FALSE, spell, ${GeneralNuke1}, ${Target.ID}]}) {
+		/call core_cast2 "${GeneralNuke1}" spell ${Target.ID} FALSE
+	} else /if ((${Me.SpellReady[${ClawNuke}]}) && ${Me.CurrentMana}>${Spell[${ClawNuke}].Mana}) {
+		/call CastSpell "${ClawNuke}" ${Target.ID} dps
+	} 
+	
+|	/if (${CastResult.Equal[CAST_SUCCESS]} || ${CastResult.Equal[CAST_RESIST]}) /varset DPSRecastTimer 0
+|	/if (${WeaveAANukes} && !${AANukeRecasttimer}) /call AANukes
+	
 /return
 |***
  *	DES: Class self buffs
@@ -261,7 +239,7 @@ Sub self_buff_check(bool _debug)
 		/call LoadSpellGem "${miscspellremem}" ${spellmisc}
 		/varset spellrememtimer 5s 
 	}
-/return TRUE
+/return
 |----------------------------------------------------------------------------
 |- SUB: BurnRoutine
 |---------------------------------------------------------------------------- 
@@ -273,16 +251,6 @@ Sub BurnRoutine
 |---------------------------------------------------------------------------- 
 Sub ManageAggro
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: CheckMana
-|---------------------------------------------------------------------------- 
-Sub CheckMana
-	/if (${Me.XTarget[1].ID} && ${Me.PctMana}>20) /return
-	/if (${Me.PctMana}<${HarvestManaPct} && ${Me.SpellReady[${HarvestSpell}]}) {
-		/call CastSpell "${HarvestSpell}" ${Me.ID} mana
-		/delay 5
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANukes - Cast between spell casts (Weave)

@@ -108,7 +108,7 @@ Sub ManualRunAndGun
 		/if (${Me.State.Equal[FEIGN]}) /stand
 
 		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call check_illusion
 		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
 		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
 		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffSelf
@@ -119,7 +119,7 @@ Sub ManualRunAndGun
 
 		/if (${Cursor.ID}) /call BagModRods
 		/call TankChangeCheck
-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call IllusionCheck
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call check_illusion
 		/if (${DynamicHealing}) /call ConfigHeal
 		/call ExtraHeal
 		/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
