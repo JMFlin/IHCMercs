@@ -101,8 +101,12 @@ Sub VarSetup
 
 	/declare UseItems 			int outer 0
 
-	/declare _illusionItem 		string outer "Bone Mask of Horror"
-
+	/declare illusionItem 		string outer "Bone Mask of Horror"
+|- Rezzing
+	/declare setCombatRadius	int outer 50
+	/declare setMaxRezRange 	int outer 90
+	/declare rezToken 			bool outer FALSE
+	/declare rezCombat			bool outer TRUE
 |- AFK camping
     /declare AggressiveRadius 	int outer 100
 	/declare AssistRangeZ 		int outer 20
@@ -321,7 +325,7 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 		/attack off
 		/if (${Target.ID}) /target clear
 		/if (${Me.Pet.ID}) /pet back off
-|		/call check_illusion FALSE ${_illusionItem}
+|		/call check_illusion FALSE ${illusionItem}
 		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 	}
 
@@ -2084,6 +2088,102 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	}
 
 /return FALSE
+
+|-------------------------------------------------------------------------------------
+|***
+ *	DES: Res routines for the healer slobs.
+ *	USE: /call check_for_corpse
+ *	NOTE: looks for corpses.. rez them
+ ***|
+ |-------------------------------------------------------------------------------------
+sub check_for_corpse(bool _debug)
+	/if (${Me.State.Equal[HOVER]} || ${Me.Hovering} || ${Me.Dead}) /return FALSE
+	
+	| no one dead
+	/if (!${SpawnCount[pccorpse radius ${setMaxRezRange}]}) /return FALSE
+	| no combat rez
+	/if (!${rezCombat} && ${SpawnCount[npc radius ${setCombatRadius} playerstate 4]}) /return FALSE
+
+	| not enough manna for AA rez
+	/if (${Me.PctMana} < 2 && !${rezToken}) /return FALSE
+
+	| no emergency tokens AND dont use them when a cleric is around
+	/if (${rezToken}) {
+		/if (!${Me.ItemReady[Token of Resurrection]}) /return FALSE
+		/if (${Spawn[pc CLR radius ${setMaxRezRange}].ID}) /return FALSE
+	}
+		
+	| set rez name/type	
+	| necro stuff
+	/if (${Select[${Me.Class.ShortName},NEC]}) {
+		/if (!${FindItem[Essence Emerald].ID}) /return FALSE
+		/declare _rezNEC						string	local "Convergence"
+	}
+
+	/call check_for_corpse
+
+/return
+
+|-------------------------------------------------------------------------------------
+|***
+ *	DES: rez/call casting code.
+ *	USE: /call cast_rez [ID] [rez aa|token]
+ *	NOTE: 
+ ***|
+ |-------------------------------------------------------------------------------------
+sub cast_rez(int _tmpID, string _rez, bool _debug)
+	/if (${Me.Dead}) /return FALSE
+
+	| ignore the people we dont like
+	|/if (${lstNoRez.Find[${Spawn[pccorpse ${_tmpID}].DisplayName}]}) {
+	|	/call timer_update timer_corpse_${_tmpID}} 30m
+	|	/return FALSE
+	|}
+		
+	| get the corpse close to us
+	/if (${Spawn[pccorpse ${_tmpID}].Distance} > ${AssistRange} && ${Spawn[pccorpse ${_tmpID}].Distance} <= ${setMaxRezRange}) {
+		/squelch /corpse
+	}
+
+	| can we AA res or token, maybe spell?
+	/if (${Me.AltAbilityReady[${_rez}]} || (${Me.ItemReady[Token of Resurrection]} && ${rezToken}) || ${Me.SpellReady[${_rez}]}) {	
+
+		| res the damn person
+		
+		| AA rez
+		/if (!${rezToken}) {
+			| /if (!${Spawn[pccorpse ${_tmpID}].ID}) /return
+			/delay 5s !${Me.Casting.ID}
+			/squelch /target ID ${_tmpID}
+			/delay 1s ${Target.ID} == ${_tmpID}
+			/if (${validate_cast[FALSE, FIND, "${_rez}", ${Me.ID}]}) /call core_cast2 "${_rez}" FIND ${_tmpID} FALSE
+
+		| token rez
+		} else /if (${rezToken}) {
+			/delay 5s !${Me.Casting.ID}
+			/squelch /target ID ${_tmpID}
+			/delay 1s ${Target.ID} == ${_tmpID}
+			/if (${validate_cast[FALSE, item, "Token of Resurrection", ${Me.ID}]}) /call core_cast2 "Token of Resurrection" item ${_tmpID} FALSE
+		}
+	
+		| if cast was good, set the timers.
+		|/if (${Select[${castReturn},CAST_SUCCESS]}) { 
+		|	/call timer_update timer_corpse_${_tmpID} ${tRez_Retry}
+		|	ECHOCHANNEL ${Me.Class.ShortName} Rez: ${Spawn[${_tmpID}].DisplayName}
+		|} else {
+		|	/if (${Select[${Me.Class.ShortName},CLR]}) {
+		|		/call timer_update timer_corpse_${_tmpID} 30s
+		|	} else /if (${Select[${Me.Class.ShortName},DRU,SHM,PAL]}) {
+		|		/call timer_update timer_corpse_${_tmpID} 45s
+		|	} else {
+		|		/call timer_update timer_corpse_${_tmpID} 1m
+		|	}
+		|}
+		
+	}
+
+/return
+
 |-------------------------------------------------------------------------------------
 |- SUB: KillTarget
 |-------------------------------------------------------------------------------------
