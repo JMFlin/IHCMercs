@@ -65,15 +65,15 @@ Sub ManualPullCamping
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
 		/if (${State}==0) {
-			/if (${Target.Type.Equal[Corpse]}) /target clear
+			
+			/call check_state FALSE ${Group.MainAssist.Name} "Gather Mana"
+			
 			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffCheck
 			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffGroup
-			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID}) /call check_illusion
 			/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
-			/if (${DoMed}) /call AutoMed
-			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
-			/call CheckMana
+|			/if (${DoMed}) /call AutoMed
+|			/call CheckMana
 			/call BagModRods
 			/if (${Me.XTarget[1].ID}) /varset State 1
 		}
@@ -103,7 +103,7 @@ Sub ManualPullCamping
 			
 			/if (${Target.Type.Equal[Corpse]}) /target clear
 			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/if (!${Me.XTarget[1].ID}) /call PostCombat
+			/if (!${Me.XTarget[1].ID}) /varset State 0
 		}
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
@@ -351,6 +351,15 @@ Sub BuffGroup
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleMana}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${SingleMana}]}  && ${Me.CurrentMana}>${Spell[${SingleMana}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 					/call SpellQueue "${SingleMana}" ${Group.Member[${bmember}].ID}
+					/varset spellrememtimer 5s
+					/delay 10
+				}
+			}
+
+			/if (!${Me.Book[${GroupHaste}]} && ${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK,SK,PAL]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleHaste}].ID" "tmpbuffid" "bool"
+				/if (!${tmpbuffid} && ${Me.Book[${SingleHaste}]} && ${Me.CurrentMana}>${Spell[${SingleHaste}].Mana} && !${Me.Casting.ID}) {
+					/call SpellQueue "${SingleHaste}" ${Group.Member[${bmember}].ID}
 					/varset spellrememtimer 5s
 					/delay 10
 				}

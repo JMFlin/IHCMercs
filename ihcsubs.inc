@@ -116,22 +116,21 @@ Sub VarSetup
 	/declare PullDistance 		int outer 0
 	/declare PullDistance3 		int outer 0
 	/declare ResourceChecker 	int outer 1
-	/declare Limit 				int outer 20
+	/declare Limit 				int outer 55
 	/declare DummyTime        	int outer  10
-	/declare DummyMsg         	string outer  "BRB, can't talk."
+	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
 	/declare PCRadiusCheck 		int outer 100
-
-|- Tanking variables
-	/declare Tagged 			int outer 0
 
 |- Modes
 	/declare Mode 				int outer 0
 	/declare PreviousMode 		int outer 0
 	/declare ModeName 			string outer NULL
 	/declare PreviousModeName 	string outer NULL
+	
+|- core_cast2
+	/declare castReturn 		string outer NULL
+	/declare castBreak 			bool outer TRUE
 
-|- Assisting
-	/declare _assistChecker		int outer 0	
 	
 |- Raiding
 	/declare RangeToTarget 		int outer 15
@@ -299,7 +298,7 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 |----------------------------------------------------------------------------
 |- SUB: check_state
 |---------------------------------------------------------------------------- 
-Sub check_state(bool _debug, string _assistCharacter)
+Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 
 	/if (${Me.Moving}) /return
 	
@@ -314,7 +313,7 @@ Sub check_state(bool _debug, string _assistCharacter)
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
 	| do I need resources?
-	|/if (${validate_cast[FALSE, FIND, ${HarvestSpell}, ${Me.ID}]} && ${Me.PctMana}<${HarvestManaPct}) /call core_cast2 "${HarvestSpell}" spell ${Me.ID} FALSE
+	/if (${validate_cast[FALSE, FIND, ${_harvest}, ${Me.ID}]} && ${Me.PctMana}<80) /call core_cast2 ${_harvest} FIND ${Me.ID} FALSE
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
@@ -323,8 +322,6 @@ Sub check_state(bool _debug, string _assistCharacter)
 		/if (${Target.ID}) /target clear
 		/if (${Me.Pet.ID}) /pet back off
 |		/call check_illusion FALSE ${_illusionItem}
-		
-		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampX},${PullAutoCampY},${PullAutoCampZ}]}<${AutoCampRadius}) /return
 		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 	}
 
@@ -439,26 +436,21 @@ Sub Travel
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
 	/declare bmember	int local 0
-	/if (${Limit}==20 && ${ResourceChecker}==0) /varset Limit 85
-	/if (${Limit}==85 && ${ResourceChecker}==1) /varset Limit 20
+	/if (${Limit}==55 && ${ResourceChecker}==0) /varset Limit 95
+	/if (${Limit}==95 && ${ResourceChecker}==1) /varset Limit 55
 	/varset ResourceChecker 1
 	
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctHPs" "HPPct" "int"
 			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SK,PAL]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ManaPct" "int"
-				/if (${ManaPct}<${Limit}) {
-					/varset ResourceChecker 0 
-					/delay 5
-				}
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ResPct" "int"
+			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 			}
-			/if (${ResourceChecker}==0) /return
-			/if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "EndPct" "int"
-				/if (${EndPct}<${Limit}) {
-					/varset ResourceChecker 0
-					/delay 5
-				}
+			/if (${ResPct}<${Limit} || ${HPPct} < 60) {
+				/varset ResourceChecker 0 
+				/delay 5
 			}
 			/if (${ResourceChecker}==0) /return
 		}
@@ -503,7 +495,12 @@ Sub AFKPull
 
 	/if (!${PullTargetID}) /return
 
-	/if (${Navigation.PathLength[id ${PullTargetID}]}>(${AggressiveRadius}+100)) /return
+	/if (${Navigation.PathLength[id ${PullTargetID}]}>=(${AggressiveRadius}+100)) {
+		/declare _debugRadius int local 0		
+		/varcalc _debugRadius ${AggressiveRadius}+100
+		/echo Target too far away. Path Length: ${Navigation.PathLength[id ${PullTargetID}]} vs Radius: ${_debugRadius}
+		/return
+	}
 	
 	/if (${Mode}!=3) {
 		/if (${Navigation.Active}) /nav stop
@@ -514,10 +511,16 @@ Sub AFKPull
 	/while (${Navigation.Active}) {
 		/delay 1s ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance}
 		/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
+		/if (${Me.XTarget}) {
+			/if (${Navigation.Active}) /nav stop
+			/target id ${Me.XTarget[1].ID}
+			/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
+			/return
+		}
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 	}
 	
-	/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
+	/if (!(${Target.ID}!=${PullTargetID}) && ${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
 	/delay 1s ${Target.ID}==${PullTargetID}
 
     /while (${PullTargetID}==${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
@@ -531,7 +534,6 @@ Sub AFKPull
 			/return
 		}
 		/if (${Spawn[id ${PullTargetID}].Distance}<${PullDistance} && ${Me.XTarget[1].ID}) /break
-		/delay 5
 	}
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 	/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
@@ -568,6 +570,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 |- SUB: PetAttack
 |---------------------------------------------------------------------------- 
 Sub PetAttack
+	/if (!${Me.Pet.ID}) /return
 	/assist ${Group.MainAssist.Name}
 	/if (${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<=${AssistRange} && ${Target.Type.Equal[NPC]}) {
 		|- Pet Attack
@@ -917,23 +920,24 @@ Sub AutoCampCheck
 |- SUB: BagModRods
 |----------------------------------------------------------------------------
 Sub BagModRods
+	/if (!${Cursor.ID} ) /return
 	/if ((${Cursor.ID}) && ${CursorTimer}==0 && ${ShitOnCursor.Equal[NULL]} && (${Me.FreeInventory}>1)) {
 		/varset ShitOnCursor ${Cursor}
 		/varset CursorTimer 1m
-	} else /if (${Cursor.ID} && ${CursorTimer}==0 && ${ShitOnCursor.NotEqual[NULL]} && (${Me.FreeInventory}>1)) {
+	} else /if (${CursorTimer}==0 && ${ShitOnCursor.NotEqual[NULL]} && (${Me.FreeInventory}>1)) {
 		/echo \aw Something has been left on cursor for over a minute Bagging it
 		/autoinventory
 		/varset ShitOnCursor NULL
-	} else /if (${Cursor.ID} && ${ShitOnCursor.Find[Transvergence]} && (${Me.FreeInventory}>1)) {
+	} else /if (${ShitOnCursor.Find[Transvergence]} && (${Me.FreeInventory}>1)) {
 		/echo \aw Bagging Mod Rod
 		/autoinventory
 		/varset ShitOnCursor NULL
-	} else /if (${Cursor.ID} && ${ShitOnCursor.Find[Modulation]} && (${Me.FreeInventory}>1)) {
+	} else /if (${ShitOnCursor.Find[Modulation]} && (${Me.FreeInventory}>1)) {
 		/echo \aw Bagging Mod Rod
 		/autoinventory
 		/varset ShitOnCursor NULL
 	}
-	/if (${Cursor.ID} && ${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.FreeInventory}>1) /autoinventory
+	/if (${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.FreeInventory}>1) /autoinventory
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Gain Something - DanNet message 
@@ -1512,7 +1516,7 @@ Sub DummyMode
  *	USE: /call ${validate_cast[[TRUE|FALSE], [spell|alt|disc|item|pulse|FIND], name, targetID, ForceTarget]
  *	NOTE: This is designed tomake sure whatever we are attempting to cast, is castable. be it a disc, item, spell, booger flick.. whatever.. IS IT READY TO BE USED?
  ***|
-sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
+Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	|DEBUG \a-tvalidate_cast\ax(\a-w${_type}, ${_spell}, ${_tmpID}\ax)
 	
 	| _spell set to false
@@ -1692,6 +1696,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		/if (${Me.Song[${_spell}].Duration.Seconds} > 6) /return FALSE
 		/if (!${Spell[${_spell}].NewStacks}) /return FALSE
 	}
+/return TRUE
 	| epic clicks
 |	else /if (${_type.Equal[epicitem]}) {
 |		DEBUG ${dep}epicitem\ax${dep}name:${_spell}
@@ -1709,7 +1714,7 @@ sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	
 |	} 
 	
-/return TRUE
+
 
 |***
  *	DES: checks your toon for buffs that should stop casting for some reason

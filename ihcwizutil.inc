@@ -462,7 +462,13 @@ Sub SetWizSpells
 		/varset CloudburstNuke ${Spell[Cloudburst Bolts].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Cloudburst Strike].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Cloudburst Strike].RankName}
-	} else /if (${Me.Level}>=46 && ${Me.Book[${Spell[Conflagration Magic].RankName}]}) {
+	} else /if (${Me.Level}>=49 && ${Me.Book[${Spell[Ice Comet].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Ice Comet].RankName}
+	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Lure of Frost].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Lure of Frost].RankName}
+	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Draught of Fire].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Draught of Fire].RankName}
+	}  else /if (${Me.Level}>=46 && ${Me.Book[${Spell[Conflagration Magic].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Conflagration Magic].RankName}
 	} else /if (${Me.Level}>=43 && ${Me.Book[${Spell[Conflagration].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Conflagration].RankName}

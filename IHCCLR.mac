@@ -472,6 +472,7 @@ Sub HealGroup
 		/varset worsthp ${Me.PctHPs}
 	}
    /for gmember 1 to ${Group}
+		/if (${Group.Member[${gmember}].PctHPs}>1) /continue
 		/if (${Group.Member[${gmember}].ID}==${qmtarget} && ${Me.PctMana}>60 && ${Group.Member[${gmember}].PctMana}<50 && ${Me.AltAbilityReady[Quiet Miracle]} && ${Group} && (!${Group.Member[${gmember}].Hovering} || ${Group.Member[${gmember}].Type.NotEqual[Corpse]})) /call AANow 135 ${Group.Member[${gmember}].ID}
 		/if (${Group.Member[${gmember}].Distance}<=${healspellrange} && ${Group.Member[${gmember}].PctHPs}<100 && !${Group.Member[${gmember}].Hovering} && ${Group.Member[${gmember}].Type.NotEqual[Corpse]}) {
 			/if ((${Group.Member[${gmember}].Distance}<100) && (${Group.Member[${gmember}].PctHPs}<${grouphealpoint}) && (${Group.Member[${gmember}].PctHPs}>=1)) /varcalc HurtMember ${HurtMember}+1
@@ -584,7 +585,7 @@ Sub RezCheck
 
 	/if (${reztimer}==0 && ${Alert[3].Size}>0) /alert clear 3
 	|-Will not rez in Guild lobby - Guild Hall - Plane of Knowledge
-    /if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}) {
+    /if (${Spawn[pccorpse noalert 3 igroup radius 100 zradius 50].ID}) {
 		/hidecorpse npc
 		/varset RezID ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}
 		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
@@ -607,6 +608,11 @@ Sub RezCheck
 		} else /if (${Me.Book[Reviviscence]} && ${Me.CurrentMana}>${Spell[Reviviscence].Mana} && !${Me.AltAbility[Blessing of Resurrection]}) {
 			/docommand /dgt \ag Rezzing ${RezName}
 			/call SpellQueue "Reviviscence" ${RezID}
+			/alert add 3 id ${RezID}
+			/varset reztimer ${RetryRezDelay}s
+		} else /if (${Me.Book[Resurrection]} && ${Me.CurrentMana}>${Spell[Resurrection].Mana}) {
+			/docommand /dgt \ag Rezzing ${RezName}
+			/call SpellQueue "Resurrection" ${RezID}
 			/alert add 3 id ${RezID}
 			/varset reztimer ${RetryRezDelay}s
 		}
