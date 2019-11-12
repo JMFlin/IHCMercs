@@ -549,6 +549,7 @@ Sub AFKPull
 |			/if (${Navigation.Active}) /nav stop
 |			/delay 1s !${Navigation.Active}
 |			/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
+|			/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<7
 |			/return
 |		}
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
