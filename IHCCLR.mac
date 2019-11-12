@@ -71,17 +71,13 @@ Sub ManualPullCamping
     /call RemoveTravelBuffs 
 	
 	/while (${Mode}==1 || ${Mode}==3) {
-		/if (${AdvPath.Following}) /afollow off
-		/if (${Me.Hovering}) /call DeathSub
-		/if (${Me.State.Equal[FEIGN]}) /stand
 
-		/if (${DoMed}) /call AutoMed
-
-		/if (${Cursor.ID}) /call BagModRods
+		/call check_state
 		/call TankChangeCheck
-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call check_illusion
+|-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call check_illusion
 		/if (${DynamicHealing}) /call ConfigHeal
 		/call heals
+		/call check_for_corpse FALSE
 |		/call ExtraHeal
 |		/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
 |		/if ((${Me.PctAggro}>90||${Me.XTarget[2].PctAggro}>90 || ${Me.XTarget[3].PctAggro}>90) && (${Me.PctHPs}<=${grouphealpoint}) && (!${Me.Buff[Sanctuary].ID})) /call AggroCheck
@@ -190,7 +186,7 @@ Sub ExtraHeal
 |---------------------------------------------------------------------------- 
 Sub ConfigHeal
 	/if (${Select[${Zone.ID},795,796]}==0 && !${Raid.Members}) {
-		/if (${Me.XTarget}>2 || ${Me.XTarget[1].Named}) {
+		/if (${Me.XTarget}>4 || ${Me.XTarget[1].Named}) {
 			/if (${tankhealpoint}!=95) {
 				/varset tankhealpoint 95
 				/varset grouphealpoint 85

@@ -65,9 +65,8 @@ Sub ManualPullCamping
 	/while (${Mode}==1 || ${Mode}==3) {
 
 		/call check_state FALSE ${Group.MainAssist.Name} ${HarvestSpell}
-|-		/call self_buff_check FALSE
+		/call self_buff_check FALSE
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/call BagModRods
 |-		/call PetAttack
 |-		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 |-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
@@ -231,6 +230,8 @@ Sub Combatdps
  ***|
 
 Sub self_buff_check(bool _debug)
+
+	/if (${Me.XTarget}) /return
 
 	/if (${validate_cast[FALSE, alt, "${ACPyromancy}", ${Me.ID}]}) /call core_cast2 "${ACPyromancy}" alt ${Me.ID} FALSE
 	|/alt act ${Me.AltAbility[${ACPyromancy}].ID}

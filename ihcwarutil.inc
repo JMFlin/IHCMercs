@@ -128,16 +128,23 @@ Sub INIChanges
 |- SUB: PullAbilitySetup
 |----------------------------------------------------------------------------
 Sub PullAbilitySetup
-	/if (${Me.Level}<70) {
+	/if (${Me.Level}>100) {
+		/varset PullAbility ${insult}
+		/varset PullDistance 90
+	} 
+	/if (${Me.Level}<80) {
 		/varset PullAbility ${roar}
 		/varset PullDistance 90
-	} else {
-		/if (${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${insult}
-		/if (${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 90
-	}
+	} 
+	|else {
+	|	/if (${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${insult}
+	|	/if (${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 90
+	|}
+	/if (${Me.Level}<20) {
 |	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-|	/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${Spell[Throw Stone].RankName}
-|	/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 68
+		/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${Spell[Throw Stone].RankName}
+		/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 60
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs

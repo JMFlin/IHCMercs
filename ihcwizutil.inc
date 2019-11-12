@@ -462,8 +462,6 @@ Sub SetWizSpells
 		/varset CloudburstNuke ${Spell[Cloudburst Bolts].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Cloudburst Strike].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Cloudburst Strike].RankName}
-	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Ice Spear of Solist].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Ice Spear of Solist].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Sunstrike].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Sunstrike].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Lure of Ice].RankName}]}) {

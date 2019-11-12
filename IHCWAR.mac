@@ -209,7 +209,7 @@ Sub AFKRadiusCamping
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+	|	/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/if (!${Me.XTarget[1].ID}) /call PostCombat
 
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure

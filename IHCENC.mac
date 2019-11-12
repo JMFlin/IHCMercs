@@ -69,19 +69,21 @@ Sub ManualPullCamping
 			/call check_state FALSE ${Group.MainAssist.Name} "Gather Mana"
 			
 			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffCheck
+|			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffCheck
 			/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && ${DoBuffs}) /call BuffGroup
-			/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
+|			/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
 |			/if (${DoMed}) /call AutoMed
 |			/call CheckMana
 			/call BagModRods
 			/if (${Me.XTarget[1].ID}) /varset State 1
+			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
 		}
 		
 		/if (${State}==1) {
-			/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
+			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+|			/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
 			/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && ${Target.Distance}<=${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
-			/if (${Me.XTarget[1].Distance}<40) {
+			/if (${Me.XTarget[1].Distance}<60) {
 				/varset State 2
 			}
 		}
@@ -89,13 +91,13 @@ Sub ManualPullCamping
 		/if (${State}==2) {
 			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
 			/call PetAttack
-			/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
-			/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-			/if ((${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow}) && (${Me.AltAbilityReady[Calculated Insanity]} || ${Me.AltAbilityReady[Improved Twincast]}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) /call BurnRoutine
+|			/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
+|			/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
+|			/if ((${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow}) && (${Me.AltAbilityReady[Calculated Insanity]} || ${Me.AltAbilityReady[Improved Twincast]}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) /call BurnRoutine
 			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${MezWait} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
 			/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
 			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange}) /call Combatdps
-			/call CheckMana
+|			/call CheckMana
 			
 |-			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
 
