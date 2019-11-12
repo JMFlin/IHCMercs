@@ -335,9 +335,9 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 
 	/if (${Me.Moving}) /return
 	
-	/if (${Me.Casting.ID}) /return
+	/if (${Me.Casting.ID} && !${Me.Class.ShortName.Find[BRD]}) /return
 
-	/if (${Me.SpellInCooldown}) /return
+	/if (${Me.SpellInCooldown} && !${Me.Class.ShortName.Find[BRD]}) /return
 	
 	/if (${Navigation.Active}) /return
 
@@ -367,7 +367,7 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 	| if I have a target: assist and get ready
 	/if (${Me.XTarget}) {
 		/if (${Me.Sitting}) /stand
-		/if (${Defined[_assistCharacter]}) /assist ${_assistCharacter}
+		/if (!${Me.Class.ShortName.Find[CLR]} && ${Defined[_assistCharacter]}) /assist ${_assistCharacter}
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 	}
 /return
