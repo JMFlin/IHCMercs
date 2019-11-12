@@ -120,7 +120,7 @@ Sub VarSetup
 	/declare PullDistance 		int outer 0
 	/declare PullDistance3 		int outer 0
 	/declare ResourceChecker 	int outer 1
-	/declare Limit 				int outer 55
+	/declare Limit 				int outer 20
 	/declare DummyTime        	int outer  10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
 	/declare PCRadiusCheck 		int outer 100
@@ -217,6 +217,30 @@ Sub LoadCommonConfig
 	/call LoadIni Options DoGroupBeg			int 0
 	/if (${AutoCampHold}) /moveto dist 2
 	/stick set breakontarget on
+	/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,PAL,RNG,BST]}) {
+		/declare callID													int 			outer 0
+		/declare NULLPoint												int 			outer 0
+		/declare PetPoint 												int				outer 80
+		/declare CLRPoint		 										int 			outer 80
+		/declare DRUPoint 												int 			outer 70
+		/declare SHMPoint 												int 			outer 60
+		/declare WIZPoint 												int 			outer 75
+		/declare MAGPoint 												int 			outer 75
+		/declare ENCPoint 												int 			outer 80
+		/declare NECPoint 												int 			outer 75
+		/declare WARPoint 												int 			outer 70
+		/declare MNKPoint 												int 			outer 60
+		/declare ROGPoint 												int 			outer 60
+		/declare RNGPoint 												int 			outer 90
+		/declare BSTPoint 												int 			outer 70
+		/declare SHDPoint 												int 			outer 90
+		/declare BRDPoint 												int 			outer 65
+		/declare BERPoint 												int 			outer 70
+		/declare PALPoint 												int 			outer 90
+		/declare GoMpoint 												int 			outer 80	
+		/declare PanicPoint 											int 			outer 40	
+		|/call timer_set FALSE tXHeal																			string		outer 3m 		timer_set_xtarget
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB IHC Common Config Options - Config options that will be the same across all mac's
@@ -246,6 +270,9 @@ Sub SaveCommonConfig
 	/call SetIni Options DoBuffs				int ${DoBuffs}
 	/call SetIni Options DoGroupBeg				int ${DoGroupBeg}
 /return
+
+
+
 |--------------------------------------------------------------------
 |- SUB: Bind Change Var Int resets various interger settings from ini file
 |- Removed mez and slow toggles. Class specific abilities will be handled in the class specific mac's
@@ -307,6 +334,8 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 	/if (${Me.Moving}) /return
 	
 	/if (${Me.Casting.ID}) /return
+
+	/if (${Me.SpellInCooldown}) /return
 	
 	/if (${Navigation.Active}) /return
 
@@ -389,13 +418,14 @@ Sub RemoveTravelBuffs
 |- SUB: Engage
 |---------------------------------------------------------------------------- 
 Sub Engage
+	/if (!${Target.Type.Equal[NPC]}) /return
 	/if (${AdvPath.Following}) /afollow off
+	/if (${Target.Distance} <= 100) /face fast
+	/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius}) /return
 	/if (${Target.ID}) /face fast
-	/delay 2
 	/stick ${StickHow} 10
 	/delay 10 ${Stick.Active}
 	/squelch /attack on
-	/delay 2
 /return
 |----------------------------------------------------------------------------
 |- SUB: CastersEngage
@@ -440,8 +470,8 @@ Sub Travel
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
 	/declare bmember	int local 0
-	/if (${Limit}==55 && ${ResourceChecker}==0) /varset Limit 95
-	/if (${Limit}==95 && ${ResourceChecker}==1) /varset Limit 55
+	/if (${Limit}==20 && ${ResourceChecker}==0) /varset Limit 95
+	/if (${Limit}==95 && ${ResourceChecker}==1) /varset Limit 20
 	/varset ResourceChecker 1
 	
 	/for bmember 0 to ${Group}
@@ -452,7 +482,7 @@ Sub PullerCheckGroupManaEnd
 			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 			}
-			/if (${ResPct}<${Limit} || ${HPPct} < 60) {
+			/if (${ResPct}<${Limit}) {
 				/varset ResourceChecker 0 
 				/delay 5
 			}
@@ -515,12 +545,12 @@ Sub AFKPull
 	/while (${Navigation.Active}) {
 		/delay 1s ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance}
 		/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
-		/if (${Me.XTarget}) {
-			/if (${Navigation.Active}) /nav stop
-			/target id ${Me.XTarget[1].ID}
-			/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
-			/return
-		}
+|		/if (${Me.XTarget}) {
+|			/if (${Navigation.Active}) /nav stop
+|			/delay 1s !${Navigation.Active}
+|			/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
+|			/return
+|		}
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 	}
 	
@@ -2183,7 +2213,111 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 	}
 
 /return
+|***
+ *	DES: check  health
+ *	USE: /call check_hurt [DEBUG T/F] [group|pet|xtarget|self|mypet]} || ${check_hurt[DEBUG, group|pet|xtarget|self|mypet]}
+ *	NOTE: shared by PAL,DRU,CLR,SHM this returns the # of "hurt" for the group check you request as the pass/fail marker
+ ***|
+sub check_hurt(bool _debug, string _type)
 
+	/declare _count int local 0
+	/varset hurtID ${Me.ID}
+	/varset hurtPctHP 100
+	| /varset hurtPctHP ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
+	/varset hurtCLS ${Me.Class.ShortName}
+	/varset hurtCount 0
+	/declare _hurtWeight float local 0
+	/declare _tmpWeight float local 0
+
+	| check group hurt
+	/if (${_type.Equal[group]}) {
+		/for _count 0 to ${Group}
+			|/if (${Group.Member[${_count}].PctHPs} > ${${Group.Member[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
+			| /if (${Group.Member[${_count}].PctHPs} > ${hurtPctHP}) /continue
+			|/if (${Group.Member[${_count}].Distance} > ${setMobAgro}) /continue
+			/if (!${Group.Member[${_count}].Present} || ${Group.Member[${_count}].Dead}) /continue
+			|/if (${Group.Member[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
+			|/if (${lstNoHeal.Find[${Group.Member[${_count}].DisplayName}]}) /continue
+			/varcalc _tmpWeight (${Group.Member[${_count}].PctHPs} / ${${Group.Member[${_count}].Class.ShortName}Point}) + .${${Group.Member[${_count}].Class.ShortName}Point}
+
+			/if (${_tmpWeight} > ${_hurtWeight}) { 
+				/varcalc _hurtWeight ${_tmpWeight}
+				/varset hurtPctHP ${Group.Member[${_count}].PctHPs}
+				/varset hurtID ${Group.Member[${_count}].ID}
+				/varset hurtCLS ${Group.Member[${_count}].Class.ShortName}
+				/varcalc hurtCount ${hurtCount}+1
+				/if (${useGroupHeal} && ${hurtCount} >= ${useGroupHeal}) {
+					/break
+				}
+			}
+		
+		/next _count
+		/return ${hurtCount}
+
+	| check xtarget hurt
+	} else /if (${_type.Equal[xtarget]}) {
+		/for _count 1 to ${Me.XTargetSlots}
+	  	/if (!${Me.XTarget[${_count}].ID}) /continue
+	  	/if (${Me.XTarget[${_count}].Dead}) /continue
+	  	/if (${Me.XTarget[${_count}].PctHPs} > ${hurtPctHP}) /continue
+	  	/if (${Me.XTarget[${_count}].Distance} > ${setMobAgro}) /continue
+			/if (${Me.XTarget[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
+			/if (${lstNoHeal.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
+	  	/if (!${Me.XTarget[${_count}].Type.Equal[PC]} && !${ProtectNPCList.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
+			/if (${Me.XTarget[${_count}].PctHPs} > ${${Me.XTarget[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
+
+			/varset hurtID ${Me.XTarget[${_count}].ID}
+			/varset hurtPctHP ${Me.XTarget[${_count}].PctHPs}
+			/varset hurtCLS ${Me.XTarget[${_count}].Class.ShortName}
+			/varcalc hurtCount ${hurtCount}+1
+
+	  /next _count
+	  /return ${hurtCount}
+	  
+	  
+	| check pet hurt
+	} else /if (${_type.Equal[pet]}) {
+		/for _count 0 to ${Group}
+			/if (!${Group.Member[${_count}].Pet.ID}) /continue
+	    /if (${Group.Member[${_count}].Pet.PctHPs} >= ${PetPoint}) /continue
+	    /if (${Group.Member[${_count}].Pet.Distance} > ${setMobAgro}) /continue
+	    /if (${Group.Member[${_count}].Pet.PctHPs} >= ${hurtPctHP}) /continue
+
+			/varset hurtCount 1
+			/varset hurtID ${Group.Member[${_count}].Pet.ID}
+			/varset hurtPctHP ${Group.Member[${_count}].Pet.PctHPs}
+			/varset hurtCLS Pet
+	  /next _count
+	  /return ${hurtCount}
+	  
+
+	| self only pet hurt
+	} else /if (${_type.Equal[mypet]}) {
+		/if (!${Me.Pet.ID}) /return FALSE
+    /if (${Me.Pet.PctHPs} >= ${PetPoint}) /return FALSE
+    /if (${Me.Pet.Distance} > ${setMobAgro}) /return FALSE
+
+		/varset hurtID ${Me.Pet.ID}
+		/varset hurtPctHP ${Me.Pet.PctHPs}
+		/varset hurtCLS Pet
+	  /if (${hurtPctHP} >= ${${hurtCLS}Point}*.${tmpHealOverride}) /return FALSE
+		/varset hurtCount 1
+		/return ${hurtCount}
+
+
+	| set self hurt
+	} else /if (${_type.Equal[self]}) {
+		/varset hurtID ${Me.ID}
+		/varset hurtPctHP ${Me.PctHPs}
+		/varset hurtCLS ${Me.Class.ShortName}
+
+		/if (${hurtPctHP} >= ${${hurtCLS}Point}*.${tmpHealOverride}) /return FALSE
+		/varset hurtCount 1
+		/return ${hurtCount}
+	  
+	}
+
+/return FALSE
 |-------------------------------------------------------------------------------------
 |- SUB: KillTarget
 |-------------------------------------------------------------------------------------

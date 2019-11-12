@@ -128,11 +128,16 @@ Sub INIChanges
 |- SUB: PullAbilitySetup
 |----------------------------------------------------------------------------
 Sub PullAbilitySetup
-	/if (${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${insult}
-	/if (${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 90
-	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-	/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${Spell[Throw Stone].RankName}
-	/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 68
+	/if (${Me.Level}<70) {
+		/varset PullAbility ${roar}
+		/varset PullDistance 90
+	} else {
+		/if (${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${insult}
+		/if (${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 90
+	}
+|	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
+|	/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${Spell[Throw Stone].RankName}
+|	/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 68
 /return
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs
@@ -303,8 +308,6 @@ Sub SetupDiscs
 		/varset insult ${Spell[Scowl].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.CombatAbility[${Spell[Mock].RankName}]})  {
 		/varset insult ${Spell[Mock].RankName}
-	} else /if (${Me.Level}>=20 && ${Me.CombatAbility[${Spell[Provoke].RankName}]})  {
-		/varset insult ${Spell[Provoke].RankName}
 	}
 	|---Strike
 	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Cunning Strike].RankName}]})  {

@@ -96,6 +96,7 @@ Sub ClrSetup
 	/declare AllianceBuff			string 			outer NULL
 	/declare CureCount				int				outer 0
 	/declare CureID					int				outer 0
+	/declare grouphealpoint 		int 			outer 75
 |-Grab Options from INI
 	/call LoadIni Mount mountitem				string "Bracelet of the Severed Hand"
 	/call LoadCommonConfig
@@ -108,7 +109,7 @@ Sub ClrSetup
 	/call LoadIni Healing CureOther				int 1
 	/call LoadIni Healing DynamicHealing		int 1
 	/call LoadIni Healing bighealpoint			int 80
-	/call LoadIni Healing grouphealpoint		int 85
+|-	/call LoadIni Healing grouphealpoint		int 85
 	/call LoadIni Healing grouphealcount		int 2
 |-	/call LoadIni Healing healpoint				int 95
 	/call LoadIni Healing pethealpoint			int 50 
@@ -321,26 +322,26 @@ Sub CheckSpells
 		/varset remedyheal1 ${Spell[Devout Remedy].RankName}
 		/varset remedyheal2 ${Spell[Solemn Remedy].RankName}
 	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Solemn Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Complete Heal].RankName}
-		/varset remedyheal2 ${Spell[Solemn Remedy].RankName}
-	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Sacred Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Complete Heal].RankName}
+		/varset remedyheal1 ${Spell[Solemn Remedy].RankName}
 		/varset remedyheal2 ${Spell[Sacred Remedy].RankName}
-	} else /if (${Me.Level}>=66 && ${Me.Book[${Spell[Pious Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Complete Heal].RankName}
-		/varset remedyheal2 ${Spell[Pious Remedy].RankName}
-	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Supernal Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Complete Heal].RankName}
+	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Sacred Remedy].RankName}]}) {
+		/varset remedyheal1 ${Spell[Sacred Remedy].RankName}
 		/varset remedyheal2 ${Spell[Supernal Remedy].RankName}
+	} else /if (${Me.Level}>=66 && ${Me.Book[${Spell[Pious Remedy].RankName}]}) {
+		/varset remedyheal1 ${Spell[Pious Remedy].RankName}
+		/varset remedyheal2 ${Spell[Supernal Remedy].RankName}
+	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Supernal Remedy].RankName}]}) {
+		/varset remedyheal1 ${Spell[Supernal Remedy].RankName}
+		/varset remedyheal2 ${Spell[Ethereal Remedy].RankName}
 	} else /if (${Me.Level}>=59 && ${Me.Book[${Spell[Ethereal Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Complete Heal].RankName}
+		/varset remedyheal1 ${Spell[Ethereal Remedy].RankName}
 		/varset remedyheal2 ${Spell[Solemn Remedy].RankName}
 	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Complete Heal].RankName}
-		/varset remedyheal2 ${Spell[Remedy].RankName}
-	} else /if (${Me.Level}>=39 && ${Me.Book[${Spell[Complete Heal].RankName}]}) {
-		/varset remedyheal1 ${Spell[Complete Heal].RankName}
+		/varset remedyheal1 ${Spell[Remedy].RankName}
 		/varset remedyheal2 ${Spell[Superior Healing].RankName}
+	} else /if (${Me.Level}>=39 && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
+		/varset remedyheal1 ${Spell[Superior Healing].RankName}
+		/varset remedyheal2 ${Spell[Celestial Health].RankName}
 	} else /if (${Me.Level}>=30 && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
 		/varset remedyheal1 ${Spell[Superior Healing].RankName}
 		/varset remedyheal2 ${Spell[Celestial Health].RankName}
@@ -886,7 +887,7 @@ Sub Bind_SetVarInt(string ISection, string IName, int IVar)
 			}
 		} else /if (${IName.Equal[grouphealpoint]}) {
 			/if (${IVar}>=20 && ${IVar}<=99) {
-				/varset grouphealpoint ${IVar}
+		|		/varset grouphealpoint ${IVar}
 				/echo \aw ${IName} set to \ag ${IVar}
 			} else {
 				/beep

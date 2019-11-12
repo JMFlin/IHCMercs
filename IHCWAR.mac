@@ -188,6 +188,7 @@ Sub AFKRadiusCamping
 
 		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID}) /call PullerCheckGroupManaEnd 
 		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20) /call AFKPull
+		/if (${Me.XTarget[1].ID}) /target id ${Me.XTarget[1].ID}
 
 		/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
 		
@@ -200,14 +201,12 @@ Sub AFKRadiusCamping
 
 		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
 
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<=${AutoCampRadius}) /call Engage
+		/call Engage
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoMashRangeAggro
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call AoEAggro
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoCombat
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
-
-|-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
