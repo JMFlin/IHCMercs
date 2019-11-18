@@ -45,7 +45,9 @@ Sub BrdSetup
 	/declare SpellGem11				string outer NULL
 	/declare SpellGem12				string outer NULL
 	/declare SpellGem13				string outer NULL
-	/declare BattleMelody			string outer 1 2 3 4 1 5 2 3 1 4 5 2 1 3 4 5 7 1 2 10
+	/declare BattleMelody			string outer 4 5 6 8
+	/declare RegenMelody			string outer 3 1
+|	/declare BattleMelody			string outer 1 2 3 4 1 5 2 3 1 4 5 2 1 3 4 5 7 1 2 10
 	/declare ExtBattleMelody		string outer 1 2 3 4 5 6 1 2 3 4 5 6 1 2 7 3 4 5 1 10
 	/declare BurnMelody				string outer 8 9 1 8 9 2 8 9 1 8 9 3
 	/declare ExtBurnMelody			string outer 8 1 2 8 3 4 8 1 5 8 2 3 8 1 4 8 5 2 8 1 10
@@ -144,7 +146,7 @@ Sub INIChanges
 	/call SetIni Pet UseSwarmpet		 		int ${UseSwarmpet}
 /return
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar
+| SUB: LoadSpellBar /echo ${SpellGem1}
 |------------------------------------------------------------------------------------------ *|
 Sub LoadSpellBar
 	/if (!${BringYourOwnSpells}) {
@@ -220,7 +222,9 @@ Sub CheckSpells
 		/varset MainAriaSong ${Spell[Aria of the Orator].RankName}
 	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Aria of the Composer].RankName}]})  {
 		/varset MainAriaSong ${Spell[Aria of the Composer].RankName}
-	}
+	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Battlecry of the Vah Shir].RankName}]})  {
+		/varset MainAriaSong ${Spell[Battlecry of the Vah Shir].RankName}
+	} 
 |- CasterAriaSong
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Qunard's Aria].RankName}]})  {
 		/varset CasterAriaSong ${Spell[Qunard's Aria].RankName}
@@ -246,6 +250,8 @@ Sub CheckSpells
 		/varset WarMarchSong ${Spell[War March of Dagda].RankName}
 	} else /if (${Me.Level}>=84 && ${Me.Book[${Spell[War March of Brekt].RankName}]})  {
 		/varset WarMarchSong ${Spell[War March of Brekt].RankName}
+	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[McVaxius' Rousing Rondo].RankName}]})  {
+		/varset WarMarchSong ${Spell[McVaxius' Rousing Rondo].RankName}
 	} 
 |- SufferingSong
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Travenro's Song of Suffering].RankName}]})  {
@@ -310,7 +316,11 @@ Sub CheckSpells
 		/varset ChorusRegenSong ${Spell[Chorus of Lunanyn].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Chorus of Renewal].RankName}]})  {
 		/varset ChorusRegenSong ${Spell[Chorus of Renewal].RankName}
-	}
+	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Chorus of Replenishment].RankName}]})  {
+		/varset CrescendoSong ${Spell[Chorus of Replenishment].RankName}
+	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Cantata of Replenishment].RankName}]})  {
+		/varset CrescendoSong ${Spell[Cantata of Replenishment].RankName}
+	} 
 |- CrescendoSong
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Jembel's Lively Crescendo].RankName}]})  {
 		/varset CrescendoSong ${Spell[Jembel's Lively Crescendo].RankName}
@@ -344,6 +354,8 @@ Sub CheckSpells
 		/varset InsultSong1 ${Spell[Lyrin's Insult].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Venimor's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Venimor's Insult].RankName}
+	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Brusco's Bombastic Bellow].RankName}]})  {
+		/varset InsultSong1 ${Spell[Brusco's Bombastic Bellow].RankName}
 	}
 |- InsultSong2
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Travenro's Insult].RankName}]} && ${InsultSong1.NotEqual[${Spell[Travenro's Insult].RankName}]})  {
@@ -390,6 +402,8 @@ Sub CheckSpells
 		/varset MezSong ${Spell[Slumber of Sionachie].RankName}
 	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Lullaby of the Lost].RankName}]})  {
 		/varset MezSong ${Spell[Lullaby of the Lost].RankName}
+	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Dreams of Ayonae].RankName}]})  {
+		/varset MezSong ${Spell[Dreams of Ayonae].RankName}
 	}
 |- AEMezSong
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Wave of Somnolence].RankName}]})  {
@@ -408,7 +422,9 @@ Sub CheckSpells
 |- SlowSong
 	/if (${Me.Level}>=64 && ${Me.Book[${Spell[Requiem of Time].RankName}]})  {
 		/varset SlowSong ${Spell[Requiem of Time].RankName}
-	} 
+	} else /if (${Me.Level}>=54 && ${Me.Book[${Spell[Selo's Assonant Strain].RankName}]})  {
+		/varset SlowSong ${Spell[Selo's Assonant Strain].RankName}
+	}
 |- AESlowSong
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Dekloaz's Melodic Binding].RankName}]})  {
 		/varset AESlowSong ${Spell[Dekloaz's Melodic Binding].RankName}
@@ -426,6 +442,8 @@ Sub CheckSpells
 		/varset AccelerandoSong ${Spell[Assuaging Accelerando].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Alleviating Accelerando].RankName}]})  {
 		/varset AccelerandoSong ${Spell[Alleviating Accelerando].RankName}
+	}  else /if (${Me.Level}>=49 && ${Me.Book[${Spell[Selo's Accelerating Chorus].RankName}]})  {
+		/varset AccelerandoSong ${Spell[Selo's Accelerating Chorus].RankName}
 	}
  |- SpitefulSong
  	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Travenro's Spiteful Lyric].RankName}]})  {
@@ -449,18 +467,38 @@ Sub CheckSpells
 	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Ryken's Reckless Renewal].RankName}]})  {
 		/varset RecklessSong ${Spell[Ryken's Reckless Renewal].RankName}
 	}
-	/call LoadSongData
-	/declare bb int local 0
-	/if (${UseIniSongs}) {
-		/for bb 1 to 13
-			/call LoadIni SpellGems SpellGem${bb}			String "${SpellGem${bb}}"
-		/next bb
-	}
+	
+|	/declare bb int local 0
+|	/if (${UseIniSongs}) {
+|		/for bb 1 to 13
+|			/call LoadIni SpellGems SpellGem${bb}			String "${SpellGem${bb}}"
+|		/next bb
+|	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: Load Song Data
 |----------------------------------------------------------------------------
 Sub LoadSongData
+	/varset SpellGem1 ${CrescendoSong}
+	|/varset SpellGem2 ${DichoSong}
+	/varset SpellGem2 ${ChorusRegenSong}
+	/varset SpellGem3 ${AccelerandoSong}
+	/varset SpellGem4 ${MainAriaSong}
+	/varset SpellGem5 ${WarMarchSong}
+	/varset SpellGem6 ${SlowSong}
+	|/varset SpellGem4 ${PulseRegenSong}
+	
+	
+	
+	/varset SpellGem7 ${SufferingSong}
+	/varset SpellGem8 ${ArcaneSong}
+	/varset SpellGem9 ${SprySonataSong}
+	/varset SpellGem10 ${InsultSong1}
+	/varset SpellGem11 ${InsultSong2}
+	/varset SpellGem12 ${AEMezSong}
+	/varset SpellGem13 ${MezSong}
+/return
+Sub LoadSongData1
 	/call LoadSongIni Info Info1	string "Format for song#= Song Name|Time|Condition or 1"
 	/call LoadSongIni Info Info2	string "Song Name= The song you want to play ex:${MainAriaSong}"
 	/call LoadSongIni Info Info3	string "Time= The time you expect the buff to last, must be a MathCalc expression, Internal Variable:TuneStuckActive can be used to extend timer, see example below"

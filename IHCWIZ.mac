@@ -67,6 +67,7 @@ Sub ManualPullCamping
 		/call check_state FALSE ${Group.MainAssist.Name} ${HarvestSpell}
 		/call self_buff_check FALSE
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/if (!${Balance} && ${Me.ID} == ${Group.MainAssist.ID}) /call get_closest_target
 |-		/call PetAttack
 |-		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 |-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
@@ -179,7 +180,13 @@ Sub Combatdps
 	/if (${Target.PctHPs}>${AutoAssistAt}) /return
 	/if (${Target.Distance}>${AssistRange}) /return
 	/if (${Me.Casting.ID}) /return
+	/if (${Target.PctAggro}>90) /return
+
+	/if (${Target.Fleeing} && ${Target.PctHPs}<20 && !${Target.Rooted.ID} && ${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
+	/if (${Target.PctAggro}>40 && ${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
 	/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) /call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) /call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) /call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
 /return
 
 
@@ -233,6 +240,8 @@ Sub self_buff_check(bool _debug)
 
 	/if (${Me.XTarget}) /return
 
+	/if (${Me.PctMana}<50) /return
+
 	/if (${validate_cast[FALSE, alt, "${ACPyromancy}", ${Me.ID}]}) /call core_cast2 "${ACPyromancy}" alt ${Me.ID} FALSE
 	|/alt act ${Me.AltAbility[${ACPyromancy}].ID}
 	
@@ -243,10 +252,6 @@ Sub self_buff_check(bool _debug)
 
 	/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) /call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE
 
-	/if (!${Me.Gem[${spellmisc}].Name.Equal[${miscspellremem}]} && ${spellrememtimer}==0 && ${miscspellremem.NotEqual[NULL]}) {
-		/call LoadSpellGem "${miscspellremem}" ${spellmisc}
-		/varset spellrememtimer 5s 
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: BurnRoutine
@@ -258,7 +263,7 @@ Sub BurnRoutine
 |- SUB: ManageAggro
 |---------------------------------------------------------------------------- 
 Sub ManageAggro
-
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANukes - Cast between spell casts (Weave)

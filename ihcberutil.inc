@@ -48,6 +48,7 @@ Sub BerSetup
 	/declare ResolveDiscID			int outer 0
 	/declare HHEBuff				string outer NULL
 	/declare CryHavoc 				string outer NULL
+	/declare Snare 					string outer NULL
 |-Config Options
 	/call LoadCommonConfig
 	/call LoadIni Combat AllowMezBreak		 	int 0
@@ -126,6 +127,13 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=68 && ${Me.CombatAbility[Cry Havoc]})  {
 		/varset CryHavoc Cry Havoc
 	}
+|---Snare
+	/if (${Me.Level}>=54 && ${Me.CombatAbility[Leg Slice]})  {
+		/varset CryHavoc Leg Slice
+	} else /if (${Me.Level}>=32 && ${Me.CombatAbility[Leg Cut]})  {
+		/varset Snare Leg Cut
+	}
+
 
 |---Battle Cry - HHE Buff
 	/if (${Me.Level}>=65 && ${Me.CombatAbility[Ancient Cry of Chaos]})  {

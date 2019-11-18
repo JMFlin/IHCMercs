@@ -106,7 +106,7 @@ Sub VarSetup
 	/declare setCombatRadius	int outer 50
 	/declare setMaxRezRange 	int outer 90
 	/declare rezToken 			bool outer FALSE
-	/declare rezCombat			bool outer TRUE
+	/declare rezCombat			bool outer FALSE
 |- AFK camping
     /declare AggressiveRadius 	int outer 100
 	/declare AssistRangeZ 		int outer 20
@@ -120,11 +120,14 @@ Sub VarSetup
 	/declare PullDistance 		int outer 0
 	/declare PullDistance3 		int outer 0
 	/declare ResourceChecker 	int outer 1
-	/declare Limit 				int outer 20
+	/declare Limit 				int outer 50
 	/declare DummyTime        	int outer  10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
-	/declare PCRadiusCheck 		int outer 100
-
+	/declare PCRadiusCheck 		int outer 10
+|- Balance events
+	/declare HighHPID 					int outer 0
+    /declare highhppct 					int outer 99
+    /declare Balance 					int outer 0
 |- Assisting
 
 |- Modes
@@ -352,7 +355,7 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 
 	| do I need resources?
 	/if (${Defined[_harvest]}) {
-		/if (${validate_cast[FALSE, FIND, ${_harvest}, ${Me.ID}]} && ${Me.PctMana}<80) /call core_cast2 ${_harvest} FIND ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, FIND, ${_harvest}, ${Me.ID}]} && ${Me.PctMana}<50) /call core_cast2 ${_harvest} FIND ${Me.ID} FALSE
 	}
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
@@ -362,6 +365,7 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 		/if (${Me.Pet.ID}) /pet back off
 |		/call check_illusion FALSE ${illusionItem}
 		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+		/delay 7
 	}
 
 	| if I have a target: assist and get ready
@@ -369,6 +373,7 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 		/if (${Me.Sitting}) /stand
 		/if (!${Me.Class.ShortName.Find[CLR]} && ${Defined[_assistCharacter]}) /assist ${_assistCharacter}
 		/if (${Target.Type.Equal[Corpse]}) /target clear
+		/delay 7
 	}
 /return
 |----------------------------------------------------------------------------
@@ -424,22 +429,42 @@ Sub RemoveTravelBuffs
 |- SUB: Engage
 |---------------------------------------------------------------------------- 
 Sub Engage
-	/if (!${Target.Type.Equal[NPC]}) /return
-	/if (${AdvPath.Following}) /afollow off
-	/if (${Target.Distance} <= 100) /face fast
-	/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius}) /return
-	/if (${Target.ID}) /face fast
-	/stick ${StickHow} 10
-	/delay 10 ${Stick.Active}
-	/squelch /attack on
+	/declare SmartAssistRange int local 0
+	
+	/if (!${Target.ID} || !${Target.Type.Equal[NPC]}) /return
+
+	/if (${Target.PctHPs}<95 || ${Navigation.PathLength[id ${Target.ID}]} < 16) {
+		/if (${AssistRange}>80) {
+			/varcalc SmartAssistRange ${AssistRange}*1.1
+		} else /if (${AssistRange}>50) {
+			/varcalc SmartAssistRange ${AssistRange}*1.7
+		} else /if (${AssistRange}>25) {
+			/varcalc SmartAssistRange ${AssistRange}*2.1
+		} else /if (${AssistRange}>10) {
+			/varcalc SmartAssistRange ${AssistRange}*2.4
+		} else /if (${AssistRange}>0) {
+			/varcalc SmartAssistRange ${AssistRange}*4.2
+		}
+		/if (${Navigation.PathLength[id ${Target.ID}]} > ${SmartAssistRange}) /return
+	} else {
+		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return
+	}
+	
+|	/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AssistRange}) /return
+
+	/if (${Select[${Me.Class.ShortName},WAR,ROG,BER,MNK,BRD]}) {
+		/if (${Target.ID}) /face fast
+		/stick ${StickHow} 10
+		/delay 10 ${Stick.Active}
+		/squelch /attack on
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: CastersEngage
 |---------------------------------------------------------------------------- 
 Sub CastersEngage
-	/if (${AdvPath.Following}) /afollow off
 	/if (${Me.Class.ShortName.Find[CLR]}) /target id ${Group.MainTank.ID}
-	/if (${Me.Class.ShortName.Find[SHM]} || ${Me.Class.ShortName.Find[ENC]}) /assist ${Group.MainAssist.Name}
+	/if (!${Me.Class.ShortName.Find[CLR]}) /assist ${Group.MainAssist.Name}
 	/if (${Target.ID}) /face fast
 /return
 |----------------------------------------------------------------------------
@@ -470,14 +495,17 @@ Sub Travel
 		/call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
 		/delay 1
 	}
+	/if (${Select[${Me.Class.ShortName},BRD]}) {
+		/melody 4
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: PullerCheckGroupManaEnd
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
 	/declare bmember	int local 0
-	/if (${Limit}==20 && ${ResourceChecker}==0) /varset Limit 95
-	/if (${Limit}==95 && ${ResourceChecker}==1) /varset Limit 20
+	/if (${Limit}==50 && ${ResourceChecker}==0) /varset Limit 85
+	/if (${Limit}==85 && ${ResourceChecker}==1) /varset Limit 50
 	/varset ResourceChecker 1
 	
 	/for bmember 0 to ${Group}
@@ -504,6 +532,7 @@ Sub AddToAlert
 
 	/docommand /dgt \aw Creating alert list for \ag ${Zone.Name} \aw from eq.db
 	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT NAME, ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
+	/if (!${sqlite.rows[ignore_list]}) /return
 	/for i 1 to ${sqlite.rows[ignore_list]}
 		/squelch /alert add 1 id ${sqlite.result[ignore_list ${i} ID]}
 		/docommand /dgt \aw Added \ag ${sqlite.result[ignore_list ${i} NAME]} \aw to ignore
@@ -515,8 +544,10 @@ Sub AddToAlert
 |---------------------------------------------------------------------------- 
 Sub AFKPull
 	/declare PullTargetID 	int local 0
+	/declare Dummy 			int local 0
 	/declare i 				int local 1
 	/declare MobsInRadius 	int local 0
+	/declare PathLength 	int local 9999
 
 	/if (${ResourceChecker}==0) /return
 	/if (${Me.Snared.ID}) /return
@@ -525,42 +556,34 @@ Sub AFKPull
 
 	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
 
-	/while (${i}<${MobsInRadius}) {
-		/if (${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset PullTargetID ${NearestSpawn[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID} 
-		/if (${PullTargetID}) /break
-		/varset i ${i}+1
-		/delay 1s
+	/while (${i}<=${MobsInRadius}) {
+		/if (${Navigation.PathExists[id ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) {
+			/if (${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset Dummy ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID} 
+			/if (${PathLength} > ${Navigation.PathLength[id ${Dummy}]}) {
+				/varset PathLength ${Navigation.PathLength[id ${Dummy}]}
+				/varset PullTargetID ${Dummy}
+			}
+		}
+		/varcalc i ${i}+1
+		/delay 1
+		
 	}
-
+	
 	/if (!${PullTargetID}) /return
-
-	/if (${Navigation.PathLength[id ${PullTargetID}]}>=(${AggressiveRadius}+100)) {
-		/declare _debugRadius int local 0		
-		/varcalc _debugRadius ${AggressiveRadius}+100
-		/echo Target too far away. Path Length: ${Navigation.PathLength[id ${PullTargetID}]} vs Radius: ${_debugRadius}
-		/return
-	}
 	
 	/if (${Mode}!=3) {
 		/if (${Navigation.Active}) /nav stop
 		/return
 	}
-	/echo here
-	/echo (${Navigation.MeshLoaded} && (${Spawn[id ${PullTargetID}].Distance}>${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight})
+	
 	/if (${Navigation.MeshLoaded} && (${Spawn[id ${PullTargetID}].Distance}>${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight})) /nav id ${PullTargetID}
 	/while (${Navigation.Active}) {
 		/delay 1s ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance}
 		/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
-|		/if (${Me.XTarget}) {
-|			/if (${Navigation.Active}) /nav stop
-|			/delay 1s !${Navigation.Active}
-|			/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
-|			/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<7
-|			/return
-|		}
+		/if (${Me.XTarget}) /varset PullTargetID ${Me.XTarget[1].ID}
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 	}
-	/echo (!(${Target.ID}!=${PullTargetID}) && ${Spawn[id ${PullTargetID}].LineOfSight})
+	
 	/if ((!${Target.ID}!=${PullTargetID} || !${Target.ID}) && ${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
 	/delay 1s ${Target.ID}==${PullTargetID}
 
@@ -581,18 +604,38 @@ Sub AFKPull
 	/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<7
 	/if (${Navigation.Active}) /nav stop
     /if (${Target.ID}) /face fast
-	/if (${Defined[PullTarget]}) /deletevar PullTarget
+	/if (${Defined[PullTargetID]}) /deletevar PullTargetID
+	/if (${Defined[PathLength]}) /deletevar PathLength
  /return
 |----------------------------------------------------------------------------
 |- SUB: MoveToCamp
 |---------------------------------------------------------------------------- 
 Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
-	
+
 	| if casting return
-	/if (${Me.Casting.ID}) /return
+	/if (${Me.Casting.ID} && !${Select[${Me.Class.ShortName},BRD]}) /return
+
+	| if target is running let melee follow it
+	/if (${Target.ID}) {
+		/if (${Target.Fleeing} || !${Target.Snared.ID}) /return
+	}
+
+	/if (${Me.XTarget}) {
+		/if (${Distance}>80) {
+			/varcalc Distance ${Distance}*1.1
+		} else /if (${Distance}>50) {
+			/varcalc Distance ${Distance}*1.7
+		} else /if (${Distance}>25) {
+			/varcalc Distance ${Distance}*2
+		} else /if (${Distance}>10) {
+			/varcalc Distance ${Distance}*2.2
+		} else /if (${Distance}>0) {
+			/varcalc Distance ${Distance}*4
+		}
+	}
 	
-	/if (${Stick.Active}) /stick off
 	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]}>${Distance}) {
+		/if (${Stick.Active}) /stick off
 		/nav locxyz ${Xloc} ${Yloc} ${Zloc}
 		:movinghome
 			/if (${Mode}==0) {
@@ -1529,6 +1572,45 @@ Sub WelcomeMsg
 	/echo \aw****************************
 	/echo \aw use \ag /ihchelp \aw for a list of commands
 /return
+|----------------------------------------------------------------------------
+|- SUB: CheckXTargetDistance  
+|---------------------------------------------------------------------------- 
+Sub get_closest_target
+
+	/if (!${Me.XTarget[1].ID}) /return
+
+
+	/if (${Target.ID} && !${Target.Type.Equal[Corpse]} && ${Target.Type.Equal[NPC]}) /return
+
+	/if (!${Me.XTarget[2].ID}) {
+		/target id ${Me.XTarget[1].ID}
+		/return
+	}
+	/declare x int local 0
+	/if (${Target.ID} && !(${Target.ID}==${Me.ID})) {
+		/declare OldTargetID int local ${Target.ID}
+	} else {
+		/declare OldTargetID int local 0
+	}
+	/declare TargetDistance int local 999
+	/declare ClosestTargetName string local ${Me.XTarget[1].Name}
+	/declare ClosestTargetID int local ${Me.XTarget[1].ID}
+	/if (${Target.Type.Equal[Corpse]}) /target clear
+	/for x 1 to ${Me.XTarget}
+		/if (${Me.XTarget[${x}].Named} && ${Me.XTarget[${x}].Type.Equal[NPC]}) {
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
+			/return
+		} else /if (${Me.XTarget[${x}].Distance}<${TargetDistance} && ${Me.XTarget[${x}].ID}!=${OldTargetID}) {
+			/varset TargetDistance ${Me.XTarget[${x}].Distance}
+			/varset ClosestTargetName ${Me.XTarget[${x}].Name}
+			/varset ClosestTargetID ${Me.XTarget[${x}].ID}
+		}
+	/next x
+/target id ${ClosestTargetID}
+/delay 5 ${Target.ID}==${ClosestTargetID}
+/if (${Defined[${OldTargetID}]}) /deletevar ${OldTargetID}
+/return
 |-------------------------------------------------------------------------------- 
 | Sub DummyMode
 |--------------------------------------------------------------------------------
@@ -2161,10 +2243,10 @@ sub check_for_corpse(bool _debug)
 	}
 
 	| clerics first group or raid
-	/if ((${SpawnCount[pccorpse cleric raid radius ${setMaxRezRange}]} && ${Raid.Members}) || ${SpawnCount[pccorpse cleric group radius ${setMaxRezRange}]}) {
+	/if (${SpawnCount[pccorpse cleric group radius ${setMaxRezRange}]} || ${SpawnCount[pccorpse cleric raid radius ${setMaxRezRange}]}) {
 
-		/for _count 1 to ${SpawnCount[pccorpse cleric radius ${setMaxRezRange}]}
-			/varset _tmpID ${NearestSpawn[${_count},pccorpse cleric radius ${setMaxRezRange}].ID}
+		/for _count 1 to ${SpawnCount[pccorpse group cleric radius ${setMaxRezRange}]}
+			/varset _tmpID ${NearestSpawn[${_count},pccorpse group cleric radius ${setMaxRezRange}].ID}
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
@@ -2172,7 +2254,12 @@ sub check_for_corpse(bool _debug)
 				/call cast_rez ${_tmpID} "Reviviscence"		
 			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 				/call cast_rez ${_tmpID} "Resurrection"		
-			}| else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
+				/call cast_rez ${_tmpID} "Resuscitate"		
+			} 
+			|else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
+			|	/call cast_rez ${_tmpID} "Resurrection"		
+			|}| else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
 			|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 			|} 
 		/next _count
@@ -2180,8 +2267,8 @@ sub check_for_corpse(bool _debug)
 	
 	| group members
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) {
-		/for _count 1 to ${SpawnCount[pccorpse radius ${setMaxRezRange} group]}
-				/varset _tmpID ${NearestSpawn[${_count},pccorpse radius ${setMaxRezRange}].ID}
+		/for _count 1 to ${SpawnCount[pccorpse group radius ${setMaxRezRange}]}
+				/varset _tmpID ${NearestSpawn[${_count},pccorpse group radius ${setMaxRezRange}].ID}
 				|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 				|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 				|} else 
@@ -2189,7 +2276,10 @@ sub check_for_corpse(bool _debug)
 					/call cast_rez ${_tmpID} "Reviviscence"		
 				} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 					/call cast_rez ${_tmpID} "Resurrection"		
-				} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
+				} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
+					/call cast_rez ${_tmpID} "Resuscitate"		
+				} 
+				|else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
 				|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 				|} 
 		/next _count
@@ -2197,7 +2287,8 @@ sub check_for_corpse(bool _debug)
 	
 	| tanks
 
-	/if (${SpawnCount[pccorpse raid tank radius ${setMaxRezRange}]}) {
+	/if (${Raid.Members}) {
+|	/if (${SpawnCount[pccorpse raid tank radius ${setMaxRezRange}]}) {
 		/for _count 1 to ${SpawnCount[pccorpse raid radius ${setMaxRezRange} tank]}
 			/varset _tmpID ${NearestSpawn[${_count},pccorpse raid radius ${setMaxRezRange} tank].ID}
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
@@ -2207,14 +2298,19 @@ sub check_for_corpse(bool _debug)
 				/call cast_rez ${_tmpID} "Reviviscence"		
 			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 				/call cast_rez ${_tmpID} "Resurrection"		
-			} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
+				/call cast_rez ${_tmpID} "Resuscitate"		
+			} 
+			| else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
+			|	/call cast_rez ${_tmpID} "Resurrection"		
+			|} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
 			|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 			|} 
 		/next _count
-	}
+|	}
 
 	| remaining raid members
-	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) {
+|	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) {
 		/for _count 1 to ${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}
 		
 			/varset _tmpID ${NearestSpawn[${_count},pccorpse raid radius ${setMaxRezRange}].ID}
@@ -2225,11 +2321,35 @@ sub check_for_corpse(bool _debug)
 				/call cast_rez ${_tmpID} "Reviviscence"		
 			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 				/call cast_rez ${_tmpID} "Resurrection"		
-			} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
+				/call cast_rez ${_tmpID} "Resuscitate"		
+			} 
+			|else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
+			|	/call cast_rez ${_tmpID} "Resurrection"		
+			|} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
 			|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 			|} 
 		/next _count
-	} 
+|	} 
+	}
+	/for _count 1 to ${SpawnCount[pccorpse radius 20]}
+			/varset _tmpID ${NearestSpawn[${_count},pccorpse radius 20].ID}
+			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
+			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
+			|} else 
+			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Reviviscence]}) {
+				/call cast_rez ${_tmpID} "Reviviscence"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
+				/call cast_rez ${_tmpID} "Resurrection"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
+				/call cast_rez ${_tmpID} "Resuscitate"		
+			} 
+			| else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
+			|	/call cast_rez ${_tmpID} "Resurrection"		
+			|} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
+			|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
+			|} 
+		/next _count
 /return
 
 |-------------------------------------------------------------------------------------

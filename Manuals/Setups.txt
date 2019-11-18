@@ -17,7 +17,7 @@ ber ber ber mnk brd shm
 Classes GROUP
 
 #1. war wiz wiz wiz ench clr 
-2. war mag mag wiz ench clr 
+#2. war mag mag wiz ench clr 
 
 3. sk wiz wiz mag ench clr
 4. sk wiz wiz wiz mag dru 

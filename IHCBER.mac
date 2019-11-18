@@ -66,16 +66,15 @@ Sub ManualPullCamping
 	/while (${Mode}==1 || ${Mode}==3) {
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
 	
 |		/call PreCombatBuffs
-		
+		/if (${Me.ID} == ${Group.MainAssist.ID}) /call get_closest_target
 		/call check_state FALSE ${Group.MainAssist.Name}
 
 		/call Engage
 	
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
+|		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
 
@@ -99,6 +98,7 @@ Sub ManualRunAndGun
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
 
 		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /assist ${Group.MainAssist.Name}
+		
 		/if (${Target.Distance}<55 && ${Target.Type.Equal[NPC]}) /call PreCombatBuffs
 		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call Engage
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
@@ -258,6 +258,12 @@ Sub AANDisc
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
 Sub Combatdps	
+
+	/if (${Me.CombatAbilityReady[${Snare}]} && !${Target.Snared.ID} && ${Target.Fleeing}) {
+		/Disc ${Snare}
+		/delay 5
+	}
+	
 	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Demolisher's Alliance Trigger].ID} && ${UseAlliance} && (${ZerkerCount}>=3 || ${ForceAlliance})) {
 		/Disc ${Alliance}
 		/delay 5
@@ -412,7 +418,7 @@ Sub Event_NotOnTarget
 	/if ((${Me.Rooted.ID} || ${Me.ActiveDisc.ID}==30436) && ${Me.AltAbilityReady[Drawn to Blood]} && ${Me.Combat}) {
 		/alt act ${Me.AltAbility[Drawn to Blood].ID}
 	} else /if (${DoAutoEngage}) {
-		/call Engage
+		/face fast
 	}
 	/doevents flush NotOnTarget
 /return

@@ -32,6 +32,7 @@ Sub Main
 		/call ClassAliasSetup
 	}
 	/call CheckSpells
+	/call LoadSongData
 	/call SetControlToon
 	/call LoadSpellBar
 |-Cursor ID
@@ -50,7 +51,7 @@ Sub Main
 		/call ZoneEventChk
 	}
 
-
+	/declare MelodyCheck int outer 0
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -62,6 +63,8 @@ Sub Main
 /goto :mainloop
 /return
 
+
+
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs  
@@ -69,15 +72,28 @@ Sub ManualPullCamping
 	/while (${Mode}==1 || ${Mode}==3) {
 
 		/call check_state FALSE ${Group.MainAssist.Name}
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/if (!${Target.Fleeing}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 |		/if (!${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Combat}) /call DowntimeSongs
 |		/if (${Me.XTarget[1].ID} && ${CurrentMelody.Equal[OOC]}) /call StopTune
 |		/if (${ReadyToCast}==0) /call IHCTwist
 		/call Engage
+		/if (${Me.XTarget}) {
+			/if (${MelodyCheck}==0) /stopsong
+			/if (${MelodyCheck}==0) /melody ${BattleMelody}
+			/varset MelodyCheck 1
+			
+		}
+		
+		/if (!${Me.XTarget}) {
+			/if (${MelodyCheck}==1) /stopsong
+			/if (${MelodyCheck}==1) /melody ${RegenMelody}
+			/varset MelodyCheck 0
+		}
+		/call Combatdps
 |		/if (${Me.XTarget}>=${MezStartCount} && ${MezOn} && ${Me.GemTimer[${AEMezSong}]}==0) /call DoMezStuff
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
-|		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
+|		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) 
 
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
@@ -132,6 +148,9 @@ Sub IHCTwist
 |---------------------------------------------------------------------------- 
 Sub Combatdps
 	/doevents
+
+	/if (!${Me.XTarget}) /return
+
 	/declare BurningNow int local 0
 	/if (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) {
 		/if (${Me.CombatAbilityReady[Thousand Blades]}) {
@@ -207,10 +226,11 @@ Sub Combatdps
 	/if (${Me.AbilityReady[Kick]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${UseMelee}) {
 		/doability Kick
 		/delay 5
-	} else /if (${Me.AbilityReady[Intimidation]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${UseMelee} && ${UseIntimidate}) {
-		/doability Intimidation
-		/delay 5
-	}
+	} 
+	|else /if (${Me.AbilityReady[Intimidation]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${UseMelee} && ${UseIntimidate}) {
+	|	/doability Intimidation
+	|	/delay 5
+	|}
 	/varset BurningNow 0
 /return
 |----------------------------------------------------------------------------

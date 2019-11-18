@@ -85,8 +85,8 @@ Sub ManualPullCamping
 |		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
 |		/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
 
-|		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${Group.Member[${assistname}].Hovering} && ${Group.Member[${assistname}].Type.NotEqual[Corpse]} && ${Group.Member[${assistname}].PctHPs}>=1 && ${DoBuffs}) /call BuffCheck
-		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && (!${AdvPath.Following}) && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
+		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffCheck
+		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffGroup
 
 		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
@@ -328,8 +328,11 @@ Sub HealQueue(int nextid)
 |---------------------------------------------------------------------------- 
 Sub BuffGroup
 	/declare bmember			int local 0
-
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (${SpawnCount[pccorpse group raid ${setMaxRezRange}]}) /return
 	/if (${Me.Casting.ID}) /return
+
+	/if (${Me.XTarget}) /return
 
 	/if (${groupbufftimer}==0) /varset groupbufftimer 10s
 	/for bmember 1 to ${Group}
@@ -614,6 +617,11 @@ Sub RezCheck
 			/call SpellQueue "Resurrection" ${RezID}
 			/alert add 3 id ${RezID}
 			/varset reztimer ${RetryRezDelay}s
+		} else /if (${Me.Book[Resusciate]} && ${Me.CurrentMana}>${Spell[Resusciate].Mana}) {
+			/docommand /dgt \ag Rezzing ${RezName}
+			/call SpellQueue "Resusciate" ${RezID}
+			/alert add 3 id ${RezID}
+			/varset reztimer ${RetryRezDelay}s
 		}
 	} else /if (${Spawn[pccorpse ${Me} noalert 3 radius 100 zradius 50].ID}) {
 		/hidecorpse npc
@@ -683,6 +691,9 @@ Sub BuffCheckOLD
 |- SUB: BuffCheck
 |----------------------------------------------------------------------------
 Sub BuffCheck
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (${SpawnCount[pccorpse group raid ${setMaxRezRange}]}) /return
+
 	/if (${Me.Buff[Spiritual Vi].ID}) /blockspell add me ${Spell[${Me.Buff[Spiritual Vi]}].ID}
 	/if (${Me.Buff[Focus].ID}) /blockspell add me ${Spell[${Me.Buff[Focus]}].ID}
 	/if (!${Me.Buff[${SelfBuff}].ID} && !${Me.Casting.ID} && ${Spell[${SelfBuff}].Stacks} && ${usedruid}==0 && ${Me.Book[${SelfBuff}]} && ${Me.CurrentMana}>${Spell[${SelfBuff}].Mana}) {

@@ -336,6 +336,9 @@ Sub CheckSpells
 	} else /if (${Me.Level}>=59 && ${Me.Book[${Spell[Ethereal Remedy].RankName}]}) {
 		/varset remedyheal1 ${Spell[Ethereal Remedy].RankName}
 		/varset remedyheal2 ${Spell[Solemn Remedy].RankName}
+	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Ethereal Light].RankName}]}) {
+		/varset remedyheal1 ${Spell[Ethereal Light].RankName}
+		/varset remedyheal2 ${Spell[Remedy].RankName}
 	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Remedy].RankName}]}) {
 		/varset remedyheal1 ${Spell[Remedy].RankName}
 		/varset remedyheal2 ${Spell[Superior Healing].RankName}

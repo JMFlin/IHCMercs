@@ -66,10 +66,7 @@ Sub WarSetup
 |- Warrior logic
 	/declare TimeForMez					timer outer	0
 	/declare TimeForMezVariable			int outer 0
-|- Balance events
-	/declare HighHPID 					int outer 0
-    /declare highhppct 					int outer 99
-    /declare Balance 					int outer 0
+
 
 	/if (${FindItem[Gladiator's Plate Chestguard of War].ID}) /varset ItemOoWBP Gladiator's Plate Chestguard of War
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
@@ -128,12 +125,8 @@ Sub INIChanges
 |- SUB: PullAbilitySetup
 |----------------------------------------------------------------------------
 Sub PullAbilitySetup
-	/if (${Me.Level}>100) {
+	/if (${Me.Level}<115) {
 		/varset PullAbility ${insult}
-		/varset PullDistance 90
-	} 
-	/if (${Me.Level}<80) {
-		/varset PullAbility ${roar}
 		/varset PullDistance 90
 	} 
 	|else {
@@ -254,6 +247,20 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Field Armorer].RankName}]})  {
 		/varset groupac ${Spell[Field Armorer].RankName}
 	} 
+	|---AE Taunt
+	/if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Roar of Challenge].RankName}]})  {
+		/varset aeroar ${Spell[Roar of Challenge].RankName}
+	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Rallying Roar].RankName}]})  {
+		/varset aeroar ${Spell[Rallying Roar].RankName}
+	}
+	|---shout
+	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Burning Shout].RankName}]})  {
+		/varset shout ${Spell[Burning Shout].RankName}
+	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Tormenting Shout].RankName}]})  {
+		/varset shout ${Spell[Tormenting Shout].RankName}
+	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Harassing Shout].RankName}]})  {
+		/varset shout ${Spell[Harassing Shout].RankName}
+	}
 	|---roar
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Kluzen's Roar].RankName}]})  {
 		/varset roar ${Spell[Kluzen's Roar].RankName}
@@ -269,33 +276,7 @@ Sub SetupDiscs
 		/varset roar ${Spell[Bazu Bluster].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.CombatAbility[${Spell[Bazu Bellow].RankName}]})  {
 		/varset roar ${Spell[Bazu Bellow].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Ancient Chaos Cry].RankName}]})  {
-		/varset roar ${Spell[Ancient Chaos Cry].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Bellow of the Mastruq].RankName}]})  {
-		/varset roar ${Spell[Bellow of the Mastruq].RankName}
-	} else /if (${Me.Level}>=63 && ${Me.CombatAbility[${Spell[Incite].RankName}]})  {
-		/varset roar ${Spell[Incite].RankName}
-	} else /if (${Me.Level}>=56 && ${Me.CombatAbility[${Spell[Berate].RankName}]})  {
-		/varset roar ${Spell[Berate].RankName}
-	} else /if (${Me.Level}>=52 && ${Me.CombatAbility[${Spell[Bellow].RankName}]})  {
-		/varset roar ${Spell[Bellow].RankName}
-	} else /if (${Me.Level}>=20 && ${Me.CombatAbility[${Spell[Provoke].RankName}]})  {
-		/varset roar ${Spell[Provoke].RankName}
 	} 
-	|---AE Taunt
-	/if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Roar of Challenge].RankName}]})  {
-		/varset aeroar ${Spell[Roar of Challenge].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Rallying Roar].RankName}]})  {
-		/varset aeroar ${Spell[Rallying Roar].RankName}
-	}
-	|---shout
-	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Burning Shout].RankName}]})  {
-		/varset shout ${Spell[Burning Shout].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Tormenting Shout].RankName}]})  {
-		/varset shout ${Spell[Tormenting Shout].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Harassing Shout].RankName}]})  {
-		/varset shout ${Spell[Harassing Shout].RankName}
-	}
 	|---insult
 	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Slander].RankName}]})  {
 		/varset insult ${Spell[Slander].RankName}
@@ -315,7 +296,19 @@ Sub SetupDiscs
 		/varset insult ${Spell[Scowl].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.CombatAbility[${Spell[Mock].RankName}]})  {
 		/varset insult ${Spell[Mock].RankName}
-	}
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Bellow of the Mastruq].RankName}]})  {
+		/varset insult ${Spell[Bellow of the Mastruq].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Ancient Chaos Cry].RankName}]})  {
+		/varset insult ${Spell[Ancient Chaos Cry].RankName}
+	} else /if (${Me.Level}>=63 && ${Me.CombatAbility[${Spell[Incite].RankName}]})  {
+		/varset insult ${Spell[Incite].RankName}
+	} else /if (${Me.Level}>=56 && ${Me.CombatAbility[${Spell[Berate].RankName}]})  {
+		/varset insult ${Spell[Berate].RankName}
+	} else /if (${Me.Level}>=52 && ${Me.CombatAbility[${Spell[Bellow].RankName}]})  {
+		/varset insult ${Spell[Bellow].RankName}
+	} else /if (${Me.Level}>=20 && ${Me.CombatAbility[${Spell[Provoke].RankName}]})  {
+		/varset insult ${Spell[Provoke].RankName}
+	} 
 	|---Strike
 	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Cunning Strike].RankName}]})  {
 		/varset StrikeDisc ${Spell[Cunning Strike].RankName}
@@ -328,7 +321,7 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=78 && ${Me.CombatAbility[${Spell[Opportunistic Strike].RankName}]})  {
 		/varset StrikeDisc ${Spell[Opportunistic Strike].RankName}
 	}
-	|---AE Hit all
+	|---AE Hit all 50 range
 	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Dragonstrike Blades].RankName}]})  {
 		/varset aehitall ${Spell[Dragonstrike Blades].RankName}
 	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Stormstrike Blades].RankName}]})  {

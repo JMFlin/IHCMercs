@@ -131,9 +131,12 @@ Sub LoadSpellBar
 		/echo \aw Loading Spell Bar
 		/call LoadSpellGem "${ClawNuke}" 1
 		/call LoadSpellGem "${CloudburstNuke}" 2
-		/call LoadSpellGem "${FireEtherealNuke}" 3
-		/call LoadSpellGem "${ColdEtherealNuke}" 4
-		/call LoadSpellGem "${MagmaticAENuke}" 5
+		/call LoadSpellGem "${JoltSpell}" 3
+		|/call LoadSpellGem "${FireEtherealNuke}" 3
+		/call LoadSpellGem "${WildNuke}" 4
+		|/call LoadSpellGem "${ColdEtherealNuke}" 4
+		/call LoadSpellGem "${RootSpell}" 5
+		|/call LoadSpellGem "${MagmaticAENuke}" 5
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
 			/call LoadSpellGem "${FuseNuke}" 6
 			/call LoadSpellGem "${VortexNuke}" 7
@@ -462,6 +465,12 @@ Sub SetWizSpells
 		/varset CloudburstNuke ${Spell[Cloudburst Bolts].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Cloudburst Strike].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Cloudburst Strike].RankName}
+|	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Firebane].RankName}]}) {
+|		/varset CloudburstNuke ${Spell[Firebane].RankName}
+	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Black Ice].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Black Ice].RankName}
+	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Ice Meteor].RankName}]}) {
+		/varset CloudburstNuke ${Spell[Ice Meteor].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Sunstrike].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Sunstrike].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Lure of Ice].RankName}]}) {

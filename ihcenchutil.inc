@@ -584,6 +584,8 @@ Sub SetEncSpells
 		/varset MezAESpell ${Spell[Wake of Subdual].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Wake of Felicity].RankName}]}) {
 		/varset MezAESpell ${Spell[Wake of Felicity].RankName}
+	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Echoing Madness].RankName}]}) {
+		/varset MezAESpell ${Spell[Echoing Madness].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Bliss of the Nihil].RankName}]}) {
 		/varset MezAESpell ${Spell[Bliss of the Nihil].RankName}
 	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Fascination].RankName}]}) {

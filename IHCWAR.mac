@@ -175,14 +175,10 @@ Sub AFKRadiusCamping
 	/target clear   
 
 	/while (${Mode}==3) {
-		/if (${AdvPath.Following}) /afollow off
-		/if (${Me.Hovering}) /call DeathSub
-		/if (${Me.State.Equal[FEIGN]}) /stand
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
+
 		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${PCRadiusCheck}]}>6) && !${Me.XTarget}) /call DummyMode
 
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call check_illusion
-		/if (!${Me.XTarget[1].ID} && ${DoMed}) /call AutoMed
+
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
 		/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
 
@@ -190,8 +186,9 @@ Sub AFKRadiusCamping
 		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20) /call AFKPull
 		/if (${Me.XTarget[1].ID}) /target id ${Me.XTarget[1].ID}
 
-		/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
-		
+
+		/call check_state FALSE ${Group.MainAssist.Name}
+		/if (!${Balance} && ${Me.ID} == ${Group.MainAssist.ID}) /call get_closest_target
 		/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
 			/varset TimeForMez 6s
 			/varset TimeForMezVariable 1
@@ -207,60 +204,25 @@ Sub AFKRadiusCamping
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoCombat
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
-
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-	|	/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (!${Me.XTarget[1].ID}) /call PostCombat
+		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
 	}
 /return
-|----------------------------------------------------------------------------
-|- SUB: CheckXTargetDistance  
-|---------------------------------------------------------------------------- 
-Sub CheckXTargetDistance
-	/if (!${Me.XTarget[2].ID}) {
-		/target id ${Me.XTarget[1].ID}
-		/return
-	}
-	/declare x int local 0
-	/if (${Target.ID} && !(${Target.ID}==${Me.ID})) {
-		/declare OldTargetID int local ${Target.ID}
-	} else {
-		/declare OldTargetID int local 0
-	}
-	/declare TargetDistance int local 999
-	/declare ClosestTargetName string local ${Me.XTarget[1].Name}
-	/declare ClosestTargetID int local ${Me.XTarget[1].ID}
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-	/for x 1 to ${Me.XTarget}
-		/if (${Me.XTarget[${x}].Named} && ${Me.XTarget[${x}].Type.Equal[NPC]}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
-			/return
-		} else /if (${Me.XTarget[${x}].Distance}<${TargetDistance} && ${Me.XTarget[${x}].ID}!=${OldTargetID}) {
-			/varset TargetDistance ${Me.XTarget[${x}].Distance}
-			/varset ClosestTargetName ${Me.XTarget[${x}].Name}
-			/varset ClosestTargetID ${Me.XTarget[${x}].ID}
-		}
-	/next x
-/target id ${ClosestTargetID}
-/delay 5 ${Target.ID}==${ClosestTargetID}
-/if (${Defined[${OldTargetID}]}) /deletevar ${OldTargetID}
-/return
+
 |----------------------------------------------------------------------------
 |- SUB: CheckXTargetMezRoot
 |---------------------------------------------------------------------------- 
 Sub CheckXTargetMezRoot
-	/declare OldTargetName string local ${Target.Name}
-	/declare OldTargetID int local ${Target.ID}
+|	/declare OldTargetName string local ${Target.Name}
+|	/declare OldTargetID int local ${Target.ID}
 	/declare x int local 0
-	
+	|${Me.XTarget[${x}].ID}!=${OldTargetID} && 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
 	/for x 1 to ${Me.XTarget}
 		:getaggro
-		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].ID}!=${OldTargetID} && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
+		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
 			/target id ${Me.XTarget[${x}].ID}
 			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
 			/if (!${AdvPath.Following}) /call Engage
@@ -272,8 +234,8 @@ Sub CheckXTargetMezRoot
 			/goto :getaggro
 		}
 	/next x
-/target id ${OldTargetID}
-/delay 5 ${Target.ID}==${OldTargetID}
+|/target id ${OldTargetID}
+|/delay 5 ${Target.ID}==${OldTargetID}
 /return
 |----------------------------------------------------------------------------
 |- SUB: CombatBuffs 
@@ -403,7 +365,7 @@ Sub DoMashRangeAggro
 	/if (${Me.PctEndurance}>5 && ${Me.CombatAbilityReady[${insult}]} && ${Target.PctHPs}>1) {
 		/call DiscNow "${insult}"
 	}
-	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${roar}]} && ${Target.PctHPs}>1) {
+	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${roar}]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=80) {
 		/call DiscNow "${roar}"
 	}
 /return
@@ -455,7 +417,7 @@ Sub DoCombat
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID}) /return
 
 	|-- Mash key aggro
-	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1) {
+	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
 		/call AbilityNow "Taunt"
 	}
 	/if (${Me.CombatAbilityReady[${singlehealhate}]} && ${Me.SecondaryPctAggro}>10) {
@@ -502,7 +464,13 @@ Sub AoEAggro
 		/call DiscNow "${aeroar}"
 	} else /if (${SpawnCount[NPC Aggressive radius 40 zradius 40]}>2 && ${Me.AltAbilityReady[Area Taunt]} && ${DoAEAggro}) {
 		/call AANow ${Me.AltAbility[Area Taunt].ID}
+	} 
+
+	/if (${SpawnCount[NPC Aggressive radius 50 zradius 50]}>1 && ${Me.CombatAbilityReady[${aehitall}]} && ${DoAEAggro}) {
+		/call DiscNow "${aehitall}"
 	}
+
+
 /return
 |---------------------------------------------------------------------------- 
 |- SUB: BalanceHP & HighHP
