@@ -371,7 +371,7 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 	| if I have a target: assist and get ready
 	/if (${Me.XTarget}) {
 		/if (${Me.Sitting}) /stand
-		/if (!${Me.Class.ShortName.Find[CLR]} && ${Defined[_assistCharacter]}) /assist ${_assistCharacter}
+		/if (${Me.ID}!=${Group.MainAssist.ID} && !${Me.Class.ShortName.Find[CLR]} && ${Defined[_assistCharacter]}) /assist ${_assistCharacter}
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 		/delay 7
 	}
@@ -433,7 +433,7 @@ Sub Engage
 	
 	/if (!${Target.ID} || !${Target.Type.Equal[NPC]}) /return
 
-	/if (${Target.PctHPs}<95 || ${Navigation.PathLength[id ${Target.ID}]} < 16) {
+	/if (${Target.PctHPs}<95 || ${Navigation.PathLength[id ${Target.ID}]} < 25) {
 		/if (${AssistRange}>80) {
 			/varcalc SmartAssistRange ${AssistRange}*1.1
 		} else /if (${AssistRange}>50) {

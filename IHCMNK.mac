@@ -481,12 +481,12 @@ Sub DowntimeDiscs
 |----------------------------------------------------------------------------
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if (${DoAutoEngage}) {
-		/call Engage
-	}
-	/doevents flush NotOnTarget
-/return
+|Sub Event_NotOnTarget
+|	/if (${DoAutoEngage}) {
+|		/call Engage
+||	}
+|	/doevents flush NotOnTarget
+|/return
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for other monks in group
 |---------------------------------------------------------------------------- 
