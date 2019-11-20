@@ -66,20 +66,23 @@ Sub ManualPullCamping
 	/while (${Mode}==1 || ${Mode}==3) {
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
-	
-|		/call PreCombatBuffs
-		/if (${Me.ID} == ${Group.MainAssist.ID}) /call get_closest_target
+		/call make_axes	
+
+		/call check_resources FALSE "Communion of Blood" alt ${Me.ID} 75
+		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
+		/call pre_combat_buffs FALSE "${cheapshot}" disc ${Target.ID}
+		
+		/call get_closest_target
 		/call check_state FALSE ${Group.MainAssist.Name}
 
 		/call Engage
 	
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
+		/call Combatdps
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-|		/doevents
+		/doevents
 	}
 /return
 |----------------------------------------------------------------------------
@@ -111,14 +114,6 @@ Sub ManualRunAndGun
 
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: PreCombatBuffs
-|---------------------------------------------------------------------------- 
-Sub PreCombatBuffs
-	/if (${Me.CombatAbilityReady[${cheapshot}]} && ${Me.PctEndurance}>=5) {
-		/Disc ${cheapshot}
 	}
 /return
 |----------------------------------------------------------------------------
@@ -257,7 +252,12 @@ Sub AANDisc
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
-Sub Combatdps	
+Sub Combatdps
+
+	/if (!${Target.ID}) /return
+	/if (${Target.PctHPs}>${AutoAssistAt}) /return
+	/if (${Target.Distance}>${AssistRange}) /return
+	/if (${Target.Mezzed.ID}) /return
 
 	/if (${Me.CombatAbilityReady[${Snare}]} && !${Target.Snared.ID} && ${Target.Fleeing}) {
 		/Disc ${Snare}
@@ -333,19 +333,14 @@ Sub Combatdps
 |----------------------------------------------------------------------------
 |- SUB: DowntimeDiscs
 |---------------------------------------------------------------------------- 
-Sub DowntimeDiscs
-	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
-		/alt act ${Me.AltAbility[Communion of Blood].ID}
-		/delay 5
-	}	
-	/if (${Me.PctEndurance}<21 && ${Me.Endurance}>313 && ${Me.CombatAbilityReady[${endregen}]} && !${Me.CombatState.Equal[combat]} && !${Me.Invis}) {
-		/disc ${endregen}
-		/delay 5
-	}
-	/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Moving} && !${Me.Invis} && ${Me.State.NotEqual[FEIGN]} && ${Me.CombatAbility[${Spell[${beraura}].RankName}]}&& ${Me.PctEndurance}>10 && ${DoBuffs}) {
-		/disc ${beraura}
-		/delay 8s
-	}
+Sub make_axes
+
+	/if (${Me.Combat}) /return
+	/if (${Me.XTarget[1].ID}) /return
+	/if (${Me.Moving}) /return
+	/if (${Navigation.Active}) /return
+	
+
 	/if (${FindItemCount[${AutoAxeName}]}<${AutoAxeMin} && ${AutoAxe} && ${AutoAxeCount}>0) {
 		:axecast
 		/if (${Cursor.ID}) /autoinventory

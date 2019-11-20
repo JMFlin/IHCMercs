@@ -334,7 +334,7 @@ Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
 |----------------------------------------------------------------------------
 |- SUB: check_state
 |---------------------------------------------------------------------------- 
-Sub check_state(bool _debug, string _assistCharacter, string _harvest)
+Sub check_state(bool _debug, string _assistCharacter)
 
 	/if (${Me.Moving}) /return
 	
@@ -353,12 +353,12 @@ Sub check_state(bool _debug, string _assistCharacter, string _harvest)
 	| have I been knocked down?
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
-	| do I need resources?
-	/if (${Defined[_harvest]}) {
-		/if (${validate_cast[FALSE, FIND, ${_harvest}, ${Me.ID}]} && ${Me.PctMana}<50) /call core_cast2 ${_harvest} FIND ${Me.ID} FALSE
-	}
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
+		/if (!${Spell[${Me.Aura[1]}].ID} && ${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+		/if (${Defined[${Aura2}]}) {
+			/if (!${Spell[${Me.Aura[2]}].ID} && ${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+		}
 		/if (${Stick.Status.Equal[ON]}) /stick off
 		/attack off
 		/if (${Target.ID}) /target clear
@@ -503,10 +503,16 @@ Sub Travel
 |- SUB: PullerCheckGroupManaEnd
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
+
+	/if (!${Me.XTarget[1].ID}) /return
+	/if (${Group.Puller.ID}==${Me.ID}) /return
+
 	/declare bmember	int local 0
 	/if (${Limit}==50 && ${ResourceChecker}==0) /varset Limit 85
 	/if (${Limit}==85 && ${ResourceChecker}==1) /varset Limit 50
 	/varset ResourceChecker 1
+
+	
 	
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
@@ -542,12 +548,17 @@ Sub AddToAlert
 |----------------------------------------------------------------------------
 |- SUB: AFKPull
 |---------------------------------------------------------------------------- 
-Sub AFKPull
+Sub afk_pull
 	/declare PullTargetID 	int local 0
 	/declare Dummy 			int local 0
 	/declare i 				int local 1
 	/declare MobsInRadius 	int local 0
 	/declare PathLength 	int local 9999
+
+	/if (!${Me.XTarget[1].ID}) /return
+	/if (${Group.Puller.ID}==${Me.ID}) /return
+	/if (!${Me.Casting.ID}) /return
+	/if (${Me.PctEndurance}<20 || ${Me.PctMana}<20) /return
 
 	/if (${ResourceChecker}==0) /return
 	/if (${Me.Snared.ID}) /return
@@ -620,6 +631,15 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (${Target.Fleeing} || !${Target.Snared.ID}) /return
 	}
 
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SK]} && ${Target.Type.Equal[NPC]}) {
+		/if (!${Target.PctAggro}>=100) /return
+	}
+
+	/if (${Target.Rooted.ID}) /return
+
+	/if (${Navigation.Active}) /return
+
+	| if I have a target then the distance to move to camp is larger to allow for a larger assist range
 	/if (${Me.XTarget}) {
 		/if (${Distance}>80) {
 			/varcalc Distance ${Distance}*1.1
@@ -650,22 +670,52 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 	}
 /return
 |----------------------------------------------------------------------------
+|- SUB: pre_combat_buffs
+|---------------------------------------------------------------------------- 
+Sub pre_combat_buffs(bool _debug, string _spell, string _type, string _tmpID)
+	/if (${Me.XTarget} && !${Me.Combat}) {
+		/if (${validate_cast[FALSE, ${_type}, ${_spell}, ${_tmpID}]}) /call core_cast2 ${_spell} ${_type} ${_tmpID} FALSE
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: check_resources
+|---------------------------------------------------------------------------- 
+Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _condition)
+
+	| FALSE "Gather Mana" spell ${Me.ID} 50
+
+	/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,NEC,WIZ,ENC]}) {
+		/if (${Me.PctMana} < ${_condition} && ${validate_cast[FALSE, ${_type}, ${_spell}, ${_tmpID}]}) /call core_cast2 ${_spell} ${_type} ${_tmpID} FALSE
+	} else /if (${Select[${Me.Class.ShortName},WAR,BER,MNK]}) {
+		/if (${Me.Combat}) /return
+		/if (${Me.XTarget[1].ID}) /return
+		/if (${Me.PctEnd} < ${_condition} && ${validate_cast[FALSE, ${_type}, ${_spell}, ${_tmpID}]}) /call core_cast2 ${_spell} ${_type} ${_tmpID} FALSE
+	}
+	/delay 5s !${Me.Casting.ID}
+	/autoinventory
+	/if (!${FindItem[${_spell}].TimerReady}) /call ItemNow "${_spell}"
+
+/return
+|----------------------------------------------------------------------------
 |- SUB: PetAttack
 |---------------------------------------------------------------------------- 
 Sub PetAttack
 	/if (!${Me.Pet.ID}) /return
 	/assist ${Group.MainAssist.Name}
-	/if (${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<=${AssistRange} && ${Target.Type.Equal[NPC]}) {
-		|- Pet Attack
-		/if (${Target.PctHPs}>=30 && ${Me.AltAbilityReady[Spirit Call]}) {
-			/alt act 177
-			/delay 2
-		}
-		/if (!${Me.Pet.Combat}) {
-			/pet attack 
-			/pet swarm
-		}
+	/if (!${Target.Type.Equal[NPC]}) /return
+	/if (${Target.PctHPs}>${AutoAssistAt}) /return
+	/if (${Target.Distance}>${AssistRange}) /return
+
+	|- Pet Attack
+	/if (${Target.PctHPs}>=30 && ${Me.AltAbilityReady[Spirit Call]}) {
+		/alt act 177
+		/delay 2
 	}
+	/if (!${Me.Pet.Combat}) {
+		/pet attack 
+		/pet swarm
+	}
+	
 	/if (!${Spawn[${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
 	/if (${Spawn[${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
 /return
@@ -1572,13 +1622,61 @@ Sub WelcomeMsg
 	/echo \aw****************************
 	/echo \aw use \ag /ihchelp \aw for a list of commands
 /return
+|---------------------------------------------------------------------------- 
+|- SUB: BalanceHP & HighHP
+|---------------------------------------------------------------------------- 
+Sub balance_hp
+	/if (!${Balance}) /return
+	/if (!${Me.XTarget[2].ID}) /return
+	/if (${Me.ID} != ${Group.MainAssist.ID}) /return
+	:balance
+	/if (!${Target.ID}) /target id ${Me.XTarget[1].ID}
+	/call HighHP
+	/if ((!${Me.Combat} || ${Target.ID} == ${HighHPID})) {
+	    /attack on
+	    /if (${Me.XTarget[2].ID} && ${Balance}) /call Engage
+		/if (${Me.XTarget[2].ID} && ${Balance}) /call AoEAggro
+		/if (${Me.XTarget[2].ID} && ${Balance}) /call DoDisc
+		/if (${Me.XTarget[2].ID} && ${Balance}) /call DoCombat
+		/if (${Me.XTarget[2].ID} && ${Balance}) /call CombatBuffs	
+	}
+	/delay 1
+	/if (${Me.XTarget[2].ID} && ${Balance}) /goto :balance
+	/if (!${Me.XTarget[2].ID} || !${Balance}) /return
+
+Sub HighHP
+    /declare x int local 0
+    /declare LowHP int local ${Target.PctHPs}
+    /declare LowHPID int local ${Target.ID}
+    /declare HighHP int local 0
+    
+    /for x 1 to ${Me.XTarget}
+        /if (${Me.XTarget[${x}].PctHPs}<${LowHP}) {
+            /varset LowHP ${Me.XTarget[${x}].PctHPs}
+            /varset LowHPID ${Target.ID}
+        }
+        /if (!${Balance}) /return
+        /if (${Me.XTarget[${x}].PctHPs}>${HighHP}) {
+            /varset HighHP ${Me.XTarget[${x}].PctHPs}
+            /varset HighHPID ${Me.XTarget[${x}].ID}
+        }
+    /next x
+    
+    /declare HPDiff int local 0
+    /varcalc HPDiff ${HighHP}-${LowHP}
+    /if (${HPDiff}>=2 && ${Target.ID}!=${HighHPID}) {
+        /target id ${HighHPID}
+        /delay 2s ${Target.ID}==${HighHPID}
+    }
+/return
 |----------------------------------------------------------------------------
 |- SUB: CheckXTargetDistance  
 |---------------------------------------------------------------------------- 
 Sub get_closest_target
 
 	/if (!${Me.XTarget[1].ID}) /return
-
+	/if (${Balance}) /return
+	/if (${Me.ID} != ${Group.MainAssist.ID}) /return
 
 	/if (${Target.ID} && !${Target.Type.Equal[Corpse]} && ${Target.Type.Equal[NPC]}) /return
 
@@ -1615,6 +1713,10 @@ Sub get_closest_target
 | Sub DummyMode
 |--------------------------------------------------------------------------------
 Sub DummyMode
+
+	/if (${Me.XTarget}) /return
+	/if (!${Spawn[gm].ID} || !${SpawnCount[pc radius ${PCRadiusCheck}]}>6) /return 
+
 	/declare i int local
 
 	/echo Entering Dummy Mode... 

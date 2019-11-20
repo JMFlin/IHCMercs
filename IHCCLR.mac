@@ -343,7 +343,7 @@ Sub BuffGroup
 			/if (!${Me.Book[${GroupHPBuff}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${HPBuff}].ID" "tmpbuffid" "bool"
 				/if (!${tmpbuffid} && ${Me.Book[${HPBuff}]} && ${Me.CurrentMana}>${Spell[${HPBuff}].Mana} && !${Me.Casting.ID}) {
-					/if (${validate_cast[FALSE, spell, ${HPBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${HPBuff}" spell  ${Group.Member[${bmember}].ID} FALSE
+					/if (${validate_cast[FALSE, spell, ${HPBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${HPBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 					/varset spellrememtimer 5s
 					/delay 10
 				}
@@ -354,7 +354,7 @@ Sub BuffGroup
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (${tmpstackcheck} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && !${Me.Casting.ID}) {
-				/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupBuff}" spell  ${Group.Member[${bmember}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 				/varset spellrememtimer 5s
 				/delay 10
 			}
@@ -363,7 +363,7 @@ Sub BuffGroup
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${TankBuffMatch}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${TankBuff}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck}) {
-					/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${TankBuff}" spell  ${Group.Member[${bmember}].ID} FALSE
+					/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${TankBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 					/varset spellrememtimer 5s
 					/delay 10
 				}
@@ -681,11 +681,12 @@ Sub BuffCheckOLD
 		} else /if (${DivineBuffOn}==1 && ${DivineBuffRecast}==1 && !${Me.Casting.ID} && ${Spell[${DivineBuff}].Range}>${Group.Member[${assistname}].Distance} && ${Group.Member[${assistname}].PctHPs}>=1 && !${Group.Member[${assistname}].Hovering} && ${Me.Book[${DivineBuff}]} && ${bufftimer}==0 && ${Me.CurrentMana}>${Spell[${DivineBuff}].Mana}) {
 			/call DivineUsage
 			/varset DivineBuffRecast 0
-		} else /if (${Bool[${aurabuff1}]} && (!${Me.Casting.ID}) && !${Me.Aura[1].Name.Find[${cleanaura1}]} && !${Me.Aura[2].Name.Find[${cleanaura1}]} && ${Me.Book[${aurabuff1}]} && ${Me.CurrentMana}>${Spell[${aurabuff1}].Mana}) {
-			/call SpellQueue "${aurabuff1}" ${Me.ID}
-		} else /if (${Bool[${aurabuff2}]} && (!${Me.Casting.ID}) && !${Me.Aura[1].Name.Find[${cleanaura2}]} && !${Me.Aura[2].Name.Find[${cleanaura2}]} && ${Me.Book[${aurabuff2}]} && ${Me.CurrentMana}>${Spell[${aurabuff2}].Mana}) {
-			/call SpellQueue "${aurabuff2}" ${Me.ID}
-		}
+		} 
+		|else /if (${Bool[${aurabuff1}]} && (!${Me.Casting.ID}) && !${Me.Aura[1].Name.Find[${cleanaura1}]} && !${Me.Aura[2].Name.Find[${cleanaura1}]} && ${Me.Book[${aurabuff1}]} && ${Me.CurrentMana}>${Spell[${aurabuff1}].Mana}) {
+		|	/call SpellQueue "${aurabuff1}" ${Me.ID}
+		|} else /if (${Bool[${aurabuff2}]} && (!${Me.Casting.ID}) && !${Me.Aura[1].Name.Find[${cleanaura2}]} && !${Me.Aura[2].Name.Find[${cleanaura2}]} && ${Me.Book[${aurabuff2}]} && ${Me.CurrentMana}>${Spell[${aurabuff2}].Mana}) {
+		|	/call SpellQueue "${aurabuff2}" ${Me.ID}
+		|}
 /return	
 |----------------------------------------------------------------------------
 |- SUB: BuffCheck

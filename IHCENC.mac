@@ -65,15 +65,17 @@ Sub ManualPullCamping
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
 			
-		/call check_state FALSE ${Group.MainAssist.Name} "Gather Mana"
-			
+		/call check_state FALSE ${Group.MainAssist.Name}
+		/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
+		/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
+		/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
+
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/call BuffCheck
 		/call BuffGroup
 |		/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
 |		/if (${DoMed}) /call AutoMed
 |		/call CheckMana
-		/call BagModRods
 
 |		/if (${Me.XTarget}) /assist ${Group.MainAssist.Name}
 		/call PetAttack
@@ -133,20 +135,24 @@ Sub DebuffMobs
 	/declare x int local 0
 
 	/if (!${Me.XTarget}) /return
-	/if (${Target.Distance}>${AssistRange}) /return
+	/if (!${Target.Type.Equal[NPC]}) /return
 
 	/for x 1 to ${Me.XTarget}
 
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 
+		/if (${Target.PctHPs}>${AutoAssistAt}) /return
+		/if (${Target.Distance}>${AssistRange}) /return
+		
+		/echo Slowing ${Target.Name}
 |		/if (${Me.SpellReady[${DoTSpell3}]} && !${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Named}) /call CastSpell "${DoTSpell3}" ${Target.ID} dbf
 |		/delay 5s !${Me.Casting.ID}
 |		/if  (${Me.AltAbilityReady[Mental Contortion]} && !${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Named}) /alt act ${Me.AltAbility[Mental Contortion].ID}
 |		/delay 5s !${Me.Casting.ID}
 
 		/if (!${Target.Tashed.ID} && ${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
-
+		/delay 5s !${Me.Casting.ID}
 		/if (!${Target.Slowed.ID} && ${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 
 			
@@ -305,16 +311,6 @@ Sub BuffCheck
 				/alt act 791
 				/delay 5
 				/varset CastCheck 1
-	} else /if (${Bool[${AuraBuff1}]} && ${Cast.Status.Equal[I]} && (${AuraRecastDelay}==0) && !${Me.Aura[1].Name.Find[${AuraBuff1Name}]} && !${Me.Aura[2].Name.Find[${AuraBuff1Name}]} && ${Me.Book[${AuraBuff1}]} && ${Me.CurrentMana}>${Spell[${AuraBuff1}].Mana}) {
-				/varset AuraRecastDelay 10s
-				/call SpellQueue "${AuraBuff1}" ${Me.ID}
-				/varset CastCheck 1
-				/delay 5
-	} else /if (${Bool[${MeleeAura}]} && ${Cast.Status.Equal[I]} && (${AuraRecastDelay}==0) && !${Me.Aura[1].Name.Find[${MeleeAuraName}]} && !${Me.Aura[2].Name.Find[${MeleeAuraName}]} && ${Me.Book[${MeleeAura}]} && ${Me.CurrentMana}>${Spell[${MeleeAura}].Mana}) {
-				/varset AuraRecastDelay 10s
-				/call SpellQueue "${MeleeAura}" ${Me.ID}
-				/varset CastCheck 1
-				/delay 5
 	} else /if (${UsePet} && !${UseCharmPet} && !${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetSpell}]} && ${Me.CurrentMana}>${Spell[${PetSpell}].Mana}) {
 				/call SpellQueue "${PetSpell}" ${Me.ID}
 				/varset CastCheck 1
@@ -329,6 +325,16 @@ Sub BuffCheck
 		/call LoadSpellBar
 		/docommand /dgt \aw Done Buffing
 	}
+		|else /if (${Bool[${AuraBuff1}]} && ${Cast.Status.Equal[I]} && (${AuraRecastDelay}==0) && !${Me.Aura[1].Name.Find[${AuraBuff1Name}]} && !${Me.Aura[2].Name.Find[${AuraBuff1Name}]} && ${Me.Book[${AuraBuff1}]} && ${Me.CurrentMana}>${Spell[${AuraBuff1}].Mana}) {
+	|			/varset AuraRecastDelay 10s
+	|			/call SpellQueue "${AuraBuff1}" ${Me.ID}
+	|			/varset CastCheck 1
+	|			/delay 5
+	|} else /if (${Bool[${MeleeAura}]} && ${Cast.Status.Equal[I]} && (${AuraRecastDelay}==0) && !${Me.Aura[1].Name.Find[${MeleeAuraName}]} && !${Me.Aura[2].Name.Find[${MeleeAuraName}]} && ${Me.Book[${MeleeAura}]} && ${Me.CurrentMana}>${Spell[${MeleeAura}].Mana}) {
+	|			/varset AuraRecastDelay 10s
+	|			/call SpellQueue "${MeleeAura}" ${Me.ID}
+	|			/varset CastCheck 1
+	|			/delay 5
 /return
 |----------------------------------------------------------------------------
 |- SUB: BuffGroup && ${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower}]}
@@ -345,42 +351,37 @@ Sub BuffGroup
 			/if (!${Me.Book[${GroupMana}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SingleMana}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleMana}].Stacks" "tmpstackcheck" "bool"
-				/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${SingleMana}]}  && ${Me.CurrentMana}>${Spell[${SingleMana}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-					/call SpellQueue "${SingleMana}" ${Group.Member[${bmember}].ID}
-					/varset spellrememtimer 5s
+				/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+					/if (${validate_cast[FALSE, spell, "${SingleMana}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SingleMana}" spell ${Group.Member[${bmember}].ID} FALSE
 					/delay 10
 				}
 			}
 
 			/if (!${Me.Book[${GroupHaste}]} && ${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK,SK,PAL]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleHaste}].ID" "tmpbuffid" "bool"
-				/if (!${tmpbuffid} && ${Me.Book[${SingleHaste}]} && ${Me.CurrentMana}>${Spell[${SingleHaste}].Mana} && !${Me.Casting.ID}) {
-					/call SpellQueue "${SingleHaste}" ${Group.Member[${bmember}].ID}
-					/varset spellrememtimer 5s
+				/if (!${tmpbuffid}) {
+					/if (${validate_cast[FALSE, spell, "${SingleHaste}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SingleHaste}" spell ${Group.Member[${bmember}].ID} FALSE
 					/delay 10
 				}
 			}
 			
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupHaste}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupHaste}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${GroupHaste}]}  && ${Me.CurrentMana}>${Spell[${GroupHaste}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
-				/call SpellQueue "${GroupHaste}" ${Group.Member[${bmember}].ID}
-				/varset spellrememtimer 5s
+			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
+				/if (${validate_cast[FALSE, spell, "${GroupHaste}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupHaste}" spell ${Group.Member[${bmember}].ID} FALSE
 				/delay 10
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupMana}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupMana}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${GroupMana}]} && ${Me.CurrentMana}>${Spell[${GroupMana}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-				/call SpellQueue "${GroupMana}" ${Group.Member[${bmember}].ID}
-				/varset spellrememtimer 5s
+			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+				/if (${validate_cast[FALSE, spell, "${GroupMana}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupMana}" spell ${Group.Member[${bmember}].ID} FALSE
 				/delay 10
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${ProcBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${ProcBuff}].Stacks" "tmpstackcheck" "bool"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[Illusion Benefit Greater Jann].ID" "jaanbuffid" "int"
-			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Me.Book[${ProcBuff}]} && ${Me.CurrentMana}>${Spell[${ProcBuff}].Mana} && ${Select[${Group.Member[${bmember}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD,WAR]} && ${DoNDTBuff}) {
-				/call SpellQueue "${ProcBuff}" ${Group.Member[${bmember}].ID}
-				/varset spellrememtimer 5s
+			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Select[${Group.Member[${bmember}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD,WAR]}) {
+				/if (${validate_cast[FALSE, spell, "${ProcBuff}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${ProcBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 				/delay 10
 			}
 		}
@@ -389,12 +390,6 @@ Sub BuffGroup
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
 	/if (${Defined[jaanbuffid]}) /deletevar jaanbuffid
-	/if (${Group.MainAssist.ID} && ${Target.ID}!=${Group.MainAssist.ID}) {
-		/target id ${Group.MainAssist.ID}
-		/if (${ReTargetDelay}==0) /varset ReTargetDelay 1m
-		/if (${autotargetid}) /varset autotargetid 0
-	}
-	/varset acverbose 0
 	/if (${Window[SpellBookWnd]}) /book
 /return
 |----------------------------------------------------------------------------
@@ -433,25 +428,6 @@ Sub ManageAggro(string OptFlag)
 		} else /if (${Me.AltAbilityReady[Silent Casting]}) {
 			/call AANow ${Me.AltAbility[Silent Casting].ID} ${Target.ID}
 		}
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: CheckMana
-|---------------------------------------------------------------------------- 
-Sub CheckMana
-	/if (${Me.PctMana}<=55 && ${Me.AltAbilityReady[Gather Mana]}) {
-		/call AANow ${Me.AltAbility[Gather Mana].ID} ${Me.ID}
-	} 
-	/if (${Me.PctMana}<=40 && ${Me.AltAbilityReady[Azure Mind Crystal]}) {
-		/call AANow ${Me.AltAbility[Azure Mind Crystal].ID} ${Me.ID}
-		/delay 5s !${Me.Casting.ID}
-		/delay 1s
-		/autoinventory
-		/if (!${FindItem[Azure Mind Crystal].TimerReady}) /call ItemNow "Azure Mind Crystal"
-	}	
-	/if (${Me.PctMana}<=80 && !${FindItem[${ChestItemName}].TimerReady}) {
-		/useitem "${ChestItemName}"
-		/delay 2s
 	}
 /return
 |----------------------------------------------------------------------------

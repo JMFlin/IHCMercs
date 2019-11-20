@@ -64,7 +64,8 @@ Sub ManualPullCamping
 
 	/while (${Mode}==1 || ${Mode}==3) {
 
-		/call check_state FALSE ${Group.MainAssist.Name} ${HarvestSpell}
+		/call check_state FALSE ${Group.MainAssist.Name} 
+		/call check_resources FALSE "${HarvestSpell}" spell ${Me.ID} 50
 		/call self_buff_check FALSE
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/if (!${Balance} && ${Me.ID} == ${Group.MainAssist.ID}) /call get_closest_target
@@ -74,12 +75,11 @@ Sub ManualPullCamping
 |-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
 		/call Combatdps
 
-		
 |-		/if (${UseModRods}) /call ClickModRoD
 		
 		
 	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-|		/doevents flush
+		/doevents
 	}
 /return
 |----------------------------------------------------------------------------
