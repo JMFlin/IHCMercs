@@ -510,8 +510,8 @@ Sub Travel
 		/call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
 		/delay 1
 	}
-	/if (${Select[${Me.Class.ShortName},BRD]}) {
-		/melody 4
+	/if (${Select[${Me.Class.ShortName},BRD]} & !${Me.Buff[Selo's Accelerating Chorus].ID}) {
+		/melody 3 1
 	}
 /return
 |----------------------------------------------------------------------------
