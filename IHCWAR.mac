@@ -195,10 +195,10 @@ Sub AFKRadiusCamping
 		/call CheckXTargetMezRoot
 
 		/call Engage
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoMashRangeAggro
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call AoEAggro
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}+25) /call DoMashRangeAggro
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}+30) /call AoEAggro
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /call DoCombat
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}+25) /call DoCombat
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
@@ -207,16 +207,6 @@ Sub AFKRadiusCamping
 		/doevents
 	}
 /return
-Sub set_timers
-	/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
-		
-
-	/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
-		/varset TimeForMez 6s
-		/varset TimeForMezVariable 1
-	}
-
-/return
 |----------------------------------------------------------------------------
 |- SUB: CheckXTargetMezRoot
 |---------------------------------------------------------------------------- 
@@ -224,7 +214,7 @@ Sub CheckXTargetMezRoot
 
 	/if (${Balance}) /return
 	/if (!${Me.XTarget[2].ID}) /return
-	/if (${TimeForMez}!=0) /return
+|	/if (${TimeForMez}!=0) /return
 
 	/declare x int local 0
 	/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -466,13 +456,13 @@ Sub DoCombat
 |- SUB: AoEAggro   
 |---------------------------------------------------------------------------- 
 Sub AoEAggro
-	/if (${SpawnCount[NPC Aggressive radius 30 zradius 30]}>1 && ${Me.CombatAbilityReady[${aeroar}]} && ${DoAEAggro}) {
+	/if (${SpawnCount[NPC Aggressive radius 30 zradius 30]}>1 && ${Me.CombatAbilityReady[${aeroar}]}) {
 		/call DiscNow "${aeroar}"
-	} else /if (${SpawnCount[NPC Aggressive radius 40 zradius 40]}>2 && ${Me.AltAbilityReady[Area Taunt]} && ${DoAEAggro}) {
+	} else /if (${SpawnCount[NPC Aggressive radius 40 zradius 40]}>2 && ${Me.AltAbilityReady[Area Taunt]}) {
 		/call AANow ${Me.AltAbility[Area Taunt].ID}
 	} 
 
-	/if (${SpawnCount[NPC Aggressive radius 50 zradius 50]}>1 && ${Me.CombatAbilityReady[${aehitall}]} && ${DoAEAggro}) {
+	/if (${SpawnCount[npc aggressive radius 50 zradius 50]}>1 && ${Me.CombatAbilityReady[${aehitall}]}) {
 		/call DiscNow "${aehitall}"
 	}
 

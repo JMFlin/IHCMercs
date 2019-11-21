@@ -339,12 +339,10 @@ Sub SongQueue(string nextsong)
 |----------------------------------------------------------------------------
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
+|----------------------------------------------------------------------------
+|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
 Sub Event_NotOnTarget
-	/if (${DoAutoEngage}) {
-		/squelch /attack off
-		/if (${DoAutoTarget}) /call FindTarget
-		/delay 5
-		/if (${Target.Distance}<${AssistRange}) /call EngageTarget
-	}
+	/face fast
 	/doevents flush NotOnTarget
-/return 
+/return

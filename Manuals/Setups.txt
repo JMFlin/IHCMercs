@@ -1,7 +1,7 @@
 Classes RAID
 1.
-war war war sk clr clr
-war sk sk clr clr clr
+war war war shm clr clr
+war sk sk sk clr clr
 
 2.
 wiz wiz wiz wiz dru ench

@@ -355,10 +355,10 @@ Sub check_state(bool _debug, string _assistCharacter)
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
-		/if (!${Spell[${Me.Aura[1]}].ID} && ${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-		/if (${Defined[${Aura2}]}) {
-			/if (!${Spell[${Me.Aura[2]}].ID} && ${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-		}
+	|	/if (!${Spell[${Me.Aura[1]}].ID} && ${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+	|	/if (${Defined[${Aura2}]}) {
+	|		/if (!${Spell[${Me.Aura[2]}].ID} && ${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+	|	}
 		/if (${Stick.Status.Equal[ON]}) /stick off
 		/attack off
 		/if (${Target.ID}) /target clear
@@ -375,6 +375,19 @@ Sub check_state(bool _debug, string _assistCharacter)
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 		/delay 7
 	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: set_timers
+|---------------------------------------------------------------------------- 
+Sub set_timers
+	/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
+		
+
+	/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
+		/varset TimeForMez 6s
+		/varset TimeForMezVariable 1
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: ModeSet
@@ -429,11 +442,13 @@ Sub RemoveTravelBuffs
 |- SUB: Engage
 |---------------------------------------------------------------------------- 
 Sub Engage
+| ONLY MELEES NEED TO ENGAGE
 	/declare SmartAssistRange int local 0
 	
-	/if (!${Target.ID} || !${Target.Type.Equal[NPC]}) /return
+	/if (!${Target.ID}) /return
+	/if (!${Target.Type.Equal[NPC]}) /return
 
-	/if (${Target.PctHPs}<95 || ${Navigation.PathLength[id ${Target.ID}]} < 25) {
+	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 25) {
 		/if (${AssistRange}>80) {
 			/varcalc SmartAssistRange ${AssistRange}*1.1
 		} else /if (${AssistRange}>50) {
@@ -504,8 +519,8 @@ Sub Travel
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
 
-	/if (!${Me.XTarget[1].ID}) /return
-	/if (${Group.Puller.ID}==${Me.ID}) /return
+	/if (${Me.XTarget[1].ID}) /return
+	/if (${Group.Puller.ID}!=${Me.ID}) /return
 
 	/declare bmember	int local 0
 	/if (${Limit}==50 && ${ResourceChecker}==0) /varset Limit 85
@@ -555,10 +570,16 @@ Sub afk_pull
 	/declare MobsInRadius 	int local 0
 	/declare PathLength 	int local 9999
 
-	/if (!${Me.XTarget[1].ID}) /return
-	/if (${Group.Puller.ID}==${Me.ID}) /return
-	/if (!${Me.Casting.ID}) /return
-	/if (${Me.PctEndurance}<20 || ${Me.PctMana}<20) /return
+	/if (${Me.XTarget[1].ID}) /return
+	/if (!${Group.Puller.ID}==${Me.ID}) /return
+	/if (${Me.Casting.ID}) /return
+
+	/if (${Select[${Me.Class.ShortName},SK,WIZ,PAL,DRU,ENC]}) {
+		/if (${Me.PctMana}<20) /return
+	}
+	/if (${Select[${Me.Class.ShortName},WAR,MNK,BER,ROG]}) {
+		/if (${Me.PctEndurance}<20) /return
+	}
 
 	/if (${ResourceChecker}==0) /return
 	/if (${Me.Snared.ID}) /return
@@ -648,7 +669,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		} else /if (${Distance}>25) {
 			/varcalc Distance ${Distance}*2
 		} else /if (${Distance}>10) {
-			/varcalc Distance ${Distance}*2.2
+			/varcalc Distance ${Distance}*2.5
 		} else /if (${Distance}>0) {
 			/varcalc Distance ${Distance}*4
 		}
@@ -685,16 +706,23 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 	| FALSE "Gather Mana" spell ${Me.ID} 50
 
 	/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,NEC,WIZ,ENC]}) {
-		/if (${Me.PctMana} < ${_condition} && ${validate_cast[FALSE, ${_type}, ${_spell}, ${_tmpID}]}) /call core_cast2 ${_spell} ${_type} ${_tmpID} FALSE
+		/if (${Me.PctMana} < ${_condition}) {
+			/if (${validate_cast[FALSE, ${_type}, ${_spell}, ${_tmpID}]}) /call core_cast2 ${_spell} ${_type} ${_tmpID} FALSE
+				|sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug)
+		}
 	} else /if (${Select[${Me.Class.ShortName},WAR,BER,MNK]}) {
 		/if (${Me.Combat}) /return
 		/if (${Me.XTarget[1].ID}) /return
-		/if (${Me.PctEnd} < ${_condition} && ${validate_cast[FALSE, ${_type}, ${_spell}, ${_tmpID}]}) /call core_cast2 ${_spell} ${_type} ${_tmpID} FALSE
+		/if (${Me.PctEndurance} < ${_condition}) {
+			/if (${validate_cast[FALSE, ${_type}, ${_spell}, ${_tmpID}]}) /call core_cast2 ${_spell} ${_type} ${_tmpID} FALSE
+		}
 	}
 	/delay 5s !${Me.Casting.ID}
-	/autoinventory
-	/if (!${FindItem[${_spell}].TimerReady}) /call ItemNow "${_spell}"
-
+	/if (${Select[${Me.Class.ShortName},ENC]} && ${Cursor.Name.Equal[Azure Mind Crystal]}) {
+		/if (${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.FreeInventory}>1) /autoinventory
+		/delay 1s
+		/if (!${FindItem[${_spell}].TimerReady}) /call ItemNow "${_spell}"
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: PetAttack

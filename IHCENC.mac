@@ -66,9 +66,9 @@ Sub ManualPullCamping
 		/if (${Me.State.Equal[FEIGN]}) /stand
 			
 		/call check_state FALSE ${Group.MainAssist.Name}
-		/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
-		/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
-		/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
+		|/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
+		|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
+		|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/call BuffCheck
@@ -132,7 +132,7 @@ Sub ManualRunAndGun
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 
 Sub DebuffMobs
-	/declare x int local 0
+	/declare x int local 1
 
 	/if (!${Me.XTarget}) /return
 	/if (!${Target.Type.Equal[NPC]}) /return
@@ -142,7 +142,6 @@ Sub DebuffMobs
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 
-		/if (${Target.PctHPs}>${AutoAssistAt}) /return
 		/if (${Target.Distance}>${AssistRange}) /return
 		
 		/echo Slowing ${Target.Name}
@@ -151,9 +150,9 @@ Sub DebuffMobs
 |		/if  (${Me.AltAbilityReady[Mental Contortion]} && !${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Named}) /alt act ${Me.AltAbility[Mental Contortion].ID}
 |		/delay 5s !${Me.Casting.ID}
 
-		/if (!${Target.Tashed.ID} && ${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
+		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID} && ${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		/delay 5s !${Me.Casting.ID}
-		/if (!${Target.Slowed.ID} && ${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 
 			
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
@@ -181,7 +180,6 @@ Sub DebuffMobs
 |			/if (${DoBlurr} && ${Me.PctAggro}>=${BlurrAggroPct}) /call ManageAggro "BlrFlg"
 		/delay 5s !${Me.Casting.ID}
 		/delay 5s !${Me.SpellInCooldown}
-		/delay 2s
 	/next x
 /return
 |----------------------------------------------------------------------------

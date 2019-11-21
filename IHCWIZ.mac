@@ -240,8 +240,6 @@ Sub self_buff_check(bool _debug)
 
 	/if (${Me.XTarget}) /return
 
-	/if (${Me.PctMana}<50) /return
-
 	/if (${validate_cast[FALSE, alt, "${ACPyromancy}", ${Me.ID}]}) /call core_cast2 "${ACPyromancy}" alt ${Me.ID} FALSE
 	|/alt act ${Me.AltAbility[${ACPyromancy}].ID}
 	
