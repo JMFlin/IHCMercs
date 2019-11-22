@@ -62,8 +62,8 @@ Sub ClrSetup
 	/declare StunLevel				int             outer 0
 	/declare SymbolBuff		        string          outer NULL
 	/declare HPBuff			        string          outer NULL
-	/declare aurabuff1 		        string          outer NULL
-	/declare aurabuff2 		        string          outer NULL
+	/declare Aura1					string 			outer NULL
+	/declare Aura2					string 			outer NULL
 	/declare DivineBuff		        string          outer NULL
 	/declare PromisedTimer			timer			outer 0
 	/declare GroupBuffRecast    	int 			outer 0
@@ -86,8 +86,6 @@ Sub ClrSetup
 	/declare TankBuffMatch 			string 			outer NULL
 	/declare epicshield				string 			outer NULL
 	/declare epicwand				string 			outer NULL
-	/declare cleanaura1				string 			outer NULL
-	/declare cleanaura2				string 			outer NULL
 	/declare extrahealcasttime 		timer 			outer 0
 	/declare oldtank				string 			outer NULL
 	/declare oldtankid				string 			outer NULL
@@ -683,28 +681,21 @@ Sub CheckSpells
     }
 |--Aura Buffs
 	/if (${Me.Level}>=100 && ${Me.Book[${Spell[Aura of the Reverent].RankName}]})  {
-		/varset aurabuff1 ${Spell[Aura of the Reverent].RankName}
-		/varset cleanaura1 Reverent Aura
+		/varset Aura1 ${Spell[Aura of the Reverent].RankName}
 		/if (${Me.Book[${Spell[Aura of Divinity].RankName}]}&&${Me.AltAbility[Spirit Mastery].ID}) {
-			/varset aurabuff2 ${Spell[Aura of Divinity].RankName}
-			/varset cleanaura2 Aura of Divinity
+			/varset Aura2 ${Spell[Aura of Divinity].RankName}
 		} else /if (${Me.Book[${Spell[Circle of Divinity].RankName}]}&&${Me.AltAbility[Spirit Mastery].ID}) {
-			/varset aurabuff2 ${Spell[Circle of Divinity].RankName}
-			/varset cleanaura2 Circle of Divinity
+			/varset Aura2 ${Spell[Circle of Divinity].RankName}
 		}
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Circle of Divinity].RankName}]})  {
-		/varset aurabuff1 ${Spell[Circle of Divinity].RankName}
-		/varset cleanaura1 Circle of Divinity
+		/varset Aura1 ${Spell[Circle of Divinity].RankName}
 		/if (${Me.Book[${Spell[Aura of the Pious].RankName}]}&&${Me.AltAbility[Spirit Mastery].ID}) {
-			/varset aurabuff2 ${Spell[Aura of the Pious].RankName}
-			/varset cleanaura2 Aura of the Pious
+			/varset Aura2 ${Spell[Aura of the Pious].RankName}
 			}
     } else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Aura of the Pious].RankName}]})  {
-		/varset aurabuff1 ${Spell[Aura of the Pious].RankName}
-		/varset cleanaura1 Aura of the Pious
+		/varset Aura1 ${Spell[Aura of the Pious].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Aura of the Zealot].RankName}]})  {
-		/varset aurabuff1 ${Spell[Aura of the Zealot].RankName}
-		/varset cleanaura1 Aura of the Zealot
+		/varset Aura1 ${Spell[Aura of the Zealot].RankName}
 	}
 |--Divine Buffs REQUIRES extra spell slot because of the 90s recast
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Divine Imposition].RankName}]}) {

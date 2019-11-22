@@ -160,6 +160,7 @@ Sub VarSetup
 	/call CheckPlugin MQ2Nav
 	/call CheckPlugin MQ2Autoloot
 	/call CheckPlugin AAspend
+	/call CheckPlugin AutoGroup
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on
     /squelch /rez loot off

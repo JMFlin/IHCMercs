@@ -32,6 +32,8 @@ Sub WizSetup
   |-Debuff
 	/declare StripBuffSpell			string	outer	"NULL"
   |-DPS
+  	/declare Aura1					string outer NULL
+	/declare Aura2					string outer NULL
 	/declare DPSRecastTimer			timer 	outer	0
 	/declare AllianceSpell			string	outer	"NULL"
 	/declare DichoSpell				string 	outer	"NULL"

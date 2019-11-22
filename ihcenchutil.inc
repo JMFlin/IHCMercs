@@ -35,13 +35,8 @@ Sub EnchSetup
 	/squelch /alias /mezstophp		/setvarint Set MezStopHPs	
 |-Declare AA and Spell variables
   |-Buffs
-	/declare AuraBuff1				string	outer	"NULL"
-	/declare AuraBuff1Name			string 	outer 	"NULL"
-	/declare AuraRecastDelay		timer 	outer	0
-	/declare AuraBuff2				string 	outer	"NULL"
-	/declare AuraBuff2Name			string 	outer	"NULL"
-	/declare MeleeAura				string 	outer	"NULL"
-	/declare MeleeAuraName			string 	outer	"NULL"
+	/declare Aura1					string outer NULL
+	/declare Aura2					string outer NULL
 	/declare GroupHaste				string 	outer	"NULL"
 	/declare GroupMana				string 	outer	"NULL"
 	/declare MezBuff				string 	outer	"NULL"
@@ -833,50 +828,38 @@ Sub SetEncSpells
 	}
 
 |-Aura Buff 1 * Var Name: AuraBuff1 string outer
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Transfixer's Aura].RankName}]}) {
-		/varset MeleeAura ${Spell[Transfixer's Aura].RankName}
-		/varset MeleeAuraName Transfixer's Aura
-	}
+||	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Transfixer's Aura].RankName}]}) {
+|		/varset MeleeAura ${Spell[Transfixer's Aura].RankName}
+|		/varset MeleeAuraName Transfixer's Aura
+|	}
 
 |-Aura Buff 1 * Var Name: AuraBuff1 string outer
 	/if (${Me.Level}>=84 && ${Me.Book[${Spell[Twincast Aura].RankName}]}) {
-		/varset AuraBuff1 ${Spell[Twincast Aura].RankName}
-		/varset AuraBuff1Name Twincast Aura
+		/varset Aura1 ${Spell[Twincast Aura].RankName}
 	}
 |-Aura Buff 2 * Var Name: AuraBuff2 string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mana Repetition Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Mana Repetition Aura].RankName}
-		/varset AuraBuff2Name  Mana Repetition
+		/varset Aura2 ${Spell[Mana Repetition Aura].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Mana Reciprocation Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Mana Reciprocation Aura].RankName}
-		/varset AuraBuff2Name Mana Reciprocation
+		/varset Aura2 ${Spell[Mana Reciprocation Aura].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Mana Reverberation Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Mana Reverberation Aura].RankName}
-		/varset AuraBuff2Name Mana Rev. Aura
+		/varset Aura2 ${Spell[Mana Reverberation Aura].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Mana Repercussion Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Mana Repercussion Aura].RankName}
-		/varset AuraBuff2Name Mana Rep. Aura
+		/varset Aura2 ${Spell[Mana Repercussion Aura].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Mana Reiteration Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Mana Reiteration Aura].RankName}
-		/varset AuraBuff2Name Mana Recursion
+		/varset Aura2 ${Spell[Mana Reiteration Aura].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Mana Reiterate Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Mana Reiterate Aura].RankName}
-		/varset AuraBuff2Name Mana Reiterate
+		/varset Aura2 ${Spell[Mana Reiterate Aura].RankName}
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Mana Resurgence Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Mana Resurgence Aura].RankName}
-		/varset AuraBuff2Name Mana Resurgence
+		/varset Aura2 ${Spell[Mana Resurgence Aura].RankName}
 	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Mystifier's Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Mystifier's Aura].RankName}
-		/varset AuraBuff2Name Mystifier's
+		/varset Aura2 ${Spell[Mystifier's Aura].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Entrancer's Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Entrancer's Aura].RankName}
-		/varset AuraBuff2Name Entrancer's
+		/varset Aura2 ${Spell[Entrancer's Aura].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Illusionist's Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Illusionist's Aura].RankName}
-		/varset AuraBuff2Name Illusionist's
+		/varset Aura2 ${Spell[Illusionist's Aura].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Beguiler's Aura].RankName}]}) {
-		/varset AuraBuff2 ${Spell[Beguiler's Aura].RankName}
-		/varset AuraBuff2Name Beguiler's
+		/varset Aura2 ${Spell[Beguiler's Aura].RankName}
 	}
 |-Self HP Buff * Var Name: SelfHPBuff string outer
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Shield of Scales].RankName}]}) {

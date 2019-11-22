@@ -32,6 +32,7 @@ Sub WarSetup
 	/declare StrikeDisc		string outer NULL
 	/declare endregen		string outer NULL
 	/declare Aura1			string outer NULL
+	/declare Aura2			string outer NULL
 	/declare ItemOoWBP		string outer NULL
 	/declare ItemDipPapers	string outer NULL
 	/declare warbulwark		string outer NULL

@@ -20,7 +20,7 @@ Sub BerSetup
 	/squelch /alias /tglpoison		/setvarint Toggle UsePoisons	
 |-Declare AA's and Discs
 	/declare endregen				string outer NULL
-	/declare beraura				string outer NULL
+	/declare Aura1				string outer NULL
 	/declare DichoSpell				string outer NULL
 	/declare Dfrenzy				string outer NULL
 	/declare Dvolley				string outer NULL
@@ -339,9 +339,9 @@ Sub SetupDiscs
 	}
 |-Aura Set up	
 	/if (${Me.Level}>=70 && ${Me.CombatAbility[${Spell[Bloodlust Aura].RankName}]}) {
-		/varset beraura ${Spell[Bloodlust Aura].RankName}
+		/varset Aura1 ${Spell[Bloodlust Aura].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.CombatAbility[${Spell[Aura of Rage].RankName}]}) {
-		/varset beraura ${Spell[Aura of Rage].RankName}
+		/varset Aura1 ${Spell[Aura of Rage].RankName}
 	}
 /return
 |----------------------------------------------------------------------------

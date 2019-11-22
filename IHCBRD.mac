@@ -283,14 +283,14 @@ Sub DoMezStuff
 |---------------------------------------------------------------------------- 
 Sub DowntimeSongs
 |-Out of Combat
-	/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Moving} && !${Me.Invis} && !${Me.Sitting} && ${Me.State.NotEqual[FEIGN]} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${UseAura}) {
-		/if (!${Me.Gem[${BardAura}]}) {
-			/call LoadSpellGem "${BardAura}" ${spellmisc}
-		}
-		/call SongQueue "${BardAura}"
-		/varset spellrememtimer 7s
-		/varset CurrentMelody OOC
-	} else /if (${Group} && ${Me.GemTimer[${PulseRegenSong}]}==0 && !${Me.Invis} && !${Me.Sitting} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${Me.Gem[${PulseRegenSong}]} && ${Me.Song[${PulseRegenSong}].Duration.Seconds}<=6 && ${OOCManaSong}) {
+|	/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Moving} && !${Me.Invis} && !${Me.Sitting} && ${Me.State.NotEqual[FEIGN]} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${UseAura}) {
+|		/if (!${Me.Gem[${BardAura}]}) {
+||			/call LoadSpellGem "${BardAura}" ${spellmisc}
+|		}
+|		/call SongQueue "${BardAura}"
+|		/varset spellrememtimer 7s
+|		/varset CurrentMelody OOC
+	/if (${Group} && ${Me.GemTimer[${PulseRegenSong}]}==0 && !${Me.Invis} && !${Me.Sitting} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${Me.Gem[${PulseRegenSong}]} && ${Me.Song[${PulseRegenSong}].Duration.Seconds}<=6 && ${OOCManaSong}) {
 		/call SongQueue "${PulseRegenSong}"
 		/varset CurrentMelody OOC
 	} else /if (${Group} && ${Me.GemTimer[${ChorusRegenSong}]}==0 && !${Me.Invis} && !${Me.Sitting} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${Me.Gem[${ChorusRegenSong}]} && ${Me.Song[${ChorusRegenSong}].Duration.Seconds}<=6 && ${OOCManaSong}) {

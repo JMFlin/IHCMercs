@@ -6,9 +6,8 @@
 |--------------------------------------------------------------------------------------
 Sub BrdSetup
 |-Spells
-	/declare BardAura				string outer NULL
-	/declare BardDPSAura			string outer NULL
-	/declare BardRegenAura			string outer NULL
+	/declare Aura1					string outer NULL
+	/declare Aura2					string outer NULL
 	/declare PulseRegenSong			string outer NULL
 	/declare ChorusRegenSong		string outer NULL
 	/declare AEMezSong				string outer NULL
@@ -186,31 +185,30 @@ Sub LoadSpellBar
 Sub CheckSpells
 |- BardDPSAura
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Aura of Begalru].RankName}]})  {
-		/varset BardDPSAura ${Spell[Aura of Begalru].RankName}
+		/varset Aura1 ${Spell[Aura of Begalru].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Aura of Maetanrus].RankName}]})  {
-		/varset BardDPSAura ${Spell[Aura of Maetanrus].RankName}
+		/varset Aura1 ${Spell[Aura of Maetanrus].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Aura of Va'Ker].RankName}]})  {
-		/varset BardDPSAura ${Spell[Aura of Va'Ker].RankName}
+		/varset Aura1 ${Spell[Aura of Va'Ker].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Aura of the Orator].RankName}]})  {
-		/varset BardDPSAura ${Spell[Aura of the Orator].RankName}
+		/varset Aura1 ${Spell[Aura of the Orator].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Aura of the Composer].RankName}]})  {
-		/varset BardDPSAura ${Spell[Aura of the Composer].RankName}
+		/varset Aura1 ${Spell[Aura of the Composer].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Aura of the Poet].RankName}]})  {
-		/varset BardDPSAura ${Spell[Aura of the Poet].RankName}
+		/varset Aura1 ${Spell[Aura of the Poet].RankName}
 	}
 |- BardRegenAura
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Aura of Xigam].RankName}]})  {
-		/varset BardRegenAura ${Spell[Aura of Xigam].RankName}
+		/varset Aura2 ${Spell[Aura of Xigam].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Aura of Sionachie].RankName}]})  {
-		/varset BardRegenAura ${Spell[Aura of Sionachie].RankName}
+		/varset Aura2 ${Spell[Aura of Sionachie].RankName}
 	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Aura of Salarra].RankName}]})  {
-		/varset BardRegenAura ${Spell[Aura of Salarra].RankName}
+		/varset Aura2 ${Spell[Aura of Salarra].RankName}
 	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Aura of Lunanyn].RankName}]})  {
-		/varset BardRegenAura ${Spell[Aura of Lunanyn].RankName}
+		/varset Aura2 ${Spell[Aura of Lunanyn].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Aura of Renewal].RankName}]})  {
-		/varset BardRegenAura ${Spell[Aura of Renewal].RankName}
+		/varset Aura2 ${Spell[Aura of Renewal].RankName}
 	}
-	/call SetupAura
 |- MainAriaSong
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Aria of Begalru].RankName}]})  {
 		/varset MainAriaSong ${Spell[Aria of Begalru].RankName}
@@ -664,19 +662,6 @@ Sub LoadSongIni(string sectionName, string varName, string varType, string varVa
 		}
 	} else {
 		/varset ${varName} ${Ini[${SongFileName},${sectionName},${varName}]}
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: SetupAura
-|---------------------------------------------------------------------------- 
-Sub SetupAura
-	/if (${UseRegenAura}) {
-		/varset BardAura ${BardRegenAura}
-	} else {
-		/varset BardAura ${BardDPSAura}
-	}
-	/if (${Me.Aura[1].ID} && ${Me.Aura[1].Name.NotEqual[${BardAura}]}) {
-		/squelch /docommand ${Me.Aura[1].Remove}
 	}
 /return
 |----------------------------------------------------------------------------
