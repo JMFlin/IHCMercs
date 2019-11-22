@@ -1,0 +1,51 @@
+
+Invite
+/invite Keunayin 
+/invite Taeldayr 
+/invite Neunayin 
+/invite Uilaelr 
+/invite Utenaelr 
+
+Start
+/dgga /endmacro
+/dgga /addicted
+
+Set Roles
+/grouproles set Keunayin 1
+/grouproles set Neunayin 2
+/grouproles set Keunayin 3
+
+Travel
+/dgga /varset Mode 0
+
+Add Ignore
+/endmacro
+/mac IHCmercs/AddToIgnore.mac
+
+AFK Pull
+/dgga /varset Mode 3
+/varset AggressiveRadius 100
+/mapfilter CastRadius 100
+/varset AssistRangeZ 80
+
+
+
+
+
+Camp Desktop
+/dgga /camp desktop
+
+Corpse Drag
+/dgga /consent Keunayin 
+/corpsedrag
+
+Corpse Drop
+/corpsedrop
+
+Click Door
+/dgga /doortarget
+/pause 2
+/dgga /click left door
+
+Fellowship
+/dgga /useitem Fellowship Registration Insignia
