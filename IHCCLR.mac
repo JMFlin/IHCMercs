@@ -678,11 +678,7 @@ Sub BuffCheckOLD
 			/call DivineUsage
 			/varset DivineBuffRecast 0
 		} 
-		|else /if (${Bool[${aurabuff1}]} && (!${Me.Casting.ID}) && !${Me.Aura[1].Name.Find[${cleanaura1}]} && !${Me.Aura[2].Name.Find[${cleanaura1}]} && ${Me.Book[${aurabuff1}]} && ${Me.CurrentMana}>${Spell[${aurabuff1}].Mana}) {
-		|	/call SpellQueue "${aurabuff1}" ${Me.ID}
-		|} else /if (${Bool[${aurabuff2}]} && (!${Me.Casting.ID}) && !${Me.Aura[1].Name.Find[${cleanaura2}]} && !${Me.Aura[2].Name.Find[${cleanaura2}]} && ${Me.Book[${aurabuff2}]} && ${Me.CurrentMana}>${Spell[${aurabuff2}].Mana}) {
-		|	/call SpellQueue "${aurabuff2}" ${Me.ID}
-		|}
+		
 /return	
 |----------------------------------------------------------------------------
 |- SUB: BuffCheck
@@ -708,10 +704,6 @@ Sub BuffCheck
 	} else /if (!${Me.Casting.ID} && ${Spell[${TankBuff}].Range}>${Spawn[${ShiningBuffRecast}].Distance} && ${Spawn[${ShiningBuffRecast}].ID} && !${Spawn[${ShiningBuffRecast}].Hovering} && ${Me.Book[${TankBuff}]} && ${Me.CurrentMana}>${Spell[${TankBuff}].Mana} && ${bufftimer}==0) {
 		/call SpellQueue "${TankBuff}" ${Spawn[${ShiningBuffRecast}].ID}
 		/varset ShiningBuffRecast 0
-	} else /if (${Bool[${aurabuff1}]} && (!${Me.Casting.ID}) && !${Me.Aura[1].Name.Find[${cleanaura1}]} && !${Me.Aura[2].Name.Find[${cleanaura1}]} && ${Me.Book[${aurabuff1}]} && ${Me.CurrentMana}>${Spell[${aurabuff1}].Mana}) {
-		/call SpellQueue "${aurabuff1}" ${Me.ID}
-	} else /if (${Bool[${aurabuff2}]} && (!${Me.Casting.ID}) && !${Me.Aura[1].Name.Find[${cleanaura2}]} && !${Me.Aura[2].Name.Find[${cleanaura2}]} && ${Me.Book[${aurabuff2}]} && ${Me.CurrentMana}>${Spell[${aurabuff2}].Mana}) {
-		/call SpellQueue "${aurabuff2}" ${Me.ID}
 	}
 /return	
 |----------------------------------------------------------------------------
