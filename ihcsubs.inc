@@ -355,10 +355,12 @@ Sub check_state(bool _debug, string _assistCharacter)
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
-	|	/if (!${Spell[${Me.Aura[1]}].ID} && ${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-	|	/if (${Defined[${Aura2}]}) {
-	|		/if (!${Spell[${Me.Aura[2]}].ID} && ${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-	|	}
+		/if (${Defined[${Aura1}]}) {
+			/if (!${Spell[${Me.Aura[1]}].ID} && ${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+		}
+		/if (${Defined[${Aura2}]}) {
+			/if (!${Spell[${Me.Aura[2]}].ID} && ${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+		}
 		/if (${Stick.Status.Equal[ON]}) /stick off
 		/attack off
 		/if (${Target.ID}) /target clear
@@ -443,36 +445,44 @@ Sub RemoveTravelBuffs
 |---------------------------------------------------------------------------- 
 Sub Engage
 | ONLY MELEES NEED TO ENGAGE
-	/declare SmartAssistRange int local 0
+|	/declare SmartAssistRange int local 0
 	
 	/if (!${Target.ID}) /return
 	/if (!${Target.Type.Equal[NPC]}) /return
 
-	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 25) {
-		/if (${AssistRange}>80) {
-			/varcalc SmartAssistRange ${AssistRange}*1.1
-		} else /if (${AssistRange}>50) {
-			/varcalc SmartAssistRange ${AssistRange}*1.7
-		} else /if (${AssistRange}>25) {
-			/varcalc SmartAssistRange ${AssistRange}*2.1
-		} else /if (${AssistRange}>10) {
-			/varcalc SmartAssistRange ${AssistRange}*2.4
-		} else /if (${AssistRange}>0) {
-			/varcalc SmartAssistRange ${AssistRange}*4.2
-		}
-		/if (${Navigation.PathLength[id ${Target.ID}]} > ${SmartAssistRange}) /return
-	} else {
-		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return
-	}
-	
-|	/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AssistRange}) /return
-
-	/if (${Select[${Me.Class.ShortName},WAR,ROG,BER,MNK,BRD]}) {
+	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 50) {
 		/if (${Target.ID}) /face fast
-		/stick ${StickHow} 10
+		/if (${Select[${Me.Class.ShortName},WAR,PAL,SK]}) /stick 10 uw front
+		/if (${Select[${Me.Class.ShortName},BER,ROG,MNK,BST,BRD]}) /stick 10 uw !front
 		/delay 10 ${Stick.Active}
 		/squelch /attack on
 	}
+
+|	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 25) {
+|		/if (${AssistRange}>80) {
+|			/varcalc SmartAssistRange ${AssistRange}*1.1
+|		} else /if (${AssistRange}>50) {
+|			/varcalc SmartAssistRange ${AssistRange}*1.7
+|		} else /if (${AssistRange}>25) {
+|			/varcalc SmartAssistRange ${AssistRange}*2.1
+|		} else /if (${AssistRange}>10) {
+|			/varcalc SmartAssistRange ${AssistRange}*2.4
+|		} else /if (${AssistRange}>0) {
+|			/varcalc SmartAssistRange ${AssistRange}*4.2
+|		}
+|		/if (${Navigation.PathLength[id ${Target.ID}]} > ${SmartAssistRange}) /return
+|	} else {
+|		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return
+|	}
+	
+|	/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AssistRange}) /return
+
+|	/if (${Select[${Me.Class.ShortName},WAR,ROG,BER,MNK,BRD]}) {
+|		/if (${Target.ID}) /face fast
+|		/stick ${StickHow} 10
+|		/delay 10 ${Stick.Active}
+|		/squelch /attack on
+|	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: CastersEngage

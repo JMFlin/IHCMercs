@@ -1,0 +1,20 @@
+Sub Main
+	|- Delete Old shitty aliases
+	|- Write New Aliases
+	/alias /ihcstart		/macro IHCMercs\IHC${Me.Class.ShortName}.mac
+	/alias /ihcgroup 		/multiline ; /docommand /dgaex group_${EverQuest.Server}_${Group.Leader} /target ${Me.CleanName} ; /docommand /timed 10 /dgaex group_${EverQuest.Server}_${Group.Leader} /ihcstart
+	|- Load DanNet so everyone is on and connected when we start the mac
+	/if (!${Bool[${Plugin[MQ2DanNet]}]}) {
+        /squelch /plugin MQ2DanNet
+    }
+	|- Aliases to make DanNet more feel more like using EQBC
+	/alias /mgx /dggexecute
+	/alias /mgax /dggaexecute
+	/alias /mgt /dgtell group_${EverQuest.Server}_${Group.Leader}
+	/delay 1s
+	/if (${Plugin[MQ2DanNet].Name.Length}) {
+		/if (${DanNet.CommandEcho}) /squelch /dnet commandecho off
+	}
+	/echo !!!Install Complete - Type /ihcstart to Begin!!!
+	/popcustom 13 5 !!!Install Complete - Type /ihcstart to Begin!!!
+/return 

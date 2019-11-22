@@ -195,10 +195,9 @@ Sub AFKRadiusCamping
 		/call CheckXTargetMezRoot
 
 		/call Engage
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}+25) /call DoMashRangeAggro
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}+30) /call AoEAggro
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+30)) /call AoEAggro
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}+25) /call DoCombat
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoCombat
 		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
@@ -237,6 +236,9 @@ Sub CheckXTargetMezRoot
 |- SUB: CombatBuffs 
 |---------------------------------------------------------------------------- 
 Sub CombatBuffs
+
+	/if (!${Me.XTarget}) /return
+
 	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupac}]} && !${Me.Song[Field].ID} && ${DoBuffs}) {
 		/call DiscNow "${groupac}"
 	}
@@ -303,6 +305,9 @@ Sub CombatBuffs
 |- SUB: DoDisc 
 |---------------------------------------------------------------------------- 
 Sub DoDisc
+
+	/if (!${Me.XTarget}) /return
+
 	/if ((${SpawnCount[NPC Aggressive radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level}>(${Me.Level}+3)) && ${Me.ActiveDisc.ID}!=${FortitudeDiscID} && ${Me.ActiveDisc.ID}!=${CulminatingStandID} && ${Me.CombatAbilityReady[${missall}]}) {
 		/delay 5
 		/if (${Me.ActiveDisc.ID}) /stopdisc
@@ -352,9 +357,12 @@ Sub DoDisc
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: DoMashRangeAggro
+|- SUB: DoCombat
 |---------------------------------------------------------------------------- 
-Sub DoMashRangeAggro
+Sub DoCombat
+
+	/if (!${Me.XTarget}) /return
+
 	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${shout}]} && ${Target.PctHPs}>1) {
 		/call DiscNow "${shout}"
 	}
@@ -364,11 +372,7 @@ Sub DoMashRangeAggro
 	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${roar}]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=80) {
 		/call DiscNow "${roar}"
 	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: DoCombat
-|---------------------------------------------------------------------------- 
-Sub DoCombat
+
 	/if (${Me.AltAbilityReady[Rage of the Forsaken]} && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Rage of the Forsaken].ID}
 	}
@@ -462,7 +466,7 @@ Sub AoEAggro
 		/call AANow ${Me.AltAbility[Area Taunt].ID}
 	} 
 
-	/if (${SpawnCount[npc aggressive radius 50 zradius 50]}>1 && ${Me.CombatAbilityReady[${aehitall}]}) {
+	/if (${SpawnCount[npc aggressive radius 50 zradius 50]}>0 && ${Me.CombatAbilityReady[${aehitall}]} && ${Me.SecondaryPctAggro}>=80) {
 		/call DiscNow "${aehitall}"
 	}
 
@@ -575,5 +579,12 @@ Sub Event_Iamsnared
 	/if (${DoGroupBeg}) {
 	 /call BegForCure	
 	}
+	/doevents flush NotOnTarget
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
+Sub Event_NotOnTarget
+	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
 /return

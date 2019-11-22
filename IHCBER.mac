@@ -413,7 +413,7 @@ Sub Event_NotOnTarget
 	/if ((${Me.Rooted.ID} || ${Me.ActiveDisc.ID}==30436) && ${Me.AltAbilityReady[Drawn to Blood]} && ${Me.Combat}) {
 		/alt act ${Me.AltAbility[Drawn to Blood].ID}
 	} else /if (${DoAutoEngage}) {
-		/face fast
+		/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	}
 	/doevents flush NotOnTarget
 /return

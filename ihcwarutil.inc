@@ -31,7 +31,7 @@ Sub WarSetup
 	/declare aehitall		string outer NULL
 	/declare StrikeDisc		string outer NULL
 	/declare endregen		string outer NULL
-	/declare waraura		string outer NULL
+	/declare Aura1			string outer NULL
 	/declare ItemOoWBP		string outer NULL
 	/declare ItemDipPapers	string outer NULL
 	/declare warbulwark		string outer NULL
@@ -369,9 +369,9 @@ Sub SetupDiscs
 	}
 	|---Aura usage
 	/if (${Me.Level}>=70 && ${Me.CombatAbility[${Spell[Champion's Aura].RankName}]})  {
-		/varset waraura ${Spell[Champion's Aura].RankName}
+		/varset Aura1 ${Spell[Champion's Aura].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.CombatAbility[${Spell[Myrmidon's Aura].RankName}]})  {
-		/varset waraura ${Spell[Myrmidon's Aura].RankName}
+		/varset Aura1 ${Spell[Myrmidon's Aura].RankName}
 	}
 /return
 |----------------------------------------------------------------------------

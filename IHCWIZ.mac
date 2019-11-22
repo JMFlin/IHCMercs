@@ -183,7 +183,7 @@ Sub Combatdps
 	/if (${Target.PctAggro}>90) /return
 
 	/if (${Target.Fleeing} && ${Target.PctHPs}<20 && !${Target.Rooted.ID} && ${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
-	/if (${Target.PctAggro}>40 && ${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
+	/if (${Target.PctAggro}>30 && ${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
 	/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) /call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
 	/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) /call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
 	/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) /call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE

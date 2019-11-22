@@ -343,6 +343,6 @@ Sub SongQueue(string nextsong)
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 Sub Event_NotOnTarget
-	/face fast
+	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
 /return
