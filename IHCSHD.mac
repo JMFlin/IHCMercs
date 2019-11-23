@@ -44,7 +44,7 @@ Sub Main
 	/delay 2s
 	/call PullAbilitySetup
 	/delay 2s
-	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
+	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call AddToAlert
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
