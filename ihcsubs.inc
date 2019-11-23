@@ -1242,7 +1242,7 @@ Sub AANow(int nextaa,int aatargetid)
 	}
 	/squelch /alt act ${nextaa}
 	/delay 8 !${Me.AltAbilityReady[${nextaa}]}
-	/if (${acverbose}!=0) /docommand /dgt Casting \ao =>> \ag ${Me.AltAbility[${nextaa}].Name} \ao <<= \ax
+|	/if (${acverbose}!=0) /docommand /dgt Casting \ao =>> \ag ${Me.AltAbility[${nextaa}].Name} \ao <<= \ax
 /return
 |----------------------------------------------------------------------------
 |- SUB: AbilityNow
@@ -1250,7 +1250,7 @@ Sub AANow(int nextaa,int aatargetid)
 Sub AbilityNow(string nextability)
 	/squelch /doability ${nextability}
 	/delay 8 !${Me.AbilityReady[${nextability}]}
-	/if (${acverbose}!=0) /echo \aw Casting \ag ${nextability}
+|	/if (${acverbose}!=0) /echo \aw Casting \ag ${nextability}
 /return
 |----------------------------------------------------------------------------
 |- SUB: ItemNow
@@ -1269,7 +1269,7 @@ Sub ItemNow(string nextitem)
 		/useitem ${nextitem}
 		/delay 15 !${Me.ItemReady[${nextitem}]}
 	}
-	/if (${acverbose}!=0) /echo \aw Using Item \ag ${nextitem}
+|	/if (${acverbose}!=0) /echo \aw Using Item \ag ${nextitem}
 /return
 |----------------------------------------------------------------------------
 |- SUB: BuffGroupMember
