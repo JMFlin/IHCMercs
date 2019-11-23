@@ -396,7 +396,7 @@ Sub Engage
 
 	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 50) {
 		/if (${Target.ID}) /face fast
-		/if (${Select[${Me.Class.ShortName},WAR,PAL,SK]}) /stick 10 uw front
+		/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) /stick 10 uw front
 		/if (${Select[${Me.Class.ShortName},BER,ROG,MNK,BST,BRD]}) /stick 10 uw !front
 		/delay 10 ${Stick.Active}
 		/squelch /attack on
@@ -587,6 +587,8 @@ Sub afk_pull
 			/if (${Navigation.Active}) /nav stop
 			/return
 		}
+		/if (!${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}>${PullDistance}) /nav id ${PullTargetID}
+		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 		/if (${Me.XTarget}) /break
 	}
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
@@ -847,7 +849,6 @@ Sub Zoning
 	/delay 1m !${Me.Zoning}
 	
 	/delay 50
-
 /return
 |----------------------------------------------------------------------------
 |- SUB: Load Ini
@@ -1239,52 +1240,6 @@ Sub FindTarget
 	/if (${Target.ID}!=${autotargetid} && ${Spawn[${SpawnSearchType} id ${autotargetid}].ID}) {
 		/squelch /target id ${autotargetid}
 		/delay 10 ${Target.ID}==${autotargetid}
-	}
-/return 
-|----------------------------------------------------------------------------
-|- SUB: Melee Engage Target - Need a StickHow variable in the mac. Ini option for melee just a declared variable set to null for classes that wont enageg in melee
-|- Basic use will check the that the target is in assist range, stick and when in melee range start attacking ( reduces too far away and can not see messages )
-|- Advanced use ( smart assist ) will check that the target is range of the MA before engaging....keeps melee from charging out after a mob on incoming
-|- For classes that have a before combat move, it is recommended  to copy/paste this sub into new macro and rename. Add opening move ( ber, rog ) to just before turning on attack 
-|---------------------------------------------------------------------------- 
-Sub EngageTarget
-	/declare OKRadCal int local 0
-	/if (${Me.State.Equal[FEIGN]}) /stand
-	|- If not the MA check that the mob is in range of the MA and not just  in assist range before engaging 
-	/if (${UseSmartAssist}) {
-		/varset OKRadCal ${Spawn[${SpawnSearchType} id ${autotargetid}].MaxRangeTo}
-		/if (${Target.ID}==${autotargetid} && ${assistid}!=${Me.ID} && ${Spawn[${assistid}].ID} && ${Spawn[${SpawnSearchType} id ${autotargetid} loc ${Spawn[id ${assistid}].X} ${Spawn[id ${assistid}].Y} radius ${OKRadCal}].ID}) {
-			/varset Ok2Assist 1
-		} else /if (${assistid}==${Me.ID}) {
-			/varset Ok2Assist 1
-		} else {
-			/varset Ok2Assist 0
-		}
-	}
-	/if (!${Ok2Assist} && ${Stick.Status.Equal[ON]}) /stick off
-	/if (${Ok2Assist} && ${UseMelee}==1 && ${Spawn[${SpawnSearchType} id ${autotargetid}].PctHPs}>0 && ${Target.ID}==${autotargetid} && ${Stick.Status.Equal[OFF]}) {
-		/face fast
-		/if (${StickHow.NotEqual[NULL]}) {
-			/stick ${StickHow} 11
-		} else /if (${Math.Calc[${Target.MaxRangeTo}*0.8]} > 29) {
-			/stick snaproll rear 11
-		} else {
-			/stick ${Math.Calc[${Target.MaxRangeTo}*0.8]} behind uw 11
-		}
-		/delay 10 ${Stick.Active}
-	}
-	/call EngageAttack
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: EngageAttack	
-|-------------------------------------------------------------------------------------
-Sub EngageAttack
-	/if (!${Me.Combat} && ${UseMelee}==1 && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.PctHPs}>0 && ${Target.ID}==${autotargetid} && ${Spawn[id ${autotargetid} ${SpawnSearchType} radius ${AssistRange}].ID} && ${Ok2Assist}) {
-		/if (${Target.MaxRangeTo}>=${Target.Distance}) {
-			/if (${BeforeCombat.NotEqual[NULL]}) /call ${BeforeCombat}
-			/squelch /attack on
-			/delay 10 ${Me.Combat}
-		}
 	}
 /return 
 |-------------------------------------------------------------------------------------
@@ -2522,18 +2477,6 @@ sub check_hurt(bool _debug, string _type)
 	}
 
 /return FALSE
-|-------------------------------------------------------------------------------------
-|- SUB: KillTarget
-|-------------------------------------------------------------------------------------
-Sub KillTarget
-	/varset KillTargetID ${Me.GroupAssistTarget.ID}
-	/varset autotargetid ${Me.GroupAssistTarget.ID}
-	/varset SpawnSearchType targetable
-	/if (${StickToKillTarget}) {
-		/stick id ${Me.GroupAssistTarget.ID}
-	}
-	/call EngageAttack
-/return
 |-------------------------------------------------------------------------------------
 |- SUB: BegForCure
 |-------------------------------------------------------------------------------------
