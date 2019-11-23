@@ -643,7 +643,7 @@ Sub afk_pull
 			/if (${Navigation.Active}) /nav stop
 			/return
 		}
-		/if (${Spawn[id ${PullTargetID}].Distance}<${PullDistance} && ${Me.XTarget[1].ID}) /break
+		/if (${Me.XTarget}) /break
 	}
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 	/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
