@@ -593,7 +593,7 @@ Sub afk_pull
 
 	/if (${ResourceChecker}==0) /return
 	/if (${Me.Snared.ID}) /return
-	/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /return
+	/if (!(${Me.CombatAbilityReady[${PullAbility}]} || !${Me.AbilityReady[${PullAbility}]} || !${Me.AltAbilityReady[${PullAbility}]} || !${Me.SpellReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /return
 	/if (${AdvPath.Following}) /afollow off
 
 	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
