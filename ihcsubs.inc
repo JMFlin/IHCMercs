@@ -528,7 +528,8 @@ Sub Travel
 |- SUB: PullerCheckGroupManaEnd
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
-
+	/declare ResPct int local 50 
+	
 	/if (${Me.XTarget[1].ID}) /return
 	/if (${Group.Puller.ID}!=${Me.ID}) /return
 
