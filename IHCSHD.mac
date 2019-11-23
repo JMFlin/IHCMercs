@@ -32,8 +32,9 @@ Sub Main
 	/call ShdSetup	
 	/call VarSetup
 	/call AliasSetup
-	/call SetupDiscs
+	/call SetupSpells
 	/call SetControlToon
+	/call LoadSpellBar
 |-Cursor ID
 	/if (${Cursor.ID}) {
 		/echo Sending Item on Cursor to Bag

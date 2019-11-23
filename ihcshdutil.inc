@@ -52,14 +52,29 @@ Sub INIChanges
 Sub PullAbilitySetup
 	/if (${Me.Level}<20) {
 |	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-		/varset PullAbility Melee
-		/varset PullDistance 5
+		/varset PullAbility Lifetap
+		/varset PullDistance 190
 	}
 /return
+Sub LoadSpellBar
+	
+	/if (${Me.Standing}) /sit
+	/delay 10 ${Me.Sitting}
+	/echo \aw Loading Spell Bar
+	/call LoadSpellGem "${Touch1}" 1
+	/call LoadSpellGem "${Touch2}" 2
+	/call LoadSpellGem "${Terror1}" 3
+	/call LoadSpellGem "${Terror2}" 4
+	/call LoadSpellGem "${Bond}" 5
+
+	/delay 2s
+	/if (${Me.Sitting}) /stand
+	/delay 10 ${Me.Standing}
+/return 
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs
 |---------------------------------------------------------------------------- 
-Sub SetupDiscs
+Sub SetupSpells
 	|--One off discs
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Dissident Fang].RankName}]}) {
 		/varset DichotomicFang ${Spell[Dissident Fang].RankName}
@@ -71,6 +86,8 @@ Sub SetupDiscs
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
+	} else /if (${Me.Level}>=8 && ${Me.Book[${Spell[Lifetap].RankName}]}) {
+		/varset Touch1 ${Spell[Lifetap].RankName}
 	}
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
@@ -95,7 +112,7 @@ Sub SetupDiscs
 		/varset Terror1 ${Spell[Terror of Kra'Du].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Kra'Du].RankName}
-	}
+	} 
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Terror of Narus].RankName}]}) {
 		/varset Terror2 ${Spell[Terror of Narus].RankName}

@@ -363,6 +363,10 @@ Sub DoCombat
 
 	/if (!${Me.XTarget}) /return
 
+	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
+		/call AbilityNow "Taunt"
+	}
+
 	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${shout}]} && ${Target.PctHPs}>1) {
 		/call DiscNow "${shout}"
 	}
@@ -417,9 +421,6 @@ Sub DoCombat
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID}) /return
 
 	|-- Mash key aggro
-	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
-		/call AbilityNow "Taunt"
-	}
 	/if (${Me.CombatAbilityReady[${singlehealhate}]} && ${Me.SecondaryPctAggro}>10) {
 		/call DiscNow "${singlehealhate}"
 	}

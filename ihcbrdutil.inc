@@ -44,8 +44,8 @@ Sub BrdSetup
 	/declare SpellGem11				string outer NULL
 	/declare SpellGem12				string outer NULL
 	/declare SpellGem13				string outer NULL
-	/declare BattleMelody			string outer 4 5 6 8
-	/declare RegenMelody			string outer 3 1
+	/declare BattleMelody			string outer 4 1 5 6 7
+	/declare RegenMelody			string outer 3 2
 |	/declare BattleMelody			string outer 1 2 3 4 1 5 2 3 1 4 5 2 1 3 4 5 7 1 2 10
 	/declare ExtBattleMelody		string outer 1 2 3 4 5 6 1 2 3 4 5 6 1 2 7 3 4 5 1 10
 	/declare BurnMelody				string outer 8 9 1 8 9 2 8 9 1 8 9 3
@@ -248,6 +248,8 @@ Sub CheckSpells
 		/varset WarMarchSong ${Spell[War March of Dagda].RankName}
 	} else /if (${Me.Level}>=84 && ${Me.Book[${Spell[War March of Brekt].RankName}]})  {
 		/varset WarMarchSong ${Spell[War March of Brekt].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[War March of the Mastruq].RankName}]})  {
+		/varset WarMarchSong ${Spell[War March of the Mastruq].RankName}
 	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[McVaxius' Rousing Rondo].RankName}]})  {
 		/varset WarMarchSong ${Spell[McVaxius' Rousing Rondo].RankName}
 	} 
@@ -262,7 +264,9 @@ Sub CheckSpells
 		/varset SufferingSong ${Spell[Hykast's Song of Suffering].RankName}
 	} else /if (${Me.Level}>=89 && ${Me.Book[${Spell[Noira's Song of Suffering].RankName}]})  {
 		/varset SufferingSong ${Spell[Noira's Song of Suffering].RankName}
-	} 
+	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Zuriki's Song of Shenanigans].RankName}]})  {
+		/varset SufferingSong ${Spell[Zuriki's Song of Shenanigans].RankName}
+	}
 |- ArcaneSong
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Arcane Ballad].RankName}]})  {
 		/varset ArcaneSong ${Spell[Arcane Ballad].RankName}
@@ -314,10 +318,12 @@ Sub CheckSpells
 		/varset ChorusRegenSong ${Spell[Chorus of Lunanyn].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Chorus of Renewal].RankName}]})  {
 		/varset ChorusRegenSong ${Spell[Chorus of Renewal].RankName}
+	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Cantata of Life].RankName}]})  {
+		/varset ChorusRegenSong ${Spell[Cantata of Life].RankName}
 	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Chorus of Replenishment].RankName}]})  {
-		/varset CrescendoSong ${Spell[Chorus of Replenishment].RankName}
+		/varset ChorusRegenSong ${Spell[Chorus of Replenishment].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Cantata of Replenishment].RankName}]})  {
-		/varset CrescendoSong ${Spell[Cantata of Replenishment].RankName}
+		/varset ChorusRegenSong ${Spell[Cantata of Replenishment].RankName}
 	} 
 |- CrescendoSong
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Jembel's Lively Crescendo].RankName}]})  {
@@ -332,6 +338,8 @@ Sub CheckSpells
 		/varset CrescendoSong ${Spell[Lyssa's Lively Crescendo].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Gruber's Lively Crescendo].RankName}]})  {
 		/varset CrescendoSong ${Spell[Gruber's Lively Crescendo].RankName}
+	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Call of the Muse].RankName}]})  {
+		/varset CrescendoSong ${Spell[Call of the Muse].RankName}
 	} 
 |- InsultSong1
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Sathir's Insult].RankName}]})  {
