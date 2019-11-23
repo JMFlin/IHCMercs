@@ -528,7 +528,6 @@ Sub Travel
 |- SUB: PullerCheckGroupManaEnd
 |---------------------------------------------------------------------------- 
 Sub PullerCheckGroupManaEnd
-	/declare ResPct int local 50 
 	
 	/if (${Me.XTarget[1].ID}) /return
 	/if (${Group.Puller.ID}!=${Me.ID}) /return
@@ -542,7 +541,7 @@ Sub PullerCheckGroupManaEnd
 	
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
-			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SK,PAL]}) {
+			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ResPct" "int"
 			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
