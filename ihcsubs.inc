@@ -562,7 +562,7 @@ Sub AddToAlert
 	/squelch /alert clear 1
 
 	/docommand /dgt \aw Creating alert list for \ag ${Zone.Name} \aw from eq.db
-	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT NAME, ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
+	/sqlite C:\Users\janne\OneDrive\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT NAME, ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
 	/if (!${sqlite.rows[ignore_list]}) /return
 	/for i 1 to ${sqlite.rows[ignore_list]}
 		/squelch /alert add 1 id ${sqlite.result[ignore_list ${i} ID]}
