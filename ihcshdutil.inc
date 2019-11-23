@@ -53,8 +53,8 @@ Sub INIChanges
 Sub PullAbilitySetup
 	/if (${Me.Level}<20) {
 |	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-		/varset PullAbility ${Spell[Spike of Disease].RankName}
-		/varset PullDistance 180
+		/varset PullAbility ${Me.AbilityReady[Kick]} |${Spell[Spike of Disease].RankName}
+		/varset PullDistance 5
 	}
 /return
 |----------------------------------------------------------------------------

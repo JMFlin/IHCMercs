@@ -143,20 +143,21 @@ Sub DoCombat
 
 	/if (!${Me.XTarget}) /return
 
+	/if (${Me.AbilityReady[Disarm]} && ${Target.PctHPs}>1) {
+		/call AbilityNow "Disarm"
+	}
+	/if (${Me.AbilityReady[Bash]} && ${Target.PctHPs}>1) {
+		/call AbilityNow "Bash"
+	}
+	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs}>1) {
+		/call AbilityNow "Kick"
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: AoEAggro   
 |---------------------------------------------------------------------------- 
 Sub AoEAggro
-	/if (${SpawnCount[NPC Aggressive radius 30 zradius 30]}>1 && ${Me.CombatAbilityReady[${aeroar}]}) {
-		/call DiscNow "${aeroar}"
-	} else /if (${SpawnCount[NPC Aggressive radius 40 zradius 40]}>2 && ${Me.AltAbilityReady[Area Taunt]}) {
-		/call AANow ${Me.AltAbility[Area Taunt].ID}
-	} 
-
-	/if (${SpawnCount[npc aggressive radius 50 zradius 50]}>0 && ${Me.CombatAbilityReady[${aehitall}]} && ${Me.SecondaryPctAggro}>=80) {
-		/call DiscNow "${aehitall}"
-	}
 
 
 /return
