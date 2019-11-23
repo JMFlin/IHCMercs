@@ -1212,7 +1212,7 @@ Sub DiscQueue(string nextdisc)
 	/squelch /disc ${nextdisc}
 	/delay 20 ${Me.ActiveDisc.ID}
 	/delay 8 !${Me.CombatAbilityReady[${nextdisc}]}
-	/if (${acverbose}!=0) /echo \aw Casting \ag ${nextdisc}
+|	/if (${acverbose}!=0) /echo \aw Casting \ag ${nextdisc}
 /return
 |----------------------------------------------------------------------------
 |- SUB: DiscNow
