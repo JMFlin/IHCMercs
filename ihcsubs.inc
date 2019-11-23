@@ -635,7 +635,8 @@ Sub afk_pull
     /while (${PullTargetID}==${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
 		/if (${Me.Sitting}) /stand
 		/if (${PullTargetID}!=${Target.ID}) /target id ${PullTargetID}
-		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
+		/if (${PullAbility.Equal[Melee]}) /attack on
+		/if (!${PullAbility.Equal[Melee]} && ${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
 		|/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
 		/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
 		/if (${Mode}!=3) {
