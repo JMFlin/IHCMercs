@@ -8,7 +8,7 @@
 #Chat raid
 #turbo 80
 #include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcwarutil.inc
+#include IHCMercs\ihcshdutil.inc
 #include IHCMercs\ihcevents.inc
 #warning
 #bind SetVarInt		/setvarint
