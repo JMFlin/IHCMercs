@@ -584,7 +584,7 @@ Sub afk_pull
 	/if (!${Group.Puller.ID}==${Me.ID}) /return
 	/if (${Me.Casting.ID}) /return
 
-	/if (${Select[${Me.Class.ShortName},SK,WIZ,PAL,DRU,ENC]}) {
+	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC]}) {
 		/if (${Me.PctMana}<20) /return
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,MNK,BER,ROG]}) {
@@ -662,7 +662,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (${Target.Fleeing} || !${Target.Snared.ID}) /return
 	}
 
-	/if (${Select[${Me.Class.ShortName},WAR,PAL,SK]} && ${Target.Type.Equal[NPC]}) {
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Target.Type.Equal[NPC]}) {
 		/if (!${Target.PctAggro}>=100) /return
 	}
 

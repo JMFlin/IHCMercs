@@ -27,7 +27,6 @@ Sub ShdSetup
 	/declare Denial	string outer NULL
 	/declare Bargain	string outer NULL
 	/declare Skin	string outer NULL
-	/declare Stance	string outer NULL
 
 |- Tank logic
 	/declare TimeForMez					timer outer	0
@@ -53,7 +52,7 @@ Sub INIChanges
 Sub PullAbilitySetup
 	/if (${Me.Level}<20) {
 |	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-		/varset PullAbility ${Me.AbilityReady[Kick]} |${Spell[Spike of Disease].RankName}
+		/varset PullAbility ${Me.AbilityReady[Kick]}
 		/varset PullDistance 5
 	}
 /return
