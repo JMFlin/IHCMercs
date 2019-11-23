@@ -208,7 +208,6 @@ Sub AANDisc
 Sub Combatdps
 
 	/if (!${Target.ID}) /return
-	/if (!${Target.Slowed.ID}) /return
 	/if (${Target.PctHPs}>${AutoAssistAt}) /return
 	/if (${Target.Distance}>${AssistRange}) /return
 	/if (${Me.Casting.ID}) /return
