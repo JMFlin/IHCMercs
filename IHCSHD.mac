@@ -41,6 +41,9 @@ Sub Main
 	}
 	/call WelcomeMsg
 	
+	/declare AssistRange int outer 10
+	/declare AutoCampRadius int outer 10
+
 	/delay 2s
 	/call PullAbilitySetup
 	/delay 2s
