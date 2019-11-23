@@ -6,7 +6,7 @@ Sub Main
 	/declare InDataBase				int outer 0
 	/declare DBModeAdd				int outer 1 
 
-	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db query CREATE TABLE IF NOT EXISTS ignore_pulling(CLEAN_NAME TEXT NOT NULL, NAME TEXT NOT NULL, ID INT NOT NULL, ZONE_NAME TEXT NOT NULL, ZONE_SHORTNAME TEXT NOT NULL,  ZONE_ID int NOT NULL, MET_INSERT_TIME TIMESTAMP NOT NULL);
+	/sqlite C:\Users\janne\OneDrive\Desktop\Release\Macros\IHCMercs\DB\eq.db query CREATE TABLE IF NOT EXISTS ignore_pulling(CLEAN_NAME TEXT NOT NULL, NAME TEXT NOT NULL, ID INT NOT NULL, ZONE_NAME TEXT NOT NULL, ZONE_SHORTNAME TEXT NOT NULL,  ZONE_ID int NOT NULL, MET_INSERT_TIME TIMESTAMP NOT NULL);
 	/target id ${Me.ID}
 	:mainloop
 		/if (${DBModeAdd}) /call AddToDB
@@ -22,7 +22,7 @@ Sub AddToDB
 		/if (${InDataBase}==1) /varset InDataBase 	0
 		/if (${Update}) {
 			/docommand /dgt \aw Updating from database \ax
-			/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db table SELECT DISTINCT CLEAN_NAME, NAME, ID, ZONE_NAME, ZONE_SHORTNAME, ZONE_ID FROM ignore_pulling;
+			/sqlite C:\Users\janne\OneDrive\Desktop\Release\Macros\IHCMercs\DB\eq.db table SELECT DISTINCT CLEAN_NAME, NAME, ID, ZONE_NAME, ZONE_SHORTNAME, ZONE_ID FROM ignore_pulling;
 			/varset Update 		0
 		}
 
@@ -38,7 +38,7 @@ Sub AddToDB
 		
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${InDataBase}==0 && ${Target.ID}!=${PreviousTarget}) {
 			/docommand /dgt \aw Inserting to database: \n \aw Target clean name: \ag ${Target.CleanName} \n \aw Target name: \ag ${Target.Name} \n \aw Target id: \ag ${Target.ID} \n \aw Zone name: \ag ${Zone.Name} \n \aw Zone short name: \ag ${Zone.ShortName} \n \aw Zone id: \ag ${Zone.ID} \ax
-			/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db query INSERT INTO ignore_pulling VALUES("${Target.CleanName}", "${Target.Name}", ${Target.ID}, "${Zone.Name}", "${Zone.ShortName}", ${Zone.ID}, CURRENT_TIMESTAMP);			
+			/sqlite C:\Users\janne\OneDrive\Desktop\Release\Macros\IHCMercs\DB\eq.db query INSERT INTO ignore_pulling VALUES("${Target.CleanName}", "${Target.Name}", ${Target.ID}, "${Zone.Name}", "${Zone.ShortName}", ${Zone.ID}, CURRENT_TIMESTAMP);			
 			/varset Update 		1
 			/varset InDataBase 	0
 			/delay 1s

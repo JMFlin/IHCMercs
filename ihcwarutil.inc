@@ -136,8 +136,8 @@ Sub PullAbilitySetup
 	|}
 	/if (${Me.Level}<20) {
 |	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-		/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${Spell[Throw Stone].RankName}
-		/if (!${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 60
+		/varset PullAbility ${Spell[Throw Stone].RankName}
+		/varset PullDistance 60
 	}
 /return
 |----------------------------------------------------------------------------
