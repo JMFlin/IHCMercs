@@ -1,0 +1,182 @@
+|- IHCWAR.mac - By IHC385
+|- Automatic Warrior bot - 
+|- Version 2.0
+|- Updated: 4/25/2019
+|- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
+#Chat group
+#Chat tell
+#Chat raid
+#turbo 80
+#include IHCMercs\ihcsubs.inc
+#include IHCMercs\ihcwarutil.inc
+#include IHCMercs\ihcevents.inc
+#warning
+#bind SetVarInt		/setvarint
+#bind CmdList       /ihchelp
+#bind DefenseDisc    /defdisc
+#bind FortitudeDisc  /evadedisc
+|-#Event NotOnTarget	"#*#You cannot see your target#*#"
+|-#Event NotOnTarget	"#*#Your target is too far away#*#"
+#Event Iamsnared	"#*#You are entangled by webs#*#"
+#Event Buff 			"Your #1# spell has worn off of #*#."
+|- #Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
+
+Sub Main
+	/delay ${Math.Rand[3]}
+	/doevents flush
+	/declare MacroName       	string outer IHCWAR
+	/declare MacroPath       	string outer IHCMercs\IHCWAR
+	/declare IHCVersion       	string outer 2.0 
+	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
+
+	/call ShdSetup	
+	/call VarSetup
+	/call AliasSetup
+	/call SetupDiscs
+	/call SetControlToon
+|-Cursor ID
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
+	}
+	/call WelcomeMsg
+	/if (${assistid}==${Me.ID}) {
+		/echo \aw I am Main Assist
+	} else {
+		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
+	}
+	/delay 2s
+	/call PullAbilitySetup
+	/delay 2s
+	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
+ :mainloop
+	/call ModeSet
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call AFKRadiusCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+/goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: AFKRadiusCamping 
+|---------------------------------------------------------------------------- 
+Sub AFKRadiusCamping
+    /call MakeCamp
+    /call RemoveTravelBuffs
+	/target clear   
+
+	/while (${Mode}==3) {
+
+		/call DummyMode
+
+		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
+		
+		/call set_timers
+
+
+		/call PullerCheckGroupManaEnd 
+		/call afk_pull
+
+		/call check_state FALSE ${Group.MainAssist.Name}
+		/call get_closest_target
+		
+
+		/call balance_hp
+
+		/call CheckXTargetMezRoot
+
+		/call Engage
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+30)) /call AoEAggro
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoCombat
+		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
+
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: CheckXTargetMezRoot
+|---------------------------------------------------------------------------- 
+Sub CheckXTargetMezRoot
+
+	/if (${Balance}) /return
+	/if (!${Me.XTarget[2].ID}) /return
+|	/if (${TimeForMez}!=0) /return
+
+	/declare x int local 0
+	/if (${Target.Type.Equal[Corpse]}) /target clear
+	/for x 1 to ${Me.XTarget}
+		:getaggro
+		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
+			/if (!${AdvPath.Following}) /call Engage
+			/if (${Me.XTarget[${x}].PctAggro}<100) /call DoCombat
+		}
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+		/if (!${Me.XTarget[1].ID} || ${Target.ID}==${Me.ID} || !${Target.ID}) /return
+		/if (${Me.XTarget[${x}].PctAggro}<100 && ${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
+			/goto :getaggro
+		}
+	/next x
+/return
+|----------------------------------------------------------------------------
+|- SUB: CombatBuffs 
+|---------------------------------------------------------------------------- 
+Sub CombatBuffs
+	/if (!${Me.XTarget}) /return
+	
+/return
+|----------------------------------------------------------------------------
+|- SUB: DoDisc 
+|---------------------------------------------------------------------------- 
+Sub DoDisc
+
+	/if (!${Me.XTarget}) /return
+
+	
+/return
+|----------------------------------------------------------------------------
+|- SUB: DoCombat
+|---------------------------------------------------------------------------- 
+Sub DoCombat
+
+	/if (!${Me.XTarget}) /return
+
+/return
+|----------------------------------------------------------------------------
+|- SUB: AoEAggro   
+|---------------------------------------------------------------------------- 
+Sub AoEAggro
+	/if (${SpawnCount[NPC Aggressive radius 30 zradius 30]}>1 && ${Me.CombatAbilityReady[${aeroar}]}) {
+		/call DiscNow "${aeroar}"
+	} else /if (${SpawnCount[NPC Aggressive radius 40 zradius 40]}>2 && ${Me.AltAbilityReady[Area Taunt]}) {
+		/call AANow ${Me.AltAbility[Area Taunt].ID}
+	} 
+
+	/if (${SpawnCount[npc aggressive radius 50 zradius 50]}>0 && ${Me.CombatAbilityReady[${aehitall}]} && ${Me.SecondaryPctAggro}>=80) {
+		/call DiscNow "${aehitall}"
+	}
+
+
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event Iamsnared
+|----------------------------------------------------------------------------
+Sub Event_Iamsnared 
+	/if (${DoGroupBeg}) {
+	 /call BegForCure	
+	}
+	/doevents flush NotOnTarget
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
+Sub Event_NotOnTarget
+	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
+	/doevents flush NotOnTarget
+/return

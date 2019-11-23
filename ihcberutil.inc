@@ -21,6 +21,7 @@ Sub BerSetup
 |-Declare AA's and Discs
 	/declare endregen				string outer NULL
 	/declare Aura1				string outer NULL
+	/declare Aura2				string outer NULL
 	/declare DichoSpell				string outer NULL
 	/declare Dfrenzy				string outer NULL
 	/declare Dvolley				string outer NULL

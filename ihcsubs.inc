@@ -356,12 +356,11 @@ Sub check_state(bool _debug, string _assistCharacter)
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
-		/if (${Defined[${Aura1}]}) {
-			/if (!${Spell[${Me.Aura[1]}].ID} && ${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-		}
-		/if (${Defined[${Aura2}]}) {
-			/if (!${Spell[${Me.Aura[2]}].ID} && ${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-		}
+		/if (!${Spell[${Me.Aura[1]}].ID} && ${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+		
+
+		/if (!${Spell[${Me.Aura[2]}].ID} && ${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+		
 		/if (${Stick.Status.Equal[ON]}) /stick off
 		/attack off
 		/if (${Target.ID}) /target clear
@@ -521,7 +520,7 @@ Sub Travel
 		/call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
 		/delay 1
 	}
-	/if (${Select[${Me.Class.ShortName},BRD]} & !${Me.Buff[Selo's Accelerating Chorus].ID}) {
+	/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID} && !${Me.Casting.ID}) {
 		/melody 3 1
 	}
 /return
