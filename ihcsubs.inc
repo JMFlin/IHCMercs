@@ -276,62 +276,6 @@ Sub SaveCommonConfig
 	/call SetIni Options DoBuffs				int ${DoBuffs}
 	/call SetIni Options DoGroupBeg				int ${DoGroupBeg}
 /return
-
-
-
-|--------------------------------------------------------------------
-|- SUB: Bind Change Var Int resets various interger settings from ini file
-|- Removed mez and slow toggles. Class specific abilities will be handled in the class specific mac's
-|----------------------------------------------------------------------------
-Sub Bind_ChangeVarInt(string ISection, string IName, int IVar)
-	/docommand /varset changetoini 1
-	|-ChaseAssist Var Set
-    /if (${IName.Equal[ChaseAssist]} && ${IVar}==1 && ${Target.Type.Equal[PC]}) {
-		/docommand /varset FollowToonName ${Target.Name}
-		/echo \aw Following ${If[${FollowToonName.Equal[NULL ]},\ar OFF,\ag ${FollowToonName}]}
-	} else /if (${IName.Equal[ChaseAssist]} && ${IVar}==0) {
-		/varset FollowToonName NULL
-		/echo \aw Following \ar OFF
-		/if (${AdvPath.Following}) /docommand /afollow off
-	} else /if (${IName.Equal[CampRadius]} && ${IVar}>=20 && ${IVar}<=100) {
-		/varset AutoCampRadius ${IVar}
-		/echo \aw Camp Radius set to \ag ${IVar}
-	} else /if (${IName.Equal[CampRadius]} && ${IVar}<20 && ${IVar}>100) {
-		/echo \ar Invalid \aw Camp Radius - Set between 20-100 units
-	} else /if (${IName.Equal[BurnMobCount]}) {
-		/if (${IVar}>=2 && ${IVar}<=100) {
-			/varset BurnMobCount ${IVar}
-			/echo \aw ${IName} set to \ag ${IVar}
-		} else {
-			/beep
-			/echo \ar Invalid \aw ${IName} - Set between 2-100 mobs
-		}
-	} else /if (${IName.Equal[AutoAssistAt]}) {
-		/if (${IVar}>=10 && ${IVar}<=100) {
-			/varset AutoAssistAt ${IVar}
-			/echo \aw ${IName} set to \ag ${IVar}
-		} else {
-			/beep
-			/echo \ar Invalid \ag ${IName} \aw HP%- Set between 10-100
-		}
-	} else /if (${IName.Equal[AssistRange]}) {
-		/if (${IVar}>=20 && ${IVar}<=200) {
-			/varset AssistRange ${IVar}
-			/echo \aw ${IName} set to \ag ${IVar}
-		} else {
-			/beep
-			/echo \ar Invalid \ag ${IName} \aw - Set between 20-200 units
-		}
-	} else /if (${Select[${IName},MedPct,EndMedPct]}) {
-		/if (${IVar}>=0 && ${IVar}<100) {
-			/varset ${IName} ${IVar}
-			/echo \aw ${IName} set to \ag ${IVar}
-		} else {
-			/beep
-			/echo \ar Invalid \ag ${IName}% \aw - Set between 0-100
-		}
-	}
-/return
 |----------------------------------------------------------------------------
 |- SUB: check_state
 |---------------------------------------------------------------------------- 
@@ -761,88 +705,6 @@ Sub PetAttack
 	/if (!${Spawn[${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
 	/if (${Spawn[${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
 /return
-|-------------------------------------------------------------------------------------
-|- SUB: Bind_ToggleVariable  Check whenever the player is changing any variable via /echo
-|-------------------------------------------------------------------------------------
-Sub Bind_ToggleVariable(string Command, string Command2, string Command3)
-    /declare i int local
-	/declare OnOff local
-    |- Toggle Variables & Set Variables
-    /if (${Defined[${Command}]}) {
-        /if (${Command2.Length} && ${Command2.NotEqual[null]}) {
-            /if (${Select[${Command2},0,off]}) {
-                /varset ${Command} 0
-                /varset OnOff Off
-				/echo \aw Resetting ${Command} to \ar OFF
-            } else /if (${Select[${Command2},1,on]}) {
-                /varset ${Command} 1
-                /varset OnOff On
-				/echo \aw Setting ${Command} to \ag ON
-            } 
-        } else /if (${${Command}}) {
-			/varset ${Command} 0
-            /varset OnOff Off
-			/echo \aw Resetting ${Command} to \ar OFF
-			/if (${Command.Equal[AutoCampHold]}) /moveto dist 10
-		} else {
-            /varset ${Command} 1
-            /varset OnOff On
-			/if (${Command.Equal[BurnNow]}) {
-				/echo \ag BURNING NOW
-			} else {
-				/echo \aw Setting ${Command} to \ag ON
-			}
-			/if (${Command.Equal[AutoCampHold]}) /moveto dist 2
-        }
-		/docommand /varset changetoini 1
-		/if (${Command.Equal[GroupPauseFlag]}) /docommand /mgx /mqp
-		/if (${Command.Equal[GroupBackOffFlag]}) /docommand /mgx /backoff
-		|-Camp Toggle
-        /if (${Command.Equal[ReturnToCamp]} && ${OnOff.Equal[on]} ) {
-			/echo \aw Camp turned \ag ON
-			/docommand /varset ReturnToCamp 1
-			/docommand /varset AutoCampX ${Me.X}
-			/docommand /varset AutoCampY ${Me.Y}
-			/if (${AutoCampHold}) {
-				/moveto dist 2
-			}
-        } else /if (${Command.Equal[ReturnToCamp]} && ${OnOff.Equal[off]}) {
-            /echo \aw Turning ALL Camp settings to \ar OFF
-			/docommand /varset ReturnToCamp 0
-			/moveto dist 10
-        }
-		|-Chase Toon Toggle
-		/if (${Command.Equal[ChaseAssist]} && ${OnOff.Equal[on]} && ${Command3.NotEqual[null]} && ${Command3.Length}>0 && ${FollowToonName.NotEqual[${Command3}]}) {
-			/docommand /varset FollowToonName ${Command3}
-			/echo \aw Following ${If[${FollowToonName.Equal[NULL ]},\ar OFF,\ag ${FollowToonName}]}
-		} else /if (${Command.Equal[ChaseAssist]} && ${OnOff.Equal[on]} && ${Target.Type.Equal[PC]}) {
-			/docommand /varset FollowToonName ${Target.Name}
-			/echo \aw Following ${If[${FollowToonName.Equal[NULL ]},\ar OFF,\ag ${FollowToonName}]}
-		} else /if (${Command.Equal[ChaseAssist]} && ${OnOff.Equal[off]}) {
-			/varset FollowToonName NULL
-			/echo \aw Following \ar OFF
-			/if (${AdvPath.Following}) /docommand /afollow off
-		}
-		|-Melee Toggle
-		/if (${Command.Equal[MeleeOn]} && ${OnOff.Equal[on]} ) {
-			/varset UseMelee 1
-		} else /if (${Command.Equal[MeleeOn]} && ${OnOff.Equal[off]}) {
-			/varset UseMelee 0
-		}
-		|-InstantRelease on Death
-		/if (${Command.Equal[InstantRelease]} && ${OnOff.Equal[on]} ) {
-			/varset InstantRelease 1
-		} else /if (${Command.Equal[InstantRelease]} && ${OnOff.Equal[off]}) {
-			/varset InstantRelease 0
-		}
-        |-Use Fellowship to port back on death
-		/if (${Command.Equal[UseFellowship]} && ${OnOff.Equal[on]} ) {
-			/varset UseFellowship 1
-		} else /if (${Command.Equal[UseFellowship]} && ${OnOff.Equal[off]}) {
-			/varset UseFellowship 0
-		}
-    }
-/return
 |----------------------------------------------------------------------------  
 |- SUB: SetControlToon
 |----------------------------------------------------------------------------
@@ -983,9 +845,9 @@ Sub Event_Zoned(Message)
 	
 Sub Zoning
 	/delay 1m !${Me.Zoning}
-	/if (${Bool[${FollowToonName}]}) /delay 1m ${Spawn[${FollowToonName}].ID}
+	
 	/delay 50
-	/if (${ReturnToCamp}!=0) /varset ReturnToCamp 0
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: Load Ini
