@@ -19,7 +19,7 @@ Classes GROUP
 #1. war wiz wiz wiz ench clr 
 #2. war wiz wiz wiz ench clr 
 
-3. sk wiz wiz wiz ench clr
+#3. sk wiz wiz wiz ench clr
 4. sk wiz wiz wiz wiz dru 
 
 5. sk ber ber ber brd dru
