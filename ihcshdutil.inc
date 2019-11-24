@@ -147,7 +147,7 @@ Sub SetupSpells
 		/varset Stance ${Spell[Defiant Stance].RankName}
 	}
 
-	/if (${Me.Level}>=20 && ${Me.CombatAbility[${Touch1}]}) {
+	/if (${Me.Level}>=20 && ${Me.SpellReady[${Touch1}]}) {
 		/varset PullAbility ${Touch1}
 		/varset PullDistance 190
 	} else {
