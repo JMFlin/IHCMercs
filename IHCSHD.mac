@@ -45,9 +45,6 @@ Sub Main
 	/declare AssistRange int outer 10
 	/declare AutoCampRadius int outer 10
 
-	/delay 2s
-	/call PullAbilitySetup
-	/delay 2s
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call AddToAlert
  :mainloop
 	/call ModeSet
