@@ -16,17 +16,17 @@ Sub ShdSetup
 
 |- Spells
 	/declare DichotomicFang	string outer NULL
-	/declare Stance	string outer NULL
-	/declare Touch1	string outer NULL
-	/declare Touch2	string outer NULL
-	/declare Touch3	string outer NULL
+	/declare Stance			string outer NULL
+	/declare Touch1			string outer NULL
+	/declare Touch2			string outer NULL
+	/declare Touch3			string outer NULL
 	/declare DireTestemony 	string outer NULL
-	/declare Terror1	 string outer NULL
-	/declare Terror2	string outer NULL
-	/declare Bond	string outer NULL
-	/declare Denial	string outer NULL
-	/declare Bargain	string outer NULL
-	/declare Skin	string outer NULL
+	/declare Terror1	 	string outer NULL
+	/declare Terror2		string outer NULL
+	/declare Bond			string outer NULL
+	/declare Denial			string outer NULL
+	/declare Bargain		string outer NULL
+	/declare Skin			string outer NULL
 
 |- Tank logic
 	/declare TimeForMez					timer outer	0
@@ -47,15 +47,8 @@ Sub INIChanges
 
 /return 
 |----------------------------------------------------------------------------
-|- SUB: PullAbilitySetup
-|----------------------------------------------------------------------------
-Sub PullAbilitySetup
-	/if (${Me.Level}<20) {
-|	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-		/varset PullAbility Lifetap
-		/varset PullDistance 190
-	}
-/return
+|- SUB: LoadSpellBar
+|---------------------------------------------------------------------------- 
 Sub LoadSpellBar
 	
 	/if (${Me.Standing}) /sit
