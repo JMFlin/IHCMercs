@@ -103,6 +103,8 @@ Sub SetupSpells
 		/varset DireTestemony ${Spell[Dire Testimony].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Dire Testimony].RankName}]}) {
 		/varset DireTestemony ${Spell[Dire Testimony].RankName}
+	} else /if (${Me.Level}>=4 && ${Me.Book[${Spell[Clinging Darkness].RankName}]}) {
+		/varset DireTestemony ${Spell[Clinging Darkness].RankName}
 	}
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {

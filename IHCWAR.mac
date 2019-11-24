@@ -456,13 +456,13 @@ Sub DoCombat
 |- SUB: AoEAggro   
 |---------------------------------------------------------------------------- 
 Sub AoEAggro
-	/if (${SpawnCount[NPC Aggressive radius 30 zradius 30]}>1 && ${Me.CombatAbilityReady[${aeroar}]}) {
+	/if (${SpawnCount[NPC radius 30 zradius 30]}>1 && ${Me.CombatAbilityReady[${aeroar}]}) {
 		/call DiscNow "${aeroar}"
-	} else /if (${SpawnCount[NPC Aggressive radius 40 zradius 40]}>2 && ${Me.AltAbilityReady[Area Taunt]}) {
+	} else /if (${SpawnCount[NPC radius 40 zradius 40]}>2 && ${Me.AltAbilityReady[Area Taunt]}) {
 		/call AANow ${Me.AltAbility[Area Taunt].ID}
 	} 
 
-	/if (${SpawnCount[npc aggressive radius 50 zradius 50]}>0 && ${Me.CombatAbilityReady[${aehitall}]} && ${Me.SecondaryPctAggro}>=80) {
+	/if (${SpawnCount[npc radius 50 zradius 50]}>1 && ${Me.CombatAbilityReady[${aehitall}]}) {
 		/call DiscNow "${aehitall}"
 	}
 
