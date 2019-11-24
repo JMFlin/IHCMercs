@@ -139,6 +139,7 @@ Sub LoadSpellBar
 		|/call LoadSpellGem "${ColdEtherealNuke}" 4
 		/call LoadSpellGem "${RootSpell}" 5
 		|/call LoadSpellGem "${MagmaticAENuke}" 5
+		/call LoadSpellGem "${ChaosNuke}" 6
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
 			/call LoadSpellGem "${FuseNuke}" 6
 			/call LoadSpellGem "${VortexNuke}" 7

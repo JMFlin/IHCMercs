@@ -123,27 +123,11 @@ Sub INIChanges
 	/call SetIni Options DoBuffs		int ${DoBuffs}
 /return 
 |----------------------------------------------------------------------------
-|- SUB: PullAbilitySetup
-|----------------------------------------------------------------------------
-Sub PullAbilitySetup
-	/if (${Me.Level}<115) {
-		/varset PullAbility ${insult}
-		/varset PullDistance 90
-	} 
-	|else {
-	|	/if (${Me.CombatAbilityReady[${insult}]}) /varset PullAbility ${insult}
-	|	/if (${Me.CombatAbilityReady[${insult}]}) /varset PullDistance 90
-	|}
-	/if (${Me.Level}<20) {
-|	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-		/varset PullAbility ${Spell[Throw Stone].RankName}
-		/varset PullDistance 60
-	}
-/return
-|----------------------------------------------------------------------------
 |- SUB: SetupDiscs
 |---------------------------------------------------------------------------- 
 Sub SetupDiscs
+
+
 	|--One off discs
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Dissident Shield].RankName}]}) {
 		/varset bmdisc ${Spell[Dissident Shield].RankName}
@@ -310,6 +294,15 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=20 && ${Me.CombatAbility[${Spell[Provoke].RankName}]})  {
 		/varset insult ${Spell[Provoke].RankName}
 	} 
+	
+	/if (${Me.Level}>=20 && ${Me.CombatAbility[${insult}]}) {
+		/varset PullAbility ${insult}
+		/varset PullDistance 90
+	} else {
+		/varset PullAbility ${Spell[Throw Stone].RankName}
+		/varset PullDistance 60
+	}
+
 	|---Strike
 	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Cunning Strike].RankName}]})  {
 		/varset StrikeDisc ${Spell[Cunning Strike].RankName}

@@ -46,9 +46,6 @@ Sub Main
 	} else {
 		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
 	}
-	/delay 2s
-	/call PullAbilitySetup
-	/delay 2s
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
  :mainloop
 	/call ModeSet
@@ -77,7 +74,6 @@ Sub ManualPullCamping
 			/if (${Me.ID}!=${Group.Puller.ID} && !${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 			/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call check_illusion
 			/if (${DoMed}) /call AutoMed
-			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
 			/if (${TimeForMezVariable}==1) /varset TimeForMezVariable 0
 			/if (${Me.XTarget[1].ID}) /varset State 1
 		}
@@ -135,7 +131,6 @@ Sub ManualRunAndGun
 		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
 
 		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call check_illusion
-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
 		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
 
 		/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0

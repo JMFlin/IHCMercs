@@ -44,7 +44,7 @@ Sub BrdSetup
 	/declare SpellGem11				string outer NULL
 	/declare SpellGem12				string outer NULL
 	/declare SpellGem13				string outer NULL
-	/declare BattleMelody			string outer 4 1 5 6 7
+	/declare BattleMelody			string outer 4 6 1 5 7
 	/declare RegenMelody			string outer 3 2
 |	/declare BattleMelody			string outer 1 2 3 4 1 5 2 3 1 4 5 2 1 3 4 5 7 1 2 10
 	/declare ExtBattleMelody		string outer 1 2 3 4 5 6 1 2 3 4 5 6 1 2 7 3 4 5 1 10
