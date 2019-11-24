@@ -82,8 +82,8 @@ Sub SetupSpells
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
-	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifspike].RankName}]}) {
-		/varset Touch1 ${Spell[Lifspike].RankName}
+	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifespike].RankName}]}) {
+		/varset Touch1 ${Spell[Lifespike].RankName}
 	} else /if (${Me.Level}>=8 && ${Me.Book[${Spell[Lifetap].RankName}]}) {
 		/varset Touch1 ${Spell[Lifetap].RankName}
 	}
