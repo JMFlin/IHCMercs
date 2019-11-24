@@ -147,7 +147,7 @@ Sub DoCombat
 	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
 		/call AbilityNow "Taunt"
 	}
-	
+
 	/if (${Me.AbilityReady[Disarm]} && ${Target.PctHPs}>1) {
 		/call AbilityNow "Disarm"
 	}
@@ -157,6 +157,8 @@ Sub DoCombat
 	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs}>1) {
 		/call AbilityNow "Kick"
 	}
+
+	/if (${Target.Fleeing} && ${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
 
 /return
 |----------------------------------------------------------------------------
