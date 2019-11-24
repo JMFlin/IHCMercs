@@ -87,6 +87,8 @@ Sub SetupSpells
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
+	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifetap].RankName}]}) {
+		/varset Touch2 ${Spell[Lifetap].RankName}
 	}
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Touch of Falsin].RankName}]}) {
