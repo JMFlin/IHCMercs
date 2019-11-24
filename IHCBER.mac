@@ -76,7 +76,7 @@ Sub ManualPullCamping
 		/call check_state FALSE ${Group.MainAssist.Name}
 
 		/call Engage
-	
+	|| ADD CHECK FOR WHICH AXE IS USED AND SEND IT INTO THE FUNCTION
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 
 		/call Combatdps
