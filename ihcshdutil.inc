@@ -58,7 +58,7 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${Touch2}" 2
 	/call LoadSpellGem "${Terror1}" 3
 	/call LoadSpellGem "${Terror2}" 4
-	/call LoadSpellGem "${Bond}" 5
+	/call LoadSpellGem "${DireTestemony}" 5
 
 	/delay 2s
 	/if (${Me.Sitting}) /stand
