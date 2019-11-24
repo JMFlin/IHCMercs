@@ -28,6 +28,9 @@ Sub ShdSetup
 	/declare Bargain	string outer NULL
 	/declare Skin	string outer NULL
 
+	/declare PullAbility string outer NULL
+	/declare PullDistance int outer 0
+
 |- Tank logic
 	/declare TimeForMez					timer outer	0
 	/declare TimeForMezVariable			int outer 0
@@ -86,6 +89,8 @@ Sub SetupSpells
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
+	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifspike].RankName}]}) {
+		/varset Touch1 ${Spell[Lifspike].RankName}
 	} else /if (${Me.Level}>=8 && ${Me.Book[${Spell[Lifetap].RankName}]}) {
 		/varset Touch1 ${Spell[Lifetap].RankName}
 	}
@@ -94,6 +99,8 @@ Sub SetupSpells
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
+	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifetap].RankName}]}) {
+		/varset Touch1 ${Spell[Lifetap].RankName}
 	}
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Touch of Falsin].RankName}]}) {
@@ -148,6 +155,14 @@ Sub SetupSpells
 		/varset Stance ${Spell[Defiant Stance].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
 		/varset Stance ${Spell[Defiant Stance].RankName}
+	}
+
+	/if (${Me.Level}>=20 && ${Me.CombatAbility[${insult}]}) {
+		/varset PullAbility ${Touch1}
+		/varset PullDistance 190
+	} else {
+		/varset PullAbility Melee
+		/varset PullDistance 5
 	}
 
 /return
