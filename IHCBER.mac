@@ -124,7 +124,7 @@ Sub AANDisc
 	/if (!${Target.ID}) /return
 	/if (!${Target.Type.Equal[NPC]}) /return
 	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Target.Distance}>${AssistRange}) /return
+	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 	/if (${Target.Mezzed.ID}) /return
 
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
@@ -264,7 +264,7 @@ Sub Combatdps
 	/if (!${Target.ID}) /return
 	/if (!${Target.Type.Equal[NPC]}) /return
 	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Target.Distance}>${AssistRange}) /return
+	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 	/if (${Target.Mezzed.ID}) /return
 
 	/if (${Me.CombatAbilityReady[${Snare}]} && !${Target.Snared.ID} && ${Target.Fleeing}) {
