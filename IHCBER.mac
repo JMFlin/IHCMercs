@@ -77,7 +77,7 @@ Sub ManualPullCamping
 
 		/call Engage
 	|| ADD CHECK FOR WHICH AXE IS USED AND SEND IT INTO THE FUNCTION
-|		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
+		/call AANDisc
 
 		/call Combatdps
 
@@ -120,6 +120,13 @@ Sub ManualRunAndGun
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
 Sub AANDisc
+
+	/if (!${Target.ID}) /return
+	/if (!${Target.Type.Equal[NPC]}) /return
+	/if (${Target.PctHPs}>${AutoAssistAt}) /return
+	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
+	/if (${Target.Mezzed.ID}) /return
+
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
 		/alt act ${Me.AltAbility[Communion of Blood].ID}
 		/delay 5
@@ -139,8 +146,8 @@ Sub AANDisc
 		/alt act ${Me.AltAbility[Blood Pact].ID}
 		/delay 5
 	}
-	/if (${Me.CombatAbilityReady[${Spell[Sapping Strikes].RankName}]} && ${Target.PctHPs}>1 && ${Me.PctEndurance}<90) {
-		/disc ${Spell[Sapping Strikes].RankName}
+	/if (${Me.CombatAbilityReady[${SappingStrike}]} && ${Target.PctHPs}>1 && ${Me.PctEndurance}<90) {
+		/disc ${SappingStrike}
 		/delay 5
 	}	
 	/if (${Me.CombatAbilityReady[${RageStrike}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
@@ -167,7 +174,7 @@ Sub AANDisc
 			/alt act ${Me.AltAbility[Uncanny Resilience].ID}
 			/delay 5
 	}
-	/if (${Me.AltAbilityReady[Savage Spirit]} && ${Me.Combat} && ${Target.PctHPs}<99 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
+	/if (${Me.AltAbilityReady[Savage Spirit]} && ${Me.Combat} && ${Target.PctHPs}<99 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow})) {
 		/alt act ${Me.AltAbility[Savage Spirit].ID}
 		/delay 5
 	}
@@ -201,7 +208,7 @@ Sub AANDisc
 		/alt act ${Me.AltAbility[Furious Rampage].ID}
 		/delay 5
 	}	
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && ${Me.ActiveDisc.ID}!=${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID}!=${FlurryDiscID} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && ${Me.ActiveDisc.ID}!=${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID}!=${FlurryDiscID} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow})) {
 		/if (${Me.ActiveDisc.ID}) /stopdisc
 		/delay 5
 		/disc ${CleavingDisc}
@@ -224,7 +231,7 @@ Sub AANDisc
 		/alt act ${Me.AltAbility[Vehement Rage].ID}
 		/delay 5
 	}	
-	/if (${Me.CombatAbilityReady[${HHEBuff}]} && ${Me.Combat} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${PrimaryBurnDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
+	/if (${Me.CombatAbilityReady[${HHEBuff}]} && ${Me.Combat} && !${Me.Song[${HHEBuff}].ID} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${PrimaryBurnDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
 		/disc ${HHEBuff}
 		/delay 5
 	}	
@@ -255,12 +262,22 @@ Sub AANDisc
 Sub Combatdps
 
 	/if (!${Target.ID}) /return
+	/if (!${Target.Type.Equal[NPC]}) /return
 	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Target.Distance}>${AssistRange}) /return
+	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 	/if (${Target.Mezzed.ID}) /return
 
 	/if (${Me.CombatAbilityReady[${Snare}]} && !${Target.Snared.ID} && ${Target.Fleeing}) {
 		/Disc ${Snare}
+		/delay 5
+	}
+
+|	/if (${Me.CombatAbilityReady[${JoltDisc}]} && ${Target.PctAggro}>50) {
+|		/Disc ${JoltDisc}
+|		/delay 5
+|	}
+	/if (${Me.CombatAbilityReady[${BloodDisc}]}) {
+		/Disc ${BloodDisc}
 		/delay 5
 	}
 	

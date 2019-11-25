@@ -85,10 +85,10 @@ Sub AFKRadiusCamping
 		/call CheckXTargetMezRoot
 
 		/call Engage
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+30)) /call AoEAggro
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoDisc
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call DoCombat
-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatBuffs
+		/call AoEAggro
+		/call DoDisc
+		/call DoCombat
+		/call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
@@ -102,7 +102,7 @@ Sub CheckXTargetMezRoot
 
 	/if (${Balance}) /return
 	/if (!${Me.XTarget[2].ID}) /return
-|	/if (${TimeForMez}!=0) /return
+	/if (${TimeForMez}!=0) /return
 
 	/declare x int local 0
 	/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -134,15 +134,15 @@ Sub CombatBuffs
 Sub DoDisc
 
 	/if (!${Me.XTarget}) /return
-
+	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 	
 /return
 |----------------------------------------------------------------------------
 |- SUB: DoCombat
 |---------------------------------------------------------------------------- 
 Sub DoCombat
-
 	/if (!${Me.XTarget}) /return
+	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 
 	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
 		/call AbilityNow "Taunt"
@@ -165,8 +165,8 @@ Sub DoCombat
 |- SUB: AoEAggro   
 |---------------------------------------------------------------------------- 
 Sub AoEAggro
-
-
+	/if (!${Me.XTarget}) /return
+	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Iamsnared
