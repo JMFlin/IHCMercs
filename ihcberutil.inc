@@ -50,6 +50,9 @@ Sub BerSetup
 	/declare HHEBuff				string outer NULL
 	/declare CryHavoc 				string outer NULL
 	/declare Snare 					string outer NULL
+	/declare JoltDisc 				string outer NULL
+	/declare BloodDisc 				string outer NULL
+	/declare SappingStrike 			string outer NULL
 |-Config Options
 	/call LoadCommonConfig
 	/call LoadIni Combat AllowMezBreak		 	int 0
@@ -135,6 +138,17 @@ Sub SetupDiscs
 		/varset Snare Leg Cut
 	}
 
+|- Blood Axe TIMER 1
+|- NEED BUFF EFFECT NAME ON MOB TO CHECK IN COMBATDPS
+	/if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Blood Brand].RankName}]})  {
+		/varset BloodDisc ${Spell[Blood Brand].RankName}
+	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Blood Blade].RankName}]})  {
+		/varset BloodDisc ${Spell[Blood Blade].RankName}
+	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Blood Axe].RankName}]})  {
+		/varset BloodDisc ${Spell[Blood Axe].RankName}
+	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Blood Hatchet].RankName}]})  {
+		/varset BloodDisc ${Spell[Blood Hatchet].RankName}
+	} 
 
 |---Battle Cry - HHE Buff
 	/if (${Me.Level}>=65 && ${Me.CombatAbility[Ancient Cry of Chaos]})  {
@@ -151,14 +165,52 @@ Sub SetupDiscs
 		/varset HHEBuff Battle Cry
 	}
 |---Primary Burn Disc Setup - Expanded for lower level use
+|- TIMER 4
 	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Brutal Discipline].RankName}]})  {
 		/varset PrimaryBurnDisc ${Spell[Brutal Discipline].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Sundering Discipline].RankName}]})  {
 		/varset PrimaryBurnDisc ${Spell[Sundering Discipline].RankName}
 	} else /if (${Me.Level}>=75 && ${Me.CombatAbility[${Spell[Berserking Discipline].RankName}]})  {
 		/varset PrimaryBurnDisc ${Spell[Berserking Discipline].RankName}
-	}
+	} else /if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Burning Rage Discipline].RankName}]})  {
+		/varset PrimaryBurnDisc ${Spell[Burning Rage Discipline].RankName}
+	} else /if (${Me.Level}>=58 && ${Me.CombatAbility[${Spell[Blind Rage Discipline].RankName}]})  {
+		/varset PrimaryBurnDisc ${Spell[Blind Rage Discipline].RankName}
+	} else /if (${Me.Level}>=54 && ${Me.CombatAbility[${Spell[Cleaving Rage Discipline].RankName}]})  {
+		/varset PrimaryBurnDisc ${Spell[Cleaving Rage Discipline].RankName}
+	} 
+
+	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Jarring Jolt].RankName}]})  {
+		/varset JoltDisc ${Spell[Jarring Jolt].RankName}
+	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Jarring Smite].RankName}]})  {
+		/varset JoltDisc ${Spell[Jarring Smite].RankName}
+	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Jarring Crush].RankName}]})  {
+		/varset JoltDisc ${Spell[Jarring Crush].RankName}
+	} else /if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Jarring Blow].RankName}]})  {
+		/varset JoltDisc ${Spell[Jarring Blow].RankName}
+	} else /if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Jarring Slam].RankName}]})  {
+		/varset JoltDisc ${Spell[Jarring Slam].RankName}
+	} else /if (${Me.Level}>=84 && ${Me.CombatAbility[${Spell[Jarring Clash].RankName}]})  {
+		/varset JoltDisc ${Spell[Jarring Clash].RankName}
+	} else /if (${Me.Level}>=79 && ${Me.CombatAbility[${Spell[Jarring Smash].RankName}]})  {
+		/varset JoltDisc ${Spell[Jarring Smash].RankName}
+	} else /if (${Me.Level}>=74 && ${Me.CombatAbility[${Spell[Jarring Strike].RankName}]})  {
+		/varset JoltDisc ${Spell[Jarring Strike].RankName}
+	} else /if (${Me.Level}>=69 && ${Me.CombatAbility[${Spell[Baffeling Strike].RankName}]})  {
+		/varset JoltDisc ${Spell[Baffeling Strike].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Confusing Strike].RankName}]})  {
+		/varset JoltDisc ${Spell[Confusing Strike].RankName}
+	} else /if (${Me.Level}>=48 && ${Me.CombatAbility[${Spell[Distracting Strike].RankName}]})  {
+		/varset JoltDisc ${Spell[Distracting Strike].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Divertive Strike].RankName}]})  {
+		/varset JoltDisc ${Spell[Divertive Strike].RankName}
+	} else /if (${Me.Level}>=24 && ${Me.CombatAbility[${Spell[Distracting Strike].RankName}]})  {
+		/varset JoltDisc ${Spell[Distracting Strike].RankName}
+	} 
+
+
 	/if (${Me.CombatAbility[${PrimaryBurnDisc}]}) /varset PrimaryBurnDiscID ${Spell[${PrimaryBurnDisc}].ID}
+
 |---Cleaving Disc
 	/if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Cleaving Acrimony Discipline].RankName}]})  {
 		/varset CleavingDisc ${Spell[Cleaving Acrimony Discipline].RankName}
@@ -221,6 +273,8 @@ Sub SetupDiscs
 		/varset RageStrike ${Spell[Bubbling Rage].RankName}
 	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Festering Rage].RankName}]})  {
 		/varset RageStrike ${Spell[Festering Rage].RankName}
+	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Festering Rage].RankName}]})  {
+		/varset RageStrike ${Spell[Festering Rage].RankName}
 	}
 |---Cheapshot ability EX: Kick in the shins - Updated for RoS
 	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Sucker Punch].RankName}]})  {
@@ -233,6 +287,10 @@ Sub SetupDiscs
 		/varset cheapshot ${Spell[Kick in the Teeth].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.CombatAbility[${Spell[Slap in the Face].RankName}]})  {
 		/varset cheapshot ${Spell[Slap in the Face].RankName}
+	} else /if (${Me.Level}>=5 && ${Me.CombatAbility[${Spell[Elbow Strike].RankName}]})  {
+		/varset cheapshot ${Spell[Elbow Strike].RankName}
+	} else /if (${Me.Level}>=1 && ${Me.CombatAbility[${Spell[Throw Stone].RankName}]})  {
+		/varset cheapshot ${Spell[Throw Stone].RankName}
 	}
 |-Dicho Spell*
 	/if (${Me.Level}>=${Spell[Dissident Rage].Level} && ${Me.CombatAbility[${Spell[Dissident Rage].RankName}]}) {
@@ -276,6 +334,11 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=61 && ${Me.CombatAbility[${Spell[Rage Volley].RankName}]})  {
 		/varset Dvolley ${Spell[Rage Volley].RankName}
 	}
+
+|- Sapping strike
+	/if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Sapping Strikes].RankName}]})  {
+		/varset SappingStrike ${Spell[Sapping Strikes].RankName}
+	} 
 |---Axe Throw - Updated for RoS
 	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Mangling Axe Throw].RankName}]})  {
 		/varset Daxethrow ${Spell[Mangling Axe Throw].RankName}
