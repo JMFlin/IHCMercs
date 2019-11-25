@@ -124,7 +124,11 @@ Sub INIChanges
 Sub SetupDiscs
 |---One off abilities
 	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Phantom Assailant].RankName}]}) /varset Phantom ${Spell[Phantom Assailant].RankName}
-	/if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Demolisher's Alliance].RankName}]}) /varset Alliance ${Spell[Demolisher's Alliance].RankName}
+	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Mangler's Alliance].RankName}]}) {
+		/varset Alliance ${Spell[Mangler's Covenant].RankName}
+	} else /if (${Me.Level}>=105 && ${Me.CombatAbility[${Spell[Demolisher's Alliance].RankName}]}) {
+		/varset Alliance ${Spell[Demolisher's Alliance].RankName}
+	}
 |---Cry Havoc - Crit Buff
 	/if (${Me.Level}>=98 && ${Me.CombatAbility[Cry Carnage]})  {
 		/varset CryHavoc Cry Carnage
@@ -236,7 +240,11 @@ Sub SetupDiscs
 		/varset ResolveDiscID ${Spell[ResolveDisc].ID}
 	}
 |---Frenzy Boost - Updated for RoS and Expanded for lower level
-	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Bolstered Frenzy].RankName}]})  {
+|- STORMWILD FRENZY?
+	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Torrid Frenzy].RankName}]})  {
+		/varset FrenzyBoost ${Spell[Torrid Frenzy].RankName}
+		/varset FrenzyBoostBuff Torrid Frenzy
+	} else /if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Bolstered Frenzy].RankName}]})  {
 		/varset FrenzyBoost ${Spell[Bolstered Frenzy].RankName}
 		/varset FrenzyBoostBuff Bolstered Frenzy Effect
 	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Amplified Frenzy].RankName}]})  {
@@ -245,6 +253,18 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Augmented Frenzy].RankName}]})  {
 		/varset FrenzyBoost ${Spell[Augmented Frenzy].RankName}
 		/varset FrenzyBoostBuff Augmented Frenzy Effect
+	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Steel Frenzy].RankName}]})  {
+		/varset FrenzyBoost ${Spell[Steel Frenzy].RankName}
+		/varset FrenzyBoostBuff Steel Frenzy Effect
+	} else /if (${Me.Level}>=90 && ${Me.CombatAbility[${Spell[Fighting Frenzy].RankName}]})  {
+		/varset FrenzyBoost ${Spell[Fighting Frenzy].RankName}
+		/varset FrenzyBoostBuff Fighting Frenzy Effect
+	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Combat Frenzy].RankName}]})  {
+		/varset FrenzyBoost ${Spell[Combat Frenzy].RankName}
+		/varset FrenzyBoostBuff Combat Frenzy Effect
+	} else /if (${Me.Level}>=80 && ${Me.CombatAbility[${Spell[Battle Frenzy].RankName}]})  {
+		/varset FrenzyBoost ${Spell[Battle Frenzy].RankName}
+		/varset FrenzyBoostBuff Battle Frenzy Effect
 	}
 |---SharedBuff - Updated for RoS and Expanded for lower level
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Shared Ruthlessness].RankName}]})  {
@@ -271,8 +291,6 @@ Sub SetupDiscs
 		/varset RageStrike ${Spell[Smoldering Rage].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Bubbling Rage].RankName}]})  {
 		/varset RageStrike ${Spell[Bubbling Rage].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Festering Rage].RankName}]})  {
-		/varset RageStrike ${Spell[Festering Rage].RankName}
 	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Festering Rage].RankName}]})  {
 		/varset RageStrike ${Spell[Festering Rage].RankName}
 	}
