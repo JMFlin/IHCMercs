@@ -302,9 +302,11 @@ Sub heals
 	/if (${validate_cast[FALSE, spell, "${remedyheal1}", ${worsthurtid}]}) {
 		/call core_cast2 "${remedyheal1}" spell ${worsthurtid} FALSE
 		/return
+	}
 	/if (${validate_cast[FALSE, spell, "${remedyheal2}", ${worsthurtid}]}) {
 		/call core_cast2 "${remedyheal2}" spell ${worsthurtid} FALSE
 		/return
+	}
 	/if (${validate_cast[FALSE, spell, "${patchheal}", ${worsthurtid}]}) {
 		/call core_cast2 "${patchheal}" spell ${worsthurtid} FALSE
 		/return
