@@ -301,10 +301,13 @@ Sub heals
 |	} else 
 	/if (${validate_cast[FALSE, spell, "${remedyheal1}", ${worsthurtid}]}) {
 		/call core_cast2 "${remedyheal1}" spell ${worsthurtid} FALSE
-	} else /if (${validate_cast[FALSE, spell, "${remedyheal2}", ${worsthurtid}]}) {
+		/return
+	/if (${validate_cast[FALSE, spell, "${remedyheal2}", ${worsthurtid}]}) {
 		/call core_cast2 "${remedyheal2}" spell ${worsthurtid} FALSE
-	} else /if (${validate_cast[FALSE, spell, "${patchheal}", ${worsthurtid}]}) {
+		/return
+	/if (${validate_cast[FALSE, spell, "${patchheal}", ${worsthurtid}]}) {
 		/call core_cast2 "${patchheal}" spell ${worsthurtid} FALSE
+		/return
 	}
 /return
 |-Group Healing
