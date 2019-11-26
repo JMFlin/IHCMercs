@@ -1909,8 +1909,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/varset _spell ${Spell[${_spell}].RankName}
 
 		| mem spell if needed
-		/if (${_type.Equal[${buffGem}]} && !${Me.Gem[${_spell}]}) /call mem_spell FALSE TRUE "${_spell}" ${_type} TRUE
-		
+		/if (!${Me.Gem[${_spell}]}) /call mem_spell FALSE TRUE "${_spell}" ${_type} TRUE
+		| ${_type.Equal[${buffGem}]} && 
 		| is the spell memed
 		/if (${Me.Gem[${_spell}]}) {
 
