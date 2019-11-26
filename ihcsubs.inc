@@ -123,7 +123,7 @@ Sub VarSetup
 	/declare Limit 				int outer 50
 	/declare DummyTime        	int outer  10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
-	/declare PCRadiusCheck 		int outer 10
+|	/declare PCRadiusCheck 		int outer 10
 |- Balance events
 	/declare HighHPID 					int outer 0
     /declare highhppct 					int outer 99
@@ -151,7 +151,7 @@ Sub VarSetup
 		/echo Set Extended Target 1 to Auto
 	  }
 	|-Check for loaded plugins
-	/call CheckPlugin MQ2Cast
+|	/call CheckPlugin MQ2Cast
     /call CheckPlugin MQ2Exchange
 	/call CheckPlugin MQ2Rez
 	/call CheckPlugin MQ2AdvPath
@@ -161,6 +161,7 @@ Sub VarSetup
 	/call CheckPlugin MQ2Autoloot
 	/call CheckPlugin AAspend
 	/call CheckPlugin AutoGroup
+	/call CheckPlugin MQ2Hud
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on
     /squelch /rez loot off
@@ -302,11 +303,15 @@ Sub check_state(bool _debug, string _assistCharacter)
 	/if (!${Me.XTarget}) {
 		/if (!${Spell[${Me.Aura[1]}].ID}) {
 			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call LoadSpellBar
+			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call LoadSpellBar
+			}
 		}
 		/if (!${Spell[${Me.Aura[2]}].ID}) {
 			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call LoadSpellBar
+			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call LoadSpellBar
+			}
 		}
 
 		/if (${Stick.Status.Equal[ON]}) /stick off
@@ -1490,12 +1495,13 @@ Sub WelcomeMsg
 |---------------------------------------------------------------------------- 
 Sub balance_hp
 	/if (!${Balance}) /return
+	/if (!${Me.XTarget}) /return
 	/if (!${Me.XTarget[2].ID}) /return
 	/if (${Me.ID} != ${Group.MainAssist.ID}) /return
 	:balance
 	/if (!${Target.ID}) /target id ${Me.XTarget[1].ID}
-	/call HighHP
-	/if ((!${Me.Combat} || ${Target.ID} == ${HighHPID})) {
+	/call high_hp
+	/if (!${Me.Combat} || ${Target.ID} == ${HighHPID}) {
 	    /attack on
 	    /if (${Me.XTarget[2].ID} && ${Balance}) /call Engage
 		/if (${Me.XTarget[2].ID} && ${Balance}) /call AoEAggro
@@ -1507,7 +1513,7 @@ Sub balance_hp
 	/if (${Me.XTarget[2].ID} && ${Balance}) /goto :balance
 	/if (!${Me.XTarget[2].ID} || !${Balance}) /return
 
-Sub HighHP
+Sub high_hp
     /declare x int local 0
     /declare LowHP int local ${Target.PctHPs}
     /declare LowHPID int local ${Target.ID}
@@ -1578,12 +1584,12 @@ Sub get_closest_target
 Sub DummyMode
 
 	/if (${Me.XTarget}) /return
-	/if (!${Spawn[gm].ID} || !${SpawnCount[pc radius ${PCRadiusCheck}]}>6) /return 
+	/if (!${Spawn[gm].ID} || !${SpawnCount[pc radius ${AggressiveRadius}]}>6) /return 
 
 	/declare i int local
 
 	/echo Entering Dummy Mode... 
-	/delay 1s 
+	/delay 3s 
 	/afk ${DummyMsg}
 
 	:waitabit 
@@ -1592,7 +1598,7 @@ Sub DummyMode
 		/if (${Me.XTarget}) /return
 		/delay 1s 
 	/next i
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${PCRadiusCheck}]}>6)) /goto :waitabit 
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) /goto :waitabit 
 	
 	/afk off 
 	/delay 1s 
