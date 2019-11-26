@@ -306,6 +306,19 @@ Sub DowntimeSongs
 		/call LoadSpellGem "${miscspellremem}" ${spellmisc}
 	}
 /return
+|***
+ *	DES: quit singing.
+ *	USE: 
+ *  NOTE: 
+ ***|
+sub pulse_stop(string _marker, bool _debug)
+	/if ((${Me.Casting.ID} || ${Me.BardSongPlaying})) {
+		/varset castReturn CAST_NOTREADY
+		/stopsong
+		/stopcast
+		/delay 10 !${Me.Casting.ID}
+	}	
+/return TRUE
 |----------------------------------------------------------------------------
 |- SUB: BuffCheck
 |----------------------------------------------------------------------------
