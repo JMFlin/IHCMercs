@@ -300,11 +300,15 @@ Sub check_state(bool _debug, string _assistCharacter)
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
-		/if (!${Spell[${Me.Aura[1]}].ID} && ${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-		
+		/if (!${Spell[${Me.Aura[1]}].ID}) {
+			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+			/call LoadSpellBar
+		}
+		/if (!${Spell[${Me.Aura[2]}].ID}) {
+			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+			/call LoadSpellBar
+		}
 
-		/if (!${Spell[${Me.Aura[2]}].ID} && ${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-		
 		/if (${Stick.Status.Equal[ON]}) /stick off
 		/attack off
 		/if (${Target.ID}) /target clear
@@ -396,8 +400,8 @@ Sub Engage
 
 	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 50) {
 		/if (${Target.ID}) /face fast
-		/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) /stick 10 uw front
-		/if (${Select[${Me.Class.ShortName},BER,ROG,MNK,BST,BRD]}) /stick 10 uw !front
+		/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) /stick 12 uw front
+		/if (${Select[${Me.Class.ShortName},BER,ROG,MNK,BST,BRD]}) /stick 12 uw !front
 		/delay 10 ${Stick.Active}
 		/squelch /attack on
 	}
@@ -1855,7 +1859,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			/varset _type alt
 		} else /if (${Me.Book[${Spell[${_spell}].RankName}]}) {
 			/if (${_type.Equal[FIND]}) {
-				/varset _type spell
+				/varset _type 0
 			} else /if (${_type.Equal[FORCE]}) {
 				/varset _type ${buffGem}
 			}
@@ -1876,14 +1880,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
-
-		|/if (${Select[${Me.Class.ShortName},BRD]}) {
-		|	| /if (${Me.BardSongPlaying}) /call pulse_stop 9
-		|	/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
-		|		CHECKFACE ${Target2Kill} FALSE
-		|		/call stick_to_target ${Target2Kill}
-		|	}
-		|}
 
 		| check any subs? yes.. no.. maybe??
 		/if (${SubDefined[${_sub}]}) {
@@ -1910,10 +1906,10 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		}
 				
 		| correct the rank
-		|/varset _spell ${Spell[${_spell}].RankName}
+		/varset _spell ${Spell[${_spell}].RankName}
 
-		| mem spell if needed??
-		|/if (${_type.Equal[${buffGem}]} && !${Me.Gem[${_spell}]}) /call mem_spell FALSE TRUE "${_spell}" ${_type} TRUE
+		| mem spell if needed
+		/if (${_type.Equal[${buffGem}]} && !${Me.Gem[${_spell}]}) /call mem_spell FALSE TRUE "${_spell}" ${_type} TRUE
 		
 		| is the spell memed
 		/if (${Me.Gem[${_spell}]}) {
@@ -2085,7 +2081,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	| disc
 	} else /if (${Select[${_type},disc,activedisc]}) {
 		|DEBUG ${dep}disc,activedisc${dep}${_spell}
-		|/varset _spell ${Spell[${_spell}].RankName}
+		/varset _spell ${Spell[${_spell}].RankName}
 
 		|/if (${Select[${Me.Class.ShortName},BRD]}) {
 			| /if (${Me.BardSongPlaying}) /call pulse_stop 9
@@ -2167,6 +2163,71 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	}
 
 /return FALSE
+
+|***
+ *	DES: Memorize a spell/song
+ *	USE: /call mem_spell [DEBUG T/F] [echo memming T/F] ["spell name"] [gem to mem it in] [wait for recycle to cast T/F]
+ *	NOTE: 
+ ***|
+sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool _wait)
+	
+ 	/if (${Me.Gem[${Spell[${_spellname}].RankName}]}) /return TRUE
+	
+	| cant open a book with shit in hands
+	/if (${Cursor.ID}) {
+		/autoinventory
+	}
+
+	| set timer for.. whatever
+	/if (${_wait}) {
+		/declare _breakTimer timer local 30s
+	} else {
+		/declare _breakTimer timer local 5s
+	}
+
+	| do we even have the spell?
+	/if (!${Me.Book[${Spell[${_spellname}].RankName}]}) {
+		/return FALSE
+	}
+	
+	| just the facts ma'am
+	/call fix_gem_id "${_spellgem}"
+	/declare _gem int local ${Macro.Return}
+	
+	/if (${Me.State.NotEqual[SIT]} && !${Me.Mount.ID}) {
+		/sit
+		/delay 1s ${Me.State.Equal[SIT]}
+	}
+	
+	/delay 5
+	/delay 2s ${Me.Gem[${_gem}].Name.Equal[${Spell[${_spellname}].RankName}]}
+
+	| wait for spell to be ready
+	/while (${_wait}) {
+		/if (!${_breakTimer}) /return FALSE
+		/if (${Me.SpellReady[${Spell[${_spellname}].RankName}]}) /break
+		/delay 2
+	}
+
+	/delay 5
+		
+/return TRUE
+
+|***
+ *	DES: corrects the Gem## to simply a #
+ *	USE: /call fix_gem_id [gem##] | ${fix_gem[gem##]}
+ *	NOTE:
+ ***|
+sub fix_gem_id(string _spellGem, bool _debug)
+	
+	/declare _gem int local 0
+	/if (${_spellGem.Length} == 1 || ${_spellGem.Length} == 4) {
+		/varset _gem ${_spellGem.Right[1]}
+	} else /if (${_spellGem.Length} == 2 || ${_spellGem.Length} == 5) {
+		/varset _gem ${_spellGem.Right[2]} 
+	}
+
+/return ${_gem}
 
 |-------------------------------------------------------------------------------------
 |***
