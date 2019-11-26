@@ -1855,7 +1855,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			/varset _type alt
 		} else /if (${Me.Book[${Spell[${_spell}].RankName}]}) {
 			/if (${_type.Equal[FIND]}) {
-				/varset _type spell
+				/varset _type 0
 			} else /if (${_type.Equal[FORCE]}) {
 				/varset _type ${buffGem}
 			}

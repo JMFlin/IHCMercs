@@ -153,8 +153,8 @@ Sub DebuffMobs
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID} && ${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		/delay 5s !${Me.Casting.ID}
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-
-			
+		/delay 5s !${Me.Casting.ID}
+		/if (!${Target.Crippled.ID} && !${Target.Buff[${SlowSpell}].ID} && ${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 |				/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
 |					/alt act ${Me.AltAbility[${StripBuffSpell}].ID}
