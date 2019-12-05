@@ -85,7 +85,7 @@ Sub ManualPullCamping
 |		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
 |		/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
 
-		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffCheck
+|		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffCheck
 		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffGroup
 
 		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}

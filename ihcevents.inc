@@ -117,9 +117,9 @@ Sub FireTrapDebuff
 |--------------------------------------------------------------------------------------
 #Event DebuffFireTrap "#*#threatening to burn you if you attack#*#"
 Sub Event_DebuffFireTrap
-	/if (${Group}) /gsay !!!FIRE TRAP!!!Backing Off!!!
+|	/if (${Group}) /gsay !!!FIRE TRAP!!!Backing Off!!!
 	/delay 5
-	/if (${Group} && ${DoGroupBeg}) /gsay RC
+|	/if (${Group} && ${DoGroupBeg}) /gsay RC
 	:firetraploop
 		/if ((${Me.Buff[Fire Trap].ID} || ${Me.Song[Fire Trap].ID}) && !${BackOffFlag}) /call DoBackOff
 		/delay 1s
@@ -132,20 +132,20 @@ Sub Event_DebuffFireTrap
 |--------------------------------------------------------------------------------------
 #Event RainbowMez "#*#You are enthralled by rainbows#*#"
 Sub Event_RainbowMez
-	/if (${Group} && ${DoGroupBeg}) /gsay RC
-	/doevents flush RainbowMez
+|	/if (${Group} && ${DoGroupBeg}) /gsay RC
+|	/doevents flush RainbowMez
 /return
 |--------------------------------------------------------------------------------------
 |-Event: HotFootDebuff
 |--------------------------------------------------------------------------------------
 #Event HotFootDebuff "#*#You foot is on fire. Run to put it out#*#"
 Sub Event_HotFootDebuff
-	/if (${Group}) /gsay !!!HOT FOOT Running to put it out!!!
+|	/if (${Group}) /gsay !!!HOT FOOT Running to put it out!!!
 	/call DoBackOff
 	:hotfootloop
 	/if (${Circle.Status.Equal[OFF]}) /circle on 20
 	/delay 1s 
-	/if (${Me.Buff[Hot Foot].ID} || ${Me.Song[Hot Foot].ID})) /goto :hotfootloop
+	/if (${Me.Buff[Hot Foot].ID} || ${Me.Song[Hot Foot].ID}) /goto :hotfootloop
 	/if (${Circle.Status.Equal[ON]}) /circle off
 	/varset BackOffFlag 0
 	/doevents flush HotFootDebuff
