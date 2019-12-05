@@ -181,16 +181,32 @@ Sub Combatdps
 	/if (${Target.Distance}>${AssistRange}) /return
 	/if (${Me.Casting.ID}) /return
 
-	/if (${Target.Fleeing} && ${Target.PctHPs}<20 && !${Target.Rooted.ID} && ${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
-	/if (${Target.PctAggro}>30 && ${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
-	
-	/if (${Target.PctAggro}>99) /return
-	/if (${Target.PctHPs}>=99) /return
+	/if (${Target.Fleeing} && ${Target.PctHPs}<20 && !${Target.Rooted.ID}) {
+		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
+	}
+	/if (${Target.PctAggro}>30) {
+		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) { /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
+	}
 
-	/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) /call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
-	/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) /call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
-	/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) /call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
-	/if (${validate_cast[FALSE, spell, "${ChaosNuke}", ${Target.ID}]}) /call core_cast2 "${ChaosNuke}" spell ${Target.ID} FALSE
+|	/if (${Target.PctAggro} > 99) /return
+	/if (${Target.PctHPs} >= 100) /return
+
+	/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
+		/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
+		/return
+	}
+	/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
+		/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+		/return
+	}
+	/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) {
+		/call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
+		/return
+	}
+	/if (${validate_cast[FALSE, spell, "${ChaosNuke}", ${Target.ID}]}) {
+		/call core_cast2 "${ChaosNuke}" spell ${Target.ID} FALSE
+		/return
+	}
 /return
 
 

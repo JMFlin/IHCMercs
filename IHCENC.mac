@@ -60,25 +60,21 @@ Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs  
 
-	/while (${Mode}==1 || ${Mode}==3) {
-		/if (${AdvPath.Following}) /afollow off
-		/if (${Me.Hovering}) /call DeathSub
-		/if (${Me.State.Equal[FEIGN]}) /stand
-			
+	/while (${Mode}==1 || ${Mode}==3) {			
 		/call check_state FALSE ${Group.MainAssist.Name}
 		|/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
 		|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
 		|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/call BuffCheck
+|		/call BuffCheck
 		/call BuffGroup
 |		/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
 |		/if (${DoMed}) /call AutoMed
 |		/call CheckMana
 
 |		/if (${Me.XTarget}) /assist ${Group.MainAssist.Name}
-		/call PetAttack
+|		/call PetAttack
 |		/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
 |		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 |		/if ((${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow}) && (${Me.AltAbilityReady[Calculated Insanity]} || ${Me.AltAbilityReady[Improved Twincast]}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) /call BurnRoutine
@@ -89,7 +85,7 @@ Sub ManualPullCamping
 		
 |-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
 
-		/if (${UseModRods}) /call ClickModRoD
+|		/if (${UseModRods}) /call ClickModRoD
 		
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
@@ -135,26 +131,37 @@ Sub DebuffMobs
 	/declare x int local 1
 
 	/if (!${Me.XTarget}) /return
-	/if (!${Target.Type.Equal[NPC]}) /return
 
 	/for x 1 to ${Me.XTarget}
 
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 
-		/if (${Target.Distance}>${AssistRange}) /return
-		
-		/echo Slowing ${Target.Name}
+		/if (${Target.Distance} > 200) /return
+		/if (!${Target.Type.Equal[NPC]}) /return
+
 |		/if (${Me.SpellReady[${DoTSpell3}]} && !${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Named}) /call CastSpell "${DoTSpell3}" ${Target.ID} dbf
 |		/delay 5s !${Me.Casting.ID}
 |		/if  (${Me.AltAbilityReady[Mental Contortion]} && !${Me.Moving} && !${Me.Casting.ID} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Named}) /alt act ${Me.AltAbility[Mental Contortion].ID}
 |		/delay 5s !${Me.Casting.ID}
 
-		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID} && ${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
-		/delay 5s !${Me.Casting.ID}
-		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-		/delay 5s !${Me.Casting.ID}
-		/if (!${Target.Crippled.ID} && !${Target.Buff[${SlowSpell}].ID} && ${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
+|			/delay 5s !${Me.Casting.ID}
+|			/delay 5s !${Me.SpellInCooldown}
+		}
+		
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+|			/delay 5s !${Me.Casting.ID}
+|			/delay 5s !${Me.SpellInCooldown}
+		}
+
+		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+|			/delay 5s !${Me.Casting.ID}
+|			/delay 5s !${Me.SpellInCooldown}
+		}
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 |				/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
 |					/alt act ${Me.AltAbility[${StripBuffSpell}].ID}
@@ -178,8 +185,8 @@ Sub DebuffMobs
 |				/call CastSpell "${SlowSpell}" ${Target.ID} dbf
 |			}
 |			/if (${DoBlurr} && ${Me.PctAggro}>=${BlurrAggroPct}) /call ManageAggro "BlrFlg"
-		/delay 5s !${Me.Casting.ID}
-		/delay 5s !${Me.SpellInCooldown}
+|		/delay 5s !${Me.Casting.ID}
+|		/delay 5s !${Me.SpellInCooldown}
 	/next x
 /return
 |----------------------------------------------------------------------------
@@ -208,9 +215,14 @@ Sub AANDisc
 Sub Combatdps
 
 	/if (!${Target.ID}) /return
+	
+	/if (!${Target.Buff[${SlowSpell}].ID}) /call DebuffMobs
+	/if (!${Target.Buff[${CrippleSpell1}].ID}) /call DebuffMobs
+
 	/if (${Target.PctHPs}>${AutoAssistAt}) /return
 	/if (${Target.Distance}>${AssistRange}) /return
-	/if (${Me.Casting.ID}) /return
+
+	/assist ${Group.MainAssist.Name}
 
 	/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 
@@ -348,6 +360,8 @@ Sub BuffGroup
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID})) {
 			
+			/if (${Me.XTarget}) /return
+
 			/if (!${Me.Book[${GroupMana}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SingleMana}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleMana}].Stacks" "tmpstackcheck" "bool"

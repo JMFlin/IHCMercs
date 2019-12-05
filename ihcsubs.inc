@@ -121,7 +121,7 @@ Sub VarSetup
 	/declare PullDistance3 		int outer 0
 	/declare ResourceChecker 	int outer 1
 	/declare Limit 				int outer 50
-	/declare DummyTime        	int outer  10
+	/declare DummyTime        	int outer 10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
 |	/declare PCRadiusCheck 		int outer 10
 |- Balance events
@@ -152,7 +152,7 @@ Sub VarSetup
 	  }
 	|-Check for loaded plugins
 |	/call CheckPlugin MQ2Cast
-    /call CheckPlugin MQ2Exchange
+|    /call CheckPlugin MQ2Exchange
 	/call CheckPlugin MQ2Rez
 	/call CheckPlugin MQ2AdvPath
 	/call CheckPlugin MQ2MoveUtils
@@ -162,6 +162,7 @@ Sub VarSetup
 	/call CheckPlugin AAspend
 	/call CheckPlugin AutoGroup
 	/call CheckPlugin MQ2Hud
+	/call CheckPlugin MQ2SpawnSort
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on
     /squelch /rez loot off
@@ -294,41 +295,39 @@ Sub check_state(bool _debug, string _assistCharacter)
 	/if (${Me.Hovering}) /call DeathSub
 	
 	| mod rod on cursor?
-	/if (${Cursor.ID}) /call BagModRods
+	|/if (${Cursor.ID}) /call BagModRods
 	
 	| have I been knocked down?
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
-		/if (!${Spell[${Me.Aura[1]}].ID}) {
+		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
+			/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
 			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
 			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call LoadSpellBar
 			}
 		}
-		/if (!${Spell[${Me.Aura[2]}].ID}) {
+		/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
 			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
 			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call LoadSpellBar
 			}
 		}
-
 		/if (${Stick.Status.Equal[ON]}) /stick off
 		/attack off
 		/if (${Target.ID}) /target clear
 		/if (${Me.Pet.ID}) /pet back off
 |		/call check_illusion FALSE ${illusionItem}
 		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
-		/delay 7
 	}
 
 	| if I have a target: assist and get ready
 	/if (${Me.XTarget}) {
 		/if (${Me.Sitting}) /stand
-		/if (${Me.ID}!=${Group.MainAssist.ID} && !${Me.Class.ShortName.Find[CLR]} && ${Defined[_assistCharacter]}) /assist ${_assistCharacter}
+		/if (${Me.ID} != ${Group.MainAssist.ID} && !${Me.Class.ShortName.Find[CLR]} && ${Defined[_assistCharacter]}) /assist ${_assistCharacter}
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/delay 7
 	}
 /return
 |----------------------------------------------------------------------------
@@ -403,10 +402,16 @@ Sub Engage
 	/if (!${Target.ID}) /return
 	/if (!${Target.Type.Equal[NPC]}) /return
 
-	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 50) {
-		/if (${Target.ID}) /face fast
-		/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) /stick 12 uw front
-		/if (${Select[${Me.Class.ShortName},BER,ROG,MNK,BST,BRD]}) /stick 12 uw !front
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Navigation.PathLength[id ${Target.ID}]} < 20) {
+		/face fast
+		/if (!${Stick.Active}) /stick 12 uw front
+		/delay 10 ${Stick.Active}
+		/squelch /attack on
+	}
+
+	/if (${Select[${Me.Class.ShortName},BER,ROG,MNK,BST,BRD]} && (${Target.PctHPs} < 100 || ${Navigation.PathLength[id ${Target.ID}]} < 20)) {
+		/face fast
+		/if (!${Stick.Active}) /stick 12 uw !front
 		/delay 10 ${Stick.Active}
 		/squelch /attack on
 	}
@@ -463,8 +468,10 @@ Sub Travel
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
 	/attack off
 	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID}!=${Me.ID}) {
-		/target id ${Group.Leader.ID}
-		/delay 5s ${Target.ID}==${Group.Leader.ID}
+		/if (${Me.ID}!=${Group.Leader.ID}) {
+			/target id ${Group.Leader.ID}
+			/delay 5s ${Target.ID}==${Group.Leader.ID}
+		}
 		/if (!${Navigation.Active} && ${Target.Distance}>10) /nav id ${Target.ID}
 		/if (${Navigation.Active} && ${Target.Distance}<10) /nav stop
 	}
@@ -1542,41 +1549,20 @@ Sub high_hp
 |- SUB: CheckXTargetDistance  
 |---------------------------------------------------------------------------- 
 Sub get_closest_target
+	/declare x int local 0
 
 	/if (!${Me.XTarget[1].ID}) /return
 	/if (${Balance}) /return
 	/if (${Me.ID} != ${Group.MainAssist.ID}) /return
 
-	/if (${Target.ID} && !${Target.Type.Equal[Corpse]} && ${Target.Type.Equal[NPC]}) /return
-
 	/if (!${Me.XTarget[2].ID}) {
 		/target id ${Me.XTarget[1].ID}
 		/return
 	}
-	/declare x int local 0
-	/if (${Target.ID} && !(${Target.ID}==${Me.ID})) {
-		/declare OldTargetID int local ${Target.ID}
-	} else {
-		/declare OldTargetID int local 0
+
+	/if (!${Target.ID} && ${SpawnSort[1,asc,PathLength,xtarhater].Distance} < 200) {
+		/target id ${SpawnSort[1,asc,PathLength,xtarhater].ID}
 	}
-	/declare TargetDistance int local 999
-	/declare ClosestTargetName string local ${Me.XTarget[1].Name}
-	/declare ClosestTargetID int local ${Me.XTarget[1].ID}
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-	/for x 1 to ${Me.XTarget}
-		/if (${Me.XTarget[${x}].Named} && ${Me.XTarget[${x}].Type.Equal[NPC]}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
-			/return
-		} else /if (${Me.XTarget[${x}].Distance}<${TargetDistance} && ${Me.XTarget[${x}].ID}!=${OldTargetID}) {
-			/varset TargetDistance ${Me.XTarget[${x}].Distance}
-			/varset ClosestTargetName ${Me.XTarget[${x}].Name}
-			/varset ClosestTargetID ${Me.XTarget[${x}].ID}
-		}
-	/next x
-/target id ${ClosestTargetID}
-/delay 5 ${Target.ID}==${ClosestTargetID}
-/if (${Defined[${OldTargetID}]}) /deletevar ${OldTargetID}
 /return
 |-------------------------------------------------------------------------------- 
 | Sub DummyMode

@@ -235,7 +235,7 @@ Sub AANDisc
 		/disc ${HHEBuff}
 		/delay 5
 	}	
-	/if (${Cast.Ready[${epicaxe}]} && ${Target.PctHPs}>1 && ${Me.ActiveDisc.ID}!=${DisconDiscID} && ${UseEpic}) { 
+	/if (${Target.PctHPs}>1 && ${Me.ActiveDisc.ID}!=${DisconDiscID} && ${UseEpic}) { 
 		/useitem "${epicaxe}"
 		/delay 10
 	}
@@ -285,7 +285,7 @@ Sub Combatdps
 		/Disc ${Alliance}
 		/delay 5
 	}
-	/if (${FindItem[${ChestItemName}].ID} && ${ChestCombatCast} && ${Cast.Ready[${ChestItemName}]}) {
+	/if (${FindItem[${ChestItemName}].ID} && ${ChestCombatCast} && !${FindItem[${ChestCombatCast}].TimerReady}) {
 		/useitem "${ChestItemName}"
 		/delay 10	
 	}
@@ -389,14 +389,6 @@ Sub make_axes
 		}
 		/if (${AutoAxe2} && ${FindItemCount[${AutoAxe2Name}]}<${AutoAxe2Count}) /goto :axe2cast
 		/if (${Cursor.ID}) /autoinventory
-	}
-	/if (${UsePoisons} && ${FindItem[${PoisonName}].ID} && ${Cast.Ready[${PoisonName}]} && !${Me.Buff[${PoisonBuffName}].ID}) {
-		/useitem "${PoisonName}"
-		/delay 50
-	} else /if (${UsePoisons} && !${FindItem[${PoisonName}].ID}) {
-		/echo \aw No Poison Found in Inventory - \ar Disabling
-		/varset UsePoisons 0
-		/varset changetoini 1
 	}
 /return
 |----------------------------------------------------------------------------

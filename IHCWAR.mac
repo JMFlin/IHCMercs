@@ -182,7 +182,7 @@ Sub AFKRadiusCamping
 		/call afk_pull
 
 		/call check_state FALSE ${Group.MainAssist.Name}
-		/call get_closest_target
+|		/call get_closest_target
 		
 
 		/call balance_hp
@@ -212,20 +212,31 @@ Sub CheckXTargetMezRoot
 
 	/declare x int local 0
 	/if (${Target.Type.Equal[Corpse]}) /target clear
-	/for x 1 to ${Me.XTarget}
-		:getaggro
-		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
-			/if (!${AdvPath.Following}) /call Engage
-			/if (${Me.XTarget[${x}].PctAggro}<100) /call DoCombat
+
+	| if any npcs on xtarget have less than 100% aggro
+	/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
+		/if (${If[${Select[${SpawnSort[1,asc,PctAggro,xtarhater].Animation},110,26,32,71,72,111]}, 0, 1]}==1) {
+			/target id ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
+			/delay 5 ${Target.ID}==${SpawnSort[1,asc,PctAggro,xtarhater].ID}
+			/call Engage
+			/call DoCombat
 		}
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.XTarget[1].ID} || ${Target.ID}==${Me.ID} || !${Target.ID}) /return
-		/if (${Me.XTarget[${x}].PctAggro}<100 && ${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-			/goto :getaggro
-		}
-	/next x
+	}
+
+|	/for x 1 to ${Me.XTarget}
+|		:getaggro
+|		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
+|			/target id ${Me.XTarget[${x}].ID}
+|			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
+|			/if (!${AdvPath.Following}) /call Engage
+|			/if (${Me.XTarget[${x}].PctAggro}<100) /call DoCombat
+|		}
+|		/if (${Target.Type.Equal[Corpse]}) /target clear
+|		/if (!${Me.XTarget[1].ID} || ${Target.ID}==${Me.ID} || !${Target.ID}) /return
+|		/if (${Me.XTarget[${x}].PctAggro}<100 && ${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
+|			/goto :getaggro
+|		}
+|	/next x
 /return
 |----------------------------------------------------------------------------
 |- SUB: CombatBuffs 
