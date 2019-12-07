@@ -162,6 +162,7 @@ Sub VarSetup
 	/call CheckPlugin AAspend
 	/call CheckPlugin AutoGroup
 	/call CheckPlugin MQ2Hud
+	/call CheckPlugin MQ2EasyFind
 	/call CheckPlugin MQ2SpawnSort
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on

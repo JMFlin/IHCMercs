@@ -137,7 +137,12 @@ Sub LoadSpellBar
 		|/call LoadSpellGem "${FireEtherealNuke}" 3
 		/call LoadSpellGem "${WildNuke}" 4
 		|/call LoadSpellGem "${ColdEtherealNuke}" 4
-		/call LoadSpellGem "${RootSpell}" 5
+		
+		/if (${Me.Book[${SnareSpell}]}) {
+			/call LoadSpellGem "${SnareSpell}" 5
+		} else /if (${Me.Book[${RootSpell}]}) {
+			/call LoadSpellGem "${RootSpell}" 5
+		}
 		|/call LoadSpellGem "${MagmaticAENuke}" 5
 		/call LoadSpellGem "${ChaosNuke}" 6
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
