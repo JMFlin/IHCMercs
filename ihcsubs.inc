@@ -514,7 +514,7 @@ Sub Travel
 
 	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID} != ${Me.ID}) {
 		/if (!${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} > 50) /nav id ${Group.Leader.ID}
-		/if (${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} < 50) /nav stop
+		/if (${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} < 20) /nav stop
 	}
 
 	/if (${Select[${Me.Class.ShortName},SHM]}) {
