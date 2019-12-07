@@ -367,7 +367,7 @@ Sub Combatdps
 Sub make_axes
 
 	/if (${Me.Combat}) /return
-	/if (${Me.XTarget[1].ID}) /return
+	/if (${Me.XTarget}) /return
 	/if (${Me.Moving}) /return
 	/if (${Navigation.Active}) /return
 	
@@ -375,7 +375,7 @@ Sub make_axes
 	/if (${FindItemCount[${AutoAxeName}]}<${AutoAxeMin} && ${AutoAxe} && ${AutoAxeCount}>0) {
 		:axecast
 		/if (${Cursor.ID}) /autoinventory
-		/if (${Me.Combat}) /return
+		/if (${Me.XTarget}) /return
 		/if (${FindItemCount[${AutoAxeComponents}]} && !${Me.Casting.ID} && !${Cursor.ID} && ${Me.CombatAbilityReady[${AutoAxeName}]}) {
 			/disc ${AutoAxeName}
 			/delay 8s
@@ -391,7 +391,7 @@ Sub make_axes
 	/if (${FindItemCount[${AutoAxe2Name}]}<${AutoAxe2Min} && ${AutoAxe2} && ${AutoAxe2Count}>0) {
 		:axe2cast
 		/if (${Cursor.ID}) /autoinventory
-		/if (${Me.Combat}) /return
+		/if (${Me.XTarget}) /return
 		/if (${FindItemCount[${AutoAxe2Components}]} && !${Me.Casting.ID} && !${Cursor.ID} && ${Me.CombatAbilityReady[${AutoAxe2Name}]}) {
 			/disc ${AutoAxe2Name}
 			/delay 8s

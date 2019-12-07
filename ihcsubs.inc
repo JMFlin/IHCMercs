@@ -445,7 +445,7 @@ Sub Engage
 	/if (!${Target.Type.Equal[NPC]}) /return
 
 	| tank engage if target is close enough
-	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Navigation.PathLength[id ${Target.ID}]} < 30) {
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && (${Target.PctHPs} < 100 ||${Navigation.PathLength[id ${Target.ID}]} < 30)) {
 		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
