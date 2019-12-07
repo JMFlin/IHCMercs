@@ -179,11 +179,11 @@ Sub Combatdps
 
 	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-	} else /if (${Target.PctHPs}<25 && !${Target.Rooted.ID}) {
+	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID}) {
 		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Target.PctAggro}>30) {
+	/if (${Target.PctAggro} > 30) {
 		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) { /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
 	}
 
