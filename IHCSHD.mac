@@ -77,7 +77,7 @@ Sub AFKRadiusCamping
 		/call afk_pull
 
 		/call check_state FALSE
-		/call get_closest_target
+		/call get_target
 		
 
 		/call balance_hp
