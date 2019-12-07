@@ -57,7 +57,7 @@ Sub WizSetup
 	/declare RootSpell				string	outer	"NULL" 
 	/declare SnareSpell				string	outer	"NULL"
 	/declare EvacSpell				string	outer	"NULL"
-	/declare HarvestSpell			string 	outer	"NULL"
+	/declare HarvestSpell1			string 	outer	"NULL"
 	/declare StunSpell				string 	outer	"NULL"
 	/declare JoltSpell				string 	outer	"NULL"
 |-Config Options	
@@ -153,7 +153,7 @@ Sub LoadSpellBar
 			/if (${GambitSpell.NotEqual[NULL]} && ${Me.Book[${Spell[${GambitSpell}].RankName}]}) {
 				/call LoadSpellGem "${GambitSpell}" 11
 			} else {
-				/call LoadSpellGem "${HarvestSpell}" 11
+				/call LoadSpellGem "${HarvestSpell1}" 11
 			}
 			/call LoadSpellGem "${WildNuke}" 12
 			/call LoadSpellGem "${JoltSpell}" 13
@@ -183,7 +183,7 @@ Sub LoadSpellBar
 			/if (${GambitSpell.NotEqual[NULL]} && ${Me.Book[${Spell[${GambitSpell}].RankName}]}) {
 				/call LoadSpellGem "${GambitSpell}" 11
 			} else {
-				/call LoadSpellGem "${HarvestSpell}" 11
+				/call LoadSpellGem "${HarvestSpell1}" 11
 			}
 			/call LoadSpellGem "${WildNuke}" 12
 			/varset miscspellremem ${WildNuke}
@@ -193,23 +193,23 @@ Sub LoadSpellBar
 			/call LoadSpellGem "${FastNuke1}" 7
 			/call LoadSpellGem "${StunSpell}" 8
 			/call LoadSpellGem "${JoltSpell}" 9
-			/call LoadSpellGem "${HarvestSpell}" 10
+			/call LoadSpellGem "${HarvestSpell1}" 10
 			/varset miscspellremem ${GeneralNuke1}
 		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==2) {
 			/call LoadSpellGem "${ChaosNuke}" 5
 			/call LoadSpellGem "${WildNuke}" 6
 			/call LoadSpellGem "${FastNuke1}" 7
 			/call LoadSpellGem "${StunSpell}" 8
-			/call LoadSpellGem "${HarvestSpell}" 9
+			/call LoadSpellGem "${HarvestSpell1}" 9
 			/varset miscspellremem ${GeneralNuke1}
 		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==1) {
 			/call LoadSpellGem "${ChaosNuke}" 5
 			|-6
 			|-7
-			/call LoadSpellGem "${HarvestSpell}" 8
+			/call LoadSpellGem "${HarvestSpell1}" 8
 		} else {
 			|-6
-			/call LoadSpellGem "${HarvestSpell}" 7
+			/call LoadSpellGem "${HarvestSpell1}" 7
 		}
 	}
 	/delay 2s
@@ -371,23 +371,23 @@ Sub SetWizSpells
 	}
 |-HarvestSpell
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Musing Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Musing Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Musing Harvest].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Quiescent Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Quiescent Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Quiescent Harvest].RankName}
 	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Bucolic Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Bucolic Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Bucolic Harvest].RankName}
 	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Placid Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Placid Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Placid Harvest].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Soothing Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Soothing Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Soothing Harvest].RankName}
 	} else /if (${Me.Level}>=82 && ${Me.Book[${Spell[Serene Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Serene Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Serene Harvest].RankName}
 	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Tranquil Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Tranquil Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Tranquil Harvest].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Patient Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Patient Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Patient Harvest].RankName}
 	} else /if (${Me.Level}>=32 && ${Me.Book[${Spell[Harvest].RankName}]}) {
-		/varset HarvestSpell ${Spell[Harvest].RankName}
+		/varset HarvestSpell1 ${Spell[Harvest].RankName}
 	}	
 |-GambitSpell
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Musing Gambit].RankName}]}) {

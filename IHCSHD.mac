@@ -73,53 +73,27 @@ Sub AFKRadiusCamping
 		/call set_timers
 
 
-		/call PullerCheckGroupManaEnd 
+		/call puller_check_group_resources 
 		/call afk_pull
 
-		/call check_state FALSE ${Group.MainAssist.Name}
+		/call check_state FALSE
 		/call get_closest_target
 		
 
 		/call balance_hp
 
-		/call CheckXTargetMezRoot
+		/call check_add_aggro
 
 		/call Engage
 		/call AoEAggro
 		/call DoDisc
-		/call DoCombat
+		/call get_aggro
 		/call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 		/doevents
 	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: CheckXTargetMezRoot
-|---------------------------------------------------------------------------- 
-Sub CheckXTargetMezRoot
-
-	/if (${Balance}) /return
-	/if (!${Me.XTarget[2].ID}) /return
-	/if (${TimeForMez}!=0) /return
-
-	/declare x int local 0
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-	/for x 1 to ${Me.XTarget}
-		:getaggro
-		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
-			/if (!${AdvPath.Following}) /call Engage
-			/if (${Me.XTarget[${x}].PctAggro}<100) /call DoCombat
-		}
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if (!${Me.XTarget[1].ID} || ${Target.ID}==${Me.ID} || !${Target.ID}) /return
-		/if (${Me.XTarget[${x}].PctAggro}<100 && ${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-			/goto :getaggro
-		}
-	/next x
 /return
 |----------------------------------------------------------------------------
 |- SUB: CombatBuffs 
@@ -138,9 +112,9 @@ Sub DoDisc
 	
 /return
 |----------------------------------------------------------------------------
-|- SUB: DoCombat
+|- SUB: get_aggro
 |---------------------------------------------------------------------------- 
-Sub DoCombat
+Sub get_aggro
 	/if (!${Me.XTarget}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 
