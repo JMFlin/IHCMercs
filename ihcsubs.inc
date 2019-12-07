@@ -321,7 +321,7 @@ Sub check_state(bool _debug)
 		| check pet
 		/if (${Me.Pet.ID}) /pet back off
 		
-		/if (${Me.Book[${Aura1}]}) {
+		/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
 			| check aura one
 			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
 
@@ -352,10 +352,10 @@ Sub check_state(bool _debug)
 			}
 		}
 
-		/if (!${Select[${Me.Class.ShortName},WIZ,ENC,MAG]}) {
+		/if (${Select[${Me.Class.ShortName},WIZ,ENC,MAG]}) {
 			
 			| Check book for first harvest
-			/if (${Me.Book[${HarvestSpell}]}) {
+			/if (${Me.Book[${HarvestSpell1}]}) {
 				
 				| Condition for first harvest
 				/if (${Me.PctMana} < 50) {
@@ -1640,18 +1640,7 @@ Sub get_target
 	| if I have a target: assist and get ready
 	/if (${Me.XTarget}) {
 		/if (${Me.Sitting}) /stand
-		/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) /assist ${Group.MainAssist.Name}
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-	}
-
-	| group ma sets the target
-	/if (${Me.ID} != ${Group.MainAssist.ID}) {
-		/return
-	}
-
-	| group tank needs a target
-	/if (${Me.ID} != ${Group.MainTank.ID}) {
-		/return
 	}
 
 	| if there is only one target on xtarget then target that
@@ -1695,6 +1684,9 @@ Sub get_target
 			/assist ${Group.MainAssist.Name}
 		}
 	}
+
+	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) /assist ${Group.MainAssist.Name}
+
 /return
 |-------------------------------------------------------------------------------- 
 | Sub DummyMode
@@ -2356,15 +2348,15 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
  *	NOTE:
  ***|
 sub fix_gem_id(string _spellGem, bool _debug)
-	/declare _gem int local 0
+	/declare _gem int local 8
 
 	/if (${_spellGem.Length} == 1 || ${_spellGem.Length} == 4) {
 		/varset _gem ${_spellGem.Right[1]}
 	} else /if (${_spellGem.Length} == 2 || ${_spellGem.Length} == 5) {
 		/varset _gem ${_spellGem.Right[2]} 
 	}
-
-/return ${_gem}
+| ${_gem}
+/return 8
 
 |-------------------------------------------------------------------------------------
 |***
