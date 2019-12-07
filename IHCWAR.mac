@@ -278,24 +278,32 @@ Sub DoDisc
 	/if (!${Me.XTarget}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 
-	/if ((${SpawnCount[NPC Aggressive radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level}>(${Me.Level}+3)) && ${Me.ActiveDisc.ID}!=${FortitudeDiscID} && ${Me.ActiveDisc.ID}!=${CulminatingStandID} && ${Me.CombatAbilityReady[${missall}]}) {
-		/delay 5
-		/if (${Me.ActiveDisc.ID}) /stopdisc
-		/delay 20 !${Me.ActiveDisc.ID}
-		/disc ${missall}
-		/delay 5
+	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${missall}]}) {
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
+				/stopdisc
+				/delay 5 !${Me.ActiveDisc.ID}
+			}
+		} else {
+			/disc ${missall}
+		}
 	}
 
 	/if ((${Me.PctHPs}<55 || ${Target.Named}) && ${Me.ActiveDisc.ID}!=${FortitudeDiscID}) {
 		/disc ${parryall}
 	}
 
-	/if ((${SpawnCount[NPC Aggressive radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level}>(${Me.Level}+3)) && ${Me.ActiveDisc.ID}!=${FortitudeDiscID} && ${Me.ActiveDisc.ID}!=${CulminatingStandID} && ${Me.CombatAbilityReady[${meleemit}]}) {
-		/delay 5
-		/if (${Me.ActiveDisc.ID}) /stopdisc
-		/delay 20 !${Me.ActiveDisc.ID}
-		/disc ${meleemit}
-		/delay 5
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) && ${Me.CombatAbilityReady[${meleemit}]}) {
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
+				/stopdisc
+				/delay 5 !${Me.ActiveDisc.ID}
+			}
+		} else {
+			/disc ${meleemit}
+		}
 	} 
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID}) /return
@@ -310,7 +318,7 @@ Sub DoDisc
 		}
 	}
 
-	/if ((${SpawnCount[NPC Aggressive radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level}>(${Me.Level}+3))) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level}>(${Me.Level}+3))) {
 		/if (${Me.AltAbilityReady[Warlord's Tenacity]} && ${Target.PctHPs}>1) {
 			/call AANow ${Me.AltAbility[Warlord's Tenacity].ID}
 		} 

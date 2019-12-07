@@ -120,7 +120,7 @@ Sub VarSetup
 	/declare PullDistance 		int outer 0
 	/declare PullDistance3 		int outer 0
 	/declare ResourceChecker 	int outer 1
-	/declare Limit 				int outer 50
+	/declare Limit 				int outer 30
 	/declare DummyTime        	int outer 10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
 |	/declare PCRadiusCheck 		int outer 10
@@ -446,18 +446,18 @@ Sub Engage
 
 	| tank engage if target is close enough
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Navigation.PathLength[id ${Target.ID}]} < 30) {
-		/face fast
+		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
-		/squelch /attack on
+		/if (${Target.ID}) /squelch /attack on
 	}
 
 	| melee dps engage if target is close enough
-	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Target.PctHPs} < 100 && ${Navigation.PathLength[id ${Target.ID}]} < 30) {
-		/face fast
+	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && (${Target.PctHPs} < 97 || ${Navigation.PathLength[id ${Target.ID}]} < 30)) {
+		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
-		/squelch /attack on
+		/if (${Target.ID}) /squelch /attack on
 	}
 
 |	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 25) {
@@ -536,8 +536,8 @@ Sub puller_check_group_resources
 	/if (${Group.Puller.ID} != ${Me.ID}) /return
 
 	/declare bmember	int local 0
-	/if (${Limit} == 50 && ${ResourceChecker} == 0) /varset Limit 85
-	/if (${Limit} == 85 && ${ResourceChecker} == 1) /varset Limit 50
+	/if (${Limit} == 30 && ${ResourceChecker} == 0) /varset Limit 85
+	/if (${Limit} == 85 && ${ResourceChecker} == 1) /varset Limit 30
 	/varset ResourceChecker 1
 
 	/for bmember 0 to ${Group}
