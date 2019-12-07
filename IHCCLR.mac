@@ -202,6 +202,7 @@ Sub BuffGroup
 		/if (${Group.Member[${bmember}].Distance}<${Spell[${HPBuff}].MyRange} && !${Group.Member[${bmember}].OtherZone} && !${Me.Casting.ID}) {
 
 			/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
+			/if (${Me.XTarget}) /return
 
 			/if (!${Me.Book[${GroupHPBuff}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${HPBuff}].ID" "tmpbuffid" "bool"
@@ -211,12 +212,14 @@ Sub BuffGroup
 					/delay 10
 				}
 			}
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpbuffid" "int"
+			
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupBuff}].Stacks" "tmpstackcheck" "bool"
-			/if (${tmpstackcheck} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && !${Me.Casting.ID}) {
+			/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && !${Me.Casting.ID}) {
+				/echo ${Group.Member[${bmember}].Name} does not have aego in ${tmpbuffid}
 				/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 				/varset spellrememtimer 5s
 				/delay 10

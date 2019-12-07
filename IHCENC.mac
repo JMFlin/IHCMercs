@@ -129,7 +129,6 @@ Sub ManualRunAndGun
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 
 Sub DebuffMobs
-	/echo in Debuff sub
 	/declare x int local 1
 
 	/if (!${Me.XTarget}) /return

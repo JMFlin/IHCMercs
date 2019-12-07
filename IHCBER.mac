@@ -178,7 +178,8 @@ Sub AANDisc
 		/alt act ${Me.AltAbility[Savage Spirit].ID}
 		/delay 5
 	}
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && ${Me.Buff[Savage Spirit].ID}) {
+	| ${Me.Buff[Savage Spirit].ID}
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow})) {
 		/if (${Me.ActiveDisc.ID}) /stopdisc
 		/delay 5
 		/disc ${PrimaryBurnDisc}
@@ -208,21 +209,34 @@ Sub AANDisc
 		/alt act ${Me.AltAbility[Furious Rampage].ID}
 		/delay 5
 	}	
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && ${Me.ActiveDisc.ID}!=${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID}!=${FlurryDiscID} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow})) {
-		/if (${Me.ActiveDisc.ID}) /stopdisc
-		/delay 5
-		/disc ${CleavingDisc}
-		/delay 5
+
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow})) {
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID} != ${FlurryDiscID}) {
+				/stopdisc
+				/delay 5 !${Me.ActiveDisc.ID}
+			}
+		} else {
+			/disc ${CleavingDisc}
+		}
 	}
+
 	/if (${Me.AltAbilityReady[Reckless Abandon]} && ${Me.ActiveDisc.ID}==${CleavingDiscID}) {
 		/alt act ${Me.AltAbility[Reckless Abandon].ID}
 		/delay 5
-	}	
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${Spell[${FlurryDisc}].RankName}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && !${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.ActiveDisc.ID}!=${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID}!=${CleavingDiscID} &&(${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
-		/if (${Me.ActiveDisc.ID}) /stopdisc
-		/delay 5
-		/disc ${FlurryDisc}
-		/delay 5
+	}
+
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${Spell[${FlurryDisc}].RankName}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && !${Me.CombatAbilityReady[${CleavingDisc}]} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
+		
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID} != ${CleavingDiscID}) {
+				/stopdisc
+				/delay 5 !${Me.ActiveDisc.ID}
+			}
+		} else {
+			/disc ${FlurryDisc}
+		}
 	}
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
