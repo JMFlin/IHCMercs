@@ -59,6 +59,8 @@ Sub ShmSetup
 	/declare Spell11				string outer NULL
 	/declare Spell12				string outer NULL
 	/declare Spell13				string outer NULL
+	/declare TravelSpell 			string outer NULL
+
 	/declare WasStickOn				int	outer 0
 	/declare PatchHealPoint			int outer 44
 	/declare PatchHeal2Point		int outer 34
@@ -247,6 +249,9 @@ Sub CheckSpells
 |-	} else /if (${Me.Level}>=${Spell[].Level} && ${Me.Book[${Spell[].RankName}]}) {
 |-		/varset  ${Spell[].RankName}
 |-	}
+
+	/varset TravelSpell Communion of the Cheetah
+
 	/if (${Me.Level}>=${Spell[Ward of Remediation].Level} && ${Me.Book[${Spell[Ward of Remediation].RankName}]}) {
 		/varset SelfHealProcBuff ${Spell[Ward of Remediation].RankName}
 	} else /if (${Me.Level}>=${Spell[Ward of Regeneration].Level} && ${Me.Book[${Spell[Ward of Regeneration].RankName}]}) {

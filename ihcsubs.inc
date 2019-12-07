@@ -281,14 +281,18 @@ Sub SaveCommonConfig
 |----------------------------------------------------------------------------
 |- SUB: check_state
 |---------------------------------------------------------------------------- 
-Sub check_state(bool _debug, string _assistCharacter)
+Sub check_state(bool _debug)
 
+	| am I moving?
 	/if (${Me.Moving}) /return
 	
+	| am I casting?
 	/if (${Me.Casting.ID} && !${Me.Class.ShortName.Find[BRD]}) /return
 
+	| is my spell in cooldown?
 	/if (${Me.SpellInCooldown} && !${Me.Class.ShortName.Find[BRD]}) /return
 	
+	| am I navigating?
 	/if (${Navigation.Active}) /return
 
 	| am I dead?
@@ -300,34 +304,70 @@ Sub check_state(bool _debug, string _assistCharacter)
 	| have I been knocked down?
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
+	/if (${Me.XTarget}) /return
+
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
-		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
-			/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
-			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
-				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call LoadSpellBar
-			}
-		}
-		/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
-			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
-				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call LoadSpellBar
-			}
-		}
+		
+		| if stick is on we can turn it off
 		/if (${Stick.Status.Equal[ON]}) /stick off
+
+		| attack off
 		/attack off
+
+		| clear target
 		/if (${Target.ID}) /target clear
+
+		| check pet
 		/if (${Me.Pet.ID}) /pet back off
+		
+		/if (${Me.Book[${Aura1}]}) {
+			| check aura one
+			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
+
+				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
+				
+				/echo attempting to cast ${Aura1}
+				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+
+				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+					
+					| reload the spell if i just memmed aura
+					/call LoadSpellBar
+				}
+			}
+		}
+
+		/if (${Me.Book[${Aura2}]}) {
+			| check aura one
+			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
+
+				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+
+				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+
+					| reload the spell if i just memmed aura
+					/call LoadSpellBar
+				}
+			}
+		}
+
+		/if (!${Select[${Me.Class.ShortName},WIZ,ENC,MAG]}) {
+			
+			| Check book for first harvest
+			/if (${Me.Book[${HarvestSpell}]}) {
+				
+				| Condition for first harvest
+				/if (${Me.PctMana} < 50) {
+
+					| Trigger first harvest
+					/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
+				}
+			}
+		}
+
 |		/call check_illusion FALSE ${illusionItem}
 		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
-	}
-
-	| if I have a target: assist and get ready
-	/if (${Me.XTarget}) {
-		/if (${Me.Sitting}) /stand
-		/if (${Me.ID} != ${Group.MainAssist.ID} && !${Me.Class.ShortName.Find[CLR]} && ${Defined[_assistCharacter]}) /assist ${_assistCharacter}
-		/if (${Target.Type.Equal[Corpse]}) /target clear
 	}
 /return
 |----------------------------------------------------------------------------
@@ -396,22 +436,25 @@ Sub RemoveTravelBuffs
 |- SUB: Engage
 |---------------------------------------------------------------------------- 
 Sub Engage
-| ONLY MELEES NEED TO ENGAGE
-|	/declare SmartAssistRange int local 0
 	
+	| if not target then nothing to engage
 	/if (!${Target.ID}) /return
+
+	| if target is not an NPC then don't engage
 	/if (!${Target.Type.Equal[NPC]}) /return
 
-	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Navigation.PathLength[id ${Target.ID}]} < 20) {
+	| tank engage if target is close enough
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Navigation.PathLength[id ${Target.ID}]} < 30) {
 		/face fast
-		/if (!${Stick.Active}) /stick 12 uw front
+		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
 		/squelch /attack on
 	}
 
-	/if (${Select[${Me.Class.ShortName},BER,ROG,MNK,BST,BRD]} && (${Target.PctHPs} < 100 || ${Navigation.PathLength[id ${Target.ID}]} < 20)) {
+	| melee dps engage if target is close enough
+	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Target.PctHPs} < 100 && ${Navigation.PathLength[id ${Target.ID}]} < 30) {
 		/face fast
-		/if (!${Stick.Active}) /stick 12 uw !front
+		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
 		/squelch /attack on
 	}
@@ -467,52 +510,86 @@ Sub Travel
 	/if (${Stick.Status.Equal[ON]}) /stick off
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
 	/attack off
-	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID}!=${Me.ID}) {
-		/if (${Me.ID}!=${Group.Leader.ID}) {
-			/target id ${Group.Leader.ID}
-			/delay 5s ${Target.ID}==${Group.Leader.ID}
-		}
-		/if (!${Navigation.Active} && ${Target.Distance}>10) /nav id ${Target.ID}
-		/if (${Navigation.Active} && ${Target.Distance}<10) /nav stop
-	}
 	/if (${Me.Pet.ID} && ${Me.Combat}) /pet back off
-	/if (!${Me.Invis} && !${Me.Buff[Communion of the Cheetah].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) {
-		/call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
-		/delay 1
+
+	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID} != ${Me.ID}) {
+		/if (!${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} > 50) /nav id ${Group.Leader.ID}
+		/if (${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} < 50) /nav stop
 	}
+
+	/if (${Select[${Me.Class.ShortName},SHM]}) {
+		/call core_cast2 "${TravelSpell}" FIND ${Me.ID} FALSE
+	}
+
 	/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID} && !${Me.Casting.ID}) {
+		/stopsong
 		/melody 3 1
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: PullerCheckGroupManaEnd
+|- SUB: puller_check_group_resources
 |---------------------------------------------------------------------------- 
-Sub PullerCheckGroupManaEnd
+Sub puller_check_group_resources
 	
 	/if (${Me.XTarget[1].ID}) /return
-	/if (${Group.Puller.ID}!=${Me.ID}) /return
+	/if (${Group.Puller.ID} != ${Me.ID}) /return
 
 	/declare bmember	int local 0
-	/if (${Limit}==50 && ${ResourceChecker}==0) /varset Limit 85
-	/if (${Limit}==85 && ${ResourceChecker}==1) /varset Limit 50
+	/if (${Limit} == 50 && ${ResourceChecker} == 0) /varset Limit 85
+	/if (${Limit} == 85 && ${ResourceChecker} == 1) /varset Limit 50
 	/varset ResourceChecker 1
 
-	
-	
 	/for bmember 0 to ${Group}
-		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
+		/if (${Group.Member[${bmember}].Distance} < 100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
 			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ResPct" "int"
 			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 			}
-			/if (${ResPct}<${Limit}) {
+			/if (${ResPct} < ${Limit}) {
 				/varset ResourceChecker 0 
 				/delay 5
 			}
-			/if (${ResourceChecker}==0) /return
+			/if (${ResourceChecker} == 0) /return
 		}
 	/next bmember
+/return
+|----------------------------------------------------------------------------
+|- SUB: check_add_aggro
+|---------------------------------------------------------------------------- 
+Sub check_add_aggro
+
+	/if (${Balance}) /return
+	/if (!${Me.XTarget[2].ID}) /return
+|	/if (${TimeForMez}!=0) /return
+
+	/declare x int local 0
+	/if (${Target.Type.Equal[Corpse]}) /target clear
+
+	| if any npcs on xtarget have less than 100% aggro
+	/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
+		/if (${If[${Select[${SpawnSort[1,asc,PctAggro,xtarhater].Animation},110,26,32,71,72,111]}, 0, 1]}==1) {
+			/target id ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
+			/delay 5 ${Target.ID}==${SpawnSort[1,asc,PctAggro,xtarhater].ID}
+			/call Engage
+			/call get_aggro
+		}
+	}
+
+|	/for x 1 to ${Me.XTarget}
+|		:getaggro
+|		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
+|			/target id ${Me.XTarget[${x}].ID}
+|			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
+|			/if (!${AdvPath.Following}) /call Engage
+|			/if (${Me.XTarget[${x}].PctAggro}<100) /call DoCombat
+|		}
+|		/if (${Target.Type.Equal[Corpse]}) /target clear
+|		/if (!${Me.XTarget[1].ID} || ${Target.ID}==${Me.ID} || !${Target.ID}) /return
+|		/if (${Me.XTarget[${x}].PctAggro}<100 && ${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
+|			/goto :getaggro
+|		}
+|	/next x
 /return
 |----------------------------------------------------------------------------
 |- SUB: AddToAlert
@@ -561,7 +638,7 @@ Sub afk_pull
 
 	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
 
-	/while (${i}<=${MobsInRadius}) {
+	/while (${i} <= ${MobsInRadius}) {
 		/if (${Navigation.PathExists[id ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) {
 			/if (${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset Dummy ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID} 
 			/if (${PathLength} > ${Navigation.PathLength[id ${Dummy}]}) {
@@ -1546,22 +1623,77 @@ Sub high_hp
     }
 /return
 |----------------------------------------------------------------------------
-|- SUB: CheckXTargetDistance  
+|- SUB: get_target  
 |---------------------------------------------------------------------------- 
-Sub get_closest_target
+Sub get_target
 	/declare x int local 0
+	/declare npcIDontHaveAggroOnID int local 0
 
-	/if (!${Me.XTarget[1].ID}) /return
+	| is there a target to be had?
+	|/echo Checking xtarget
+	/if (!${Me.XTarget}) /return
+
+	| should we be balancing?
+	|/echo Checking balance
 	/if (${Balance}) /return
-	/if (${Me.ID} != ${Group.MainAssist.ID}) /return
 
+	| if I have a target: assist and get ready
+	/if (${Me.XTarget}) {
+		/if (${Me.Sitting}) /stand
+		/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) /assist ${Group.MainAssist.Name}
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+	}
+
+	| group ma sets the target
+	/if (${Me.ID} != ${Group.MainAssist.ID}) {
+		/return
+	}
+
+	| group tank needs a target
+	/if (${Me.ID} != ${Group.MainTank.ID}) {
+		/return
+	}
+
+	| if there is only one target on xtarget then target that
 	/if (!${Me.XTarget[2].ID}) {
 		/target id ${Me.XTarget[1].ID}
 		/return
 	}
 
-	/if (!${Target.ID} && ${SpawnSort[1,asc,PathLength,xtarhater].Distance} < 200) {
-		/target id ${SpawnSort[1,asc,PathLength,xtarhater].ID}
+	/if (${Me.ID} == ${Group.MainAssist.ID}) {
+
+		/echo Distance of closest xtarget: ${SpawnSort[1,asc,PathLength,xtarhater].Distance}
+
+		| if there is an xtarget close then target the one with lowest hp
+		/if (${SpawnSort[1,asc,PathLength,xtarhater].Distance} < 200) {
+			/target id ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
+		}
+	}
+
+	/if (${Me.ID}==${Group.MainTank.ID}) {
+
+		| if current target is not 100% aggro then get aggro
+		/if (${Target.ID}) {
+			/if (${Target.PctAggro} < 100) /call get_aggro
+			/if (${Target.PctAggro} < 100) /return
+		}
+
+		| if any npcs on xtarget have less than 100% aggro
+		/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
+
+			/varset npcIDontHaveAggroOnID ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
+
+			| is the mob mezzed?
+			/if (${If[${Select[${SpawnSort[1,asc,PctAggro,xtarhater].Animation},110,26,32,71,72,111]}, 0, 1]}==1) {
+
+				| if mob is not mezzed then target it and get aggro
+				/target id ${npcIDontHaveAggroOnID}
+				/delay 5 ${Target.ID} == ${npcIDontHaveAggroOnID}
+				/call get_aggro
+			}
+		} else {
+			/assist ${Group.MainAssist.Name}
+		}
 	}
 /return
 |-------------------------------------------------------------------------------- 
@@ -1570,7 +1702,8 @@ Sub get_closest_target
 Sub DummyMode
 
 	/if (${Me.XTarget}) /return
-	/if (!${Spawn[gm].ID} || !${SpawnCount[pc radius ${AggressiveRadius}]}>6) /return 
+	/if (!${Spawn[gm].ID}) /return 
+	/if (!(${SpawnCount[pc radius ${AggressiveRadius}]}>6)) /return 
 
 	/declare i int local
 
@@ -1586,7 +1719,7 @@ Sub DummyMode
 	/next i
 	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) /goto :waitabit 
 	
-	/afk off 
+	/afk off
 	/delay 1s 
 /return
 
@@ -1851,7 +1984,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			/varset _type alt
 		} else /if (${Me.Book[${Spell[${_spell}].RankName}]}) {
 			/if (${_type.Equal[FIND]}) {
-				/varset _type 0
+				/varset _type 8
 			} else /if (${_type.Equal[FORCE]}) {
 				/varset _type ${buffGem}
 			}
@@ -2162,6 +2295,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
  *	NOTE: 
  ***|
 sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool _wait)
+
+	/echo attempting to cast ${_spellname}
 	
  	/if (${Me.Gem[${Spell[${_spellname}].RankName}]}) /return TRUE
 	
@@ -2178,6 +2313,7 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
 	}
 
 	| do we even have the spell?
+	/echo Do I have the spell ${Me.Book[${Spell[${_spellname}].RankName}]}
 	/if (!${Me.Book[${Spell[${_spellname}].RankName}]}) {
 		/return FALSE
 	}
@@ -2186,13 +2322,20 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
 	/call fix_gem_id "${_spellgem}"
 	/declare _gem int local ${Macro.Return}
 	
+	/echo Spell gem ${_gem}
+
 	/if (${Me.State.NotEqual[SIT]} && !${Me.Mount.ID}) {
 		/sit
 		/delay 1s ${Me.State.Equal[SIT]}
 	}
 	
+	| mem the spell
+	/memspell ${_gem} "${Spell[${_spellname}].RankName}"
 	/delay 5
 	/delay 2s ${Me.Gem[${_gem}].Name.Equal[${Spell[${_spellname}].RankName}]}
+
+	/echo what is this ${Me.Gem[${_gem}].Name.Equal[${Spell[${_spellname}].RankName}]}
+	
 
 	| wait for spell to be ready
 	/while (${_wait}) {
@@ -2200,6 +2343,8 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
 		/if (${Me.SpellReady[${Spell[${_spellname}].RankName}]}) /break
 		/delay 2
 	}
+
+	/echo Is spell ready ${Me.SpellReady[${Spell[${_spellname}].RankName}]}
 
 	/delay 5
 		
@@ -2211,8 +2356,8 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
  *	NOTE:
  ***|
 sub fix_gem_id(string _spellGem, bool _debug)
-	
 	/declare _gem int local 0
+
 	/if (${_spellGem.Length} == 1 || ${_spellGem.Length} == 4) {
 		/varset _gem ${_spellGem.Right[1]}
 	} else /if (${_spellGem.Length} == 2 || ${_spellGem.Length} == 5) {

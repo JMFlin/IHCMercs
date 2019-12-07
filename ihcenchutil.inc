@@ -120,7 +120,8 @@ Sub EnchSetup
 	/declare AEBlurSpell			string	outer	"NULL"
 	/declare CalmSpell				string	outer	"NULL"
 	/declare FearSpell				string	outer	"NULL"
-	/declare RootSpell				string	outer	"NULL" 
+	/declare RootSpell				string	outer	"NULL"
+	/declare HarvestSpell1 			string 	outer	"NULL" 
 |-Config Options	
 	/call LoadCommonConfig
 	/call LoadIni Charm UseCharmPet		 		int 0
@@ -513,6 +514,9 @@ Sub SetEncSpells
 |-AE Mez AA * Var Name : MezAEAA string outer
 	/if (${Me.Level}>=85 && ${Me.AltAbilityReady[Beam of Slumber]}) {
 		/varset MezAEAA Beam of Slumber
+	}
+	/if (${Me.AltAbilityReady[Gather Mana]}) {
+		/varset HarvestSpell1 Gather Mana
 	}
 |-Mez Spell * Var Name: MezSpell string	outer
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Chaotic Delusion].RankName}]} && ${UseTwinCastMez}) {

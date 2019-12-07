@@ -61,7 +61,7 @@ Sub ManualPullCamping
     /call RemoveTravelBuffs  
 
 	/while (${Mode}==1 || ${Mode}==3) {			
-		/call check_state FALSE ${Group.MainAssist.Name}
+		/call check_state FALSE
 		|/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
 		|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
 		|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
@@ -78,6 +78,7 @@ Sub ManualPullCamping
 |		/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
 |		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 |		/if ((${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow}) && (${Me.AltAbilityReady[Calculated Insanity]} || ${Me.AltAbilityReady[Improved Twincast]}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) /call BurnRoutine
+		/call get_target
 		/call DebuffMobs
 |		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
 		/call Combatdps
@@ -87,8 +88,8 @@ Sub ManualPullCamping
 
 |		/if (${UseModRods}) /call ClickModRoD
 		
-		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/doevents
+|		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+|		/doevents
 	}
 /return
 |----------------------------------------------------------------------------

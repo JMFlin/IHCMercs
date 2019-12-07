@@ -64,11 +64,10 @@ Sub ManualPullCamping
 
 	/while (${Mode}==1 || ${Mode}==3) {
 
-		/call check_state FALSE ${Group.MainAssist.Name} 
-		/call check_resources FALSE "${HarvestSpell}" spell ${Me.ID} 50
+		/call check_state FALSE
 		/call self_buff_check FALSE
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (!${Balance} && ${Me.ID} == ${Group.MainAssist.ID}) /call get_closest_target
+		/call get_target
 |-		/call PetAttack
 |-		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 |-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
@@ -79,7 +78,7 @@ Sub ManualPullCamping
 		
 		
 	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/doevents
+|		/doevents
 	}
 /return
 |----------------------------------------------------------------------------
@@ -177,9 +176,6 @@ Sub AANDisc
 |---------------------------------------------------------------------------- 
 Sub Combatdps
 	/if (!${Target.ID}) /return
-	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Target.Distance}>${AssistRange}) /return
-	/if (${Me.Casting.ID}) /return
 
 	/if (${Target.Fleeing} && ${Target.PctHPs}<20 && !${Target.Rooted.ID}) {
 		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE

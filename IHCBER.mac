@@ -72,8 +72,8 @@ Sub ManualPullCamping
 		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
 		/call pre_combat_buffs FALSE "${cheapshot}" disc ${Target.ID}
 		
-		/call get_closest_target
-		/call check_state FALSE ${Group.MainAssist.Name}
+		/call get_target
+		/call check_state FALSE
 
 		/call Engage
 	|| ADD CHECK FOR WHICH AXE IS USED AND SEND IT INTO THE FUNCTION

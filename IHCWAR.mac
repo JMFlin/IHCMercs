@@ -99,14 +99,14 @@ Sub ManualPullCamping
 
 			/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
 			/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
-			/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call CheckXTargetMezRoot
+			/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call check_add_aggro
 			/if (!${Target.Type.Equal[NPC]} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
 
 			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AutoCampRadius} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
 			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoMashRangeAggro
 			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call AoEAggro
 			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange} && ${Target.Distance}<=(${AssistRange}+25)) /call DoDisc
-			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoCombat
+			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call get_aggro
 			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=(${AssistRange}+25) && ${Target.Type.Equal[NPC]}) /call CombatBuffs
 
 			/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -145,12 +145,12 @@ Sub ManualRunAndGun
 		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /target id ${Me.XTarget[1].ID}
 		/if (${Me.XTarget[1].ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange} && ${Group.Leader.ID}!=${Me.ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call Engage
 
-		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0 && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CheckXTargetMezRoot
+		/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0 && ${Spawn[${Group.Leader.Name}].Distance}<40) /call check_add_aggro
 
 		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call DoMashRangeAggro
 		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call AoEAggro
 		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=(${AssistRange}+25)) /call DoDisc
-		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call DoCombat
+		/if (${Me.XTarget[1].ID} && ${Target.ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID}) /call get_aggro
 		/if (${Me.XTarget[1].ID}) /call CombatBuffs
 
 		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
@@ -177,66 +177,28 @@ Sub AFKRadiusCamping
 		
 		/call set_timers
 
-
-		/call PullerCheckGroupManaEnd 
+		/call puller_check_group_resources 
 		/call afk_pull
 
-		/call check_state FALSE ${Group.MainAssist.Name}
-|		/call get_closest_target
+		/call check_state FALSE
+		/call get_target
 		
 
 		/call balance_hp
 
-		/call CheckXTargetMezRoot
+		/call check_add_aggro
 
 		/call Engage
 		/call AoEAggro
 		/call DoDisc
-		/call DoCombat
+		/call get_aggro
 		/call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
-		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+|		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
 	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: CheckXTargetMezRoot
-|---------------------------------------------------------------------------- 
-Sub CheckXTargetMezRoot
-
-	/if (${Balance}) /return
-	/if (!${Me.XTarget[2].ID}) /return
-|	/if (${TimeForMez}!=0) /return
-
-	/declare x int local 0
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-
-	| if any npcs on xtarget have less than 100% aggro
-	/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
-		/if (${If[${Select[${SpawnSort[1,asc,PctAggro,xtarhater].Animation},110,26,32,71,72,111]}, 0, 1]}==1) {
-			/target id ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
-			/delay 5 ${Target.ID}==${SpawnSort[1,asc,PctAggro,xtarhater].ID}
-			/call Engage
-			/call DoCombat
-		}
-	}
-
-|	/for x 1 to ${Me.XTarget}
-|		:getaggro
-|		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-|			/target id ${Me.XTarget[${x}].ID}
-|			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
-|			/if (!${AdvPath.Following}) /call Engage
-|			/if (${Me.XTarget[${x}].PctAggro}<100) /call DoCombat
-|		}
-|		/if (${Target.Type.Equal[Corpse]}) /target clear
-|		/if (!${Me.XTarget[1].ID} || ${Target.ID}==${Me.ID} || !${Target.ID}) /return
-|		/if (${Me.XTarget[${x}].PctAggro}<100 && ${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-|			/goto :getaggro
-|		}
-|	/next x
 /return
 |----------------------------------------------------------------------------
 |- SUB: CombatBuffs 
@@ -365,9 +327,9 @@ Sub DoDisc
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: DoCombat
+|- SUB: get_aggro
 |---------------------------------------------------------------------------- 
-Sub DoCombat
+Sub get_aggro
 
 	/if (!${Me.XTarget}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
