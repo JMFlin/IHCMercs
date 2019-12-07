@@ -132,7 +132,7 @@ Sub get_aggro
 		/call AbilityNow "Kick"
 	}
 
-	/if (${Target.Fleeing} && ${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
 
 /return
 |----------------------------------------------------------------------------
