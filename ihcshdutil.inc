@@ -154,7 +154,7 @@ Sub SetupSpells
 
 	/if (${Me.Level}>=20 && ${Me.SpellReady[${Touch1}]}) {
 		/varset PullAbility ${Touch1}
-		/varset PullDistance 190
+		/varset PullDistance 150
 	} else {
 		/varset PullAbility Melee
 		/varset PullDistance 5

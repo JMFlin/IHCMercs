@@ -120,7 +120,7 @@ Sub VarSetup
 	/declare PullDistance 		int outer 0
 	/declare PullDistance3 		int outer 0
 	/declare ResourceChecker 	int outer 1
-	/declare Limit 				int outer 30
+	/declare Limit 				int outer 50
 	/declare DummyTime        	int outer 10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
 |	/declare PCRadiusCheck 		int outer 10
@@ -164,6 +164,7 @@ Sub VarSetup
 	/call CheckPlugin MQ2Hud
 	/call CheckPlugin MQ2EasyFind
 	/call CheckPlugin MQ2SpawnSort
+	/call CheckPlugin MQ2Worsthurt
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on
     /squelch /rez loot off
@@ -330,7 +331,7 @@ Sub check_state(bool _debug)
 				
 				/echo attempting to cast ${Aura1}
 				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-
+				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 					
 					| reload the spell if i just memmed aura
@@ -444,8 +445,11 @@ Sub Engage
 	| if target is not an NPC then don't engage
 	/if (!${Target.Type.Equal[NPC]}) /return
 
+	| Do we have line of sight?
+	/if (!${Spawn[id ${Target.ID}].LineOfSight}) /return
+
 	| tank engage if target is close enough
-	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && (${Target.PctHPs} < 100 ||${Navigation.PathLength[id ${Target.ID}]} < 30)) {
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && (${Target.PctHPs} < 99 || ${Navigation.PathLength[id ${Target.ID}]} < 40)) {
 		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
@@ -536,8 +540,8 @@ Sub puller_check_group_resources
 	/if (${Group.Puller.ID} != ${Me.ID}) /return
 
 	/declare bmember	int local 0
-	/if (${Limit} == 30 && ${ResourceChecker} == 0) /varset Limit 85
-	/if (${Limit} == 85 && ${ResourceChecker} == 1) /varset Limit 30
+	/if (${Limit} == 50 && ${ResourceChecker} == 0) /varset Limit 85
+	/if (${Limit} == 85 && ${ResourceChecker} == 1) /varset Limit 50
 	/varset ResourceChecker 1
 
 	/for bmember 0 to ${Group}
@@ -623,60 +627,61 @@ Sub afk_pull
 	/if (${Me.Casting.ID}) /return
 
 	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC]}) {
-		/if (${Me.PctMana}<20) /return
+		/if (${Me.PctMana} < 20) /return
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,MNK,BER,ROG]}) {
-		/if (${Me.PctEndurance}<20) /return
+		/if (${Me.PctEndurance} < 20) /return
 	}
 
-	/if (${ResourceChecker}==0) /return
+	/if (${ResourceChecker} == 0) /return
 	/if (${Me.Snared.ID}) /return
 
 	/if (!${PullAbility.Equal[Melee]}) {
 		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /return
 	}
+
 	/if (${AdvPath.Following}) /afollow off
 
-	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
+|	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
 
-	/while (${i} <= ${MobsInRadius}) {
-		/if (${Navigation.PathExists[id ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) {
-			/if (${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset Dummy ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID} 
-			/if (${PathLength} > ${Navigation.PathLength[id ${Dummy}]}) {
-				/varset PathLength ${Navigation.PathLength[id ${Dummy}]}
-				/varset PullTargetID ${Dummy}
-			}
-		}
-		/varcalc i ${i}+1
-		/delay 1
-		
-	}
+|	/while (${i} <= ${MobsInRadius}) {
+|		/if (${Navigation.PathExists[id ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) {
+|			/if (${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset Dummy ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID} 
+|			/if (${PathLength} > ${Navigation.PathLength[id ${Dummy}]}) {
+|				/varset PathLength ${Navigation.PathLength[id ${Dummy}]}
+|				/varset PullTargetID ${Dummy}
+|			}
+|		}
+|		/varcalc i ${i}+1
+|		/delay 1		
+|	}
 	
+	/echo Pulling ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius}].Name}
+	/varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius}].ID}
+
 	/if (!${PullTargetID}) /return
 	
-	/if (${Mode}!=3) {
+	/if (${Mode} !=3 ) {
 		/if (${Navigation.Active}) /nav stop
 		/return
 	}
 	
-	/if (${Navigation.MeshLoaded} && (${Spawn[id ${PullTargetID}].Distance}>${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight})) /nav id ${PullTargetID}
+	/if (${Navigation.MeshLoaded} && (${Spawn[id ${PullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight})) /nav id ${PullTargetID}
 	/while (${Navigation.Active}) {
-		/delay 1s ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance}
+		/delay 1s ${Spawn[id ${PullTargetID}].Distance} <= ${PullDistance}
 		/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
 		/if (${Me.XTarget}) /varset PullTargetID ${Me.XTarget[1].ID}
-		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
+		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance} <= ${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 	}
 	
-	/if ((!${Target.ID}!=${PullTargetID} || !${Target.ID}) && ${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
-	/delay 1s ${Target.ID}==${PullTargetID}
+	/if ((!${Target.ID} != ${PullTargetID} || !${Target.ID}) && ${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
+	/delay 1s ${Target.ID} == ${PullTargetID}
 
-    /while (${PullTargetID}==${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
-		/if (${Me.Sitting}) /stand
-		/if (${PullTargetID}!=${Target.ID}) /target id ${PullTargetID}
+    /while (${PullTargetID} == ${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
+|		/if (${PullTargetID} != ${Target.ID}) /target id ${PullTargetID}
 		/if (${PullAbility.Equal[Melee]}) /attack on
 		/if (!${PullAbility.Equal[Melee]} && ${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
-		|/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
-		/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
+|		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
 		/if (${Mode}!=3) {
 			/if (${Navigation.Active}) /nav stop
 			/return
@@ -685,9 +690,9 @@ Sub afk_pull
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 		/if (${Me.XTarget}) /break
 	}
+
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
-	/if (${Me.Class.ShortName.Find[MNK]}) /call Defense
-	/delay 30s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<7
+	/delay 180s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} < 10
 	/if (${Navigation.Active}) /nav stop
     /if (${Target.ID}) /face fast
 	/if (${Defined[PullTargetID]}) /deletevar PullTargetID
@@ -698,6 +703,10 @@ Sub afk_pull
 |---------------------------------------------------------------------------- 
 Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 
+
+	/if (${Me.XTarget}) {
+		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) /return
+	}
 	| if casting return
 	/if (${Me.Casting.ID} && !${Select[${Me.Class.ShortName},BRD]}) /return
 
@@ -1651,8 +1660,6 @@ Sub get_target
 	}
 
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
-
-		/echo Distance of closest xtarget: ${SpawnSort[1,asc,PathLength,xtarhater].Distance}
 
 		| if there is an xtarget close then target the one with lowest hp
 		/if (${SpawnSort[1,asc,PathLength,xtarhater].Distance} < 200) {

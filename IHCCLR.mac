@@ -72,11 +72,12 @@ Sub ManualPullCamping
 	
 	/while (${Mode}==1 || ${Mode}==3) {
 
-		/call check_state
-		/call TankChangeCheck
+		/call check_state FALSE
+|-		/call TankChangeCheck
 |-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Casting.ID} && !${Window[SpellBookWnd]}) /call check_illusion
-		/if (${DynamicHealing}) /call ConfigHeal
-		/call heals
+|		/if (${DynamicHealing}) /call ConfigHeal
+		/call single_target_heals
+		/call group_heals
 		/call check_for_corpse FALSE
 |		/call ExtraHeal
 |		/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
@@ -86,9 +87,9 @@ Sub ManualPullCamping
 |		/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
 
 |		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffCheck
-		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffGroup
+		/call BuffGroup
 
-		/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 		/doevents
 	}
@@ -152,26 +153,26 @@ Sub ConfigHeal
 		/if (${Me.XTarget}>4 || ${Me.XTarget[1].Named}) {
 			/if (${tankhealpoint}!=95) {
 				/varset tankhealpoint 95
-				/varset grouphealpoint 85
-				/varset bighealpoint 80
+				/varset grouphealpoint 95
+				/varset bighealpoint 95
 			}
 		} else /if (${Me.XTarget[1].Level}>=${Me.Level}) {
 			/if (${tankhealpoint}!=85) {
-				/varset tankhealpoint 85
-				/varset grouphealpoint 80
-				/varset bighealpoint 70
+				/varset tankhealpoint 95
+				/varset grouphealpoint 95
+				/varset bighealpoint 95
 			}
 		} else /if (${Me.XTarget[1].Level}>=${Math.Calc[${Me.Level}-5]}) {
 			/if (${tankhealpoint}!=80) {
-				/varset tankhealpoint 80
-				/varset grouphealpoint 75
-				/varset bighealpoint 60
+				/varset tankhealpoint 95
+				/varset grouphealpoint 95
+				/varset bighealpoint 95
 			}
 		} else {
 			/if (${tankhealpoint}!=70) {
-				/varset tankhealpoint 70
-				/varset grouphealpoint 75
-				/varset bighealpoint 60
+				/varset tankhealpoint 95
+				/varset grouphealpoint 95
+				/varset bighealpoint 95
 			}
 		}
 	} else /if (${tankhealpoint}!=${tbmhealpoint} && !${Raid.Members}) {
@@ -219,7 +220,7 @@ Sub BuffGroup
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && !${Me.Casting.ID}) {
-				/echo ${Group.Member[${bmember}].Name} does not have aego in ${tmpbuffid}
+				/echo ${Group.Member[${bmember}].Name} does not have aego in tmpbuffid ${tmpbuffid} and aegoid ${tmpaegoid}
 				/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 				/varset spellrememtimer 5s
 				/delay 10
@@ -255,66 +256,56 @@ Sub BuffGroup
 |----------------------------------------------------------------------------
 |- SUB: HealGroup
 |---------------------------------------------------------------------------- 
-Sub heals
-||INTO ITS OWN SUB worst_hurt remember to declare global for healing classes
-	/declare petworsthurtid		int local 0
-	/declare petworsthp 		int local 100
-	/declare worsthp 			int local 100 
-	/declare worsthurtid		int local 0
-	/declare worsthurtname		string local NULL
+Sub single_target_heals
+	/declare worsthurtid 		int local 0
+
+	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 85) {
+
+		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
+
+		/if (${validate_cast[FALSE, spell, "${remedyheal1}", ${worsthurtid}]}) {
+			/call core_cast2 "${remedyheal1}" spell ${worsthurtid} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${remedyheal2}", ${worsthurtid}]}) {
+			/call core_cast2 "${remedyheal2}" spell ${worsthurtid} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${patchheal}", ${worsthurtid}]}) {
+			/call core_cast2 "${patchheal}" spell ${worsthurtid} FALSE
+			/return
+		}
+	}
+/return
+
+|----------------------------------------------------------------------------
+|- SUB: HealGroup
+|---------------------------------------------------------------------------- 
+Sub group_heals
 	/declare gmember			int local 0
 	/declare HurtMember     	int local 0
-	/varset GrPCond .
-	/if (${Me.PctHPs}<=${grouphealpoint}) {
+	
+	/if (${Me.PctHPs} <= ${grouphealpoint}) {
 		/varcalc HurtMember ${HurtMember}+1
-		/varset worsthurtid ${Me.ID}
-		/varset worsthurtname ${Me.Name}
-		/varset worsthp ${Me.PctHPs}
 	}
+
    /for gmember 1 to ${Group}
 		
 		/if (${Group.Member[${gmember}].Type.Equal[Corpse]}) /continue
 		
-		
-		|/if (${Group.Member[${gmember}].ID}==${qmtarget} && ${Me.PctMana}>60 && ${Group.Member[${gmember}].PctMana}<50 && ${Me.AltAbilityReady[Quiet Miracle]} && ${Group} && (!${Group.Member[${gmember}].Hovering} || ${Group.Member[${gmember}].Type.NotEqual[Corpse]})) /call AANow 135 ${Group.Member[${gmember}].ID}
-		
-		
-		/if (${Group.Member[${gmember}].Distance}<=${healspellrange} && ${Group.Member[${gmember}].PctHPs} < ${grouphealpoint}) {
+		/if (${Group.Member[${gmember}].Distance} <= ${healspellrange} && ${Group.Member[${gmember}].PctHPs} < 85) {
 			/varcalc HurtMember ${HurtMember}+1
-			/if (${Group.Member[${gmember}].PctHPs}<=${worsthp}) {
-				/varset worsthurtid ${Group.Member[${gmember}].ID}
-				/varset worsthurtname ${Group.Member[${gmember}].Name}
-				/varset worsthp ${Group.Member[${gmember}].PctHPs}
-				/varset GrPCond .
-			}
          }
-		/if (${Group.Member[${gmember}].Pet.ID}) {
-			 /if (${Group.Member[${gmember}].Pet.Distance}<=${healspellrange} && (${Group.Member[${gmember}].Pet.PctHPs}<=${worsthp}) && (${Group.Member[${gmember}].Pet.PctHPs}<=${pethealpoint}) && ${pethealpoint}>0 && (${worsthp}>${grouphealpoint})) {         
-			   /varset worsthurtid ${Group.Member[${gmember}].Pet.ID}
-			   /varset worsthurtname ${Group.Member[${gmember}].Name}
-			   /varset petworsthp ${Group.Member[${gmember}].Pet.PctHPs}
-			   /varset GrPCond .Pet.
-			 }
-		  }
+
 	/next gmember
-|	/echo Healing ${worsthurtname} ${worsthurtid} with threshold ${grouphealpoint}
-	/if (!${worsthurtid}) /return
-|	/if (${HurtMember}>=3 && ${validate_cast[FALSE, spell, "${groupheal}", ${worsthurtid}]}) {
-|		/call core_cast2 "${groupheal}" spell ${Me.ID} FALSE
-|	} else 
-	/if (${validate_cast[FALSE, spell, "${remedyheal1}", ${worsthurtid}]}) {
-		/call core_cast2 "${remedyheal1}" spell ${worsthurtid} FALSE
-		/return
+
+	/if (${HurtMember} >= 3) {
+		/if (${validate_cast[FALSE, spell, "${groupheal}", ${worsthurtid}]}) /call core_cast2 "${groupheal}" spell ${Me.ID} FALSE
 	}
-	/if (${validate_cast[FALSE, spell, "${remedyheal2}", ${worsthurtid}]}) {
-		/call core_cast2 "${remedyheal2}" spell ${worsthurtid} FALSE
-		/return
-	}
-	/if (${validate_cast[FALSE, spell, "${patchheal}", ${worsthurtid}]}) {
-		/call core_cast2 "${patchheal}" spell ${worsthurtid} FALSE
-		/return
-	}
+
 /return
+	
+
 |-Group Healing
  |   /if (${HurtMember}>=${grouphealcount} && ${Me.AltAbilityReady[Beacon of Life]} && ${Group}) {
 |		/call AANow ${Me.AltAbility[Beacon of Life].ID} ${Me.ID}
