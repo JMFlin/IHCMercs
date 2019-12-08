@@ -300,7 +300,7 @@ Sub group_heals
 	/next gmember
 
 	/if (${HurtMember} >= 3) {
-		/if (${validate_cast[FALSE, spell, "${groupheal}", ${worsthurtid}]}) /call core_cast2 "${groupheal}" spell ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${groupheal}", ${Me.ID}]}) /call core_cast2 "${groupheal}" spell ${Me.ID} FALSE
 	}
 
 /return
