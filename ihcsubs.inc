@@ -329,9 +329,13 @@ Sub check_state(bool _debug)
 
 				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
 				
-				/echo attempting to cast ${Aura1}
 				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
+				
+				/if (${Select[${Me.Class.ShortName},BRD]}) {
+					/delay 2s
+					/stopsong
+					/delay 2s
+				}
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 					
 					| reload the spell if i just memmed aura
@@ -344,7 +348,16 @@ Sub check_state(bool _debug)
 			| check aura one
 			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
 
+				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
+
 				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+
+				/if (${Select[${Me.Class.ShortName},BRD]}) {
+					/delay 2s
+					/stopsong
+					/delay 2s
+					/melody ${RegenMelody}
+				}
 
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 
@@ -353,6 +366,9 @@ Sub check_state(bool _debug)
 				}
 			}
 		}
+|		/call check_illusion FALSE ${illusionItem}
+		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+	}
 
 		/if (${Select[${Me.Class.ShortName},WIZ,ENC,MAG]}) {
 			
@@ -360,17 +376,13 @@ Sub check_state(bool _debug)
 			/if (${Me.Book[${HarvestSpell1}]}) {
 				
 				| Condition for first harvest
-				/if (${Me.PctMana} < 50) {
+				/if (${Me.PctMana} < ${Limit}) {
 
 					| Trigger first harvest
 					/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
 				}
 			}
-		}
-
-|		/call check_illusion FALSE ${illusionItem}
-		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
-	}
+		}	
 /return
 |----------------------------------------------------------------------------
 |- SUB: set_timers
@@ -449,7 +461,7 @@ Sub Engage
 	/if (!${Spawn[id ${Target.ID}].LineOfSight}) /return
 
 	| tank engage if target is close enough
-	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && (${Target.PctHPs} < 99 || ${Navigation.PathLength[id ${Target.ID}]} < 40)) {
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Navigation.PathLength[id ${Target.ID}]} < 55) {
 		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
@@ -457,7 +469,7 @@ Sub Engage
 	}
 
 	| melee dps engage if target is close enough
-	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && (${Target.PctHPs} < 97 || ${Navigation.PathLength[id ${Target.ID}]} < 30)) {
+	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && (${Target.PctHPs} < 98 || ${Navigation.PathLength[id ${Target.ID}]} < 40)) {
 		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
@@ -738,7 +750,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		}
 	}
 	
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]}>${Distance}) {
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${Distance}) {
 		/if (${Stick.Active}) /stick off
 		/nav locxyz ${Xloc} ${Yloc} ${Zloc}
 		:movinghome

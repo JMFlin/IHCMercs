@@ -475,7 +475,9 @@ Sub SetWizSpells
 		/varset CloudburstNuke ${Spell[Cloudburst Strike].RankName}
 	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Firebane].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Firebane].RankName}
-	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Black Ice].RankName}]}) {
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[White Fire].RankName}]}) {
+		/varset CloudburstNuke ${Spell[White Fire].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Black Ice].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Black Ice].RankName}
 	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Ice Meteor].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Ice Meteor].RankName}
