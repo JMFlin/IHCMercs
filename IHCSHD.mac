@@ -99,7 +99,7 @@ Sub AFKRadiusCamping
 |- SUB: CombatBuffs 
 |---------------------------------------------------------------------------- 
 Sub combat_buffs
-	/if (!${Me.XTarget}) /return
+	/if (${Me.XTarget}) /return
 
 	/if (!${Me.Buff[${Skin}].ID} ) {
 		/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) {
