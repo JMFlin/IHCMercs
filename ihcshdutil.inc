@@ -27,6 +27,7 @@ Sub ShdSetup
 	/declare Denial			string outer NULL
 	/declare Bargain		string outer NULL
 	/declare Skin			string outer NULL
+	/declare SnareSpell 	string outer NULL
 
 |- Tank logic
 	/declare TimeForMez					timer outer	0
@@ -58,7 +59,9 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${Touch2}" 2
 	/call LoadSpellGem "${Terror1}" 3
 	/call LoadSpellGem "${Terror2}" 4
-	/call LoadSpellGem "${DireTestemony}" 5
+	/call LoadSpellGem "${SnareSpell}" 5
+
+	/call LoadSpellGem "${Skin}" 8
 
 	/delay 2s
 	/if (${Me.Sitting}) /stand
@@ -103,8 +106,6 @@ Sub SetupSpells
 		/varset DireTestemony ${Spell[Dire Testimony].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Dire Testimony].RankName}]}) {
 		/varset DireTestemony ${Spell[Dire Testimony].RankName}
-	} else /if (${Me.Level}>=4 && ${Me.Book[${Spell[Clinging Darkness].RankName}]}) {
-		/varset DireTestemony ${Spell[Clinging Darkness].RankName}
 	}
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
@@ -141,12 +142,21 @@ Sub SetupSpells
 		/varset Skin ${Spell[Tylix's Skin].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Tylix's Skin].RankName}]}) {
 		/varset Skin ${Spell[Tylix's Skin].RankName}
+	} else /if (${Me.Level}>=37 && ${Me.Book[${Spell[Scream of Death].RankName}]}) {
+		/varset Skin ${Spell[Scream of Death].RankName}
 	}
+
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
 		/varset Stance ${Spell[Defiant Stance].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
 		/varset Stance ${Spell[Defiant Stance].RankName}
+	}
+
+	/if (${Me.Level}>=61 && ${Me.Book[${Spell[Festering Darkness].RankName}]}) {
+		/varset SnareSpell ${Spell[Festering Darkness].RankName}
+	} else /if (${Me.Level}>=4 && ${Me.Book[${Spell[Clinging Darkness].RankName}]}) {
+		/varset SnareSpell ${Spell[Clinging Darkness].RankName}
 	}
 
 	/if (${Me.Level}>=20 && ${Me.SpellReady[${Touch1}]}) {

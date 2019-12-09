@@ -68,7 +68,7 @@ Sub AFKRadiusCamping
 
 		/call DummyMode
 
-		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
+|		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
 		
 		/call set_timers
 
@@ -88,7 +88,7 @@ Sub AFKRadiusCamping
 		/call AoEAggro
 		/call DoDisc
 		/call get_aggro
-		/call CombatBuffs
+		/call combat_buffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
@@ -98,8 +98,15 @@ Sub AFKRadiusCamping
 |----------------------------------------------------------------------------
 |- SUB: CombatBuffs 
 |---------------------------------------------------------------------------- 
-Sub CombatBuffs
+Sub combat_buffs
 	/if (!${Me.XTarget}) /return
+
+	/if (!${Me.Buff[${Skin}].ID} ) {
+		/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) {
+			/call core_cast2 "${Skin}" spell ${Me.ID} FALSE
+			/return
+		}
+	}
 	
 /return
 |----------------------------------------------------------------------------
