@@ -190,21 +190,67 @@ Sub Combatdps
 |	/if (${Target.PctAggro} > 99) /return
 	/if (${Target.PctHPs} >= 100) /return
 
-	/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
-		/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
-		/return
-	}
-	/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
-		/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
-		/return
-	}
-	/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) {
-		/call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
-		/return
-	}
-	/if (${validate_cast[FALSE, spell, "${ChaosNuke}", ${Target.ID}]}) {
-		/call core_cast2 "${ChaosNuke}" spell ${Target.ID} FALSE
-		/return
+	/if (${Me.Buff[Improved Twincast].ID}) {
+
+		/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
+		}
+		
+		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
+		}
+
+		/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
+		}
+
+		/if (${validate_cast[FALSE, spell, "${ColdEtherealNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${ColdEtherealNuke}" spell ${Target.ID} FALSE
+		}
+
+	} else /if (${Me.Buff[Twincast].ID} && ${Me.Buff[Fury of the Gods].ID}) {
+
+		/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
+		}
+		
+		/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
+		}
+
+		/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+		}
+
+	} else {
+	
+		/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
+		}
+		/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
+		}
+		/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+		}
+		/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
+		}
+		/if (!${Me.Book[${FuseNuke}]} && ${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
+		}
+		/if (!${Me.Book[${FireEtherealNuke}]} && ${validate_cast[FALSE, spell, "${ColdEtherealNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${ColdEtherealNuke}" spell ${Target.ID} FALSE
+		}
+		/if (!${Me.Book[${ColdEtherealNuke}]} && ${validate_cast[FALSE, spell, "${ChaosNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${ChaosNuke}" spell ${Target.ID} FALSE
+		}
+		/if (!${Me.Book[${FuseNuke}]} && ${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+		}
+		/if (!${Me.Book[${FuseNuke}]} && ${validate_cast[FALSE, spell, "${ChaosNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${ChaosNuke}" spell ${Target.ID} FALSE
+		}
 	}
 /return
 

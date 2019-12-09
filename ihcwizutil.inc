@@ -134,17 +134,16 @@ Sub LoadSpellBar
 		/call LoadSpellGem "${ClawNuke}" 1
 		/call LoadSpellGem "${CloudburstNuke}" 2
 		/call LoadSpellGem "${JoltSpell}" 3
-		|/call LoadSpellGem "${FireEtherealNuke}" 3
 		/call LoadSpellGem "${WildNuke}" 4
-		|/call LoadSpellGem "${ColdEtherealNuke}" 4
-		
 		/if (${Me.Book[${SnareSpell}]}) {
 			/call LoadSpellGem "${SnareSpell}" 5
 		} else /if (${Me.Book[${RootSpell}]}) {
 			/call LoadSpellGem "${RootSpell}" 5
 		}
-		|/call LoadSpellGem "${MagmaticAENuke}" 5
 		/call LoadSpellGem "${ChaosNuke}" 6
+		/call LoadSpellGem "${ColdEtherealNuke}" 7
+		/call LoadSpellGem "${HarvestSpell1}" 8
+
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
 			/call LoadSpellGem "${FuseNuke}" 6
 			/call LoadSpellGem "${VortexNuke}" 7
@@ -214,7 +213,7 @@ Sub LoadSpellBar
 			/call LoadSpellGem "${HarvestSpell1}" 8
 		} else {
 			|-6
-			/call LoadSpellGem "${HarvestSpell1}" 7
+			
 		}
 	}
 	/delay 2s

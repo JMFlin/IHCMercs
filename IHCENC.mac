@@ -187,7 +187,7 @@ Sub DebuffMobs
 |			}
 |			/if (${DoBlurr} && ${Me.PctAggro}>=${BlurrAggroPct}) /call ManageAggro "BlrFlg"
 |		/delay 5s !${Me.Casting.ID}
-|		/delay 5s !${Me.SpellInCooldown}
+		/delay 5
 	/next x
 /return
 |----------------------------------------------------------------------------

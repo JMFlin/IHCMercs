@@ -334,6 +334,7 @@ Sub check_state(bool _debug)
 				/if (${Select[${Me.Class.ShortName},BRD]}) {
 					/delay 2s
 					/stopsong
+					/sit
 					/delay 2s
 				}
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
@@ -355,6 +356,7 @@ Sub check_state(bool _debug)
 				/if (${Select[${Me.Class.ShortName},BRD]}) {
 					/delay 2s
 					/stopsong
+					/sit
 					/delay 2s
 					/melody ${RegenMelody}
 				}
