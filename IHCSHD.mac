@@ -123,7 +123,6 @@ Sub DoDisc
 |---------------------------------------------------------------------------- 
 Sub get_aggro
 	/if (!${Me.XTarget}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 
 	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
 		/call AbilityNow "Taunt"
