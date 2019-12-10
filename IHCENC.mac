@@ -219,8 +219,8 @@ Sub Combatdps
 
 	/if (!${Target.ID}) /return
 	
-	/if (!${Target.Buff[${SlowSpell}].ID}) /call DebuffMobs
-	/if (!${Target.Buff[${CrippleSpell1}].ID}) /call DebuffMobs
+	/if (!${Target.Buff[${SlowSpell}].ID}) /call debuff_xtarget
+	/if (!${Target.Buff[${CrippleSpell1}].ID}) /call debuff_xtarget
 
 	/if (${Target.PctHPs}>${AutoAssistAt}) /return
 	/if (${Target.Distance}>${AssistRange}) /return
