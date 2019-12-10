@@ -252,11 +252,11 @@ Sub get_aggro
 	}
 
 	/if (${Me.SecondaryPctAggro} >= 30) {
-		/if (${validate_cast[FALSE, spell, "${${Terror1}}", ${Target.ID}]}) /call core_cast2 "${${Terror1}}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) /call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
 	}
 
 	/if (${Me.SecondaryPctAggro} >= 30) {
-		/if (${validate_cast[FALSE, spell, "${${Terror2}}", ${Target.ID}]}) /call core_cast2 "${${Terror2}}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) /call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 	}
 
 /return
