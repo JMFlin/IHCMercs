@@ -668,10 +668,10 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) /return
 	}
 	| if casting return
-	/if (${Me.Casting.ID} && !${Select[${Me.Class.ShortName},BRD]}) /return
+	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
 
 	| if target is running let melee follow it
-	/if (${Target.ID}) {
+	/if (${Target.ID} && ${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) {
 		/if (${Target.Fleeing} || !${Target.Snared.ID}) /return
 	}
 
@@ -679,7 +679,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (!${Target.PctAggro}>=100) /return
 	}
 
-	/if (${Target.Rooted.ID}) /return
+	/if (${Target.Rooted.ID} && ${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) /return
 
 	/if (${Navigation.Active}) /return
 
