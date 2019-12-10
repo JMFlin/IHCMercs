@@ -425,6 +425,12 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=55 && ${Me.CombatAbility[${Spell[Aura of Rage].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of Rage].RankName}
 	}
+
+	/if (${Me.AltAbilityReady[${Spell[Bloodlust Aura].RankName}]}) {
+		/varset HarvestSpell1 ${Spell[Bloodlust Aura].RankName}
+	} 
+	
+
 /return
 |----------------------------------------------------------------------------
 |-SUB: Bind Change Var Int resets various interger settings from ini file

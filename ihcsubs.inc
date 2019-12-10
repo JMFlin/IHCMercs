@@ -372,19 +372,6 @@ Sub check_state(bool _debug)
 		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 	}
 
-		/if (${Select[${Me.Class.ShortName},WIZ,ENC,MAG]}) {
-			
-			| Check book for first harvest
-			/if (${Me.Book[${HarvestSpell1}]}) {
-				
-				| Condition for first harvest
-				/if (${Me.PctMana} < ${Limit}) {
-
-					| Trigger first harvest
-					/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
-				}
-			}
-		}	
 /return
 |----------------------------------------------------------------------------
 |- SUB: set_timers
