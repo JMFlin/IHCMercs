@@ -175,6 +175,13 @@ Sub AANDisc
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
 Sub Combatdps
+	| if mana is below the puller check limit
+	/if (${Me.PctMana} < ${Limit}) {
+
+		| Trigger first harvest
+		/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
+	}
+
 	/if (!${Target.ID}) /return
 
 	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID}) {
@@ -186,14 +193,6 @@ Sub Combatdps
 	/if (${Target.PctAggro} > 30) {
 		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
 	}
-
-	| if mana is below the puller check limit
-	/if (${Me.PctMana} < ${Limit}) {
-
-		| Trigger first harvest
-		/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
-	}
-	
 
 |	/if (${Target.PctAggro} > 99) /return
 	/if (${Target.PctHPs} >= 100) /return
