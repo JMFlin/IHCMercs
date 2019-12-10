@@ -184,7 +184,7 @@ Sub Combatdps
 	}
 
 	/if (${Target.PctAggro} > 30) {
-		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) { /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
 	}
 
 	| if mana is below the puller check limit
