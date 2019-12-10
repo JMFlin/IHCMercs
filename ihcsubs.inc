@@ -314,7 +314,7 @@ Sub check_state(bool _debug)
 		| if stick is on we can turn it off
 		/if (${Stick.Status.Equal[ON]}) /stick off
 
-		| attack off
+		| turn autoattack off
 		/attack off
 
 		| clear target
@@ -478,31 +478,6 @@ Sub Engage
 		/if (${Target.ID}) /squelch /attack on
 	}
 
-|	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 25) {
-|		/if (${AssistRange}>80) {
-|			/varcalc SmartAssistRange ${AssistRange}*1.1
-|		} else /if (${AssistRange}>50) {
-|			/varcalc SmartAssistRange ${AssistRange}*1.7
-|		} else /if (${AssistRange}>25) {
-|			/varcalc SmartAssistRange ${AssistRange}*2.1
-|		} else /if (${AssistRange}>10) {
-|			/varcalc SmartAssistRange ${AssistRange}*2.4
-|		} else /if (${AssistRange}>0) {
-|			/varcalc SmartAssistRange ${AssistRange}*4.2
-|		}
-|		/if (${Navigation.PathLength[id ${Target.ID}]} > ${SmartAssistRange}) /return
-|	} else {
-|		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return
-|	}
-	
-|	/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AssistRange}) /return
-
-|	/if (${Select[${Me.Class.ShortName},WAR,ROG,BER,MNK,BRD]}) {
-|		/if (${Target.ID}) /face fast
-|		/stick ${StickHow} 10
-|		/delay 10 ${Stick.Active}
-|		/squelch /attack on
-|	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: CastersEngage
@@ -595,20 +570,6 @@ Sub check_add_aggro
 		}
 	}
 
-|	/for x 1 to ${Me.XTarget}
-|		:getaggro
-|		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-|			/target id ${Me.XTarget[${x}].ID}
-|			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
-|			/if (!${AdvPath.Following}) /call Engage
-|			/if (${Me.XTarget[${x}].PctAggro}<100) /call DoCombat
-|		}
-|		/if (${Target.Type.Equal[Corpse]}) /target clear
-|		/if (!${Me.XTarget[1].ID} || ${Target.ID}==${Me.ID} || !${Target.ID}) /return
-|		/if (${Me.XTarget[${x}].PctAggro}<100 && ${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-|			/goto :getaggro
-|		}
-|	/next x
 /return
 |----------------------------------------------------------------------------
 |- SUB: AddToAlert

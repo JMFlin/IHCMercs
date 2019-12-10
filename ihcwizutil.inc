@@ -140,9 +140,14 @@ Sub LoadSpellBar
 		} else /if (${Me.Book[${RootSpell}]}) {
 			/call LoadSpellGem "${RootSpell}" 5
 		}
-		/call LoadSpellGem "${ChaosNuke}" 6
+		/call LoadSpellGem "${FireEtherealNuke}" 6
 		/call LoadSpellGem "${ColdEtherealNuke}" 7
-		/call LoadSpellGem "${HarvestSpell1}" 8
+
+		/if (${GambitSpell.NotEqual[NULL]} && ${Me.Book[${Spell[${GambitSpell}].RankName}]}) {
+			/call LoadSpellGem "${GambitSpell}" 8
+		} else {
+			/call LoadSpellGem "${HarvestSpell1}"8
+		}
 
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
 			/call LoadSpellGem "${FuseNuke}" 6
@@ -316,7 +321,9 @@ Sub SetWizSpells
 		/varset StripBuffSpell ${Spell[Cancel Magic].RankName}
 	}
 |-AllianceSpell
-	/if (${Me.Level}>=102 && ${Me.Book[${Spell[Frostbound Alliance].RankName}]}) {
+	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Frostbound Covenant].RankName}]}) {
+		/varset AllianceSpell ${Spell[Frostbound Covenant].RankName}
+	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Frostbound Alliance].RankName}]}) {
 		/varset AllianceSpell ${Spell[Frostbound Alliance].RankName}
 	}
 |-DichoSpell
@@ -472,40 +479,8 @@ Sub SetWizSpells
 		/varset CloudburstNuke ${Spell[Cloudburst Bolts].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Cloudburst Strike].RankName}]}) {
 		/varset CloudburstNuke ${Spell[Cloudburst Strike].RankName}
-	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Firebane].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Firebane].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[White Fire].RankName}]}) {
-		/varset CloudburstNuke ${Spell[White Fire].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Black Ice].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Black Ice].RankName}
-	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Ice Meteor].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Ice Meteor].RankName}
-	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Sunstrike].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Sunstrike].RankName}
-	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Lure of Ice].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Lure of Ice].RankName}
-	} else /if (${Me.Level}>=49 && ${Me.Book[${Spell[Draught of Ice].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Draught of Ice].RankName}
-	} else /if (${Me.Level}>=49 && ${Me.Book[${Spell[Ice Comet].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Ice Comet].RankName}
-	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Lure of Frost].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Lure of Frost].RankName}
-	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Draught of Fire].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Draught of Fire].RankName}
-	} else /if (${Me.Level}>=46 && ${Me.Book[${Spell[Conflagration Magic].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Conflagration Magic].RankName}
-	} else /if (${Me.Level}>=43 && ${Me.Book[${Spell[Conflagration].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Conflagration].RankName}
-	} else /if (${Me.Level}>=24 && ${Me.Book[${Spell[Inferno Shock].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Inferno Shock].RankName}
-	} else /if (${Me.Level}>=24 && ${Me.Book[${Spell[Frost Shock].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Frost Shock].RankName}
-	} else /if (${Me.Level}>=8 && ${Me.Book[${Spell[Shock of Ice].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Shock of Ice].RankName}
-	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Blast of Cold].RankName}]}) {
-		/varset CloudburstNuke ${Spell[Blast of Cold].RankName}
-	}
-	||| Shock of Lightning
+	} 
+
 |-FuseNuke
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Braid].RankName}
@@ -609,7 +584,22 @@ Sub SetWizSpells
 		/varset FireEtherealNuke ${Spell[Ethereal Conflagration].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Ether Flame].RankName}]}) {
 		/varset FireEtherealNuke ${Spell[Ether Flame].RankName}
-	}	
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[White Fire].RankName}]}) {
+		/varset FireEtherealNuke ${Spell[White Fire].RankName}
+	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Sunstrike].RankName}]}) {
+		/varset FireEtherealNuke ${Spell[Sunstrike].RankName}
+	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Draught of Fire].RankName}]}) {
+		/varset FireEtherealNuke ${Spell[Draught of Fire].RankName}
+	} else /if (${Me.Level}>=43 && ${Me.Book[${Spell[Conflagration].RankName}]}) {
+		/varset FireEtherealNuke ${Spell[Conflagration].RankName}
+	} else /if (${Me.Level}>=24 && ${Me.Book[${Spell[Inferno Shock].RankName}]}) {
+		/varset FireEtherealNuke ${Spell[Inferno Shock].RankName}
+	} else /if (${Me.Level}>=15 && ${Me.Book[${Spell[Flame Shock].RankName}]}) {
+		/varset FireEtherealNuke ${Spell[Flame Shock].RankName}
+	} else /if (${Me.Level}>=5 && ${Me.Book[${Spell[Fire Bolt].RankName}]}) {
+		/varset FireEtherealNuke ${Spell[Fire Bolt].RankName}
+	} 
+
 |-ColdEtherealNuke
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Ethereal Icefloe].RankName}]}) {
 		/varset ColdEtherealNuke ${Spell[Ethereal Icefloe].RankName}
@@ -625,7 +615,26 @@ Sub SetWizSpells
 		/varset ColdEtherealNuke ${Spell[Ethereal Iceblight].RankName}
 	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[Ethereal Rime].RankName}]}) {
 		/varset ColdEtherealNuke ${Spell[Ethereal Rime].RankName}
-	} 
+	} else /if (${Me.Level}>=74 && ${Me.Book[${Spell[Icefall Avalanche].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Icefall Avalanche].RankName}
+	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Rimelure].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Rimelure].RankName}
+	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Gelidin Comet].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Gelidin Comet].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Black Ice].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Black Ice].RankName}
+	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Ice Meteor].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Ice Meteor].RankName}
+	} else /if (${Me.Level}>=49 && ${Me.Book[${Spell[Ice Comet].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Ice Comet].RankName}
+	} else /if (${Me.Level}>=24 && ${Me.Book[${Spell[Frost Shock].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Frost Shock].RankName}
+	} else /if (${Me.Level}>=8 && ${Me.Book[${Spell[Shock of Ice].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Shock of Ice].RankName}
+	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Blast of Cold].RankName}]}) {
+		/varset ColdEtherealNuke ${Spell[Blast of Cold].RankName}
+	}
+
 |-EvacSpell
 	/if (${Me.Level}>=57 && ${Me.Book[${Spell[Evacuate].RankName}]}) {
 		/varset EvacSpell ${Spell[Evacuate].RankName}

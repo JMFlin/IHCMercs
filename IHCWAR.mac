@@ -47,6 +47,9 @@ Sub Main
 		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
+
+	/autoskill bash
+
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
