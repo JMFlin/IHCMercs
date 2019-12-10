@@ -178,8 +178,12 @@ Sub Combatdps
 	| if mana is below the puller check limit
 	/if (${Me.PctMana} < ${Limit}) {
 
-		| Trigger first harvest
-		/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
+		| If my corpse is near then don't waste harvest
+		/if (!${Spawn[${Me.Name} pccorpse radius 50].ID}) {
+			
+			| Trigger first harvest
+			/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
+		}
 	}
 
 	/if (!${Target.ID}) /return

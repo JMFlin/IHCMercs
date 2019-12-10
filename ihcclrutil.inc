@@ -95,6 +95,8 @@ Sub ClrSetup
 	/declare CureCount				int				outer 0
 	/declare CureID					int				outer 0
 	/declare grouphealpoint 		int 			outer 75
+	/declare MassRezSpell 			string 			outer NULL
+	/declare RezSpell	 			string 			outer NULL	
 |-Grab Options from INI
 	/call LoadIni Mount mountitem				string "Bracelet of the Severed Hand"
 	/call LoadCommonConfig
@@ -844,6 +846,19 @@ Sub CheckSpells
 	} else {
 		/varset GroupBuff ${GroupHPBuff}
 	}
+
+
+	/if (${Me.Level}>=56 && ${Me.Book[${Spell[Reviviscence].RankName}]})  {
+		/varset RezSpell ${Spell[Reviviscence].RankName}
+	} else /if (${Me.Level}>=47 && ${Me.Book[${Spell[Resurrection].RankName}]})  {
+		/varset RezSpell ${Spell[Resurrection].RankName}
+	} 
+
+	/if (${Me.Level}>=76 && ${Me.Book[${Spell[Superior Reviviscence].RankName}]})  {
+		/varset MassRezSpell ${Spell[Superior Reviviscence].RankName}
+	} else /if (${Me.Level}>=66 && ${Me.Book[${Spell[Greater Reviviscence].RankName}]})  {
+		/varset MassRezSpell ${Spell[Greater Reviviscence].RankName}
+	} 
 
 /return
 |----------------------------------------------------------------------------

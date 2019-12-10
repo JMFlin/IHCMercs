@@ -294,7 +294,7 @@ Sub DoDisc
 		}
 	}
 
-	/if ((${Me.PctHPs}<55 || ${Target.Named}) && ${Me.ActiveDisc.ID} != ${FortitudeDiscID}) {
+	/if ((${Me.PctHPs} < 55 || ${Target.Named}) && ${Me.ActiveDisc.ID} != ${FortitudeDiscID}) {
 		/disc ${parryall}
 	}
 

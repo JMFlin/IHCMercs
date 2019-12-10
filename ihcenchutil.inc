@@ -290,6 +290,11 @@ Sub LoadSpellBar
 		/call LoadSpellGem "${MezAESpell}" 2
 		/call LoadSpellGem "${TashSpell}" 3
 		/call LoadSpellGem "${SlowSpell}" 4
+		/call LoadSpellGem "${CrippleSpell1}" 5
+		/call LoadSpellGem "${Drown}" 6
+		/call LoadSpellGem "${MindNukeMain}" 7
+		/call LoadSpellGem "${SingleStunSpell1}" 8
+		
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
 			/call LoadSpellGem "${SingleStunSpell1}" 5
 			/if (${UseDicho} && ${Me.Level}>=101 && ${DichoSpell.NotEqual[null]}) {
@@ -485,23 +490,7 @@ Sub LoadSpellBar
 			/call LoadSpellGem "${BlurSpell}" 9
 			/varset spellmisc 9
 			/varset miscspellremem ${BlurSpell}
-		} else {
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${SingleStunSpell1}" 5
-				/call LoadSpellGem "${CharmSpell1}" 6			
-			} else {
-				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${CrippleSpell1}" 6
-			}
-			/if (${UseDoTs}) {
-				/call LoadSpellGem "${Drown}" 7
-			} else {
-				/call LoadSpellGem "${MindNukeMain}" 7
-			}
-			/call LoadSpellGem "${BlurSpell}" 8
-			/varset spellmisc 8
-			/varset miscspellremem ${BlurSpell}
-		}
+		} 
 	}
 	/delay 2s
 	/if (${Me.Sitting}) /stand
@@ -1448,6 +1437,29 @@ Sub SetEncSpells
 		/varset SingleStunSpell1 ${Spell[Dyn's Dizzying Draught].RankName}
 	} else /if (${Me.Level}>=9 && ${Me.Book[${Spell[Whirl till you hurl].RankName}]}) {
 		/varset SingleStunSpell1 ${Spell[Whirl till you hurl].RankName}
+	}
+
+|-Single Stun Spell * Var Name: SingleStunSpell2 string outer
+	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Dizzying Storm].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Dizzying Storm].RankName}
+	} else /if (${Me.Level}>=104 && ${Me.Book[${Spell[Dizzying Squall].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Dizzying Squall].RankName}
+	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[Dizzying Gyre].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Dizzying Gyre].RankName}
+	} else /if (${Me.Level}>=94 && ${Me.Book[${Spell[Dizzying Helix].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Dizzying Helix].RankName}
+	} else /if (${Me.Level}>=89 && ${Me.Book[${Spell[The Downward Spiral].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[The Downward Spiral].RankName}
+	} else /if (${Me.Level}>=84 && ${Me.Book[${Spell[Whirling into the Hollow].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Whirling into the Hollow].RankName}
+	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[Spinning into the Void].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Spinning into the Void].RankName}
+	} else /if (${Me.Level}>=74 && ${Me.Book[${Spell[Largarn's Lamentation].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Largarn's Lamentation].RankName}
+	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Dyn's Dizzying Draught].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Dyn's Dizzying Draught].RankName}
+	} else /if (${Me.Level}>=28 && ${Me.Book[${Spell[Whirl till you hurl].RankName}]}) {
+		/varset SingleStunSpell2 ${Spell[Whirl till you hurl].RankName}
 	}
 |-Mana Drain DoT * Var Name: ManaDrainSpell1 string outer
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Tears of Skrizix].RankName}]}) {
