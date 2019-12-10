@@ -91,7 +91,7 @@ Sub AFKRadiusCamping
 		/call AoEAggro
 		/call DoDisc
 		/call get_aggro
-		/call combat_buffs
+		/call downtime_buffs
 		/call combat_dps
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
@@ -100,9 +100,9 @@ Sub AFKRadiusCamping
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: CombatBuffs 
+|- SUB: downtime_buffs 
 |---------------------------------------------------------------------------- 
-Sub combat_buffs
+Sub downtime_buffs
 
 	/if (${Me.XTarget}) /return
 	/if (!${Me.Buff[${Skin}].ID} ) {
