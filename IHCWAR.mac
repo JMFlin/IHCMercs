@@ -47,6 +47,9 @@ Sub Main
 		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
+
+	/autoskill bash
+
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -284,13 +287,14 @@ Sub DoDisc
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
 				/stopdisc
 				/delay 5 !${Me.ActiveDisc.ID}
+				/disc ${missall}
 			}
 		} else {
 			/disc ${missall}
 		}
 	}
 
-	/if ((${Me.PctHPs}<55 || ${Target.Named}) && ${Me.ActiveDisc.ID}!=${FortitudeDiscID}) {
+	/if ((${Me.PctHPs}<55 || ${Target.Named}) && ${Me.ActiveDisc.ID} != ${FortitudeDiscID}) {
 		/disc ${parryall}
 	}
 
@@ -300,6 +304,7 @@ Sub DoDisc
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
 				/stopdisc
 				/delay 5 !${Me.ActiveDisc.ID}
+				/disc ${meleemit}
 			}
 		} else {
 			/disc ${meleemit}
@@ -308,29 +313,29 @@ Sub DoDisc
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID}) /return
 	
-	/if (${Target.Named} || ${Target.Level}>(${Me.Level}+3)) {
+	/if (${Target.Named} || ${Target.Level} > (${Me.Level}+3)) {
 
 		/if (${Me.AltAbilityReady[Mark of the Mage Hunter]} && ${Target.PctHPs}>1) {
 			/call AANow ${Me.AltAbility[Mark of the Mage Hunter].ID}
 		}
-		/if (${Me.CombatAbilityReady[${attention}]} && ${Target.PctHPs}>1) {
+		/if (${Me.CombatAbilityReady[${attention}]} && ${Target.PctHPs} > 1) {
 			/call DiscNow "${attention}"
 		}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level}>(${Me.Level}+3))) {
-		/if (${Me.AltAbilityReady[Warlord's Tenacity]} && ${Target.PctHPs}>1) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3))) {
+		/if (${Me.AltAbilityReady[Warlord's Tenacity]} && ${Target.PctHPs} > 1) {
 			/call AANow ${Me.AltAbility[Warlord's Tenacity].ID}
 		} 
-		/if (${Me.AltAbilityReady[Wars Sheol's Heroic Blade]} && ${Target.PctHPs}>1) {
+		/if (${Me.AltAbilityReady[Wars Sheol's Heroic Blade]} && ${Target.PctHPs} > 1) {
 			/call AANow ${Me.AltAbility[Wars Sheol's Heroic Blade].ID}
 		}
-		/if (${Me.AltAbilityReady[Rage of Rallos Zek]} && ${Target.PctHPs}>1) {
+		/if (${Me.AltAbilityReady[Rage of Rallos Zek]} && ${Target.PctHPs} > 1) {
 			/call AANow ${Me.AltAbility[Rage of Rallos Zek].ID}
 		}
 	}
 
-	/if (${Target.Named} && ${Me.CombatAbilityReady[${throat}]} && ${Target.PctHPs}>1) {
+	/if (${Target.Named} && ${Me.CombatAbilityReady[${throat}]} && ${Target.PctHPs} > 1) {
 		/call DiscNow "${throat}"
 	}
 /return

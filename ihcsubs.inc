@@ -314,7 +314,7 @@ Sub check_state(bool _debug)
 		| if stick is on we can turn it off
 		/if (${Stick.Status.Equal[ON]}) /stick off
 
-		| attack off
+		| turn autoattack off
 		/attack off
 
 		| clear target
@@ -334,6 +334,7 @@ Sub check_state(bool _debug)
 				/if (${Select[${Me.Class.ShortName},BRD]}) {
 					/delay 2s
 					/stopsong
+					/sit
 					/delay 2s
 				}
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
@@ -355,6 +356,7 @@ Sub check_state(bool _debug)
 				/if (${Select[${Me.Class.ShortName},BRD]}) {
 					/delay 2s
 					/stopsong
+					/sit
 					/delay 2s
 					/melody ${RegenMelody}
 				}
@@ -370,19 +372,6 @@ Sub check_state(bool _debug)
 		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 	}
 
-		/if (${Select[${Me.Class.ShortName},WIZ,ENC,MAG]}) {
-			
-			| Check book for first harvest
-			/if (${Me.Book[${HarvestSpell1}]}) {
-				
-				| Condition for first harvest
-				/if (${Me.PctMana} < ${Limit}) {
-
-					| Trigger first harvest
-					/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
-				}
-			}
-		}	
 /return
 |----------------------------------------------------------------------------
 |- SUB: set_timers
@@ -476,31 +465,6 @@ Sub Engage
 		/if (${Target.ID}) /squelch /attack on
 	}
 
-|	/if (${Target.PctHPs}<98 || ${Navigation.PathLength[id ${Target.ID}]} < 25) {
-|		/if (${AssistRange}>80) {
-|			/varcalc SmartAssistRange ${AssistRange}*1.1
-|		} else /if (${AssistRange}>50) {
-|			/varcalc SmartAssistRange ${AssistRange}*1.7
-|		} else /if (${AssistRange}>25) {
-|			/varcalc SmartAssistRange ${AssistRange}*2.1
-|		} else /if (${AssistRange}>10) {
-|			/varcalc SmartAssistRange ${AssistRange}*2.4
-|		} else /if (${AssistRange}>0) {
-|			/varcalc SmartAssistRange ${AssistRange}*4.2
-|		}
-|		/if (${Navigation.PathLength[id ${Target.ID}]} > ${SmartAssistRange}) /return
-|	} else {
-|		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return
-|	}
-	
-|	/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AssistRange}) /return
-
-|	/if (${Select[${Me.Class.ShortName},WAR,ROG,BER,MNK,BRD]}) {
-|		/if (${Target.ID}) /face fast
-|		/stick ${StickHow} 10
-|		/delay 10 ${Stick.Active}
-|		/squelch /attack on
-|	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: CastersEngage
@@ -593,20 +557,6 @@ Sub check_add_aggro
 		}
 	}
 
-|	/for x 1 to ${Me.XTarget}
-|		:getaggro
-|		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].PctAggro}<100 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-|			/target id ${Me.XTarget[${x}].ID}
-|			/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
-|			/if (!${AdvPath.Following}) /call Engage
-|			/if (${Me.XTarget[${x}].PctAggro}<100) /call DoCombat
-|		}
-|		/if (${Target.Type.Equal[Corpse]}) /target clear
-|		/if (!${Me.XTarget[1].ID} || ${Target.ID}==${Me.ID} || !${Target.ID}) /return
-|		/if (${Me.XTarget[${x}].PctAggro}<100 && ${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]}==1 && ${Me.XTarget[${x}].Distance}<=${AssistRange}) {
-|			/goto :getaggro
-|		}
-|	/next x
 /return
 |----------------------------------------------------------------------------
 |- SUB: AddToAlert
@@ -649,27 +599,13 @@ Sub afk_pull
 	/if (${Me.Snared.ID}) /return
 
 	/if (!${PullAbility.Equal[Melee]}) {
-		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /return
+		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return
 	}
 
 	/if (${AdvPath.Following}) /afollow off
-
-|	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
-
-|	/while (${i} <= ${MobsInRadius}) {
-|		/if (${Navigation.PathExists[id ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) {
-|			/if (${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset Dummy ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID} 
-|			/if (${PathLength} > ${Navigation.PathLength[id ${Dummy}]}) {
-|				/varset PathLength ${Navigation.PathLength[id ${Dummy}]}
-|				/varset PullTargetID ${Dummy}
-|			}
-|		}
-|		/varcalc i ${i}+1
-|		/delay 1		
-|	}
 	
-	/echo Pulling ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius}].Name}
-	/varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius}].ID}
+	/echo Pulling ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].Name}
+	/varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 
 	/if (!${PullTargetID}) /return
 	
@@ -690,7 +626,6 @@ Sub afk_pull
 	/delay 1s ${Target.ID} == ${PullTargetID}
 
     /while (${PullTargetID} == ${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
-|		/if (${PullTargetID} != ${Target.ID}) /target id ${PullTargetID}
 		/if (${PullAbility.Equal[Melee]}) /attack on
 		/if (!${PullAbility.Equal[Melee]} && ${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
 |		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
@@ -720,10 +655,10 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) /return
 	}
 	| if casting return
-	/if (${Me.Casting.ID} && !${Select[${Me.Class.ShortName},BRD]}) /return
+	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
 
 	| if target is running let melee follow it
-	/if (${Target.ID}) {
+	/if (${Target.ID} && ${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) {
 		/if (${Target.Fleeing} || !${Target.Snared.ID}) /return
 	}
 
@@ -731,7 +666,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (!${Target.PctAggro}>=100) /return
 	}
 
-	/if (${Target.Rooted.ID}) /return
+	/if (${Target.Rooted.ID} && ${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) /return
 
 	/if (${Navigation.Active}) /return
 

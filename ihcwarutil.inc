@@ -294,14 +294,6 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=20 && ${Me.CombatAbility[${Spell[Provoke].RankName}]})  {
 		/varset insult ${Spell[Provoke].RankName}
 	} 
-	
-	/if (${Me.Level}>=20 && ${Me.CombatAbility[${insult}]}) {
-		/varset PullAbility ${insult}
-		/varset PullDistance 90
-	} else {
-		/varset PullAbility ${Spell[Throw Stone].RankName}
-		/varset PullDistance 60
-	}
 
 	|---Strike
 	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Cunning Strike].RankName}]})  {
@@ -366,6 +358,14 @@ Sub SetupDiscs
 		/varset Aura1 ${Spell[Champion's Aura].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.CombatAbility[${Spell[Myrmidon's Aura].RankName}]})  {
 		/varset Aura1 ${Spell[Myrmidon's Aura].RankName}
+	}
+
+	/if (${Me.CombatAbility[${insult}]}) {
+		/varset PullAbility ${insult}
+		/varset PullDistance 90
+	} else {
+		/varset PullAbility ${Spell[Throw Stone].RankName}
+		/varset PullDistance 60
 	}
 /return
 |----------------------------------------------------------------------------

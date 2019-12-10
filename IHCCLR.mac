@@ -289,7 +289,7 @@ Sub group_heals
 		/varcalc HurtMember ${HurtMember}+1
 	}
 
-   /for gmember 1 to ${Group}
+   	/for gmember 1 to ${Group}
 		
 		/if (${Group.Member[${gmember}].Type.Equal[Corpse]}) /continue
 		

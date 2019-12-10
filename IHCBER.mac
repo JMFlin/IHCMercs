@@ -68,8 +68,6 @@ Sub ManualPullCamping
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/call make_axes	
 
-		/call check_resources FALSE "Communion of Blood" alt ${Me.ID} 75
-		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
 		/call pre_combat_buffs FALSE "${cheapshot}" disc ${Target.ID}
 		
 		/call get_target
