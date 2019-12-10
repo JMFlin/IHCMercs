@@ -143,7 +143,7 @@ Sub LoadSpellBar
 		/call LoadSpellGem "${FireEtherealNuke}" 6
 		/call LoadSpellGem "${ColdEtherealNuke}" 7
 
-		/if (${GambitSpell.NotEqual[NULL]} && ${Me.Book[${Spell[${GambitSpell}].RankName}]}) {
+		/if (${GambitSpell.NotEqual[NULL]} && ${Me.Book[${GambitSpell}]}) {
 			/call LoadSpellGem "${GambitSpell}" 8
 		} else {
 			/call LoadSpellGem "${HarvestSpell1}"8
