@@ -616,23 +616,9 @@ Sub afk_pull
 	}
 
 	/if (${AdvPath.Following}) /afollow off
-
-|	/varset MobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
-
-|	/while (${i} <= ${MobsInRadius}) {
-|		/if (${Navigation.PathExists[id ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) {
-|			/if (${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /varset Dummy ${NearestSpawn[${i}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID} 
-|			/if (${PathLength} > ${Navigation.PathLength[id ${Dummy}]}) {
-|				/varset PathLength ${Navigation.PathLength[id ${Dummy}]}
-|				/varset PullTargetID ${Dummy}
-|			}
-|		}
-|		/varcalc i ${i}+1
-|		/delay 1		
-|	}
 	
-	/echo Pulling ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius}].Name}
-	/varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius}].ID}
+	/echo Pulling ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].Name}
+	/varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 
 	/if (!${PullTargetID}) /return
 	
@@ -653,7 +639,6 @@ Sub afk_pull
 	/delay 1s ${Target.ID} == ${PullTargetID}
 
     /while (${PullTargetID} == ${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
-|		/if (${PullTargetID} != ${Target.ID}) /target id ${PullTargetID}
 		/if (${PullAbility.Equal[Melee]}) /attack on
 		/if (!${PullAbility.Equal[Melee]} && ${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
 |		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
