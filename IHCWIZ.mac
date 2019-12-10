@@ -248,6 +248,10 @@ Sub Combatdps
 		/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
 			/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
 		}
+
+		/if (!${Me.Book[${Spell[${FuseNuke}].RankName}]}) {
+			/if (${validate_cast[FALSE, spell, "${ColdEtherealNuke}", ${Target.ID}]}) /call core_cast2 "${ColdEtherealNuke}" spell ${Target.ID} FALSE
+		}
 	}
 /return
 

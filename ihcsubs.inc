@@ -554,6 +554,7 @@ Sub check_add_aggro
 			/delay 5 ${Target.ID}==${SpawnSort[1,asc,PctAggro,xtarhater].ID}
 			/call Engage
 			/call get_aggro
+			/delay 1s
 		}
 	}
 
