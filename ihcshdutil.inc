@@ -38,6 +38,10 @@ Sub ShdSetup
 	/declare Skin			string outer NULL
 	/declare SnareSpell 	string outer NULL
 
+	/declare Cloak 			string outer NULL
+	/declare HPShroud 		string outer NULL
+	/declare MPShroud 		string outer NULL
+	
 	/declare PullAbility string outer NULL
 	/declare PullDistance int outer 0
 
@@ -178,7 +182,13 @@ Sub SetupSpells
 		/varset Denial ${Spell[Insidious Denial].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Insidious Denial].RankName}]}) {
 		/varset Denial ${Spell[Insidious Denial].RankName}
-	}
+	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[Revile].RankName}]}) {
+		/varset Denial ${Spell[Revile].RankName}
+	} else /if (${Me.Level}>=74 && ${Me.Book[${Spell[Vilify].RankName}]}) {
+		/varset Denial ${Spell[Vilify].RankName}
+	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Dread Gaze].RankName}]}) {
+		/varset Denial ${Spell[Dread Gaze].RankName}
+	} 
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Hateful Bargain].RankName}]}) {
 		/varset Bargain ${Spell[Hateful Bargain].RankName}
@@ -191,28 +201,43 @@ Sub SetupSpells
 		/varset Skin ${Spell[Tylix's Skin].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Tylix's Skin].RankName}]}) {
 		/varset Skin ${Spell[Tylix's Skin].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
-		/varset Skin ${Spell[Cloak of Luclin].RankName}
+	}
+	
+	/if (${Me.Level}>=65 && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
+		/varset Cloak ${Spell[Cloak of Luclin].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Cloak of the Akheva].RankName}]}) {
-		/varset Skin ${Spell[Cloak of the Akheva].RankName}
+		/varset Cloak ${Spell[Cloak of the Akheva].RankName}
 	} 
+
+
 
 
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
 		/varset Stance ${Spell[Defiant Stance].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
 		/varset Stance ${Spell[Defiant Stance].RankName}
-	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Shroud of Discord].RankName}]}) {
-		/varset Stance ${Spell[Shroud of Discord].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Black Shroud].RankName}]}) {
-		/varset Stance ${Spell[Black Shroud].RankName}
-	} else /if (${Me.Level}>63 && ${Me.Book[${Spell[Shroud of Chaos].RankName}]}) {
-		/varset Stance ${Spell[Shroud of Chaos].RankName}
-	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Shroud of Death].RankName}]}) {
-		/varset Stance ${Spell[Shroud of Death].RankName}
-	} else /if (${Me.Level}>=37 && ${Me.Book[${Spell[Scream of Death].RankName}]}) {
-		/varset Stance ${Spell[Scream of Death].RankName}
 	}
+	
+	/if (${Me.Level}>=67 && ${Me.Book[${Spell[Shroud of Discord].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of Discord].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Black Shroud].RankName}]}) {
+		/varset HPShroud ${Spell[Black Shroud].RankName}
+	} else /if (${Me.Level}>63 && ${Me.Book[${Spell[Shroud of Chaos].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of Chaos].RankName}
+	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Shroud of Death].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of Death].RankName}
+	} else /if (${Me.Level}>=37 && ${Me.Book[${Spell[Scream of Death].RankName}]}) {
+		/varset HPShroud ${Spell[Scream of Death].RankName}
+	}
+
+
+	/if (${Me.Level}>=96 && ${Me.Book[${Spell[Mental Terror].RankName}]}) {
+		/varset MPShroud ${Spell[Mental Terror].RankName}
+	} else /if (${Me.Level}>65 && ${Me.Book[${Spell[Mental Horror].RankName}]}) {
+		/varset MPShroud ${Spell[Mental Horror].RankName}
+	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Mental Corruption].RankName}]}) {
+		/varset MPShroud ${Spell[Mental Corruption].RankName}
+	} 
 
 	/if (${Me.Level}>=61 && ${Me.Book[${Spell[Festering Darkness].RankName}]}) {
 		/varset SnareSpell ${Spell[Festering Darkness].RankName}
