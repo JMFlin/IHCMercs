@@ -130,85 +130,85 @@ Sub SetupDiscs
 		/varset Alliance ${Spell[Demolisher's Alliance].RankName}
 	}
 |---Cry Havoc - Crit Buff
-	/if (${Me.Level}>=98 && ${Me.CombatAbility[Cry Carnage]})  {
+	/if (${Me.Level}>=98 && ${Me.CombatAbility[Cry Carnage]}) {
 		/varset CryHavoc Cry Carnage
-	} else /if (${Me.Level}>=68 && ${Me.CombatAbility[Cry Havoc]})  {
+	} else /if (${Me.Level}>=68 && ${Me.CombatAbility[Cry Havoc]}) {
 		/varset CryHavoc Cry Havoc
 	}
 |---Snare
-	/if (${Me.Level}>=54 && ${Me.CombatAbility[Leg Slice]})  {
+	/if (${Me.Level}>=54 && ${Me.CombatAbility[Leg Slice]}) {
 		/varset CryHavoc Leg Slice
-	} else /if (${Me.Level}>=32 && ${Me.CombatAbility[Leg Cut]})  {
+	} else /if (${Me.Level}>=32 && ${Me.CombatAbility[Leg Cut]}) {
 		/varset Snare Leg Cut
 	}
 
 |- Blood Axe TIMER 1
 |- NEED BUFF EFFECT NAME ON MOB TO CHECK IN COMBATDPS
-	/if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Blood Brand].RankName}]})  {
+	/if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Blood Brand].RankName}]}) {
 		/varset BloodDisc ${Spell[Blood Brand].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Blood Blade].RankName}]})  {
+	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Blood Blade].RankName}]}) {
 		/varset BloodDisc ${Spell[Blood Blade].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Blood Axe].RankName}]})  {
+	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Blood Axe].RankName}]}) {
 		/varset BloodDisc ${Spell[Blood Axe].RankName}
-	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Blood Hatchet].RankName}]})  {
+	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Blood Hatchet].RankName}]}) {
 		/varset BloodDisc ${Spell[Blood Hatchet].RankName}
 	} 
 
 |---Battle Cry - HHE Buff
-	/if (${Me.Level}>=65 && ${Me.CombatAbility[Ancient Cry of Chaos]})  {
+	/if (${Me.Level}>=65 && ${Me.CombatAbility[Ancient Cry of Chaos]}) {
 		/varset HHEBuff Ancient Cry of Chaos
-	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[Battle Cry of the Mastruq]})  {
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[Battle Cry of the Mastruq]}) {
 		/varset HHEBuff Battle Cry of the Mastruq
-	} else /if (${Me.Level}>=64 && ${Me.CombatAbility[War Cry of Dravel]})  {
+	} else /if (${Me.Level}>=64 && ${Me.CombatAbility[War Cry of Dravel]}) {
 		/varset HHEBuff War Cry of Dravel
-	} else /if (${Me.Level}>=57 && ${Me.CombatAbility[Battle Cry of Dravel]})  {
+	} else /if (${Me.Level}>=57 && ${Me.CombatAbility[Battle Cry of Dravel]}) {
 		/varset HHEBuff Battle Cry of Dravel
-	} else /if (${Me.Level}>=50 && ${Me.CombatAbility[War Cry]})  {
+	} else /if (${Me.Level}>=50 && ${Me.CombatAbility[War Cry]}) {
 		/varset HHEBuff War Cry
-	} else /if (${Me.Level}>=30 && ${Me.CombatAbility[Battle Cry]})  {
+	} else /if (${Me.Level}>=30 && ${Me.CombatAbility[Battle Cry]}) {
 		/varset HHEBuff Battle Cry
 	}
 |---Primary Burn Disc Setup - Expanded for lower level use
 |- TIMER 4
-	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Brutal Discipline].RankName}]})  {
+	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Brutal Discipline].RankName}]}) {
 		/varset PrimaryBurnDisc ${Spell[Brutal Discipline].RankName}
-	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Sundering Discipline].RankName}]})  {
+	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Sundering Discipline].RankName}]}) {
 		/varset PrimaryBurnDisc ${Spell[Sundering Discipline].RankName}
-	} else /if (${Me.Level}>=75 && ${Me.CombatAbility[${Spell[Berserking Discipline].RankName}]})  {
+	} else /if (${Me.Level}>=75 && ${Me.CombatAbility[${Spell[Berserking Discipline].RankName}]}) {
 		/varset PrimaryBurnDisc ${Spell[Berserking Discipline].RankName}
-	} else /if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Burning Rage Discipline].RankName}]})  {
+	} else /if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Burning Rage Discipline].RankName}]}) {
 		/varset PrimaryBurnDisc ${Spell[Burning Rage Discipline].RankName}
-	} else /if (${Me.Level}>=58 && ${Me.CombatAbility[${Spell[Blind Rage Discipline].RankName}]})  {
+	} else /if (${Me.Level}>=58 && ${Me.CombatAbility[${Spell[Blind Rage Discipline].RankName}]}) {
 		/varset PrimaryBurnDisc ${Spell[Blind Rage Discipline].RankName}
-	} else /if (${Me.Level}>=54 && ${Me.CombatAbility[${Spell[Cleaving Rage Discipline].RankName}]})  {
+	} else /if (${Me.Level}>=54 && ${Me.CombatAbility[${Spell[Cleaving Rage Discipline].RankName}]}) {
 		/varset PrimaryBurnDisc ${Spell[Cleaving Rage Discipline].RankName}
 	} 
 
-	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Jarring Jolt].RankName}]})  {
+	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Jarring Jolt].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Jolt].RankName}
-	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Jarring Smite].RankName}]})  {
+	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Jarring Smite].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Smite].RankName}
-	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Jarring Crush].RankName}]})  {
+	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Jarring Crush].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Crush].RankName}
-	} else /if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Jarring Blow].RankName}]})  {
+	} else /if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Jarring Blow].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Blow].RankName}
-	} else /if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Jarring Slam].RankName}]})  {
+	} else /if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Jarring Slam].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Slam].RankName}
-	} else /if (${Me.Level}>=84 && ${Me.CombatAbility[${Spell[Jarring Clash].RankName}]})  {
+	} else /if (${Me.Level}>=84 && ${Me.CombatAbility[${Spell[Jarring Clash].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Clash].RankName}
-	} else /if (${Me.Level}>=79 && ${Me.CombatAbility[${Spell[Jarring Smash].RankName}]})  {
+	} else /if (${Me.Level}>=79 && ${Me.CombatAbility[${Spell[Jarring Smash].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Smash].RankName}
-	} else /if (${Me.Level}>=74 && ${Me.CombatAbility[${Spell[Jarring Strike].RankName}]})  {
+	} else /if (${Me.Level}>=74 && ${Me.CombatAbility[${Spell[Jarring Strike].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Strike].RankName}
-	} else /if (${Me.Level}>=69 && ${Me.CombatAbility[${Spell[Baffeling Strike].RankName}]})  {
+	} else /if (${Me.Level}>=69 && ${Me.CombatAbility[${Spell[Baffeling Strike].RankName}]}) {
 		/varset JoltDisc ${Spell[Baffeling Strike].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Confusing Strike].RankName}]})  {
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Confusing Strike].RankName}]}) {
 		/varset JoltDisc ${Spell[Confusing Strike].RankName}
-	} else /if (${Me.Level}>=48 && ${Me.CombatAbility[${Spell[Distracting Strike].RankName}]})  {
+	} else /if (${Me.Level}>=48 && ${Me.CombatAbility[${Spell[Distracting Strike].RankName}]}) {
 		/varset JoltDisc ${Spell[Distracting Strike].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Divertive Strike].RankName}]})  {
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Divertive Strike].RankName}]}) {
 		/varset JoltDisc ${Spell[Divertive Strike].RankName}
-	} else /if (${Me.Level}>=24 && ${Me.CombatAbility[${Spell[Distracting Strike].RankName}]})  {
+	} else /if (${Me.Level}>=24 && ${Me.CombatAbility[${Spell[Distracting Strike].RankName}]}) {
 		/varset JoltDisc ${Spell[Distracting Strike].RankName}
 	} 
 
@@ -216,98 +216,98 @@ Sub SetupDiscs
 	/if (${Me.CombatAbility[${PrimaryBurnDisc}]}) /varset PrimaryBurnDiscID ${Spell[${PrimaryBurnDisc}].ID}
 
 |---Cleaving Disc
-	/if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Cleaving Acrimony Discipline].RankName}]})  {
+	/if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Cleaving Acrimony Discipline].RankName}]}) {
 		/varset CleavingDisc ${Spell[Cleaving Acrimony Discipline].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Cleaving Anger Discipline].RankName}]})  {
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[${Spell[Cleaving Anger Discipline].RankName}]}) {
 		/varset CleavingDisc ${Spell[Cleaving Anger Discipline].RankName}
 	}
 	/if (${Me.CombatAbility[${CleavingDisc}]}) /varset CleavingDiscID ${Spell[${CleavingDisc}].ID}
 |---Flurry Disc
-	/if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Avenging Flurry Discipline].RankName}]})  {
+	/if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Avenging Flurry Discipline].RankName}]}) {
 		/varset FlurryDisc ${Spell[Avenging Flurry Discipline].RankName}
-	} else /if (${Me.Level}>=70 && ${Me.CombatAbility[${Spell[Vengeful Flurry Discipline].RankName}]})  {
+	} else /if (${Me.Level}>=70 && ${Me.CombatAbility[${Spell[Vengeful Flurry Discipline].RankName}]}) {
 		/varset FlurryDisc ${Spell[Vengeful Flurry Discipline].RankName}
 	}
 	/if (${Me.CombatAbility[${FlurryDisc}]}) /varset FlurryDiscID ${Spell[${FlurryDisc}].ID}
 |---Disconcerting
-	/if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Disconcerting Discipline].RankName}]})  {
+	/if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Disconcerting Discipline].RankName}]}) {
 		/varset DisconDisc ${Spell[Disconcerting Discipline].RankName}
 		/varset DisconDiscID ${Spell[DisconDisc].ID}
 	}
 |---Resolve Disc
-	/if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Frenzied Resolve Discipline].RankName}]})  {
+	/if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Frenzied Resolve Discipline].RankName}]}) {
 		/varset ResolveDisc ${Spell[Frenzied Resolve Discipline].RankName}
 		/varset ResolveDiscID ${Spell[ResolveDisc].ID}
 	}
 |---Frenzy Boost - Updated for RoS and Expanded for lower level
 |- STORMWILD FRENZY?
-	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Torrid Frenzy].RankName}]})  {
+	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Torrid Frenzy].RankName}]}) {
 		/varset FrenzyBoost ${Spell[Torrid Frenzy].RankName}
 		/varset FrenzyBoostBuff Torrid Frenzy
-	} else /if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Bolstered Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Bolstered Frenzy].RankName}]}) {
 		/varset FrenzyBoost ${Spell[Bolstered Frenzy].RankName}
 		/varset FrenzyBoostBuff Bolstered Frenzy Effect
-	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Amplified Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Amplified Frenzy].RankName}]}) {
 		/varset FrenzyBoost ${Spell[Amplified Frenzy].RankName}
 		/varset FrenzyBoostBuff Amplified Frenzy Effect
-	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Augmented Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Augmented Frenzy].RankName}]}) {
 		/varset FrenzyBoost ${Spell[Augmented Frenzy].RankName}
 		/varset FrenzyBoostBuff Augmented Frenzy Effect
-	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Steel Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Steel Frenzy].RankName}]}) {
 		/varset FrenzyBoost ${Spell[Steel Frenzy].RankName}
 		/varset FrenzyBoostBuff Steel Frenzy Effect
-	} else /if (${Me.Level}>=90 && ${Me.CombatAbility[${Spell[Fighting Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=90 && ${Me.CombatAbility[${Spell[Fighting Frenzy].RankName}]}) {
 		/varset FrenzyBoost ${Spell[Fighting Frenzy].RankName}
 		/varset FrenzyBoostBuff Fighting Frenzy Effect
-	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Combat Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Combat Frenzy].RankName}]}) {
 		/varset FrenzyBoost ${Spell[Combat Frenzy].RankName}
 		/varset FrenzyBoostBuff Combat Frenzy Effect
-	} else /if (${Me.Level}>=80 && ${Me.CombatAbility[${Spell[Battle Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=80 && ${Me.CombatAbility[${Spell[Battle Frenzy].RankName}]}) {
 		/varset FrenzyBoost ${Spell[Battle Frenzy].RankName}
 		/varset FrenzyBoostBuff Battle Frenzy Effect
 	}
 |---SharedBuff - Updated for RoS and Expanded for lower level
-	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Shared Ruthlessness].RankName}]})  {
+	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Shared Ruthlessness].RankName}]}) {
 		/varset SharedBuff ${Spell[Shared Ruthlessness].RankName}
 		/varset SharedBuffName Shared Ruthlessness
-	} else /if (${Me.Level}>=105 && ${Me.CombatAbility[${Spell[Shared Cruelty].RankName}]})  {
+	} else /if (${Me.Level}>=105 && ${Me.CombatAbility[${Spell[Shared Cruelty].RankName}]}) {
 		/varset SharedBuff ${Spell[Shared Cruelty].RankName}
 		/varset SharedBuffName Shared Cruelty
-	} else /if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Shared Viciousness].RankName}]})  {
+	} else /if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Shared Viciousness].RankName}]}) {
 		/varset SharedBuff ${Spell[Shared Viciousness].RankName}
 		/varset SharedBuffName Shared Viciousness
-	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Shared Savagery].RankName}]})  {
+	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Shared Savagery].RankName}]}) {
 		/varset SharedBuff ${Spell[Shared Savagery].RankName}
 		/varset SharedBuffName Shared Savagery
-	} else /if (${Me.Level}>=90 && ${Me.CombatAbility[${Spell[Shared Brutality].RankName}]})  {
+	} else /if (${Me.Level}>=90 && ${Me.CombatAbility[${Spell[Shared Brutality].RankName}]}) {
 		/varset SharedBuff ${Spell[Shared Brutality].RankName}
 		/varset SharedBuffName Shared Brutality
-	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Shared Bloodlust].RankName}]})  {
+	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Shared Bloodlust].RankName}]}) {
 		/varset SharedBuff ${Spell[Shared Bloodlust].RankName}
 		/varset SharedBuffName Shared Bloodlust
 	}
 |---RageStrike - Updated for RoS and Expanded for lower level
-	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Smoldering Rage].RankName}]})  {
+	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Smoldering Rage].RankName}]}) {
 		/varset RageStrike ${Spell[Smoldering Rage].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Bubbling Rage].RankName}]})  {
+	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Bubbling Rage].RankName}]}) {
 		/varset RageStrike ${Spell[Bubbling Rage].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Festering Rage].RankName}]})  {
+	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Festering Rage].RankName}]}) {
 		/varset RageStrike ${Spell[Festering Rage].RankName}
 	}
 |---Cheapshot ability EX: Kick in the shins - Updated for RoS
-	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Sucker Punch].RankName}]})  {
+	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Sucker Punch].RankName}]}) {
 		/varset cheapshot ${Spell[Sucker Punch].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Kick in the Shins].RankName}]})  {
+	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Kick in the Shins].RankName}]}) {
 		/varset cheapshot ${Spell[Kick in the Shins].RankName}
-	} else /if (${Me.Level}>=97 && ${Me.CombatAbility[${Spell[Punch in the Throat].RankName}]})  {
+	} else /if (${Me.Level}>=97 && ${Me.CombatAbility[${Spell[Punch in the Throat].RankName}]}) {
 		/varset cheapshot ${Spell[Punch in the Throat].RankName}
-	} else /if (${Me.Level}>=92 && ${Me.CombatAbility[${Spell[Kick in the Teeth].RankName}]})  {
+	} else /if (${Me.Level}>=92 && ${Me.CombatAbility[${Spell[Kick in the Teeth].RankName}]}) {
 		/varset cheapshot ${Spell[Kick in the Teeth].RankName}
-	} else /if (${Me.Level}>=87 && ${Me.CombatAbility[${Spell[Slap in the Face].RankName}]})  {
+	} else /if (${Me.Level}>=87 && ${Me.CombatAbility[${Spell[Slap in the Face].RankName}]}) {
 		/varset cheapshot ${Spell[Slap in the Face].RankName}
-	} else /if (${Me.Level}>=5 && ${Me.CombatAbility[${Spell[Elbow Strike].RankName}]})  {
+	} else /if (${Me.Level}>=5 && ${Me.CombatAbility[${Spell[Elbow Strike].RankName}]}) {
 		/varset cheapshot ${Spell[Elbow Strike].RankName}
-	} else /if (${Me.Level}>=1 && ${Me.CombatAbility[${Spell[Throw Stone].RankName}]})  {
+	} else /if (${Me.Level}>=1 && ${Me.CombatAbility[${Spell[Throw Stone].RankName}]}) {
 		/varset cheapshot ${Spell[Throw Stone].RankName}
 	}
 |-Dicho Spell*
@@ -317,106 +317,106 @@ Sub SetupDiscs
 		/varset DichoSpell ${Spell[Dichotomic Rage].RankName}
 	}
 |---Frenzy Combat Ability not normal Frenzy - Updated for RoS
-	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Mangling Frenzy].RankName}]})  {
+	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Mangling Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Mangling Frenzy].RankName}
-	} else /if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Demolishing Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Demolishing Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Demolishing Frenzy].RankName}
-	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[${Spell[Vanquishing Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[${Spell[Vanquishing Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Vanquishing Frenzy].RankName}
-	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[${Spell[Conquering Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[${Spell[Conquering Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Conquering Frenzy].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Overwhelming Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Overwhelming Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Overwhelming Frenzy].RankName}
-	} else /if (${Me.Level}>=81 && ${Me.CombatAbility[${Spell[Overpowering Frenzy].RankName}]})  {
+	} else /if (${Me.Level}>=81 && ${Me.CombatAbility[${Spell[Overpowering Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Overpowering Frenzy].RankName}
 	}
 |---Volley - Updated for RoS
-	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Mangling Volley].RankName}]})  {
+	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Mangling Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Mangling Volley].RankName}
-	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Demolishing Volley].RankName}]})  {
+	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Demolishing Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Demolishing Volley].RankName}
-	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Brutal Volley].RankName}]})  {
+	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Brutal Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Brutal Volley].RankName}
-	} else /if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Sundering Volley].RankName}]})  {
+	} else /if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Sundering Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Sundering Volley].RankName}
-	} else /if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Savage Volley].RankName}]})  {
+	} else /if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Savage Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Savage Volley].RankName}
-	} else /if (${Me.Level}>=84 && ${Me.CombatAbility[${Spell[Eradicator's Volley].RankName}]})  {
+	} else /if (${Me.Level}>=84 && ${Me.CombatAbility[${Spell[Eradicator's Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Eradicator's Volley].RankName}
-	} else /if (${Me.Level}>=79 && ${Me.CombatAbility[${Spell[Decimator's Volley].RankName}]})  {
+	} else /if (${Me.Level}>=79 && ${Me.CombatAbility[${Spell[Decimator's Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Decimator's Volley].RankName}
-	} else /if (${Me.Level}>=74 && ${Me.CombatAbility[${Spell[Annihilator's Volley].RankName}]})  {
+	} else /if (${Me.Level}>=74 && ${Me.CombatAbility[${Spell[Annihilator's Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Annihilator's Volley].RankName}
-	} else /if (${Me.Level}>=69 && ${Me.CombatAbility[${Spell[Destroyer's Volley].RankName}]})  {
+	} else /if (${Me.Level}>=69 && ${Me.CombatAbility[${Spell[Destroyer's Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Destroyer's Volley].RankName}
-	} else /if (${Me.Level}>=61 && ${Me.CombatAbility[${Spell[Rage Volley].RankName}]})  {
+	} else /if (${Me.Level}>=61 && ${Me.CombatAbility[${Spell[Rage Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Rage Volley].RankName}
 	}
 
 |- Sapping strike
-	/if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Sapping Strikes].RankName}]})  {
+	/if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Sapping Strikes].RankName}]}) {
 		/varset SappingStrike ${Spell[Sapping Strikes].RankName}
 	} 
 |---Axe Throw - Updated for RoS
-	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Mangling Axe Throw].RankName}]})  {
+	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Mangling Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Mangling Axe Throw].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Demolishing Axe Throw].RankName}]})  {
+	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Demolishing Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Demolishing Axe Throw].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Brutal Axe Throw].RankName}]})  {
+	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Brutal Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Brutal Axe Throw].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Spirited Axe Throw].RankName}]})  {
+	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Spirited Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Spirited Axe Throw].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Energetic Axe Throw].RankName}]})  {
+	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Energetic Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Energetic Axe Throw].RankName}
-	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Vigorous Axe Throw].RankName}]})  {
+	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Vigorous Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Vigorous Axe Throw].RankName}
 	}
 |---Axe of - No Update
-	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Axe of Empyr].RankName}]})  {
+	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Axe of Empyr].RankName}]}) {
 		/varset Daxeof ${Spell[Axe of Empyr].RankName}
-	} else /if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Axe of the Mangler].RankName}]})  {
+	} else /if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Axe of the Mangler].RankName}]}) {
 		/varset Daxeof ${Spell[Axe of Numicia].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Axe of the Aeons].RankName}]})  {
+	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Axe of the Aeons].RankName}]}) {
 		/varset Daxeof ${Spell[Axe of the Aeons].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Axe of Zurel].RankName}]})  {
+	} else /if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Axe of Zurel].RankName}]}) {
 		/varset Daxeof ${Spell[Axe of Zurel].RankName}
-	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Axe of Illdaera].RankName}]})  {
+	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Axe of Illdaera].RankName}]}) {
 		/varset Daxeof ${Spell[Axe of Illdaera].RankName}
-	} else /if (${Me.Level}>=90 && ${Me.CombatAbility[${Spell[Axe of Graster].RankName}]})  {
+	} else /if (${Me.Level}>=90 && ${Me.CombatAbility[${Spell[Axe of Graster].RankName}]}) {
 		/varset Daxeof ${Spell[Axe of Graster].RankName}
-	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Axe of Rallos].RankName}]})  {
+	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Axe of Rallos].RankName}]}) {
 		/varset Daxeof ${Spell[Axe of Rallos].RankName}
 	}
 |---AE Slice Attack - 4 targets or less DIRECTIONAL Range 40
-	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Arcsteel].RankName}]})  {
+	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Arcsteel].RankName}]}) {
 		/varset AESlice ${Spell[Arcsteel].RankName}
-	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Arcslice].RankName}]})  {
+	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Arcslice].RankName}]}) {
 		/varset AESlice ${Spell[Arcslice].RankName}
-	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Arcblade].RankName}]})  {
+	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Arcblade].RankName}]}) {
 		/varset AESlice ${Spell[Arcblade].RankName}
 	}
 |---AE Viscious Attack - Up to 12 targets Range 25
-	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Vicious Cycle].RankName}]})  {
+	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Vicious Cycle].RankName}]}) {
 		/varset AEVicious ${Spell[Vicious Cycle].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Vicious Cyclone].RankName}]})  {
+	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Vicious Cyclone].RankName}]}) {
 		/varset AEVicious ${Spell[Vicious Cyclone].RankName}
-	} else /if (${Me.Level}>=97 && ${Me.CombatAbility[${Spell[Vicious Spiral].RankName}]})  {
+	} else /if (${Me.Level}>=97 && ${Me.CombatAbility[${Spell[Vicious Spiral].RankName}]}) {
 		/varset AEVicious ${Spell[Vicious Spiral].RankName}
 	}
 |---Fast Endurance regen - No Update
-	/if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Breather].RankName}]})  {
+	/if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Breather].RankName}]}) {
 		/varset endregen ${Spell[Breather].RankName}
-	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[${Spell[Rest].RankName}]})  {
+	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[${Spell[Rest].RankName}]}) {
 		/varset endregen ${Spell[Rest].RankName}
-	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[${Spell[Reprieve].RankName}]})  {
+	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[${Spell[Reprieve].RankName}]}) {
 		/varset endregen ${Spell[Reprieve].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Respite].RankName}]})  {
+	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Respite].RankName}]}) {
 		/varset endregen ${Spell[Respite].RankName}
-	} else /if (${Me.Level}>=82 && ${Me.CombatAbility[${Spell[Fourth Wind].RankName}]})  {
+	} else /if (${Me.Level}>=82 && ${Me.CombatAbility[${Spell[Fourth Wind].RankName}]}) {
 		/varset endregen ${Spell[Fourth Wind].RankName}
-	} else /if (${Me.Level}>=77 && ${Me.CombatAbility[${Spell[Third Wind].RankName}]})  {
+	} else /if (${Me.Level}>=77 && ${Me.CombatAbility[${Spell[Third Wind].RankName}]}) {
 		/varset endregen ${Spell[Third Wind].RankName}
-	} else /if (${Me.Level}>=72 && ${Me.CombatAbility[${Spell[Second Wind].RankName}]})  {
+	} else /if (${Me.Level}>=72 && ${Me.CombatAbility[${Spell[Second Wind].RankName}]}) {
 		/varset endregen ${Spell[Second Wind].RankName}
 	}
 |-Aura Set up	
