@@ -11,6 +11,15 @@ Sub ShdSetup
 	/declare endregen		string outer NULL
 	/declare Aura1			string outer NULL
 	/declare Aura2			string outer NULL
+
+	/declare IchorGuardDisc	string outer NULL
+	/declare IchorGuardID	int outer 0
+	/declare UnholyAuraDisc	string outer NULL
+	/declare UnholyAuraID	int outer 0
+	/declare DeflectionDisc	string outer NULL
+	/declare DeflectionID	int outer 0
+	/declare LeechcurseDisc	string outer NULL
+	/declare LeechcurseID	int outer 0
 |-Config Options
 	/call LoadIni Item ChestItemName	string "${Me.Inventory[17].Name}"
 
@@ -75,7 +84,7 @@ Sub LoadSpellBar
 |- SUB: SetupDiscs
 |---------------------------------------------------------------------------- 
 Sub SetupSpells
-	|--One off discs
+	| Spells
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Dissident Fang].RankName}]}) {
 		/varset DichotomicFang ${Spell[Dissident Fang].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Dichotomic Fang].RankName}]}) {
@@ -211,6 +220,27 @@ Sub SetupSpells
 		/varset SnareSpell ${Spell[Clinging Darkness].RankName}
 	}
 
+	| Discs
+	/if (${Me.Level}>=56 && ${Me.CombatAbility[${Spell[Ichor Guard].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Ichor Guard].RankName}
+		/varset IchorGuardID ${Spell[Ichor Guard].ID}
+	}
+
+	/if (${Me.Level}>=55 && ${Me.CombatAbility[${Spell[Unholy Aura Discipline].RankName}]}) {
+		/varset UnholyAuraDisc ${Spell[Unholy Aura Discipline].RankName}
+		/varset UnholyAuraID ${Spell[Unholy Aura Discipline].ID}
+	}
+	/if (${Me.Level}>=59 && ${Me.CombatAbility[${Spell[Deflection Discipline].RankName}]}) {
+		/varset DeflectionDisc ${Spell[Deflection Discipline].RankName}
+		/varset DeflectionID ${Spell[Deflection Discipline].ID}
+	}
+
+	/if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Leechcurse Discipline].RankName}]}) {
+		/varset LeechcurseDisc ${Spell[Leechcurse Discipline].RankName}
+		/varset LeechcurseID ${Spell[Leechcurse Discipline].ID}
+	}
+
+	| Pull ability
 	/if (${Me.Level}>=20 && ${Me.SpellReady[${Touch3}]}) {
 		/varset PullAbility ${Touch3}
 		/varset PullDistance 150

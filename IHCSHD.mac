@@ -125,20 +125,24 @@ Sub combat_buffs
 Sub combat_dps
 	/if (!${Me.XTarget}) /return
 	
-	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID}) {
+	/if (!${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.Book[${Touch1}]} && ${Me.PctHPs} < 90) {
+	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.Book[${Touch2}]} && ${Me.PctHPs} < 90) {
+	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.Book[${Touch3}]} && ${Me.PctHPs} < 90) {
+	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
+	}
+
+	/if (${Me.PctMana} > 70) {
+		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
 	}
 
 	
@@ -149,7 +153,62 @@ Sub combat_dps
 Sub DoDisc
 
 	/if (!${Me.XTarget}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
+	/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return
+
+	
+
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${IchorGuardDisc}]}) {
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/delay 5 !${Me.ActiveDisc.ID}
+				/disc ${IchorGuardDisc}
+			}
+		} else {
+			/disc ${IchorGuardDisc}
+		}
+	}
+
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${LeechcurseDisc}]}) {
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/delay 5 !${Me.ActiveDisc.ID}
+				/disc ${LeechcurseDisc}
+			}
+		} else {
+			/disc ${LeechcurseDisc}
+		}
+	}
+
+
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${UnholyAuraDisc}]}) {
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/delay 5 !${Me.ActiveDisc.ID}
+				/disc ${UnholyAuraDisc}
+			}
+		} else {
+			/disc ${UnholyAuraDisc}
+		}
+	}
+
+	/if (${Me.PctHPs} < 30 && ${Me.CombatAbilityReady[${DeflectionDisc}]}) {
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
+				/stopdisc
+				/delay 5 !${Me.ActiveDisc.ID}
+				/disc ${DeflectionDisc}
+			}
+		} else {
+			/disc ${DeflectionDisc}
+		}
+	}
 	
 /return
 |----------------------------------------------------------------------------
@@ -172,11 +231,11 @@ Sub get_aggro
 		/call AbilityNow "Kick"
 	}
 
-	/if (${Me.SecondaryPctAggro}>=80) {
+	/if (${Me.SecondaryPctAggro} >= 30) {
 		/if (${validate_cast[FALSE, spell, "${${Terror1}}", ${Target.ID}]}) /call core_cast2 "${${Terror1}}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.SecondaryPctAggro}>=80) {
+	/if (${Me.SecondaryPctAggro} >= 30) {
 		/if (${validate_cast[FALSE, spell, "${${Terror2}}", ${Target.ID}]}) /call core_cast2 "${${Terror2}}" spell ${Target.ID} FALSE
 	}
 
