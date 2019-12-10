@@ -79,7 +79,7 @@ Sub ManualPullCamping
 |		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 |		/if ((${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow}) && (${Me.AltAbilityReady[Calculated Insanity]} || ${Me.AltAbilityReady[Improved Twincast]}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) /call BurnRoutine
 		/call get_target
-		/call DebuffMobs
+		/call debuff_xtarget
 |		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
 		/call Combatdps
 |		/call CheckMana
@@ -126,9 +126,9 @@ Sub ManualRunAndGun
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: DebuffMobs
+|- SUB: debuff_xtarget
 |---------------------------------------------------------------------------- 
-Sub DebuffMobs
+Sub debuff_xtarget
 	/declare x int local 1
 
 	/if (!${Me.XTarget}) /return
@@ -137,6 +137,8 @@ Sub DebuffMobs
 
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		
+		/delay 1s
 
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
@@ -187,7 +189,7 @@ Sub DebuffMobs
 |			}
 |			/if (${DoBlurr} && ${Me.PctAggro}>=${BlurrAggroPct}) /call ManageAggro "BlrFlg"
 |		/delay 5s !${Me.Casting.ID}
-		/delay 5
+		/delay 1s
 	/next x
 /return
 |----------------------------------------------------------------------------
@@ -359,7 +361,7 @@ Sub BuffGroup
 	/if (${Me.XTarget}) /return
 
 	/for bmember 0 to ${Group}
-		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID})) {
+		/if (${Group.Member[${bmember}].Distance} < 100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID})) {
 			
 			/if (${Me.XTarget}) /return
 
@@ -372,7 +374,7 @@ Sub BuffGroup
 				}
 			}
 
-			/if (!${Me.Book[${GroupHaste}]} && ${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK,SK,PAL]}) {
+			/if (!${Me.Book[${GroupHaste}]} && ${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK,SHD,PAL]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleHaste}].ID" "tmpbuffid" "bool"
 				/if (!${tmpbuffid}) {
 					/if (${validate_cast[FALSE, spell, "${SingleHaste}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SingleHaste}" spell ${Group.Member[${bmember}].ID} FALSE
