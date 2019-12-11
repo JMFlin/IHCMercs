@@ -444,42 +444,52 @@ Sub group_buffs
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SingleMana}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleMana}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-					/if (${validate_cast[FALSE, spell, "${SingleMana}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SingleMana}" spell ${Group.Member[${bmember}].ID} FALSE
-					/delay 10
-					/varset CastCheck 1 
+					/if (${validate_cast[FALSE, spell, "${SingleMana}", ${Group.Member[${bmember}].ID}]}) {
+						/call core_cast2 "${SingleMana}" spell ${Group.Member[${bmember}].ID} FALSE
+						/delay 10
+						/varset CastCheck 1 
+					}
 				}
 			}
 
 			/if (!${Me.Book[${GroupHaste}]} && ${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK,SHD,PAL]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleHaste}].ID" "tmpbuffid" "bool"
 				/if (!${tmpbuffid}) {
-					/if (${validate_cast[FALSE, spell, "${SingleHaste}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SingleHaste}" spell ${Group.Member[${bmember}].ID} FALSE
-					/delay 10
-					/varset CastCheck 1 
+					/if (${validate_cast[FALSE, spell, "${SingleHaste}", ${Group.Member[${bmember}].ID}]}) {
+						/call core_cast2 "${SingleHaste}" spell ${Group.Member[${bmember}].ID} FALSE
+						/delay 10
+						/varset CastCheck 1
+					}
 				}
 			}
 			
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupHaste}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupHaste}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
-				/if (${validate_cast[FALSE, spell, "${GroupHaste}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupHaste}" spell ${Group.Member[${bmember}].ID} FALSE
-				/delay 10
-				/varset CastCheck 1 
+				/if (${validate_cast[FALSE, spell, "${GroupHaste}", ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${GroupHaste}" spell ${Group.Member[${bmember}].ID} FALSE
+					/delay 10
+					/varset CastCheck 1
+				}
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupMana}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupMana}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-				/if (${validate_cast[FALSE, spell, "${GroupMana}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupMana}" spell ${Group.Member[${bmember}].ID} FALSE
-				/delay 10
-				/varset CastCheck 1 
+				/if (${validate_cast[FALSE, spell, "${GroupMana}", ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${GroupMana}" spell ${Group.Member[${bmember}].ID} FALSE
+					/delay 10
+					/varset CastCheck 1
+				}
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${ProcBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${ProcBuff}].Stacks" "tmpstackcheck" "bool"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[Illusion Benefit Greater Jann].ID" "jaanbuffid" "int"
 			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Select[${Group.Member[${bmember}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD,WAR]}) {
-				/if (${validate_cast[FALSE, spell, "${ProcBuff}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${ProcBuff}" spell ${Group.Member[${bmember}].ID} FALSE
-				/delay 10
-				/varset CastCheck 1 
+				/if (${validate_cast[FALSE, spell, "${ProcBuff}", ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${ProcBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+					/delay 10
+					/varset CastCheck 1
+				}
 			}
 		}
 	/next bmember

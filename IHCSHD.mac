@@ -137,13 +137,13 @@ Sub downtime_buffs
 		}
 	}
 
-	/if (${Me.XTarget}) /return
-	/if (!${Me.Buff[${MPShroud}].ID} ) {
-		/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
-			/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
-	}
+|	/if (${Me.XTarget}) /return
+|	/if (!${Me.Buff[${MPShroud}].ID} ) {
+|		/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
+|			/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
+|			/varset CastCheck 1
+|		}
+|	}
 
 	/if (${CastCheck}) {
 		/call LoadSpellBar
