@@ -373,8 +373,10 @@ Sub self_buffs
 	/if (!${Me.Buff[${SelfHPBuff}].ID} && (${Spell[${SelfHPBuff}].Stacks}) && ${Me.Book[${SelfHPBuff}]} && ${Me.CurrentMana}>${Spell[${SelfHPBuff}].Mana} && ${Me.AltAbilityReady[Orator's Unity]}) {
 		/alt act ${Me.AltAbility[Orator's Unity].ID}
 	} else /if (!${Me.Buff[${SelfHPBuff}].ID} && !${Me.AltAbilityReady[Orator's Unity]}) {
-		/if (${validate_cast[FALSE, spell, "${SelfHPBuff}", ${Me.ID}]}) /call core_cast2 "${SelfHPBuff}" spell ${Me.ID} FALSE
-		/varset CastCheck 1
+		/if (${validate_cast[FALSE, spell, "${SelfHPBuff}", ${Me.ID}]}) {
+			/call core_cast2 "${SelfHPBuff}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
 	} 
 |	else /if (!${Me.Buff[${GroupMana}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupMana}].Stacks}) && ${Me.Book[${GroupMana}]} && ${Me.CurrentMana}>${Spell[${GroupMana}].Mana}) {
 ||				/call SpellQueue "${GroupMana}" ${Me.ID}
