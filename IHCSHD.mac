@@ -144,6 +144,7 @@ Sub downtime_buffs
 |---------------------------------------------------------------------------- 
 Sub combat_dps
 	/if (!${Me.XTarget}) /return
+	/if (!${Target.ID}) /return
 	
 	/if (!${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
@@ -204,7 +205,6 @@ Sub DoDisc
 			/delay 5
 		}
 	}
-
 
 	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${UnholyAuraDisc}]}) {
 
@@ -274,8 +274,21 @@ Sub get_aggro
 |- SUB: AoEAggro   
 |---------------------------------------------------------------------------- 
 Sub AoEAggro
+
 	/if (!${Me.XTarget}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
+
+	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1) {
+|		/call core_cast2 "${Denial}" spell ${Target.ID} FALSE
+	}
+	
+	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
+|		/call core_cast2 "${Bargain}" spell ${Target.ID} FALSE
+	} 
+
+	/if (${SpawnCount[npc radius 50 zradius 50]} > 1) {
+| 		/call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Iamsnared
