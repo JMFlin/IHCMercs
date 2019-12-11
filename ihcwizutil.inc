@@ -635,6 +635,12 @@ Sub SetWizSpells
 		/varset ColdEtherealNuke ${Spell[Blast of Cold].RankName}
 	}
 
+	| This is for using Ice Comet line during lower levels of play before having access to Fuse. 
+	| This keeps the weave correct in combatdps. 
+	/if (!${Me.Book[${FuseNuke}]}) {
+		/varset FuseNuke ${ColdEtherealNuke}
+	}
+
 |-EvacSpell
 	/if (${Me.Level}>=57 && ${Me.Book[${Spell[Evacuate].RankName}]}) {
 		/varset EvacSpell ${Spell[Evacuate].RankName}

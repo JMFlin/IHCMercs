@@ -179,27 +179,8 @@ Sub Combatdps
 		}
 		/varset BurningNow 1
 	}
-|-	/if (${CurrentMelody.NotEqual[CUSTOM]} && ${UseCustomMelody}) {
-|-		/if (${Me.Casting.ID}) /call StopTune
-|-		/melody ${CustomMelody}
-|-		/varset CurrentMelody CUSTOM
-|-		/delay 5
-|-	} else /if (${CurrentMelody.NotEqual[COMBAT]} && !${Me.Buff[Tune Stuck in Your Head].ID} && !${UseCustomMelody} && !${BurningNow}) {
-|-		/if (${Me.Casting.ID}) /call StopTune
-|-		/melody ${BattleMelody}
-|-		/varset CurrentMelody COMBAT
-|-		/delay 5
-|-	} else /if (${CurrentMelody.NotEqual[XTCBT]} && ${Me.Buff[Tune Stuck in Your Head].ID} && !${UseCustomMelody} && !${BurningNow}) {
-|-		/if (${Me.Casting.ID}) /call StopTune
-|-		/melody ${ExtBattleMelody}
-|-		/varset CurrentMelody XTCBT
-|-		/delay 5
-|-	} else /if (${CurrentMelody.NotEqual[BURN]} && !${UseCustomMelody} && ${BurningNow}) {
-|-		/if (${Me.Casting.ID}) /call StopTune
-|-		/melody ${ExtBurnMelody}
-|-		/varset CurrentMelody BURN
-|-		/delay 5
-|-	}
+
+
 	/if (${MelodyType.Equal[Caster]} && ${Me.AltAbilityReady[Fundament: Second Spire of the Minstrels]}) {
 		/alt act ${Me.AltAbility[Fundament: Second Spire of the Minstrels].ID}
 		/delay 5
@@ -227,10 +208,10 @@ Sub Combatdps
 		/doability Kick
 		/delay 5
 	} 
-	|else /if (${Me.AbilityReady[Intimidation]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${UseMelee} && ${UseIntimidate}) {
-	|	/doability Intimidation
-	|	/delay 5
-	|}
+	/if (${Me.AbilityReady[Intimidation]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${Me.Level} > 100) {
+		/doability Intimidation
+		/delay 5
+	}
 	/varset BurningNow 0
 /return
 |----------------------------------------------------------------------------

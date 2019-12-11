@@ -1621,7 +1621,7 @@ Sub get_target
 		}
 	}
 
-	/if (${Me.ID}==${Group.MainTank.ID}) {
+	/if (${Me.ID} == ${Group.MainTank.ID}) {
 
 		| if current target is not 100% aggro then get aggro
 		/if (${Target.ID}) {

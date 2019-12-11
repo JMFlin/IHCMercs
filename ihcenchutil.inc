@@ -581,6 +581,56 @@ Sub SetEncSpells
 	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Mesmerization].RankName}]}) {
 		/varset MezAESpell ${Spell[Mesmerization].RankName}
 	}
+|-PBAE Mez Spell * Var Name: MezPBAESpell string outer
+	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Perplex].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Perplex].RankName}
+	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Bafflement].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Bafflement].RankName}
+	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Disorientation].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Disorientation].RankName}
+	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Confusion].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Confusion].RankName}
+	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Serenity].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Serenity].RankName}
+	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Docility].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Docility].RankName}
+	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Visions of Kirathas].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Visions of Kirathas].RankName}
+	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Dreams of Veldyn].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Dreams of Veldyn].RankName}
+	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Circle of Dreams].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Circle of Dreams].RankName}
+	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Word of Morell].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Word of Morell].RankName}
+	} else /if (${Me.Level}>=30 && ${Me.Book[${Spell[Entrancing Lights].RankName}]}) {
+		/varset MezPBAESpell ${Spell[Entrancing Lights].RankName}
+	}
+
+|-AE Mez Fast Cast * Var Name: MezAESpellFast string outer
+	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Perplexing Glance].RankName}]}) {
+		/varset MezAESpellFast ${Spell[Perplexing Glance].RankName}
+	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[Slackening Glance].RankName}]}) {
+		/varset MezAESpellFast ${Spell[Slackening Glance].RankName}
+	}
+	
+|-Single Mez Fast Cast * Var Name: MezSpellFast string outer
+	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Deluding Flash].RankName}]}) {
+		/varset MezSpellFast ${Spell[Deluding Flash].RankName}
+	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Bewildering Flash].RankName}]}) {
+		/varset MezSpellFast ${Spell[Bewildering Flash].RankName}
+	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Confounding Flash].RankName}]}) {
+		/varset MezSpellFast ${Spell[Confounding Flash].RankName}
+	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Misleading Flash].RankName}]}) {
+		/varset MezSpellFast ${Spell[Misleading Flash].RankName}
+	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Baffling Flash].RankName}]}) {
+		/varset MezSpellFast ${Spell[Baffling Flash].RankName}
+	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Befuddling Flash].RankName}]}) {
+		/varset MezSpellFast ${Spell[Befuddling Flash].RankName}
+	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Mystifying Flash].RankName}]}) {
+		/varset MezSpellFast ${Spell[Mystifying Flash].RankName}
+	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Perplexing Flash].RankName}]}) {
+		/varset MezSpellFast ${Spell[Perplexing Flash].RankName}
+	}
 |-Tash * Var Name: TashSpell string outer
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Order of Tashan].RankName}]}) {
 		/varset TashSpell ${Spell[Order of Tashan].RankName}
@@ -633,6 +683,9 @@ Sub SetEncSpells
 	} else /if (${Me.Level}>=9 && ${Me.Book[${Spell[Languid Pace].RankName}]}) {
 		/varset SlowSpell ${Spell[Languid Pace].RankName}
 	}
+
+|	/if (${Me.AltAbilityReady[${SlowSpell}]}) /varset SlowSpell ${SlowSpell}
+
 |-Nuke 1 * Var Name: MindNukeMain string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mindslash].RankName}]}) {
 		/varset MindNukeMain ${Spell[Mindslash].RankName}
@@ -1486,54 +1539,6 @@ Sub SetEncSpells
 		/varset ManaDrainSpell1 ${Spell[Wandering Mind].RankName}
 	} else /if (${Me.Level}>=30 && ${Me.Book[${Spell[Mana Sieve].RankName}]}) {
 		/varset ManaDrainSpell1 ${Spell[Mana Sieve].RankName}
-	}
-|-AE Mez Fast Cast * Var Name: MezAESpellFast string outer
-	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Perplexing Glance].RankName}]}) {
-		/varset MezAESpellFast ${Spell[Perplexing Glance].RankName}
-	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[Slackening Glance].RankName}]}) {
-		/varset MezAESpellFast ${Spell[Slackening Glance].RankName}
-	}
-|-PBAE Mez Spell * Var Name: MezPBAESpell string outer
-	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Perplex].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Perplex].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Bafflement].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Bafflement].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Disorientation].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Disorientation].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Confusion].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Confusion].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Serenity].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Serenity].RankName}
-	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Docility].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Docility].RankName}
-	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Visions of Kirathas].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Visions of Kirathas].RankName}
-	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Dreams of Veldyn].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Dreams of Veldyn].RankName}
-	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Circle of Dreams].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Circle of Dreams].RankName}
-	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Word of Morell].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Word of Morell].RankName}
-	} else /if (${Me.Level}>=30 && ${Me.Book[${Spell[Entrancing Lights].RankName}]}) {
-		/varset MezPBAESpell ${Spell[Entrancing Lights].RankName}
-	}
-|-Single Mez Fast Cast * Var Name: MezSpellFast string outer
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Deluding Flash].RankName}]}) {
-		/varset MezSpellFast ${Spell[Deluding Flash].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Bewildering Flash].RankName}]}) {
-		/varset MezSpellFast ${Spell[Bewildering Flash].RankName}
-	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Confounding Flash].RankName}]}) {
-		/varset MezSpellFast ${Spell[Confounding Flash].RankName}
-	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Misleading Flash].RankName}]}) {
-		/varset MezSpellFast ${Spell[Misleading Flash].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Baffling Flash].RankName}]}) {
-		/varset MezSpellFast ${Spell[Baffling Flash].RankName}
-	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Befuddling Flash].RankName}]}) {
-		/varset MezSpellFast ${Spell[Befuddling Flash].RankName}
-	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Mystifying Flash].RankName}]}) {
-		/varset MezSpellFast ${Spell[Mystifying Flash].RankName}
-	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Perplexing Flash].RankName}]}) {
-		/varset MezSpellFast ${Spell[Perplexing Flash].RankName}
 	}
 |-Mem Blur Single * Var Name: BlurSpell string outer
 	/if (${Me.Level}>=55 && ${Me.Book[${Spell[Memory Flux].RankName}]}) {

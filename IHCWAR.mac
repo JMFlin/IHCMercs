@@ -281,7 +281,7 @@ Sub DoDisc
 	/if (!${Me.XTarget}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${missall}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -298,7 +298,7 @@ Sub DoDisc
 		/disc ${parryall}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) && ${Me.CombatAbilityReady[${meleemit}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -323,7 +323,7 @@ Sub DoDisc
 		}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3))) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30)) {
 		/if (${Me.AltAbilityReady[Warlord's Tenacity]} && ${Target.PctHPs} > 1) {
 			/call AANow ${Me.AltAbility[Warlord's Tenacity].ID}
 		} 
