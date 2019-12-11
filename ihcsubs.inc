@@ -530,6 +530,7 @@ Sub puller_check_group_resources
 			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 			}
+			/echo ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} has ${ResPct}% resources
 			/if (${ResPct} < ${Limit}) {
 				/varset ResourceChecker 0 
 				/delay 5
