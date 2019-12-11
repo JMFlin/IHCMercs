@@ -175,8 +175,6 @@ Sub DoDisc
 	/if (!${Me.XTarget}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return
 
-	
-
 	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${IchorGuardDisc}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
@@ -184,9 +182,11 @@ Sub DoDisc
 				/stopdisc
 				/delay 5 !${Me.ActiveDisc.ID}
 				/disc ${IchorGuardDisc}
+				/delay 5
 			}
 		} else {
 			/disc ${IchorGuardDisc}
+			/delay 5
 		}
 	}
 
@@ -197,9 +197,11 @@ Sub DoDisc
 				/stopdisc
 				/delay 5 !${Me.ActiveDisc.ID}
 				/disc ${LeechcurseDisc}
+				/delay 5
 			}
 		} else {
 			/disc ${LeechcurseDisc}
+			/delay 5
 		}
 	}
 
@@ -211,9 +213,11 @@ Sub DoDisc
 				/stopdisc
 				/delay 5 !${Me.ActiveDisc.ID}
 				/disc ${UnholyAuraDisc}
+				/delay 5
 			}
 		} else {
 			/disc ${UnholyAuraDisc}
+			/delay 5
 		}
 	}
 
@@ -224,9 +228,11 @@ Sub DoDisc
 				/stopdisc
 				/delay 5 !${Me.ActiveDisc.ID}
 				/disc ${DeflectionDisc}
+				/delay 5
 			}
 		} else {
 			/disc ${DeflectionDisc}
+			/delay 5
 		}
 	}
 	
@@ -239,16 +245,20 @@ Sub get_aggro
 
 	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs} > 1 && ${Me.SecondaryPctAggro} >= 100) {
 		/call AbilityNow "Taunt"
+		/delay 5
 	}
 
 	/if (${Me.AbilityReady[Disarm]} && ${Target.PctHPs}>1) {
 		/call AbilityNow "Disarm"
+		/delay 5
 	}
 	/if (${Me.AbilityReady[Bash]} && ${Target.PctHPs}>1) {
 		/call AbilityNow "Bash"
+		/delay 5
 	}
 	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs}>1) {
 		/call AbilityNow "Kick"
+		/delay 5
 	}
 
 	/if (${Me.SecondaryPctAggro} >= 30) {
