@@ -333,12 +333,15 @@ Sub check_state(bool _debug)
 			| check aura one
 			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
 
-				/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
+				}
 				
 				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
 				
-				/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
-
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
+				}
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 					
 					| reload the spell if i just memmed aura
@@ -351,11 +354,15 @@ Sub check_state(bool _debug)
 			| check aura one
 			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
 
-				/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
+				}
 
 				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
 				
-				/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
+				}
 
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 
