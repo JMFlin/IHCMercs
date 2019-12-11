@@ -109,42 +109,42 @@ Sub downtime_buffs
 	/if (!${Me.Buff[${Skin}].ID} ) {
 		/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) {
 			/call core_cast2 "${Skin}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
 		}
-		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
 	/if (!${Me.Buff[${Stance}].ID} ) {
 		/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) {
-			/call core_cast2 "${Stance}" spell ${Me.ID} FALSE
+			/call core_cast2 "${Stance}" spell ${Me.ID} FALSE¨
+			/varset CastCheck 1
 		}
-		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
 	/if (!${Me.Buff[${Cloak}].ID} ) {
 		/if (${validate_cast[FALSE, spell, "${Cloak}", ${Me.ID}]}) {
 			/call core_cast2 "${Cloak}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
 		}
-		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
 	/if (!${Me.Buff[${HPShroud}].ID} ) {
 		/if (${validate_cast[FALSE, spell, "${HPShroud}", ${Me.ID}]}) {
 			/call core_cast2 "${HPShroud}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
 		}
-		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
 	/if (!${Me.Buff[${MPShroud}].ID} ) {
 		/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
 			/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
 		}
-		/varset CastCheck 1
 	}
-	
+
 	/if (${CastCheck}) {
 		/call LoadSpellBar
 		/docommand /dgt \aw Done Buffing
