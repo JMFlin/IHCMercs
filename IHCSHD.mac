@@ -88,11 +88,11 @@ Sub AFKRadiusCamping
 		/call check_add_aggro
 
 		/call Engage
-		/call AoEAggro
+		/call aoe_aggro
 		/call DoDisc
 		/call get_aggro
 		/call downtime_buffs
-		/call combat_dps
+		/call combat
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
@@ -140,9 +140,9 @@ Sub downtime_buffs
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: DoDisc 
+|- SUB: combat 
 |---------------------------------------------------------------------------- 
-Sub combat_dps
+Sub combat
 	/if (!${Me.XTarget}) /return
 	/if (!${Target.ID}) /return
 	
@@ -271,22 +271,22 @@ Sub get_aggro
 
 /return
 |----------------------------------------------------------------------------
-|- SUB: AoEAggro   
+|- SUB: aoe_aggro   
 |---------------------------------------------------------------------------- 
-Sub AoEAggro
+Sub aoe_aggro
 
 	/if (!${Me.XTarget}) /return
 
 	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1) {
-|		/call core_cast2 "${Denial}" spell ${Target.ID} FALSE
+|		/if (${validate_cast[FALSE, spell, "${Denial}", ${Target.ID}]}) /call core_cast2 "${Denial}" spell ${Target.ID} FALSE
 	}
 	
 	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
-|		/call core_cast2 "${Bargain}" spell ${Target.ID} FALSE
+|		/if (${validate_cast[FALSE, spell, "${Bargain}", ${Target.ID}]}) /call core_cast2 "${Bargain}" spell ${Target.ID} FALSE
 	} 
 
 	/if (${SpawnCount[npc radius 50 zradius 50]} > 1) {
-| 		/call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
+| 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
 	}
 
 /return

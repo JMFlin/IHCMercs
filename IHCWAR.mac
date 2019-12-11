@@ -448,17 +448,17 @@ Sub AoEAggro
 	/if (!${Me.XTarget}) /return
 
 	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1) {
-		/call core_cast2 "${aeroar}" alt ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${aeroar}", ${Target.ID}]}) /call core_cast2 "${aeroar}" disc ${Target.ID} FALSE
 	}
 	
 	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
-		/call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
 	}
 
 	/if (${SpawnCount[npc radius 50 zradius 50]} > 1) {
-		/call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
 	}
-	
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Iamsnared
