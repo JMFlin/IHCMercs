@@ -312,10 +312,10 @@ Sub check_state(bool _debug)
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
 		
-		/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID}) {
-			/stopsong
-			/melody 3 1
-		}
+		|/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID}) {
+		|	/stopsong
+		|	/melody 3 1
+		|}
 
 		| if stick is on we can turn it off
 		/if (${Stick.Status.Equal[ON]}) /stick off
@@ -333,16 +333,12 @@ Sub check_state(bool _debug)
 			| check aura one
 			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
 
-				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
+				/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
 				
 				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
 				
-				/if (${Select[${Me.Class.ShortName},BRD]}) {
-					/delay 5s
-					/stopsong
-					/sit
-					/delay 5s
-				}
+				/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
+
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 					
 					| reload the spell if i just memmed aura
@@ -355,17 +351,11 @@ Sub check_state(bool _debug)
 			| check aura one
 			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
 
-				/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Buff[Selo's Accelerating Chorus].ID}) /stopsong
+				/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
 
 				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-
-				/if (${Select[${Me.Class.ShortName},BRD]}) {
-					/delay 5s
-					/stopsong
-					/sit
-					/delay 5s
-					/melody ${RegenMelody}
-				}
+				
+				/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
 
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 
