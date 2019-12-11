@@ -608,7 +608,6 @@ Sub afk_pull
 
 	/if (${AdvPath.Following}) /afollow off
 	
-	/echo Pulling ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].Name}
 	/varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 
 	/if (!${PullTargetID}) /return
