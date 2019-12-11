@@ -69,10 +69,9 @@ Sub ManualPullCamping
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/call get_target
 |-		/call PetAttack
-|-		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
 |-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
 |-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
-		/call Combatdps
+		/call combat
 
 |-		/if (${UseModRods}) /call ClickModRoD
 		
@@ -172,21 +171,25 @@ Sub AANDisc
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: Combatdps
+|- SUB: combat
 |---------------------------------------------------------------------------- 
-Sub Combatdps
+Sub combat
 	| if mana is below the puller check limit
 	/if (${Me.PctMana} < ${Limit}) {
 
-		| Trigger first harvest
-		/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
+		| If my corpse is near then don't waste harvest
+		/if (!${Spawn[${Me.Name} pccorpse radius 50].ID}) {
+			
+			| Trigger first harvest
+			/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
+		}
 	}
 
 	/if (!${Target.ID}) /return
 
 	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID}) {
+	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
 	}
 
@@ -234,23 +237,17 @@ Sub Combatdps
 		/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
 			/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
 		}
+
 		/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
 			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
-		}
-
-		/if (!${Me.Book[${Spell[${FuseNuke}].RankName}]}) {
-			/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) /call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
 		}
 
 		/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
 			/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
 		}
+
 		/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
 			/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
-		}
-
-		/if (!${Me.Book[${Spell[${FuseNuke}].RankName}]}) {
-			/if (${validate_cast[FALSE, spell, "${ColdEtherealNuke}", ${Target.ID}]}) /call core_cast2 "${ColdEtherealNuke}" spell ${Target.ID} FALSE
 		}
 	}
 /return

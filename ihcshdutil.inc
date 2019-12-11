@@ -246,7 +246,10 @@ Sub SetupSpells
 	}
 
 	| Discs
-	/if (${Me.Level}>=56 && ${Me.CombatAbility[${Spell[Ichor Guard].RankName}]}) {
+	/if (${Me.Level}>=61 && ${Me.CombatAbility[${Spell[Soul Guard].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Soul Guard].RankName}
+		/varset IchorGuardID ${Spell[Soul Guard].ID}
+	} else /if (${Me.Level}>=56 && ${Me.CombatAbility[${Spell[Ichor Guard].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Ichor Guard].RankName}
 		/varset IchorGuardID ${Spell[Ichor Guard].ID}
 	}

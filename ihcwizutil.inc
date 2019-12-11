@@ -238,8 +238,11 @@ Sub SetWizSpells
 	} else /if (${SpellSet.Equal[magic]}) {
 		/varset ACPyromancy Arcomancy
 	}
+	
 |-Familiar Buff
-	/if (${Me.AltAbility[Improved Familiar].Rank}>=1) {
+	/if (${Me.AltAbility[Kerafyrm's Prismatic Familiar].Rank} >= 1) {
+		/varset FamiliarBuff "Kerafyrm's Prismatic Familiar"
+	} else /if (${Me.AltAbility[Improved Familiar].Rank} >= 1 && !(${Me.AltAbility[Kerafyrm's Prismatic Familiar].Rank} >= 1)) {
 		/varset FamiliarBuff "Improved Familiar"
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Greater Familiar].RankName}]}) {
 		/varset FamiliarBuff ${Spell[Greater Familiar].RankName}
@@ -633,6 +636,12 @@ Sub SetWizSpells
 		/varset ColdEtherealNuke ${Spell[Shock of Ice].RankName}
 	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Blast of Cold].RankName}]}) {
 		/varset ColdEtherealNuke ${Spell[Blast of Cold].RankName}
+	}
+
+	| This is for using Ice Comet line during lower levels of play before having access to Fuse. 
+	| This keeps the weave correct in combatdps. 
+	/if (!${Me.Book[${FuseNuke}]}) {
+		/varset FuseNuke ${ColdEtherealNuke}
 	}
 
 |-EvacSpell

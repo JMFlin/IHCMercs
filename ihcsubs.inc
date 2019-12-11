@@ -165,6 +165,7 @@ Sub VarSetup
 	/call CheckPlugin MQ2EasyFind
 	/call CheckPlugin MQ2SpawnSort
 	/call CheckPlugin MQ2Worsthurt
+	/call CheckPlugin MQ2Yes
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on
     /squelch /rez loot off
@@ -311,6 +312,11 @@ Sub check_state(bool _debug)
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
 		
+		|/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID}) {
+		|	/stopsong
+		|	/melody 3 1
+		|}
+
 		| if stick is on we can turn it off
 		/if (${Stick.Status.Equal[ON]}) /stick off
 
@@ -327,15 +333,14 @@ Sub check_state(bool _debug)
 			| check aura one
 			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
 
-				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
+				}
 				
 				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
 				
-				/if (${Select[${Me.Class.ShortName},BRD]}) {
-					/delay 2s
-					/stopsong
-					/sit
-					/delay 2s
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
 				}
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 					
@@ -349,16 +354,14 @@ Sub check_state(bool _debug)
 			| check aura one
 			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
 
-				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
+				}
 
 				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-
-				/if (${Select[${Me.Class.ShortName},BRD]}) {
-					/delay 2s
-					/stopsong
-					/sit
-					/delay 2s
-					/melody ${RegenMelody}
+				
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
 				}
 
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
@@ -1615,7 +1618,7 @@ Sub get_target
 		}
 	}
 
-	/if (${Me.ID}==${Group.MainTank.ID}) {
+	/if (${Me.ID} == ${Group.MainTank.ID}) {
 
 		| if current target is not 100% aggro then get aggro
 		/if (${Target.ID}) {
@@ -2243,8 +2246,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
  *	NOTE: 
  ***|
 sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool _wait)
-
-	/echo attempting to cast ${_spellname}
 	
  	/if (${Me.Gem[${Spell[${_spellname}].RankName}]}) /return TRUE
 	
@@ -2261,7 +2262,6 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
 	}
 
 	| do we even have the spell?
-	/echo Do I have the spell ${Me.Book[${Spell[${_spellname}].RankName}]}
 	/if (!${Me.Book[${Spell[${_spellname}].RankName}]}) {
 		/return FALSE
 	}
@@ -2269,8 +2269,6 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
 	| just the facts ma'am
 	/call fix_gem_id "${_spellgem}"
 	/declare _gem int local ${Macro.Return}
-	
-	/echo Spell gem ${_gem}
 
 	/if (${Me.State.NotEqual[SIT]} && !${Me.Mount.ID}) {
 		/sit
@@ -2281,18 +2279,13 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
 	/memspell ${_gem} "${Spell[${_spellname}].RankName}"
 	/delay 5
 	/delay 2s ${Me.Gem[${_gem}].Name.Equal[${Spell[${_spellname}].RankName}]}
-
-	/echo what is this ${Me.Gem[${_gem}].Name.Equal[${Spell[${_spellname}].RankName}]}
 	
-
 	| wait for spell to be ready
 	/while (${_wait}) {
 		/if (!${_breakTimer}) /return FALSE
 		/if (${Me.SpellReady[${Spell[${_spellname}].RankName}]}) /break
 		/delay 2
 	}
-
-	/echo Is spell ready ${Me.SpellReady[${Spell[${_spellname}].RankName}]}
 
 	/delay 5
 		
@@ -2349,6 +2342,12 @@ sub check_for_corpse(bool _debug)
 		/declare _rezNEC						string	local "Convergence"
 	}
 
+	
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]} > 2) {
+		/call cast_rez ${Me.ID} "${MassRezSpell}"
+		/return
+	}
+
 	| clerics first group or raid
 	/if (${SpawnCount[pccorpse cleric group radius ${setMaxRezRange}]} || ${SpawnCount[pccorpse cleric raid radius ${setMaxRezRange}]}) {
 
@@ -2357,12 +2356,12 @@ sub check_for_corpse(bool _debug)
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Reviviscence]}) {
-				/call cast_rez ${_tmpID} "Reviviscence"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
-				/call cast_rez ${_tmpID} "Resurrection"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
-				/call cast_rez ${_tmpID} "Resuscitate"		
+			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
 			} 
 			|else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 			|	/call cast_rez ${_tmpID} "Resurrection"		
@@ -2379,12 +2378,12 @@ sub check_for_corpse(bool _debug)
 				|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 				|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 				|} else 
-				/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Reviviscence]}) {
-					/call cast_rez ${_tmpID} "Reviviscence"		
-				} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
-					/call cast_rez ${_tmpID} "Resurrection"		
-				} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
-					/call cast_rez ${_tmpID} "Resuscitate"		
+				/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+					/call cast_rez ${_tmpID} "${RezSpell}"		
+				} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+					/call cast_rez ${_tmpID} "${RezSpell}"		
+				} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+					/call cast_rez ${_tmpID} "${RezSpell}"		
 				} 
 				|else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
 				|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
@@ -2401,12 +2400,12 @@ sub check_for_corpse(bool _debug)
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Reviviscence]}) {
-				/call cast_rez ${_tmpID} "Reviviscence"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
-				/call cast_rez ${_tmpID} "Resurrection"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
-				/call cast_rez ${_tmpID} "Resuscitate"		
+			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
 			} 
 			| else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 			|	/call cast_rez ${_tmpID} "Resurrection"		
@@ -2424,12 +2423,12 @@ sub check_for_corpse(bool _debug)
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Reviviscence]}) {
-				/call cast_rez ${_tmpID} "Reviviscence"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
-				/call cast_rez ${_tmpID} "Resurrection"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
-				/call cast_rez ${_tmpID} "Resuscitate"		
+			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
 			} 
 			|else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 			|	/call cast_rez ${_tmpID} "Resurrection"		
@@ -2444,12 +2443,12 @@ sub check_for_corpse(bool _debug)
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Reviviscence]}) {
-				/call cast_rez ${_tmpID} "Reviviscence"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
-				/call cast_rez ${_tmpID} "Resurrection"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resuscitate]}) {
-				/call cast_rez ${_tmpID} "Resuscitate"		
+			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
+				/call cast_rez ${_tmpID} "${RezSpell}"		
 			} 
 			| else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 			|	/call cast_rez ${_tmpID} "Resurrection"		
@@ -2479,19 +2478,20 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 	/if (${Spawn[pccorpse ${_tmpID}].Distance} > ${AssistRange} && ${Spawn[pccorpse ${_tmpID}].Distance} <= ${setMaxRezRange}) {
 		/squelch /corpse
 	}
+	
+	/if (!${Me.Gem[${_rez}]}) /call mem_spell FALSE TRUE "${_rez}" 8 TRUE
 
 	| can we AA res or token, maybe spell?
 	/if (${Me.AltAbilityReady[${_rez}]} || (${Me.ItemReady[Token of Resurrection]} && ${rezToken}) || ${Me.SpellReady[${_rez}]}) {	
 
 		| res the damn person
-		
 		| AA rez
 		/if (!${rezToken}) {
 			| /if (!${Spawn[pccorpse ${_tmpID}].ID}) /return
 			/delay 5s !${Me.Casting.ID}
 			/squelch /target ID ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
-			/if (${validate_cast[FALSE, FIND, "${_rez}", ${Me.ID}]}) /call core_cast2 "${_rez}" FIND ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, FIND, "${_rez}", ${_tmpID}]}) /call core_cast2 "${_rez}" FIND ${_tmpID} FALSE
 
 		| token rez
 		} else /if (${rezToken}) {
