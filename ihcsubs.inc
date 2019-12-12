@@ -991,34 +991,6 @@ Sub FollowToon
 }
 /return
 |----------------------------------------------------------------------------
-|- SUB: AutoCampCheck - Modified - AutoCampHold set to 1 will cause a return to camp /loc everytime and not just when we move out of AutoCampRadius
-|----------------------------------------------------------------------------
-Sub AutoCampCheck
-|----Camp Return Logic
-	/if (${Spawn[=${FollowToonName}].ID} && (!${Me.Casting.ID}) && !${MoveTo.Moving} && ${ReturnToCamp}==1) {
-		/varset ReturnToCamp 0
-		/echo \aw FollowToon Detected - \ar Disabling Camp
-	} else /if (${Stick.Status.Equal[ON]} && ${ReturnToCamp}==1) {
-|-		/varset ReturnToCamp 0
-|-		/echo \aw Stick Detected - \ar Disabling Camp
-	} else /if (${AdvPath.Following} && ${ReturnToCamp}==1) {
-		/varset ReturnToCamp 0
-		/echo \aw AdvPath Follow Detected - \ar Disabling Camp
-	} else /if (!${Spawn[=${FollowToonName}].ID} && ${Stick.Status.Equal[OFF]} && !${Me.Casting.ID} && ${Math.Distance[${Me.Y},${Me.X}:${AutoCampY},${AutoCampX}]}>${AutoCampRadius} && (${Math.Distance[${Me.Y},${Me.X}:${AutoCampY},${AutoCampX}]}<400) && !${MoveTo.Moving} && ${ReturnToCamp}==1) {
-		/moveto loc ${AutoCampY} ${AutoCampX}|on
-		:movinghome
-		/delay 5
-		/if ((${Math.Distance[${Me.Y},${Me.X}:${AutoCampY},${AutoCampX}]}>20) && (${MoveTo.Moving})) /goto :movinghome
-		/moveto off
-	} else /if (${AutoCampHold} && !${Spawn[=${FollowToonName}].ID} && ${Stick.Status.Equal[OFF]} && !${Me.Casting.ID} && (${Math.Distance[${Me.Y},${Me.X}:${AutoCampY},${AutoCampX}]}<400) && (${Math.Distance[${Me.Y},${Me.X}:${AutoCampY},${AutoCampX}]}>=5) && !${MoveTo.Moving} && ${ReturnToCamp}==1) {
-		/moveto loc ${AutoCampY} ${AutoCampX}|on
-		:movinghome2
-		/delay 5
-		/if ((${Math.Distance[${Me.Y},${Me.X}:${AutoCampY},${AutoCampX}]}>5) && (${MoveTo.Moving})) /goto :movinghome2
-		/moveto off
-	}
-/return
-|----------------------------------------------------------------------------
 |- SUB: BagModRods
 |----------------------------------------------------------------------------
 Sub BagModRods
@@ -1079,7 +1051,6 @@ Sub CheckPlugin(string pluginname)
 |----------------------------------------------------------------------------
 Sub DeathSub
 	/echo You are sleeping with the fishes
-	/if (${ReturnToCamp}!=0) /varset ReturnToCamp 0
     :DeathSubwait
 	/if (${Window[RespawnWnd].Open} && ${UseFellowship}==1 && ${InstantRelease}==1) {
 		/nomodkey /notify RespawnWnd RW_OptionsList listselect 1 
@@ -1495,45 +1466,6 @@ Sub Bind_GroupBehindMe(string radius)
 			/dexecute ${Group.Member[${i}]} /sheepmove ${Me.ID} ${YOff} ${XOff}
 		}
 	/next i
-/return
-|----------------------------------------------------------------------------
-|- BIND: SheepMove - Credit EQMules mod of kissassist
-|----------------------------------------------------------------------------
-Sub Bind_SheepMove(int shepherdID, int l_YLoc, int l_XLoc)
-	/echo shepherdID=${shepherdID} l_YLoc=${l_YLoc} l_XLoc=${l_XLoc}
-	/if (!${shepherdID}) {
-		/echo cant invoke sheepmove, not enough arguments supplied
-		/return
-	}
-	/declare oldRTC int local 0
-	/declare oldChase int local 0
-	/if (${Bool[${Plugin[mq2moveutils]}]}==TRUE) {
-		/varset oldRTC ${ReturnToCamp}
-		/varset oldChase ${ChaseAssist}
-		/if (${Bool[${Plugin[mq2advpath]}]}==TRUE) {
-        	       	/play off
- 		}
-		/if (${Bool[${Plugin[mq2navigation]}]}==TRUE || ${Bool[${Plugin[mq2nav]}]}==TRUE) {
-        		/if (${Navigation.Active}) {
-				/nav stop
-			}
-        }
-		/call Bind_ToggleVariable ReturnToCamp off
-		/call Bind_ToggleVariable ChaseAssist off
-        /if (${MoveTo.Moving}) /moveto off
-		/if (${Stick.Active}) /squelch /stick off
-		/moveto mdist 3
-		/moveto loc ${l_YLoc} ${l_XLoc}
-		/delay 3s ${MoveTo.Moving}
-		/delay 30s !${MoveTo.Moving}
-		/delay 1s
-		/moveto mdist 5
-		/face id ${shepherdID}
-		/if (${oldChase}) /call Bind_ToggleVariable ChaseAssist on
-		/if (${oldRTC}) /call Bind_ToggleVariable ReturnToCamp on
-	} else {
-		/echo \aw SheepMove failed because you don't have \ag mq2moveutils \aw loaded.
-	}
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: Welcome Message
