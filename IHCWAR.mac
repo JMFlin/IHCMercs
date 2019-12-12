@@ -444,7 +444,9 @@ Sub get_aggro
 |- SUB: AoEAggro   
 |---------------------------------------------------------------------------- 
 Sub AoEAggro
-	
+	/declare x				 int local 1
+	/declare numberOfSpawn 	 int local 0
+
 	/if (!${Me.XTarget}) /return
 
 	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1) {
@@ -455,8 +457,22 @@ Sub AoEAggro
 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
 	}
 
+	| How many mobs are there?
 	/if (${SpawnCount[npc radius 50 zradius 50]} > 1) {
-		/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
+		
+		/for x 1 to ${Me.XTarget}
+
+			| If xtarget is not mezzed, add it to count
+			/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
+				/varcalc numberOfSpawn ${numberOfSpawn}+1
+			}
+
+		/next x
+
+		| If ther are more than 1 mob counted then hit all
+		/if (${numberOfSpawn} > 1) {
+			/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
+		}
 	}
 
 /return

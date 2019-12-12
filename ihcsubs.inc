@@ -311,11 +311,6 @@ Sub check_state(bool _debug)
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
-		
-		/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID}) {
-			/stopsong
-			/melody 3 1
-		}
 
 		| if stick is on we can turn it off
 		/if (${Stick.Status.Equal[ON]}) /stick off
