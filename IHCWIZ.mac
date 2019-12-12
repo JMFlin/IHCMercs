@@ -330,13 +330,12 @@ Sub ManageAggro
 Sub global_cooldown_spells
 	/if (${Me.AltAbilityReady[Force of Flame]} && ${Me.AltAbility[Force of Flame].Rank}>=1) {
 		/alt act ${Me.AltAbility[Force of Flame].ID}
-		/varset AANukeRecasttimer 1s
-	} else /if (${Me.AltAbilityReady[Force of Ice]} && ${Me.AltAbility[Force of Ice].Rank}>=1) {
+	}
+	/if (${Me.AltAbilityReady[Force of Ice]} && ${Me.AltAbility[Force of Ice].Rank}>=1) {
 		/alt act ${Me.AltAbility[Force of Ice].ID}
-		/varset AANukeRecasttimer 1s
-	} else /if (${Me.AltAbilityReady[Force of Will]} && ${Me.AltAbility[Force of Will].Rank}>=1) {
+	}
+	/if (${Me.AltAbilityReady[Force of Will]} && ${Me.AltAbility[Force of Will].Rank}>=1) {
 		/alt act ${Me.AltAbility[Force of Will].ID}
-		/varset AANukeRecasttimer 1s
 	}
 /return
 |----------------------------------------------------------------------------
