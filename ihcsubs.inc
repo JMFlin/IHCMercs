@@ -54,16 +54,16 @@ Sub AliasSetup
 	/alias /mgt 	/dgtell group_${EverQuest.Server}_${Group.Leader}
 /return
 Sub VarSetup
-	/declare autotargetid		int outer 0
-	/declare sittimer			timer outer 0
-	/declare enablesit			int outer 0
-	/declare ReturnToCamp		int outer 0
-	/declare AutoCampX			int outer ${Me.X}
-	/declare AutoCampY			int outer ${Me.Y}
-	/declare changetoini		int outer 0
-	/declare targetcleartimer	timer outer 0
-	/declare numoftargets		int outer 0
-	/declare ChaseAssist		int outer 0		
+|	/declare autotargetid		int outer 0
+|	/declare sittimer			timer outer 0
+|	/declare enablesit			int outer 0
+|	/declare ReturnToCamp		int outer 0
+|	/declare AutoCampX			int outer ${Me.X}
+|	/declare AutoCampY			int outer ${Me.Y}
+|	/declare changetoini		int outer 0
+|	/declare targetcleartimer	timer outer 0
+|	/declare numoftargets		int outer 0
+|	/declare ChaseAssist		int outer 0		
 	|- IHC macro's common variables
 	/declare GrPCond 			string outer .
 	/declare TnKCond 			string outer .
@@ -140,9 +140,9 @@ Sub VarSetup
 	/declare castReturn 		string outer NULL
 	/declare castBreak 			bool outer TRUE
 
-	
-|- Raiding
-	/declare RangeToTarget 		int outer 15
+|- timers
+	/declare TimeForMez					timer outer	0
+	/declare TimeForMezVariable			int outer 0
 
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
@@ -390,10 +390,10 @@ Sub check_state(bool _debug)
 |- SUB: set_timers
 |---------------------------------------------------------------------------- 
 Sub set_timers
-	/if (${TimeForMezVariable}==1 && !${Me.XTarget[1].ID}) /varset TimeForMezVariable 0
+	/if (${TimeForMezVariable} == 1 && !${Me.XTarget}) /varset TimeForMezVariable 0
 		
 
-	/if (${Me.XTarget[1].ID} && ${TimeForMezVariable}==0) {
+	/if (${Me.XTarget} && ${TimeForMezVariable} == 0) {
 		/varset TimeForMez 6s
 		/varset TimeForMezVariable 1
 	}
@@ -556,7 +556,7 @@ Sub check_add_aggro
 
 	/if (${Balance}) /return
 	/if (!${Me.XTarget[2].ID}) /return
-|	/if (${TimeForMez}!=0) /return
+	/if (${TimeForMez} != 0) /return
 
 	/declare x int local 0
 	/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -733,7 +733,6 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 	/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,NEC,WIZ,ENC]}) {
 		/if (${Me.PctMana} < ${_condition}) {
 			/if (${validate_cast[FALSE, ${_type}, ${_spell}, ${_tmpID}]}) /call core_cast2 ${_spell} ${_type} ${_tmpID} FALSE
-				|sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug)
 		}
 	} else /if (${Select[${Me.Class.ShortName},WAR,BER,MNK]}) {
 		/if (${Me.Combat}) /return
@@ -2020,11 +2019,15 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				| set delays for casting. GTFO out of this as fast as possible
 				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
 
+				/if (${Select[${Me.Class.ShortName},WIZ]} && ${Me.SpellInCooldown}) {
+					/call global_cooldown_nukes
+				}
+
 				| delay for longer casts if there is any, cooldowns or open spell cast windows
 				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) {
 					/delay 3
 				}
- 				
+
  				|CHECKINPUTS
  			| /call check_cast_events 1
 						
