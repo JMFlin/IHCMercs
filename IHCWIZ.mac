@@ -325,9 +325,9 @@ Sub ManageAggro
 	
 /return
 |----------------------------------------------------------------------------
-|- SUB: global_cooldown_nukes - Cast between spell casts (Weave)
+|- SUB: global_cooldown_spells - Cast between spell casts (Weave)
 |---------------------------------------------------------------------------- 
-Sub global_cooldown_nukes
+Sub global_cooldown_spells
 	/if (${Me.AltAbilityReady[Force of Flame]} && ${Me.AltAbility[Force of Flame].Rank}>=1) {
 		/alt act ${Me.AltAbility[Force of Flame].ID}
 		/varset AANukeRecasttimer 1s

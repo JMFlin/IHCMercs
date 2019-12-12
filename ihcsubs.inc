@@ -2020,7 +2020,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
 
 				/if (${Select[${Me.Class.ShortName},WIZ]} && ${Me.SpellInCooldown}) {
-					/call global_cooldown_nukes
+					/call global_cooldown_spells
 				}
 
 				| delay for longer casts if there is any, cooldowns or open spell cast windows
