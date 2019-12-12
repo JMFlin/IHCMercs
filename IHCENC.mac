@@ -160,6 +160,8 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 		}
 
+		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) /call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 		}
@@ -239,13 +241,13 @@ Sub mez_xtarget
 		/if (!${Target.Type.Equal[NPC]}) /continue
 
 		| If targets hp is low then skip. (Assumption is that this is the mob that is being killed by MA)
-		/if (${Target.PctHPs} < 90) /continue
+		/if (${Target.PctHPs} < 95) /continue
 
 		| If target is not tashed then tash
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
-		
+
 		| If target is not mezzed then mez
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) /call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
@@ -368,48 +370,52 @@ Sub self_buffs
 	/if (${Me.XTarget}) /return
 
 	
-	/if (!${Me.Buff[${SelfHPBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfHPBuff}].Stacks}) && ${Me.Book[${SelfHPBuff}]} && ${Me.CurrentMana}>${Spell[${SelfHPBuff}].Mana} && ${Me.AltAbilityReady[Orator's Unity]}) {
-				/alt act ${Me.AltAbility[Orator's Unity].ID}
+	/if (!${Me.Buff[${SelfHPBuff}].ID} && (${Spell[${SelfHPBuff}].Stacks}) && ${Me.Book[${SelfHPBuff}]} && ${Me.CurrentMana}>${Spell[${SelfHPBuff}].Mana} && ${Me.AltAbilityReady[Orator's Unity]}) {
+		/alt act ${Me.AltAbility[Orator's Unity].ID}
 	} else /if (!${Me.Buff[${SelfHPBuff}].ID} && !${Me.AltAbilityReady[Orator's Unity]}) {
-		/if (${validate_cast[FALSE, spell, "${SelfHPBuff}", ${Me.ID}]}) /call core_cast2 "${SelfHPBuff}" spell ${Me.ID} FALSE
-	} else /if (!${Me.Buff[${GroupMana}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupMana}].Stacks}) && ${Me.Book[${GroupMana}]} && ${Me.CurrentMana}>${Spell[${GroupMana}].Mana}) {
-				/call SpellQueue "${GroupMana}" ${Me.ID}
-				/varset CastCheck 1
-	} else /if (!${Me.Buff[${GroupHaste}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupHaste}].Stacks}) && ${Me.Book[${GroupHaste}]} && ${Me.CurrentMana}>${Spell[${GroupHaste}].Mana}) {
-				/call SpellQueue "${GroupHaste}" ${Me.ID}
-				/varset CastCheck 1
-	} else /if (!${Me.Buff[${MezBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${MezBuff}].Stacks}) && ${Me.Book[${MezBuff}]} && ${Me.CurrentMana}>${Spell[${MezBuff}].Mana}) {
-				/call SpellQueue "${MezBuff}" ${Me.ID}
-				/varset CastCheck 1 
-	} else /if (!${Me.Buff[Eldritch Rune].ID} && !${Me.Buff[${SelfRune1}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfRune1}].Stacks}) && ${Me.Book[${SelfRune1}]} && ${Me.CurrentMana}>${Spell[${SelfRune1}].Mana}) {
-				/call SpellQueue "${SelfRune1}" ${Me.ID}
-				/varset CastCheck 1
-	} else /if (!${Me.Buff[${SelfRune2}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfRune2}].Stacks}) && ${Me.Book[${SelfRune2}]} && ${Me.CurrentMana}>${Spell[${SelfRune2}].Mana}) {
-				/call SpellQueue "${SelfRune2}" ${Me.ID}
-				/varset CastCheck 1
-	} else /if (!${Me.Buff[${GroupSpellShield}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupSpellShield}].Stacks}) && ${Me.Book[${GroupSpellShield}]} && ${Me.CurrentMana}>${Spell[${GroupSpellShield}].Mana} && ${UseSpellRune}) {
-				/call SpellQueue "${GroupSpellShield}" ${Me.ID}
-				/varset CastCheck 1 
-	} else /if (!${Me.Buff[${GroupDoTShield}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupDoTShield}].Stacks}) && ${Me.Book[${GroupDoTShield}]} && ${Me.CurrentMana}>${Spell[${GroupDoTShield}].Mana} && ${UseDoTRune}) {
-				/call SpellQueue "${GroupDoTShield}" ${Me.ID}
-				/varset CastCheck 1
-	} else /if (!${Me.Buff[${GroupAuspiceBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupAuspiceBuff}].Stacks}) && ${Me.Book[${GroupAuspiceBuff}]} && ${Me.CurrentMana}>${Spell[${GroupAuspiceBuff}].Mana} && ${UseAuspice}) {
-				/call SpellQueue "${GroupAuspiceBuff}" ${Me.ID}
-				/varset CastCheck 1
-	} else /if (!${Me.Buff[Veil of Mindshadow].ID} && ${Cast.Status.Equal[I]} && (${Spell[Veil of Mindshadow].Stacks}) && ${Me.AltAbilityReady[Veil of Mindshadow]}) {
-				/alt act 791
-				/delay 5
-				/varset CastCheck 1
-	} else /if (${UsePet} && !${UseCharmPet} && !${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetSpell}]} && ${Me.CurrentMana}>${Spell[${PetSpell}].Mana}) {
-				/call SpellQueue "${PetSpell}" ${Me.ID}
-				/varset CastCheck 1
-				/delay 5
-	} else /if (${UsePet} && !${UseCharmPet} && ${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetBuffSpell}]} && ${Me.CurrentMana}>${Spell[${PetBuffSpell}].Mana} && !${Me.Pet.Buff[${PetBuffSpell}]}) {
-				/call SpellQueue "${PetBuffSpell}" ${Me.Pet.ID}
-				/varset CastCheck 1
-	} else /if (!${Me.Gem[${spellmisc}].Name.Equal[${miscspellremem}]} && ${spellrememtimer}==0 && ${miscspellremem.NotEqual[NULL]}) {
-				/call LoadSpellGem "${miscspellremem}" ${spellmisc}
-	}
+		/if (${validate_cast[FALSE, spell, "${SelfHPBuff}", ${Me.ID}]}) {
+			/call core_cast2 "${SelfHPBuff}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	} 
+|	else /if (!${Me.Buff[${GroupMana}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupMana}].Stacks}) && ${Me.Book[${GroupMana}]} && ${Me.CurrentMana}>${Spell[${GroupMana}].Mana}) {
+||				/call SpellQueue "${GroupMana}" ${Me.ID}
+|				/varset CastCheck 1
+|	} else /if (!${Me.Buff[${GroupHaste}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupHaste}].Stacks}) && ${Me.Book[${GroupHaste}]} && ${Me.CurrentMana}>${Spell[${GroupHaste}].Mana}) {
+|				/call SpellQueue "${GroupHaste}" ${Me.ID}
+|				/varset CastCheck 1
+|	} else /if (!${Me.Buff[${MezBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${MezBuff}].Stacks}) && ${Me.Book[${MezBuff}]} && ${Me.CurrentMana}>${Spell[${MezBuff}].Mana}) {
+|				/call SpellQueue "${MezBuff}" ${Me.ID}
+|				/varset CastCheck 1 
+|	} else /if (!${Me.Buff[Eldritch Rune].ID} && !${Me.Buff[${SelfRune1}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfRune1}].Stacks}) && ${Me.Book[${SelfRune1}]} && ${Me.CurrentMana}>${Spell[${SelfRune1}].Mana}) {
+|				/call SpellQueue "${SelfRune1}" ${Me.ID}
+|				/varset CastCheck 1
+|	} else /if (!${Me.Buff[${SelfRune2}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${SelfRune2}].Stacks}) && ${Me.Book[${SelfRune2}]} && ${Me.CurrentMana}>${Spell[${SelfRune2}].Mana}) {
+|				/call SpellQueue "${SelfRune2}" ${Me.ID}
+|				/varset CastCheck 1
+|	} else /if (!${Me.Buff[${GroupSpellShield}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupSpellShield}].Stacks}) && ${Me.Book[${GroupSpellShield}]} && ${Me.CurrentMana}>${Spell[${GroupSpellShield}].Mana} && ${UseSpellRune}) {
+|				/call SpellQueue "${GroupSpellShield}" ${Me.ID}
+|				/varset CastCheck 1 
+|	} else /if (!${Me.Buff[${GroupDoTShield}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupDoTShield}].Stacks}) && ${Me.Book[${GroupDoTShield}]} && ${Me.CurrentMana}>${Spell[${GroupDoTShield}].Mana} && ${UseDoTRune}) {
+|				/call SpellQueue "${GroupDoTShield}" ${Me.ID}
+|				/varset CastCheck 1
+|	} else /if (!${Me.Buff[${GroupAuspiceBuff}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupAuspiceBuff}].Stacks}) && ${Me.Book[${GroupAuspiceBuff}]} && ${Me.CurrentMana}>${Spell[${GroupAuspiceBuff}].Mana} && ${UseAuspice}) {
+|				/call SpellQueue "${GroupAuspiceBuff}" ${Me.ID}
+||				/varset CastCheck 1
+|	} else /if (!${Me.Buff[Veil of Mindshadow].ID} && ${Cast.Status.Equal[I]} && (${Spell[Veil of Mindshadow].Stacks}) && ${Me.AltAbilityReady[Veil of Mindshadow]}) {
+|				/alt act 791
+|				/delay 5
+|				/varset CastCheck 1
+|	} else /if (${UsePet} && !${UseCharmPet} && !${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetSpell}]} && ${Me.CurrentMana}>${Spell[${PetSpell}].Mana}) {
+|				/call SpellQueue "${PetSpell}" ${Me.ID}
+|				/varset CastCheck 1
+|				/delay 5
+|	} else /if (${UsePet} && !${UseCharmPet} && ${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetBuffSpell}]} && ${Me.CurrentMana}>${Spell[${PetBuffSpell}].Mana} && !${Me.Pet.Buff[${PetBuffSpell}]}) {
+|				/call SpellQueue "${PetBuffSpell}" ${Me.Pet.ID}
+|				/varset CastCheck 1
+|	} else /if (!${Me.Gem[${spellmisc}].Name.Equal[${miscspellremem}]} && ${spellrememtimer}==0 && ${miscspellremem.NotEqual[NULL]}) {
+|				/call LoadSpellGem "${miscspellremem}" ${spellmisc}
+|	}
 	/if (${CastCheck}) {
 		/call LoadSpellBar
 		/docommand /dgt \aw Done Buffing
@@ -429,48 +435,61 @@ Sub group_buffs
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance} < 100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID})) {
 			
-			/if (${Me.XTarget}) /return
+			/if (${Me.XTarget}) {
+				/call LoadSpellBar
+				/return
+			}
 
 			/if (!${Me.Book[${GroupMana}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SingleMana}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleMana}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-					/if (${validate_cast[FALSE, spell, "${SingleMana}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SingleMana}" spell ${Group.Member[${bmember}].ID} FALSE
-					/delay 10
-					/varset CastCheck 1 
+					/if (${validate_cast[FALSE, spell, "${SingleMana}", ${Group.Member[${bmember}].ID}]}) {
+						/call core_cast2 "${SingleMana}" spell ${Group.Member[${bmember}].ID} FALSE
+						/delay 10
+						/varset CastCheck 1 
+					}
 				}
 			}
 
 			/if (!${Me.Book[${GroupHaste}]} && ${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK,SHD,PAL]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleHaste}].ID" "tmpbuffid" "bool"
 				/if (!${tmpbuffid}) {
-					/if (${validate_cast[FALSE, spell, "${SingleHaste}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SingleHaste}" spell ${Group.Member[${bmember}].ID} FALSE
-					/delay 10
-					/varset CastCheck 1 
+					/if (${validate_cast[FALSE, spell, "${SingleHaste}", ${Group.Member[${bmember}].ID}]}) {
+						/call core_cast2 "${SingleHaste}" spell ${Group.Member[${bmember}].ID} FALSE
+						/delay 10
+						/varset CastCheck 1
+					}
 				}
 			}
 			
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupHaste}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupHaste}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
-				/if (${validate_cast[FALSE, spell, "${GroupHaste}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupHaste}" spell ${Group.Member[${bmember}].ID} FALSE
-				/delay 10
-				/varset CastCheck 1 
+				/if (${validate_cast[FALSE, spell, "${GroupHaste}", ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${GroupHaste}" spell ${Group.Member[${bmember}].ID} FALSE
+					/delay 10
+					/varset CastCheck 1
+				}
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupMana}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupMana}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-				/if (${validate_cast[FALSE, spell, "${GroupMana}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupMana}" spell ${Group.Member[${bmember}].ID} FALSE
-				/delay 10
-				/varset CastCheck 1 
+				/if (${validate_cast[FALSE, spell, "${GroupMana}", ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${GroupMana}" spell ${Group.Member[${bmember}].ID} FALSE
+					/delay 10
+					/varset CastCheck 1
+				}
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${ProcBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${ProcBuff}].Stacks" "tmpstackcheck" "bool"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[Illusion Benefit Greater Jann].ID" "jaanbuffid" "int"
 			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Select[${Group.Member[${bmember}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD,WAR]}) {
-				/if (${validate_cast[FALSE, spell, "${ProcBuff}", ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${ProcBuff}" spell ${Group.Member[${bmember}].ID} FALSE
-				/delay 10
-				/varset CastCheck 1 
+				/if (${validate_cast[FALSE, spell, "${ProcBuff}", ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${ProcBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+					/delay 10
+					/varset CastCheck 1
+				}
 			}
 		}
 	/next bmember

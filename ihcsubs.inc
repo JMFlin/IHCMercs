@@ -325,47 +325,59 @@ Sub check_state(bool _debug)
 		/if (${Me.Pet.ID}) /pet back off
 		
 		/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
+			
 			| check aura one
 			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
 
-				/if (${Select[${Me.Class.ShortName},BRD]}) /stopsong
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
+				}
 				
 				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
 				
-				/if (${Select[${Me.Class.ShortName},BRD]}) {
-					/delay 5s
-					/stopsong
-					/sit
-					/delay 5s
+				/if (${Me.BardSongPlaying}) {
+					/delay 1s
+					/call pulse_stop core_cast_pulsestop
 				}
+
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 					
 					| reload the spell if i just memmed aura
 					/call LoadSpellBar
 				}
+
+				/if (${Me.BardSongPlaying}) {
+					/delay 1s
+					/call pulse_stop core_cast_pulsestop
+				}
 			}
 		}
 
 		/if (${Me.Book[${Aura2}]}) {
-			| check aura one
+			
+			| check aura two
 			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
 
-				/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.Buff[Selo's Accelerating Chorus].ID}) /stopsong
+				/if (${Me.BardSongPlaying}) {
+					/call pulse_stop core_cast_pulsestop
+				}
 
 				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-
-				/if (${Select[${Me.Class.ShortName},BRD]}) {
-					/delay 5s
-					/stopsong
-					/sit
-					/delay 5s
-					/melody ${RegenMelody}
+				
+				/if (${Me.BardSongPlaying}) {
+					/delay 1s
+					/call pulse_stop core_cast_pulsestop
 				}
 
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 
 					| reload the spell if i just memmed aura
 					/call LoadSpellBar
+				}
+
+				/if (${Me.BardSongPlaying}) {
+					/delay 1s
+					/call pulse_stop core_cast_pulsestop
 				}
 			}
 		}
@@ -522,12 +534,13 @@ Sub puller_check_group_resources
 	/varset ResourceChecker 1
 
 	/for bmember 0 to ${Group}
-		/if (${Group.Member[${bmember}].Distance} < 100 && !${Group.Member[${bmember}].OtherZone} && !${Me.Moving}) {
+		/if (${Group.Member[${bmember}].Distance} < 100 && !${Group.Member[${bmember}].OtherZone}) {
 			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ResPct" "int"
 			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 			}
+			/echo ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} has ${ResPct}% resources
 			/if (${ResPct} < ${Limit}) {
 				/varset ResourceChecker 0 
 				/delay 5
