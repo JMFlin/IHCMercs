@@ -77,7 +77,7 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${Terror1}" 4
 	/call LoadSpellGem "${Terror2}" 5
 	/call LoadSpellGem "${SnareSpell}" 6
-	/call LoadSpellGem "${Stance}" 7
+	/call LoadSpellGem "${Denial}" 7
 	/call LoadSpellGem "${Skin}" 8
 
 	/delay 2s
@@ -112,6 +112,8 @@ Sub SetupSpells
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Touch of the Devourer].RankName}]}) {
+		/varset Touch2 ${Spell[Touch of the Devourer].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Touch of Innoruuk].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Innoruuk].RankName}
 	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Siphon Life].RankName}]}) {
@@ -126,6 +128,8 @@ Sub SetupSpells
 		/varset Touch3 ${Spell[Touch of Falsin].RankName}
 	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Touch of Volatis].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Volatis].RankName}
+	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Touch of Draygun].RankName}]}) {
+		/varset Touch3 ${Spell[Touch of Draygun].RankName}
 	} else /if (${Me.Level}>=29 && ${Me.Book[${Spell[Lifedraw].RankName}]}) {
 		/varset Touch3 ${Spell[Lifedraw].RankName}
 	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifespike].RankName}]}) {
@@ -205,10 +209,14 @@ Sub SetupSpells
 		/varset Skin ${Spell[Tylix's Skin].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Tylix's Skin].RankName}]}) {
 		/varset Skin ${Spell[Tylix's Skin].RankName}
+	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Decrepit Skin].RankName}]}) {
+		/varset Skin ${Spell[Decrepit Skin].RankName}
 	}
 	
 	| Cloak
-	/if (${Me.Level}>=65 && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
+	/if (${Me.Level}>=70 && ${Me.Book[${Spell[Cloak of Discord].RankName}]}) {
+		/varset Cloak ${Spell[Cloak of Discord].RankName}
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Luclin].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Cloak of the Akheva].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of the Akheva].RankName}
