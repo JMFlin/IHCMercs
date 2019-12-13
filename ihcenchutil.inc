@@ -881,31 +881,31 @@ Sub SetEncSpells
 
 |-Aura Buff 1 * Var Name: AuraBuff1 string outer
 	/if (${Me.Level}>=84 && ${Me.Book[${Spell[Twincast Aura].RankName}]}) {
-		/varset Aura1 ${Spell[Twincast Aura].RankName}
+		/varset Aura2 ${Spell[Twincast Aura].RankName}
 	}
 |-Aura Buff 2 * Var Name: AuraBuff2 string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mana Repetition Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Mana Repetition Aura].RankName}
+		/varset Aura1 ${Spell[Mana Repetition Aura].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Mana Reciprocation Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Mana Reciprocation Aura].RankName}
+		/varset Aura1 ${Spell[Mana Reciprocation Aura].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Mana Reverberation Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Mana Reverberation Aura].RankName}
+		/varset Aura1 ${Spell[Mana Reverberation Aura].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Mana Repercussion Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Mana Repercussion Aura].RankName}
+		/varset Aura1 ${Spell[Mana Repercussion Aura].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Mana Reiteration Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Mana Reiteration Aura].RankName}
+		/varset Aura1 ${Spell[Mana Reiteration Aura].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Mana Reiterate Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Mana Reiterate Aura].RankName}
+		/varset Aura1 ${Spell[Mana Reiterate Aura].RankName}
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Mana Resurgence Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Mana Resurgence Aura].RankName}
+		/varset Aura1 ${Spell[Mana Resurgence Aura].RankName}
 	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Mystifier's Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Mystifier's Aura].RankName}
+		/varset Aura1 ${Spell[Mystifier's Aura].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Entrancer's Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Entrancer's Aura].RankName}
+		/varset Aura1 ${Spell[Entrancer's Aura].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Illusionist's Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Illusionist's Aura].RankName}
+		/varset Aura1 ${Spell[Illusionist's Aura].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Beguiler's Aura].RankName}]}) {
-		/varset Aura2 ${Spell[Beguiler's Aura].RankName}
+		/varset Aura1 ${Spell[Beguiler's Aura].RankName}
 	}
 |-Self HP Buff * Var Name: SelfHPBuff string outer
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Shield of Scales].RankName}]}) {

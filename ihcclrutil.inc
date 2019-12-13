@@ -141,7 +141,6 @@ Sub ClrSetup
 	/varset Pearls ${FindItem[=Pearl].StackCount}
 	/if (!${FindItem[${mountitem}].ID}) /echo No mount detected will sit and stand only
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	/if (${ReturnToCamp}==1) /echo Warning: Cleric is set to Camp
 	/declare spellmisc 				int outer 8
 	/declare spellgem				int outer 1	
 	/declare CastResult             string outer

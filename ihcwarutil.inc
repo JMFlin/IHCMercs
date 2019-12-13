@@ -64,10 +64,6 @@ Sub WarSetup
 	/call LoadIni Item ChestItemName	string "${Me.Inventory[17].Name}"
 	/declare stayontarget				int outer 0
 	/declare CastResult             	string outer
-|- Warrior logic
-	/declare TimeForMez					timer outer	0
-	/declare TimeForMezVariable			int outer 0
-
 
 	/if (${FindItem[Gladiator's Plate Chestguard of War].ID}) /varset ItemOoWBP Gladiator's Plate Chestguard of War
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
