@@ -1492,6 +1492,10 @@ Sub SetEncSpells
 		/varset SingleStunSpell1 ${Spell[Whirl till you hurl].RankName}
 	}
 
+	/if (!${Me.Book[${SingleStunSpell1}]}) {
+		/varset SingleStunSpell1 ${PBAEStunSpell}
+	}
+
 |-Single Stun Spell * Var Name: SingleStunSpell2 string outer
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Dizzying Storm].RankName}]}) {
 		/varset SingleStunSpell2 ${Spell[Dizzying Storm].RankName}
