@@ -71,17 +71,13 @@ Sub AFKRadiusCamping
 
 		/call DummyMode
 
-|		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
-		
 		/call set_timers
-
 
 		/call puller_check_group_resources 
 		/call afk_pull
 
 		/call check_state FALSE
 		/call get_target
-		
 
 		/call balance_hp
 
@@ -136,14 +132,6 @@ Sub downtime_buffs
 			/varset CastCheck 1
 		}
 	}
-
-|	/if (${Me.XTarget}) /return
-|	/if (!${Me.Buff[${MPShroud}].ID} ) {
-|		/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
-|			/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
-|			/varset CastCheck 1
-|		}
-|	}
 
 	/if (${CastCheck}) {
 		/call LoadSpellBar
