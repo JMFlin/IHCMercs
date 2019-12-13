@@ -327,7 +327,7 @@ Sub check_state(bool _debug)
 		/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
 			
 			| check aura one
-			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID}) {
+			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
 
 				/if (${Me.BardSongPlaying}) {
 					/call pulse_stop core_cast_pulsestop
@@ -356,7 +356,7 @@ Sub check_state(bool _debug)
 		/if (${Me.Book[${Aura2}]}) {
 			
 			| check aura two
-			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID}) {
+			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
 
 				/if (${Me.BardSongPlaying}) {
 					/call pulse_stop core_cast_pulsestop
