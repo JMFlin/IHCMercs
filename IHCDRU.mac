@@ -99,7 +99,7 @@ Sub group_buffs
 	/if (${Me.XTarget}) /return
 
 	/for bmember 1 to ${Group}
-		/if (${Group.Member[${bmember}].Distance}<${Spell[${Skin}].MyRange} && !${Group.Member[${bmember}].OtherZone} && !${Me.Casting.ID}) {
+		/if (${Group.Member[${bmember}].Distance}<${Spell[${Skin}].MyRange} && !${Group.Member[${bmember}].OtherZone}) {
 
 			/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
 			/if (${Me.XTarget}) /return
