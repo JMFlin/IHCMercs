@@ -1,5 +1,5 @@
 |- IHCBST.mac - By IHC385
-|- Automatic Beastlord bot - 
+|- Automatic Druid bot - 
 |- Version 2.0
 |- Updated: 4/25/2019
 |- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
@@ -8,7 +8,7 @@
 #Chat raid
 #turbo 80
 #include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcbstutil.inc
+#include IHCMercs\ihcdruutil.inc
 #include IHCMercs\ihcevents.inc
 #warning
 #bind SetVarInt	/setvarint
@@ -26,21 +26,19 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
-	/call BstSetup
+	/call DruSetup
 	/call VarSetup
-	/call AliasSetup
-	/call SetupDiscs
-	/call CheckSpells
-	/call SetControlToon
+	/call SetupSpells
 	/call LoadSpellBar
-	/pet hold on
+
 |-Cursor ID
 	/if (${Cursor.ID}) {
 		/echo Sending Item on Cursor to Bag
 		/autoinventory
 	}
 	/call WelcomeMsg
-
+	/declare AssistRange int outer 10
+	/declare AutoCampRadius int outer 10
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -63,9 +61,22 @@ Sub ManualPullCamping
 		/call check_state FALSE
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/call get_target
-		/call Engage
 		
 		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: BuffGroup
+|---------------------------------------------------------------------------- 
+Sub SetPetMode
+	/if (${DoPetTank}) {
+		/if (${PetTank}==0) /varset PetTank 1
+		/pet taunt on
+		/echo \aw Pet Tanking is :\ag ON
+	} else {
+		/pet taunt off
+		/if (${PetTank}==0) /varset PetTank 0
+		/echo \aw Pet Tanking is :\ar OFF
 	}
 /return
 |----------------------------------------------------------------------------

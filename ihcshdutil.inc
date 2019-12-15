@@ -85,7 +85,7 @@ Sub LoadSpellBar
 	/delay 10 ${Me.Standing}
 /return 
 |----------------------------------------------------------------------------
-|- SUB: SetupDiscs
+|- SUB: SetupSpells
 |---------------------------------------------------------------------------- 
 Sub SetupSpells
 	| Spells

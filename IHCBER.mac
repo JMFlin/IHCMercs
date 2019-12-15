@@ -255,7 +255,7 @@ Sub AANDisc
 		/disc ${DisconDisc}
 		/delay 10
 	}
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${ResolveDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.ActiveDisc.ID} && (${ReturnToCamp}==1 || (${BurnAlways} && ${ChaseAssist}==0))) {
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${ResolveDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.ActiveDisc.ID} && ${BurnAlways}) {
 		/if (${Me.PctHPs}>80) {
 			/alt act ${Me.AltAbility[Bloodfury].ID}
 			/delay 5

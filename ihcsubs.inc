@@ -309,6 +309,9 @@ Sub check_state(bool _debug)
 
 	/if (${Me.XTarget}) /return
 
+
+	/if (${Me.Class.ShortName.Find[BRD]}) /return
+
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
 
@@ -468,6 +471,7 @@ Sub Engage
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
+		/if (${Me.Pet.ID}) /pet attack
 	}
 
 	| melee dps engage if target is close enough
@@ -476,6 +480,7 @@ Sub Engage
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
+		/if (${Me.Pet.ID}) /pet attack
 	}
 
 /return
@@ -603,7 +608,7 @@ Sub afk_pull
 	/if (!${Group.Puller.ID}==${Me.ID}) /return
 	/if (${Me.Casting.ID}) /return
 
-	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC]}) {
+	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC,BST]}) {
 		/if (${Me.PctMana} < 20) /return
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,MNK,BER,ROG]}) {
@@ -667,13 +672,13 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 
 
 	/if (${Me.XTarget}) {
-		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) /return
+		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) /return
 	}
 	| if casting return
 	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
 
 	| if target is running let melee follow it
-	/if (${Target.ID} && ${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) {
+	/if (${Target.ID} && ${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) {
 		/if (${Target.Fleeing} || !${Target.Snared.ID}) /return
 	}
 
@@ -681,7 +686,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (!${Target.PctAggro}>=100) /return
 	}
 
-	/if (${Target.Rooted.ID} && ${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK]}) /return
+	/if (${Target.Rooted.ID} && ${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) /return
 
 	/if (${Navigation.Active}) /return
 
