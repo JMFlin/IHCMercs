@@ -20,6 +20,8 @@ Sub DruSetup
 	/declare Skin				string outer NULL
 	/declare SoW				string outer NULL
 	/declare DamageShield 		string outer NULL
+
+	/declare GroupSkin 			string outer NULL
 /return 
 |----------------------------------------------------------------------------
 |- SUB: INIChanges
@@ -53,7 +55,9 @@ Sub LoadSpellBar
 |---------------------------------------------------------------------------- 
 Sub SetupSpells
 
-	/if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Light Healing].Level} && ${Me.Book[${Spell[Light Healing].RankName}]}) {
+		/varset HealSpell1 ${Spell[Light Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
 		/varset HealSpell1 ${Spell[Minor Healing].RankName}
 	}
 
@@ -65,10 +69,12 @@ Sub SetupSpells
 		/varset GroupHealSpell1 ${Spell[Akalit's Feralgia].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Burst of Fire].Level} && ${Me.Book[${Spell[Burst of Fire].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Ignite].Level} && ${Me.Book[${Spell[Ignite].RankName}]}) {
+		/varset NukeSpell1 ${Spell[Ignite].RankName}
+	} else /if (${Me.Level}>=${Spell[Burst of Fire].Level} && ${Me.Book[${Spell[Burst of Fire].RankName}]}) {
 		/varset NukeSpell1 ${Spell[Burst of Fire].RankName}
 	} else /if (${Me.Level}>=${Spell[Burst of Flame].Level} && ${Me.Book[${Spell[Burst of Flame].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Burst of Fire].RankName}
+		/varset NukeSpell1 ${Spell[Burst of Flame].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Akalit's Feralgia].Level} && ${Me.Book[${Spell[Akalit's Feralgia].RankName}]}) {
@@ -88,6 +94,10 @@ Sub SetupSpells
 		/varset SnareSpell ${Spell[Ensnare].RankName}
 	} else /if (${Me.Level}>=${Spell[Snare].Level} && ${Me.Book[${Spell[Snare].RankName}]}) {
 		/varset SnareSpell ${Spell[Snare].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Protection of Wood].Level} && ${Me.Book[${Spell[Protection of Wood].RankName}]}) {
+		/varset GroupSkin ${Spell[Protection of Wood].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Skin like Wood].Level} && ${Me.Book[${Spell[Skin like Wood].RankName}]}) {

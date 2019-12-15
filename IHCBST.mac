@@ -59,11 +59,12 @@ Sub Main
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs  
+	/if (${Me.Pet.ID}) /pet guard
 
 	/while (${Mode}==1 || ${Mode}==3) {
 
 		/call check_state FALSE
-		
+		/call self_buff_check FALSE
 		/call set_timers
 
 		/call puller_check_group_resources 
@@ -76,6 +77,27 @@ Sub ManualPullCamping
 		
 		/doevents
 	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: self_buff_check
+|---------------------------------------------------------------------------- 
+Sub self_buff_check(bool _debug)
+	/declare CastCheck			int local 0
+	
+	/if (${Me.XTarget}) /return
+
+	/if (!${Me.Pet.ID} ) {
+		/if (${validate_cast[FALSE, FIND, "${PetSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${PetSpell}" FIND ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	}
+	
+	/if (${CastCheck}) {
+		/call LoadSpellBar
+		/docommand /dgt \aw Done Buffing
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: single_target_heals
