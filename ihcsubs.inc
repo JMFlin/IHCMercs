@@ -466,7 +466,7 @@ Sub Engage
 	/if (!${Spawn[id ${Target.ID}].LineOfSight}) /return
 
 	| tank engage if target is close enough
-	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Navigation.PathLength[id ${Target.ID}]} < 55) {
+	/if (${Group.MainTank.ID} && ${Navigation.PathLength[id ${Target.ID}]} < 55) {
 		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
@@ -475,7 +475,7 @@ Sub Engage
 	}
 
 	| melee dps engage if target is close enough
-	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && (${Target.PctHPs} < 98 || ${Navigation.PathLength[id ${Target.ID}]} < 40)) {
+	/if (!${Group.MainTank.ID} && (${Target.PctHPs} < 98 || ${Navigation.PathLength[id ${Target.ID}]} < 40)) {
 		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
@@ -540,7 +540,7 @@ Sub puller_check_group_resources
 
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance} < 100 && !${Group.Member[${bmember}].OtherZone}) {
-			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL]}) {
+			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ResPct" "int"
 			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
@@ -682,7 +682,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (${Target.Fleeing} || !${Target.Snared.ID}) /return
 	}
 
-	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]} && ${Target.Type.Equal[NPC]}) {
+	/if (${Group.MainTank.ID} && ${Target.Type.Equal[NPC]}) {
 		/if (!${Target.PctAggro}>=100) /return
 	}
 

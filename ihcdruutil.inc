@@ -43,7 +43,7 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${NukeSpell2}" 5
 	/call LoadSpellGem "${DoTSpell1}" 6
 	/call LoadSpellGem "${DoTSpell2}" 7
-	/call LoadSpellGem "${SnareSpell}" 8	
+	/call LoadSpellGem "${SnareSpell}" 8
 	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}

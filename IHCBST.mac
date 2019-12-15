@@ -41,6 +41,8 @@ Sub Main
 	}
 	/call WelcomeMsg
 
+	/declare AutoCampRadius int outer 0
+	/varset AutoCampRadius 10
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -61,11 +63,34 @@ Sub ManualPullCamping
 	/while (${Mode}==1 || ${Mode}==3) {
 
 		/call check_state FALSE
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		
+		/call set_timers
+
+		/call puller_check_group_resources 
+		/call afk_pull
 		/call get_target
+		
 		/call Engage
+
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		
 		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: single_target_heals
+|---------------------------------------------------------------------------- 
+Sub single_target_heals
+	/declare worsthurtid 		int local 0
+
+	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 40) {
+
+		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
+
+		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${worsthurtid}]}) {
+			/call core_cast2 "${HealSpell1}" spell ${worsthurtid} FALSE
+			/return
+		}
 	}
 /return
 |----------------------------------------------------------------------------
@@ -449,33 +474,27 @@ Sub ConfigHeal
 |- SUB: Symbol - HP Buff Single use
 |----------------------------------------------------------------------------
 Sub Event_Chat(string ChatType,string ChatSender,string ChatText)
-	/if (${Spawn[pc ${ChatSender}].ID} && ${ChatType.Equal[tell]}) /mqlog ${ChatSender} -- ${ChatText}
-	/if (${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}) {
-		/if (${Select[${ChatText},SoW,RunSpeedBuff,Tala]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<200)) /call SpellQueue "${RunSpeedBuff}" ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
-	}
+	|/if (${Spawn[pc ${ChatSender}].ID} && ${ChatType.Equal[tell]}) /mqlog ${ChatSender} -- ${ChatText}
+	|/if (${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}) {
+	|	/if (${Select[${ChatText},SoW,RunSpeedBuff,Tala]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<200)) /call SpellQueue "${RunSpeedBuff}" ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
+	|}
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 Sub Event_NotOnTarget
-	/if (${DoAutoEngage}) {
-		/squelch /attack off
-		/if (${DoAutoTarget}) /call FindTarget
-		/delay 5
-		/if (${Target.Distance}<${AssistRange}) /call EngageTarget
-	}
+	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
-/return 
+/return
 |----------------------------------------------------------------------------
 |- SUB: Event_WornOff
 |----------------------------------------------------------------------------
 Sub Event_WornOff
-	/varset groupbufftimer 0
-	/doevents flush WornOff
+	
 /return 
 |----------------------------------------------------------------------------
 |- SUB: Event GroupChange
 |----------------------------------------------------------------------------
 Sub Event_GroupChange
-	/varset fparatimer2 10s
+	
 /return 
