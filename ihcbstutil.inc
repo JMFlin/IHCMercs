@@ -5,18 +5,9 @@
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
 Sub BstSetup
-|-Create Alias
-	|-- Toggles
-	/squelch /alias /byos			/setvarint Toggle BringYourOwnSpells
-	/squelch /alias /tglaoe			/setvarint Toggle UseAoE
-	/squelch /alias /tglbp			/setvarint Toggle ChestCombatCast
-	/squelch /alias /tglpet			/setvarint Toggle UsePet
-	/squelch /alias /tglpoison		/setvarint Toggle UsePoisons
-	/squelch /alias /tgldots		/setvarint Toggle DoDot
-	/squelch /alias /tglmezbreak	/setvarint Toggle AllowMezBreak
-	/squelch /alias /tglslow		/setvarint Toggle DoSlow
-	/squelch /alias /tglferocity	/setvarint Toggle DoFerocity
-	/squelch /alias /tglpetslow		/setvarint Toggle DoPetSlow
+
+	/declare Aura1				string outer NULL
+	/declare Aura2				string outer NULL
 |-Spells
 	/declare SwarmPet			string outer NULL
 	/declare NukeSpell1			string outer NULL
@@ -58,46 +49,10 @@ Sub BstSetup
 	/declare HHEFuryDisc		string outer NULL
 	/declare DmgModDisc			string outer NULL
 	/declare EndRegenProcDisc	string outer NULL
-|-Config Options
-	/call LoadCommonConfig
-	/call LoadIni Buffs UseFocus				int 1
-	/call LoadIni Buffs UseRunSpeed				int 1
-	/call LoadIni Combat AllowMezBreak		 	int 0
-	/call LoadIni Combat DoSlow					int 1
-	/call LoadIni Combat DoDot					int 1
-	/call LoadIni Combat Manatonuke				int 5
-	/call LoadIni Combat StickHow				string behind
-	/call LoadIni Combat StopNukeAggro			int 80
-	/call LoadIni Combat UseAoE					int 0
-	/call LoadIni Combat UseMelee		 		int 1
-	/call LoadIni Healing DoHeals				int 1
-	/call LoadIni Healing DynamicHealing		int 0
-	/call LoadIni Healing Healpoint				int 30
-	/call LoadIni Healing PetHealpoint			int 40
-	/call LoadIni Healing TBMHealpoint			int 65
-	/call LoadIni Healing RaidHealpoint			int 65
-	/call LoadIni Item ChestItemName			string NULL
-	/call LoadIni Item ChestCombatCast			int 0
-	/call LoadIni Item UsePoisons		 		int 0
-	/call LoadIni Item PoisonName				string NULL
-	/call LoadIni Item PoisonBuffName			string NULL
-	/call LoadIni Options BringYourOwnSpells	int 0
-	/call LoadIni Options DoFerocity			int 0
-	/call LoadIni Options FocParagonManaPct		int 80
-	/call LoadIni Options FocParagonEndPct		int 80
-	/call LoadIni Options ParagonManaPct		int 80
-	/call LoadIni Pet UsePet		 			int 1
-	/call LoadIni Pet DoPetTank		 			int 0
-	/call LoadIni Pet UseSwarmpet		 		int 0
-	/call LoadIni Pet DoPetSlow					int 0
 |-Declare spell variables
 	/declare spellmisc 			int outer 8
-	/declare GroupBuffRecast 	int outer 0
 	/declare miscspellremem		string outer NULL
 	/declare CastResult         string outer
-	/declare spellrememtimer	timer outer 0
-	/declare fparatimer2		timer outer 60s
-	/declare groupbufftimer		timer outer 0
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
@@ -143,91 +98,98 @@ Sub INIChanges
 | SUB: LoadSpellBar
 |------------------------------------------------------------------------------------------ *|
 Sub LoadSpellBar
-	/if (!${BringYourOwnSpells}) {
-		/if (${Me.Standing}) /sit
-		/delay 10 ${Me.Sitting}
-		/echo \aw Loading Spell Bar
-		/call LoadSpellGem "${HealSpell1}" 1
-		/call LoadSpellGem "${PetHealSpell}" 2
-		/call LoadSpellGem "${NukeSpell5}" 3
-		/call LoadSpellGem "${NukeSpell4}" 4
-		/call LoadSpellGem "${DoTSpell1}" 5		
-		/if (${Me.Level}>105 && ${spellmisc}>=13) {
-			/call LoadSpellGem "${SwarmPet}" 6
+	
+	/if (${Me.Standing}) /sit
+	/delay 10 ${Me.Sitting}
+	/echo \aw Loading Spell Bar
+	/call LoadSpellGem "${HealSpell1}" 1
+	/call LoadSpellGem "${PetHealSpell}" 2
+	/call LoadSpellGem "${NukeSpell5}" 3
+	/call LoadSpellGem "${NukeSpell4}" 4
+	/call LoadSpellGem "${DoTSpell1}" 5
+	
+	/call LoadSpellGem "${PetDamageProc}" 6
+	/call LoadSpellGem "${SlowSpell}" 7
+	/call LoadSpellGem "${PetSpell}" 8	
+	
+	/if (${Me.Level}>105 && ${spellmisc}>=13) {
+		/call LoadSpellGem "${SwarmPet}" 6
+		/call LoadSpellGem "${DoTSpell2}" 7
+		/call LoadSpellGem "${NukeSpell3}" 8
+		/call LoadSpellGem "${DichoSpell}" 9
+		/call LoadSpellGem "${NukeSpell2}" 10
+		/call LoadSpellGem "${NukeSpell1}" 11
+		/call LoadSpellGem "${AtkBuff}" 12
+		/call LoadSpellGem "${PetSlowProc}" 13
+		/varset miscspellremem ${PetSlowProc}
+	} else /if (${Me.Level}>100 && ${spellmisc}>=12 && ${DichoSpell.NotEqual[NULL]}) {
+		/call LoadSpellGem "${SwarmPet}" 6
+		/if (${DoDot}) {
 			/call LoadSpellGem "${DoTSpell2}" 7
-			/call LoadSpellGem "${NukeSpell3}" 8
-			/call LoadSpellGem "${DichoSpell}" 9
-			/call LoadSpellGem "${NukeSpell2}" 10
-			/call LoadSpellGem "${NukeSpell1}" 11
-			/call LoadSpellGem "${AtkBuff}" 12
-			/call LoadSpellGem "${PetSlowProc}" 13
-			/varset miscspellremem ${PetSlowProc}
-		} else /if (${Me.Level}>100 && ${spellmisc}>=12 && ${DichoSpell.NotEqual[NULL]}) {
-			/call LoadSpellGem "${SwarmPet}" 6
-			/if (${DoDot}) {
-				/call LoadSpellGem "${DoTSpell2}" 7
-			} else {
-				/call LoadSpellGem "${PetSlowProc}" 7
-			}
-			/call LoadSpellGem "${NukeSpell3}" 8
-			/call LoadSpellGem "${DichoSpell}" 9
-			/call LoadSpellGem "${NukeSpell2}" 10
-			/call LoadSpellGem "${NukeSpell1}" 11
-			/call LoadSpellGem "${AtkBuff}" 12
-			/varset miscspellremem ${AtkBuff}
-		} else /if (${Me.Level}>89 && ${spellmisc}>=12 && ${NukeSpell1.NotEqual[NULL]}) {
-			/call LoadSpellGem "${SwarmPet}" 6
-			/call LoadSpellGem "${SlowSpell}" 7
-			/call LoadSpellGem "${NukeSpell3}" 8
-			/call LoadSpellGem "${PetSlowProc}" 9
-			/call LoadSpellGem "${NukeSpell2}" 10
-			/call LoadSpellGem "${NukeSpell1}" 11
-			/call LoadSpellGem "${AtkBuff}" 12
-			/varset miscspellremem ${AtkBuff}
-		} else /if (${Me.Level}>83 && ${spellmisc}>=12 && ${NukeSpell2.NotEqual[NULL]}) {
-			/call LoadSpellGem "${SwarmPet}" 6
-			/call LoadSpellGem "${SlowSpell}" 7
-			/call LoadSpellGem "${NukeSpell3}" 8
-			/call LoadSpellGem "${PetGrowl}" 9
-			/call LoadSpellGem "${NukeSpell2}" 10
-			/call LoadSpellGem "${PetSlowProc}" 11
-			/call LoadSpellGem "${AtkBuff}" 12
-			/varset miscspellremem ${AtkBuff}
-		} else /if (${Me.Level}>79 && ${spellmisc}>=11) {
-			/call LoadSpellGem "${SwarmPet}" 6
-			/call LoadSpellGem "${SlowSpell}" 7
-			/call LoadSpellGem "${NukeSpell3}" 8
-			/call LoadSpellGem "${PetGrowl}" 9
-			/call LoadSpellGem "${AtkBuff}" 10
-			/call LoadSpellGem "${PetSlowProc}" 11
-			/if (${spellmisc}==11) /varset miscspellremem ${PetSlowProc}
-		} else /if (${Me.Level}>74 && ${Me.Level}<81 && ${spellmisc}>=10) {
-			/if (!${DoDot}) {
-				/call LoadSpellGem "${PetSlowProc}" 5
-			}
-			/call LoadSpellGem "${SwarmPet}" 6
-			/call LoadSpellGem "${SlowSpell}" 7
-			/call LoadSpellGem "${NukeSpell3}" 8
-			/call LoadSpellGem "${PetGrowl}" 9
-			/call LoadSpellGem "${AtkBuff}" 10
-			/varset miscspellremem ${AtkBuff}
-		} else /if (${Me.Level}>72 && ${Me.Level}<75) {
-			/call LoadSpellGem "${SwarmPet}" 6
-			/call LoadSpellGem "${SlowSpell}" 7
-			/call LoadSpellGem "${NukeSpell3}" 8
-			/call LoadSpellGem "${PetGrowl}" 9
-			/varset miscspellremem ${PetGrowl}
-		} else /if (${Me.Level}>67 && ${Me.Level}<73) {
-			/call LoadSpellGem "${SwarmPet}" 6
-			/call LoadSpellGem "${SlowSpell}" 7
-			/call LoadSpellGem "${PetGrowl}" 8
 		} else {
-			/call LoadSpellGem "${PetDamageProc}" 6
-			/call LoadSpellGem "${SlowSpell}" 7
-			/call LoadSpellGem "${PetSpell}" 8
-			/if (${Me.Level}<=55) /varset miscspellremem ${PetSpell}
+			/call LoadSpellGem "${PetSlowProc}" 7
 		}
-	}
+		/call LoadSpellGem "${NukeSpell3}" 8
+		/call LoadSpellGem "${DichoSpell}" 9
+		/call LoadSpellGem "${NukeSpell2}" 10
+		/call LoadSpellGem "${NukeSpell1}" 11
+		/call LoadSpellGem "${AtkBuff}" 12
+		/varset miscspellremem ${AtkBuff}
+	} else /if (${Me.Level}>89 && ${spellmisc}>=12 && ${NukeSpell1.NotEqual[NULL]}) {
+		/call LoadSpellGem "${SwarmPet}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${NukeSpell3}" 8
+		/call LoadSpellGem "${PetSlowProc}" 9
+		/call LoadSpellGem "${NukeSpell2}" 10
+		/call LoadSpellGem "${NukeSpell1}" 11
+		/call LoadSpellGem "${AtkBuff}" 12
+		/varset miscspellremem ${AtkBuff}
+	} else /if (${Me.Level}>83 && ${spellmisc}>=12 && ${NukeSpell2.NotEqual[NULL]}) {
+		/call LoadSpellGem "${SwarmPet}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${NukeSpell3}" 8
+		/call LoadSpellGem "${PetGrowl}" 9
+		/call LoadSpellGem "${NukeSpell2}" 10
+		/call LoadSpellGem "${PetSlowProc}" 11
+		/call LoadSpellGem "${AtkBuff}" 12
+		/varset miscspellremem ${AtkBuff}
+	} else /if (${Me.Level}>79 && ${spellmisc}>=11) {
+		/call LoadSpellGem "${SwarmPet}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${NukeSpell3}" 8
+		/call LoadSpellGem "${PetGrowl}" 9
+		/call LoadSpellGem "${AtkBuff}" 10
+		/call LoadSpellGem "${PetSlowProc}" 11
+		/if (${spellmisc}==11) /varset miscspellremem ${PetSlowProc}
+	} else /if (${Me.Level}>74 && ${Me.Level}<81 && ${spellmisc}>=10) {
+		/if (!${DoDot}) {
+			/call LoadSpellGem "${PetSlowProc}" 5
+		}
+		/call LoadSpellGem "${SwarmPet}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${NukeSpell3}" 8
+		/call LoadSpellGem "${PetGrowl}" 9
+		/call LoadSpellGem "${AtkBuff}" 10
+		/varset miscspellremem ${AtkBuff}
+	} else /if (${Me.Level}>72 && ${Me.Level}<75) {
+		/call LoadSpellGem "${SwarmPet}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${NukeSpell3}" 8
+		/call LoadSpellGem "${PetGrowl}" 9
+		/varset miscspellremem ${PetGrowl}
+	} else /if (${Me.Level}>67 && ${Me.Level}<73) {
+		/call LoadSpellGem "${SwarmPet}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${PetGrowl}" 8
+	} 
+	
+	|else {
+	|	/call LoadSpellGem "${PetDamageProc}" 6
+	|	/call LoadSpellGem "${SlowSpell}" 7
+	|	/call LoadSpellGem "${PetSpell}" 8
+	|	/if (${Me.Level}<=55) /varset miscspellremem ${PetSpell}
+	|}
+	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
 /return 
@@ -888,112 +850,17 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=${Spell[Respite].Level} && ${Me.CombatAbility[${Spell[Respite].RankName}]})  {
 		/varset EndRegenDisc ${Spell[Respite].RankName}
 	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: Bind Change Var Int resets various interger settings from ini file
-|----------------------------------------------------------------------------
-Sub Bind_SetVarInt(string ISection, string IName, int IVar)
-    /docommand /varset changetoini 1
- |-Toggles
-	/if (${ISection.Equal[Toggle]}) {
-  |--Pet
-		/if (${IName.Equal[UsePet]}) {
-			/if (!${UsePet}) {
-				/echo \aw Setting UsePet to \ag ON
-				/varset UsePet 1
-			} else {
-				/echo \aw Resetting UsePet to \ar OFF
-				/varset UsePet 0
-			}
-		} else /if (${IName.Equal[AllowMezBreak]}) {
-			/if (!${AllowMezBreak}) {
-				/echo \aw Setting AllowMezBreak to \ag ON
-				/varset AllowMezBreak 1
-			} else {
-				/echo \aw Resetting AllowMezBreak to \ar OFF
-				/varset AllowMezBreak 0
-			}
-		} else /if (${IName.Equal[UseAoE]}) {
-			/if (!${UseAoE}) {
-				/echo \aw Setting UseAoE to \ag ON
-				/varset UseAoE 1
-			} else {
-				/echo \aw Resetting UseAoE to \ar OFF
-				/varset UseAoE 0
-			}
-		} else /if (${IName.Equal[DoDot]}) {
-			/if (!${DoDot}) {
-				/echo \aw Setting DoDot to \ag ON
-				/varset DoDot 1
-				/call LoadSpellBar
-			} else {
-				/echo \aw Resetting DoDot to \ar OFF
-				/varset DoDot 0
-				/call LoadSpellBar
-			}
-		} else /if (${IName.Equal[ChestCombatCast]}) {
-			/if (!${ChestCombatCast}) {
-				/echo \aw Setting ChestCombatCast to \ag ON
-				/varset ChestCombatCast 1
-			} else {
-				/echo \aw Resetting ChestCombatCast to \ar OFF
-				/varset ChestCombatCast 0
-			}
-  |--Use Poisons
-		} else /if (${IName.Equal[UsePoisons]}) {
-			/if (!${UsePoisons}) {
-				/echo \aw Setting UsePoisons to \ag ON
-				/varset UsePoisons 1
-			} else {
-				/echo \aw Resetting UsePoisons to \ar OFF
-				/varset UsePoisons 0
-			}
-		} else /if (${IName.Equal[DoSlow]}) {
-			/if (!${DoSlow}) {
-				/echo \aw Setting DoSlow to \ag ON
-				/varset DoSlow 1
-			} else {
-				/echo \aw Resetting DoSlow to \ar OFF
-				/varset DoSlow 0
-			}
-		} else /if (${IName.Equal[BringYourOwnSpells]}) {
-			/if (!${BringYourOwnSpells}) {
-				/echo \aw Setting BringYourOwnSpells to \ag ON
-				/varset BringYourOwnSpells 1
-			} else {
-				/echo \aw Resetting BringYourOwnSpells to \ar OFF
-				/varset BringYourOwnSpells 0
-				/call LoadSpellBar
-			}
-		} else /if (${IName.Equal[DoFerocity]}) {
-			/if (!${DoFerocity}) {
-				/echo \aw Setting DoFerocity to \ag ON
-				/varset DoFerocity 1
-			} else {
-				/echo \aw Resetting DoFerocity to \ar OFF
-				/varset DoFerocity 0
-			}
-		} else /if (${IName.Equal[DoPetSlow]}) {
-			/if (!${DoPetSlow}) {
-				/echo \aw Setting DoPetSlow to \ag ON
-				/varset DoPetSlow 1
-			} else {
-				/echo \aw Resetting DoPetSlow to \ar OFF
-				/varset DoPetSlow 0
-			}
-		}
+
+	| Pull ability
+	/if (${Me.Book[${DoTSpell1}]} && !${Me.Book[${SlowSpell}]}) {
+		/varset PullAbility ${DoTSpell1}
+		/varset PullDistance 150
+	} else /if (${Me.Book[${SlowSpell}]}) {
+		/varset PullAbility ${SlowSpell}
+		/varset PullDistance 150
+	} else {
+		/varset PullAbility Melee
+		/varset PullDistance 5
 	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: BIND CmdList - 
-|----------------------------------------------------------------------------
-Sub Bind_CmdList
-/call CommonHelp
-/echo \ag===${MacroName} Commands=== 
-/echo \sg/byos\aw - Bring Your Own Spells! Use what ever spells you have mem'd
-/echo \ag/tglaoe\aw - Turn the use of AE abilities on/off
-/echo \ag/tglbp\aw - Turn on/off the use of a Chest piece defined in the ini
-/echo \ag/tglpet\aw - Pet toggle...cause sometimes they arent allowed
-/echo \ag/tglpoison\aw - Turn on/off the use of poison buffs
-/echo \ag/tglmezbreak\aw - Allow attacking mez'd mobs if below assistat % - Ignores waiting for MA
+
 /return

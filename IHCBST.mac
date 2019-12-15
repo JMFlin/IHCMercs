@@ -21,8 +21,8 @@
 Sub Main
 	/delay ${Math.Rand[10]}
 	/doevents flush
-	/declare MacroName       	string outer IHCBST
-	/declare MacroPath       	string outer IHCMercs\IHCBST
+	/declare MacroName       	string outer IHCWAR
+	/declare MacroPath       	string outer IHCMercs\IHCWAR
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
@@ -34,120 +34,65 @@ Sub Main
 	/call SetControlToon
 	/call LoadSpellBar
 	/pet hold on
-	/call SetPetMode
 |-Cursor ID
 	/if (${Cursor.ID}) {
 		/echo Sending Item on Cursor to Bag
 		/autoinventory
 	}
 	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
-	}
 
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
-	}
+	/declare AutoCampRadius int outer 0
+	/varset AutoCampRadius 10
  :mainloop
-	/if (${changetoini}==1) /call INIChanges
-	/if (${Me.Zoning}) {
-		/call Zoning
-		/varset fparatimer2 30s
-	}
-	/if (${Me.Hovering}) /call DeathSub
-	/if (${Cursor.ID}) /call BagModRods
-	/call IDUpdateCheck
-	/if (!${Me.Casting.ID} && ${fparatimer2}==0 && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && (${Me.AltAbilityReady[Focused Paragon of Spirits]} || ${Me.AltAbilityReady[Paragon of Spirits]})) /call DoParagon
-	/if ((${Me.XTarget[1].ID} || (${Group.MainAssist.ID} && ${Group.MainAssist.ID}!=${Me.ID} && ${Target.ID}!=${Me.GroupAssistTarget.ID}) || ${SpawnCount[npc radius ${AssistRange} zradius 15 targetable playerstate 4]} || ${FollowMarkTarget}) && !${BackOffFlag} && ${DoAutoTarget}) /call FindTarget
-	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag} && ${DoAutoEngage}) /call EngageTarget
-	/if (${DynamicHealing} && !${Me.Casting.ID} && ${DoHeals}) /call ConfigHeal
-	/if (!${Me.Casting.ID}) /call HealGroup
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${DoBuffs}) /call BuffCheck
-	/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${groupbufftimer}==0 && ${DoBuffs}) /call BuffGroup
-	/if (${Spawn[=${FollowToonName}].ID} && !${MoveTo.Moving} && ${Stick.Status.Equal[OFF]} && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID} || ${Spawn[id ${assistid}].Distance}>${AssistRange} || (!${Spawn[id ${assistid}].LineOfSight}))) /call FollowToon
-	/if (${Spawn[=${FollowToonName}].ID} && (${Me.Casting.ID} || ${Me.XTarget[1].ID}) && ${AdvPath.Following}) /squelch /afollow off
-	/if (!${Me.XTarget[1].ID}&& !${KillTargetID}) /call AutoCampCheck
-	/if (${UseModRods}) /call ClickModRoD
-	/if (${DoMed} && ${spellrememtimer}==0) /call AutoMed
-	/if (${UseZoneLogic} && ${EventSetupFlag}) {
-		/call EventLogic${EventSetupFlag}
-	}
-	/if (((!${Spawn[targetable id ${KillTargetID}].ID}) || ${Spawn[corpse id ${KillTargetID}].ID}) && ${KillTargetID}!=0) {
-		/varset KillTargetID 0
-		/varset SpawnSearchType npc
-		/varset autotargetid 0
-	}
-	/if (${Me.Pet.Combat} && !${Ok2Assist}) {
-		/pet back off
-	}
-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
-	/goto :mainloop
+	/call ModeSet
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call ManualPullCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+ /goto :mainloop
 /return
 |----------------------------------------------------------------------------
-|- SUB: BuffGroup
+|- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
-Sub SetPetMode
-	/if (${DoPetTank}) {
-		/if (${PetTank}==0) /varset PetTank 1
-		/pet taunt on
-		/echo \aw Pet Tanking is :\ag ON
-	} else {
-		/pet taunt off
-		/if (${PetTank}==0) /varset PetTank 0
-		/echo \aw Pet Tanking is :\ar OFF
+Sub ManualPullCamping
+	/call MakeCamp
+    /call RemoveTravelBuffs  
+
+	/while (${Mode}==1 || ${Mode}==3) {
+
+		/call check_state FALSE
+		
+		/call set_timers
+
+		/call puller_check_group_resources 
+		/call afk_pull
+		/call get_target
+		
+		/call Engage
+
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		
+		/doevents
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: BuffGroup
+|- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
-Sub BuffGroupOLD
-	/declare bmember			int local 0
-	/if (${groupbufftimer}==0) /varset groupbufftimer 1m
-	/for bmember 0 to ${Group}
-		/if (${Group.Member[${bmember}].Distance}<100 && (!${Me.Casting.ID})) {
-			/target id ${Group.Member[${bmember}].ID}
-			/delay 10 ${Target.ID}==${Group.Member[${bmember}].ID}
-			/if (${SpawnCount[npc radius ${AssistRange} zradius 15 targetable playerstate 4]} || ${Me.XTarget[1].ID}) /break
-			/delay 2s
-			/if (${Target.ID} && ${Target.BuffsPopulated}==TRUE) {
-				/if (!${Target.Focus.ID} && !${Target.Buff[Focus].ID} && ${Me.Book[${FocusSpell}]} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && (!${Me.Casting.ID}) && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]} && ${UseFocus}) {
-					/call SpellQueue "${FocusSpell}" ${Target.ID}
-					/varset groupbufftimer 5s
-					/varset spellrememtimer 5s
-					/delay 10
-				} else /if (!${Target.Buff[${ManaRegenBuff}].ID} && ${Me.Book[${ManaRegenBuff}]} && ${Me.CurrentMana}>${Spell[${ManaRegenBuff}].Mana} && (!${Me.Casting.ID})) {
-					/if (${Me.Book[${UnityBuff}]} && ${Me.CurrentMana}>${Spell[${UnityBuff}].Mana} && ${Select[${Me.Level},100,105,110]}) {
-						/call SpellQueue "${UnityBuff}" ${Me.ID}
-					} else {
-						/call SpellQueue "${ManaRegenBuff}" ${Me.ID}
-					}
-					/varset groupbufftimer 5s
-					/varset spellrememtimer 5s 
-					/delay 10
-				} else /if (!${Target.Buff[${RunSpeedBuff}].ID} && ${Me.Book[${RunSpeedBuff}]}  && ${Me.CurrentMana}>${Spell[${RunSpeedBuff}].Mana} && ${UseRunSpeed}) {
-					/call SpellQueue "${RunSpeedBuff}" ${Target.ID}
-					/varset groupbufftimer 5s
-					/varset spellrememtimer 5s
-					/delay 10					
-				} else /if (${DoFerocity} && !${Target.Buff[${AtkBuff}].ID} && ${Me.Book[${AtkBuff}]} && ${Spell[${AtkBuff}].TargetType.Equal[Single]} && ${Me.CurrentMana}>${Spell[${AtkBuff}].Mana} && (!${Me.Casting.ID}) && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
-					/call SpellQueue "${AtkBuff}" ${Target.ID}
-					/varset groupbufftimer 5s
-					/varset spellrememtimer 5s
-					/delay 10
-				}
-			}
+Sub single_target_heals
+	/declare worsthurtid 		int local 0
+
+	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 40) {
+
+		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
+
+		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${worsthurtid}]}) {
+			/call core_cast2 "${HealSpell1}" spell ${worsthurtid} FALSE
+			/return
 		}
-		/if (${SpawnCount[npc radius ${AssistRange} zradius 15 targetable playerstate 4]} || ${Me.XTarget[1].ID}) /break
-	/next bmember
-	/if (${Group.MainAssist.ID} && ${Target.ID}!=${Group.MainAssist.ID}) {
-		/target id ${Group.MainAssist.ID}
-		/if (${ReTargetDelay}==0) /varset ReTargetDelay 1m
-		/if (${autotargetid}) /varset autotargetid 0
 	}
-/return 
+/return
 |----------------------------------------------------------------------------
 |- SUB: BuffGroup
 |---------------------------------------------------------------------------- 
@@ -529,33 +474,27 @@ Sub ConfigHeal
 |- SUB: Symbol - HP Buff Single use
 |----------------------------------------------------------------------------
 Sub Event_Chat(string ChatType,string ChatSender,string ChatText)
-	/if (${Spawn[pc ${ChatSender}].ID} && ${ChatType.Equal[tell]}) /mqlog ${ChatSender} -- ${ChatText}
-	/if (${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}) {
-		/if (${Select[${ChatText},SoW,RunSpeedBuff,Tala]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<200)) /call SpellQueue "${RunSpeedBuff}" ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
-	}
+	|/if (${Spawn[pc ${ChatSender}].ID} && ${ChatType.Equal[tell]}) /mqlog ${ChatSender} -- ${ChatText}
+	|/if (${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}) {
+	|	/if (${Select[${ChatText},SoW,RunSpeedBuff,Tala]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<200)) /call SpellQueue "${RunSpeedBuff}" ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
+	|}
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 Sub Event_NotOnTarget
-	/if (${DoAutoEngage}) {
-		/squelch /attack off
-		/if (${DoAutoTarget}) /call FindTarget
-		/delay 5
-		/if (${Target.Distance}<${AssistRange}) /call EngageTarget
-	}
+	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
-/return 
+/return
 |----------------------------------------------------------------------------
 |- SUB: Event_WornOff
 |----------------------------------------------------------------------------
 Sub Event_WornOff
-	/varset groupbufftimer 0
-	/doevents flush WornOff
+	
 /return 
 |----------------------------------------------------------------------------
 |- SUB: Event GroupChange
 |----------------------------------------------------------------------------
 Sub Event_GroupChange
-	/varset fparatimer2 10s
+	
 /return 

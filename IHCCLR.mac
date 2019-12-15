@@ -254,7 +254,7 @@ Sub BuffGroup
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
 /return
 |----------------------------------------------------------------------------
-|- SUB: HealGroup
+|- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
 Sub single_target_heals
 	/declare worsthurtid 		int local 0
@@ -279,7 +279,7 @@ Sub single_target_heals
 /return
 
 |----------------------------------------------------------------------------
-|- SUB: HealGroup
+|- SUB: group_heals
 |---------------------------------------------------------------------------- 
 Sub group_heals
 	/declare gmember			int local 0

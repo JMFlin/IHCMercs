@@ -1,0 +1,175 @@
+|- IHCBST.mac - By IHC385
+|- Automatic Druid bot - 
+|- Version 2.0
+|- Updated: 4/25/2019
+|- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
+#Chat group
+#Chat tell
+#Chat raid
+#turbo 80
+#include IHCMercs\ihcsubs.inc
+#include IHCMercs\ihcdruutil.inc
+#include IHCMercs\ihcevents.inc
+#warning
+#bind SetVarInt	/setvarint
+#bind CmdList        /ihchelp
+#Event NotOnTarget	"#*#You cannot see your target#*#"
+#Event NotOnTarget	"#*#Your target is too far away#*#"
+#Event WornOff      "Your #1# spell has worn off of #*#."
+#Event GroupChange	"#*#has joined the group#*#"
+
+Sub Main
+	/delay ${Math.Rand[10]}
+	/doevents flush
+	/declare MacroName       	string outer IHCWAR
+	/declare MacroPath       	string outer IHCMercs\IHCWAR
+	/declare IHCVersion       	string outer 2.0 
+	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
+
+	/call DruSetup
+	/call VarSetup
+	/call SetupSpells
+	/call LoadSpellBar
+
+|-Cursor ID
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
+	}
+	/call WelcomeMsg
+	/declare AssistRange int outer 10
+	/declare AutoCampRadius int outer 10
+ :mainloop
+	/call ModeSet
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call ManualPullCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+ /goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualPullCamping
+|---------------------------------------------------------------------------- 
+Sub ManualPullCamping
+	/call MakeCamp
+    /call RemoveTravelBuffs  
+
+	/while (${Mode}==1 || ${Mode}==3) {
+		/call check_state FALSE
+		/call single_target_heals
+		/call group_heals
+		/call combat
+|		/call check_for_corpse FALSE
+		/call group_buffs
+
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+
+		/doevents
+		
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: combat 
+|---------------------------------------------------------------------------- 
+Sub combat
+	/if (!${Me.XTarget}) /return
+	/call get_target
+	/if (!${Target.ID}) /return
+
+	/if (!${Target.Snared.ID}) {
+		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+	}
+
+/return
+|----------------------------------------------------------------------------
+|- SUB: Buffgroup_buffsGroup
+|---------------------------------------------------------------------------- 
+Sub group_buffs
+	/declare bmember			int local 0
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
+	/if (${Me.Casting.ID}) /return
+
+	/if (${Me.XTarget}) /return
+
+	/for bmember 1 to ${Group}
+		/if (${Group.Member[${bmember}].Distance}<${Spell[${Skin}].MyRange} && !${Group.Member[${bmember}].OtherZone} && !${Me.Casting.ID}) {
+
+			/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
+			/if (${Me.XTarget}) /return
+			
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${Skin}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${Skin}].Stacks" "tmpstackcheck" "bool"
+			/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${Skin}]} && ${Me.CurrentMana}>${Spell[${Skin}].Mana} && !${Me.Casting.ID}) {
+				/echo ${Group.Member[${bmember}].Name} does not have aego in tmpbuffid ${tmpbuffid} and aegoid ${tmpaegoid}
+				/if (${validate_cast[FALSE, spell, ${Skin}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${Skin}" spell ${Group.Member[${bmember}].ID} FALSE
+				/delay 10
+			}
+
+			/if (${Me.CurrentMana}>${Spell[${SoW}].Mana} && ${Me.Book[${SoW}]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SoW}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SoW}].Stacks" "tmpstackcheck" "bool"
+				/if (!${tmpbuffid} && ${tmpstackcheck}) {
+					/if (${validate_cast[FALSE, spell, ${SoW}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SoW}" spell ${Group.Member[${bmember}].ID} FALSE
+					/delay 10
+				}
+			}
+		}
+	/next bmember
+	|- Delete variable's
+	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
+	/if (${Defined[tmpskinid]}) /deletevar tmpskinid
+	/if (${Defined[tmpsymbolid]}) /deletevar tmpsymbolid
+	/if (${Defined[tmpaegoid]}) /deletevar tmpaegoid
+	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
+/return
+|----------------------------------------------------------------------------
+|- SUB: HealGroup
+|---------------------------------------------------------------------------- 
+Sub single_target_heals
+	/declare worsthurtid 		int local 0
+
+	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 85) {
+
+		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
+
+		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${worsthurtid}]}) {
+			/call core_cast2 "${HealSpell1}" spell ${worsthurtid} FALSE
+			/return
+		}
+	}
+/return
+
+|----------------------------------------------------------------------------
+|- SUB: HealGroup
+|---------------------------------------------------------------------------- 
+Sub group_heals
+	/declare gmember			int local 0
+	/declare HurtMember     	int local 0
+	
+	/if (${Me.PctHPs} <= 80) {
+		/varcalc HurtMember ${HurtMember}+1
+	}
+
+   	/for gmember 1 to ${Group}
+		
+		/if (${Group.Member[${gmember}].Type.Equal[Corpse]}) /continue
+		
+		/if (${Group.Member[${gmember}].Distance} <= 200 && ${Group.Member[${gmember}].PctHPs} < 80) {
+			/varcalc HurtMember ${HurtMember}+1
+        }
+
+	/next gmember
+
+	/if (${HurtMember} >= 3) {
+		/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
+	}
+
+/return
+	
