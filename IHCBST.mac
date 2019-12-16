@@ -137,6 +137,10 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
 
+	/if (!${Target.Slowed.ID}) {
+		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: get_aggro 
