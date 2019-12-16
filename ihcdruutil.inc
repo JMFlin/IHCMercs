@@ -55,7 +55,9 @@ Sub LoadSpellBar
 |---------------------------------------------------------------------------- 
 Sub SetupSpells
 
-	/if (${Me.Level}>=${Spell[Light Healing].Level} && ${Me.Book[${Spell[Light Healing].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Healing].Level} && ${Me.Book[${Spell[Healing].RankName}]}) {
+		/varset HealSpell1 ${Spell[Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Light Healing].Level} && ${Me.Book[${Spell[Light Healing].RankName}]}) {
 		/varset HealSpell1 ${Spell[Light Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
 		/varset HealSpell1 ${Spell[Minor Healing].RankName}
@@ -81,7 +83,9 @@ Sub SetupSpells
 		/varset NukeSpell2 ${Spell[Akalit's Feralgia].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Flame Lick].Level} && ${Me.Book[${Spell[Flame Lick].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Stinging Swarm].Level} && ${Me.Book[${Spell[Stinging Swarm].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Stinging Swarm].RankName}
+	} else /if (${Me.Level}>=${Spell[Flame Lick].Level} && ${Me.Book[${Spell[Flame Lick].RankName}]}) {
 		/varset DoTSpell1 ${Spell[Flame Lick].RankName}
 	}
 
@@ -96,7 +100,9 @@ Sub SetupSpells
 		/varset SnareSpell ${Spell[Snare].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Protection of Wood].Level} && ${Me.Book[${Spell[Protection of Wood].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Protection of Rock].Level} && ${Me.Book[${Spell[Protection of Rock].RankName}]}) {
+		/varset GroupSkin ${Spell[Protection of Rock].RankName}
+	} else /if (${Me.Level}>=${Spell[Protection of Wood].Level} && ${Me.Book[${Spell[Protection of Wood].RankName}]}) {
 		/varset GroupSkin ${Spell[Protection of Wood].RankName}
 	}
 

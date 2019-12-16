@@ -765,6 +765,19 @@ Sub CheckSpells
 	} else /if (${Me.Level}>=${Spell[Spirit of Lightning].Level} && ${Me.Book[${Spell[Spirit of Lightning].RankName}]}) {
 		/varset PetDamageProc ${Spell[Spirit of Lightning].RankName}
 	}
+
+	| Pull ability
+	/if (${Me.Book[${DoTSpell1}]} && !${Me.Book[${SlowSpell}]}) {
+		/varset PullAbility ${DoTSpell1}
+		/varset PullDistance 150
+	} else /if (${Me.Book[${SlowSpell}]}) {
+		/varset PullAbility ${SlowSpell}
+		/varset PullDistance 150
+	} else {
+		/varset PullAbility Melee
+		/varset PullDistance 5
+	}
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs
@@ -851,16 +864,5 @@ Sub SetupDiscs
 		/varset EndRegenDisc ${Spell[Respite].RankName}
 	}
 
-	| Pull ability
-	/if (${Me.Book[${DoTSpell1}]} && !${Me.Book[${SlowSpell}]}) {
-		/varset PullAbility ${DoTSpell1}
-		/varset PullDistance 150
-	} else /if (${Me.Book[${SlowSpell}]}) {
-		/varset PullAbility ${SlowSpell}
-		/varset PullDistance 150
-	} else {
-		/varset PullAbility Melee
-		/varset PullDistance 5
-	}
 
 /return

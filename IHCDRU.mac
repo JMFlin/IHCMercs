@@ -77,8 +77,16 @@ Sub combat
 	/call get_target
 	/if (!${Target.ID}) /return
 
+	/call single_target_heals
+
 	/if (!${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+	}
+	
+	/call single_target_heals
+
+	/if (!${Target.Buff[${DoTSpell1}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
 	
 	/call single_target_heals
