@@ -49,10 +49,6 @@ Sub Main
 		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
 	}
 
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
-	}
-
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -87,7 +83,7 @@ Sub ManualPullCamping
 |		/if ((${AutoRez}==1) && (!${Me.Moving}) && (!${Me.Invis})) /call RezCheck
 
 |		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffCheck
-		/call BuffGroup
+		/call group_buffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
@@ -188,10 +184,12 @@ Sub ConfigHeal
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: BuffGroup
+|- SUB: group_buffs
 |---------------------------------------------------------------------------- 
-Sub BuffGroup
+Sub group_buffs
 	/declare bmember			int local 0
+	/declare CastCheck			int local 0
+
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 	/if (${Me.Casting.ID}) /return
@@ -206,24 +204,28 @@ Sub BuffGroup
 			/if (${Me.XTarget}) /return
 
 			/if (!${Me.Book[${GroupHPBuff}]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${HPBuff}].ID" "tmpbuffid" "bool"
-				/if (!${tmpbuffid} && ${Me.Book[${HPBuff}]} && ${Me.CurrentMana}>${Spell[${HPBuff}].Mana} && !${Me.Casting.ID}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${HPBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${HPBuff}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${HPBuff}]} && ${Me.CurrentMana}>${Spell[${HPBuff}].Mana} && !${Me.Casting.ID}) {
 					/if (${validate_cast[FALSE, spell, ${HPBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${HPBuff}" spell ${Group.Member[${bmember}].ID} FALSE
-					/varset spellrememtimer 5s
-					/delay 10
+					/varset CastCheck 1
 				}
-			}
+
+			} else {
 			
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupBuff}].ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupBuff}].Stacks" "tmpstackcheck" "bool"
-			/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && !${Me.Casting.ID}) {
-				/echo ${Group.Member[${bmember}].Name} does not have aego in tmpbuffid ${tmpbuffid} and aegoid ${tmpaegoid}
-				/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupBuff}" spell ${Group.Member[${bmember}].ID} FALSE
-				/varset spellrememtimer 5s
-				/delay 10
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupBuff}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && !${Me.Casting.ID}) {
+					/echo ${Group.Member[${bmember}].Name} does not have aego in tmpbuffid ${tmpbuffid} and aegoid ${tmpaegoid}
+					/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+					/varset CastCheck 1
+				}
 			}
 
 			/if (${Me.CurrentMana}>${Spell[${TankBuff}].Mana} && ${Group.Member[${bmember}].ID}==${Group.MainTank.ID} && !${Me.Casting.ID} && ${Me.Book[${TankBuff}]}) {
@@ -231,8 +233,7 @@ Sub BuffGroup
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${TankBuff}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck}) {
 					/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${TankBuff}" spell ${Group.Member[${bmember}].ID} FALSE
-					/varset spellrememtimer 5s
-					/delay 10
+					/varset CastCheck 1
 				}
 			}
 			/if (${Me.CurrentMana}>${Spell[${DivineBuff}].Mana} && ${Group.Member[${bmember}].ID}==${Group.MainTank.ID} && !${Me.Casting.ID} && ${Me.SpellReady[${DivineBuff}]} && ${DivineBuffOn}) {
@@ -240,8 +241,7 @@ Sub BuffGroup
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${DivineBuff}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck}) {
 					/call DivineUsage
-					/varset spellrememtimer 5s
-					/delay 10
+					/varset CastCheck 1
 				}
 			}
 		}
@@ -252,6 +252,12 @@ Sub BuffGroup
 	/if (${Defined[tmpsymbolid]}) /deletevar tmpsymbolid
 	/if (${Defined[tmpaegoid]}) /deletevar tmpaegoid
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
+
+	/if (${CastCheck}) {
+		/call LoadSpellBar
+		/docommand /dgt \aw Done Buffing
+	}
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: single_target_heals

@@ -113,8 +113,7 @@ Sub group_buffs
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${Skin}].Stacks" "tmpstackcheck" "bool"
 				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${Skin}]} && ${Me.CurrentMana}>${Spell[${Skin}].Mana} && !${Me.Casting.ID}) {
 					/if (${validate_cast[FALSE, spell, ${Skin}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${Skin}" spell ${Group.Member[${bmember}].ID} FALSE
-					/varset spellrememtimer 5s
-					/delay 10
+					/varset CastCheck 1
 				}
 
 			} else {

@@ -102,6 +102,10 @@ Sub SetupSpells
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
+	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Touch of Kildrukaun].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Kildrukaun].RankName}
+	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Touch of the Wailing Three].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of the Wailing Three].RankName}
 	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Touch of Inruku].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of Inruku].RankName}
 	} else /if (${Me.Level}>=47 && ${Me.Book[${Spell[Life Leech].RankName}]}) {
@@ -112,6 +116,8 @@ Sub SetupSpells
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
+	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Touch of Severan].RankName}]}) {
+		/varset Touch2 ${Spell[Touch of Severan].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Touch of the Devourer].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of the Devourer].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Touch of Innoruuk].RankName}]}) {
@@ -126,6 +132,8 @@ Sub SetupSpells
 		/varset Touch3 ${Spell[Touch of Falsin].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Falsin].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Falsin].RankName}
+	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Touch of the Soulbleeder].RankName}]}) {
+		/varset Touch3 ${Spell[Touch of the Soulbleeder].RankName}
 	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Touch of Volatis].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Volatis].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Touch of Draygun].RankName}]}) {
@@ -145,11 +153,18 @@ Sub SetupSpells
 		/varset DireTestemony ${Spell[Dire Testimony].RankName}
 	}
 
+
 	| Terrors
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Kra'Du].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Kra'Du].RankName}
+	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
+		/varset Terror1 ${Spell[Terror of Kra'Du].RankName}
+	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Terror of Jelvalak].RankName}]}) {
+		/varset Terror1 ${Spell[Terror of Jelvalak].RankName}
+	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Terror of Vergalid].RankName}]}) {
+		/varset Terror1 ${Spell[Terror of Vergalid].RankName}
 	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Terror of Discord].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Discord].RankName}
 	} else /if (${Me.Level}>=59 && ${Me.Book[${Spell[Terror of Terris].RankName}]}) {
@@ -162,6 +177,8 @@ Sub SetupSpells
 		/varset Terror2 ${Spell[Terror of Narus].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Terror of Narus].RankName}]}) {
 		/varset Terror2 ${Spell[Terror of Narus].RankName}
+	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Terror of the Soulbleeder].RankName}]}) {
+		/varset Terror2 ${Spell[Terror of the Soulbleeder].RankName}
 	} else /if (${Me.Level}>=63 && ${Me.Book[${Spell[Terror of Thule].RankName}]}) {
 		/varset Terror2 ${Spell[Terror of Thule].RankName}
 	} else /if (${Me.Level}>=53 && ${Me.Book[${Spell[Terror of Death].RankName}]}) {
@@ -175,6 +192,12 @@ Sub SetupSpells
 		/varset Bond ${Spell[Bond of Xalgoz].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Bond of Xalgoz].RankName}]}) {
 		/varset Bond ${Spell[Bond of Xalgoz].RankName}
+	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Bond of Laarthik].RankName}]}) {
+		/varset Bond ${Spell[Bond of Laarthik].RankName}
+	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Bond of the Blackwater].RankName}]}) {
+		/varset Bond ${Spell[Bond of the Blackwater].RankName}
+	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Bond of the Blacktalon].RankName}]}) {
+		/varset Bond ${Spell[Bond of the Blacktalon].RankName}
 	} else /if (${Me.Level}>=66 && ${Me.Book[${Spell[Bond of Inruku].RankName}]}) {
 		/varset Bond ${Spell[Bond of Inruku].RankName}
 	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Bond of Death].RankName}]}) {
@@ -203,18 +226,24 @@ Sub SetupSpells
 		/varset Bargain ${Spell[Hateful Bargain].RankName}
 	}
 
-
+	
 	| Skin
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Tylix's Skin].RankName}]}) {
 		/varset Skin ${Spell[Tylix's Skin].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Tylix's Skin].RankName}]}) {
 		/varset Skin ${Spell[Tylix's Skin].RankName}
+	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Umbral Skin].RankName}]}) {
+		/varset Skin ${Spell[Umbral Skin].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Decrepit Skin].RankName}]}) {
 		/varset Skin ${Spell[Decrepit Skin].RankName}
 	}
-	
+
 	| Cloak
-	/if (${Me.Level}>=70 && ${Me.Book[${Spell[Cloak of Discord].RankName}]}) {
+	/if (${Me.Level}>=79 && ${Me.Book[${Spell[Drape of Corruption].RankName}]}) {
+		/varset Cloak ${Spell[Drape of Corruption].RankName}
+	} else /if (${Me.Level}>=74 && ${Me.Book[${Spell[Cloak of Corruption].RankName}]}) {
+		/varset Cloak ${Spell[Cloak of Corruption].RankName}
+	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Cloak of Discord].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Discord].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Luclin].RankName}
@@ -228,9 +257,13 @@ Sub SetupSpells
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
 		/varset Stance ${Spell[Defiant Stance].RankName}
 	}
-	
+
 	| Shrouds
-	/if (${Me.Level}>=67 && ${Me.Book[${Spell[Shroud of Discord].RankName}]}) {
+	/if (${Me.Level}>=77 && ${Me.Book[${Spell[Shroud of the Gloomborn].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Gloomborn].RankName}
+	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Shroud of the Nightborn].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Nightborn].RankName}
+	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Shroud of Discord].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of Discord].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Black Shroud].RankName}]}) {
 		/varset HPShroud ${Spell[Black Shroud].RankName}
@@ -258,7 +291,13 @@ Sub SetupSpells
 	}
 
 	| Discs
-	/if (${Me.Level}>=61 && ${Me.CombatAbility[${Spell[Soul Guard].RankName}]}) {
+	/if (${Me.Level}>=78 && ${Me.CombatAbility[${Spell[Umbral Carapace].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Umbral Carapace].RankName}
+		/varset IchorGuardID ${Spell[Umbral Carapace].ID}
+	} else /if (${Me.Level}>=73 && ${Me.CombatAbility[${Spell[Soul Shield].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Soul Shield].RankName}
+		/varset IchorGuardID ${Spell[Soul Shield].ID}
+	} else /if (${Me.Level}>=61 && ${Me.CombatAbility[${Spell[Soul Guard].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Soul Guard].RankName}
 		/varset IchorGuardID ${Spell[Soul Guard].ID}
 	} else /if (${Me.Level}>=56 && ${Me.CombatAbility[${Spell[Ichor Guard].RankName}]}) {
