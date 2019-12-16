@@ -471,7 +471,7 @@ Sub Engage
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
-		/if (${Me.Pet.ID}) /pet attack
+		/call pet_attack
 	}
 
 	| melee dps engage if target is close enough
@@ -480,7 +480,7 @@ Sub Engage
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
-		/if (${Me.Pet.ID}) /pet attack
+		/call pet_attack
 	}
 
 /return
@@ -645,7 +645,11 @@ Sub afk_pull
 	/delay 1s ${Target.ID} == ${PullTargetID}
 
     /while (${PullTargetID} == ${Target.ID} && ${Spawn[id ${PullTargetID}].LineOfSight}) {
-		/if (${PullAbility.Equal[Melee]}) /attack on
+		/if (${PullAbility.Equal[Melee]}) {
+			/attack on
+			/doevents
+			/if (${Me.Pet.ID}) /pet back
+		}
 		/if (!${PullAbility.Equal[Melee]} && ${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
 |		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
 		/if (${Mode}!=3) {
@@ -656,7 +660,7 @@ Sub afk_pull
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 		/if (${Me.XTarget}) /break
 	}
-
+	/if (${Me.Pet.ID}) /pet back
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 	/delay 180s ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} < 10
 	/if (${Navigation.Active}) /nav stop
@@ -755,12 +759,11 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 |----------------------------------------------------------------------------
 |- SUB: PetAttack
 |---------------------------------------------------------------------------- 
-Sub PetAttack
+Sub pet_attack
 	/if (!${Me.Pet.ID}) /return
-	/assist ${Group.MainAssist.Name}
 	/if (!${Target.Type.Equal[NPC]}) /return
-	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Target.Distance}>${AssistRange}) /return
+	/if (${Target.PctHPs} > ${AutoAssistAt}) /return
+	/if (${Target.Distance} > ${AssistRange}) /return
 
 	|- Pet Attack
 	/if (${Target.PctHPs}>=30 && ${Me.AltAbilityReady[Spirit Call]}) {

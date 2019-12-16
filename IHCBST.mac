@@ -59,11 +59,12 @@ Sub Main
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs  
+	/if (${Me.Pet.ID}) /pet guard
 
 	/while (${Mode}==1 || ${Mode}==3) {
 
 		/call check_state FALSE
-		
+		/call self_buff_check FALSE
 		/call set_timers
 
 		/call puller_check_group_resources 
@@ -76,6 +77,27 @@ Sub ManualPullCamping
 		
 		/doevents
 	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: self_buff_check
+|---------------------------------------------------------------------------- 
+Sub self_buff_check(bool _debug)
+	/declare CastCheck			int local 0
+	
+	/if (${Me.XTarget}) /return
+
+	/if (!${Me.Pet.ID} ) {
+		/if (${validate_cast[FALSE, FIND, "${PetSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${PetSpell}" FIND ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	}
+	
+	/if (${CastCheck}) {
+		/call LoadSpellBar
+		/docommand /dgt \aw Done Buffing
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: single_target_heals
@@ -98,41 +120,41 @@ Sub single_target_heals
 |---------------------------------------------------------------------------- 
 Sub BuffGroup
 	/declare bmember			int local 0
-	/if (${groupbufftimer}==0) /varset groupbufftimer 10s
+	/declare CastCheck			int local 0
+	
 	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID}) && ${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower}]}) {
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${FocusSpell}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Focus.ID" "tmpfocusid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${FocusSpell}]} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && (!${Me.Casting.ID}) && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]} && ${UseFocus}) {
-				/call SpellQueue "${FocusSpell}" ${Group.Member[${bmember}].ID}
-				/varset spellrememtimer 5s
-				/delay 10
+				/if (${validate_cast[FALSE, spell, ${FocusSpell}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${FocusSpell}" spell ${Group.Member[${bmember}].ID} FALSE
+				/varset CastCheck 1
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${ManaRegenBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${ManaRegenBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${ManaRegenBuff}]} && ${Me.CurrentMana}>${Spell[${ManaRegenBuff}].Mana} && (!${Me.Casting.ID})) {
 				/if (${Me.Book[${UnityBuff}]} && ${Me.CurrentMana}>${Spell[${UnityBuff}].Mana} && ${Select[${Me.Level},100,105,110]}) {
-					/call SpellQueue "${UnityBuff}" ${Me.ID}
+					/if (${validate_cast[FALSE, spell, ${UnityBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${UnityBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+					/varset CastCheck 1
 				} else {
-					/call SpellQueue "${ManaRegenBuff}" ${Me.ID}
+					/if (${validate_cast[FALSE, spell, ${ManaRegenBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${ManaRegenBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+					/varset CastCheck 1
 				}
-				/varset spellrememtimer 5s 
-				/delay 10
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${RunSpeedBuff}]}  && ${Me.CurrentMana}>${Spell[${RunSpeedBuff}].Mana} && ${UseRunSpeed}) {
 				/call SpellQueue "${RunSpeedBuff}" ${Group.Member[${bmember}].ID}
-				/varset spellrememtimer 5s
-				/delay 10					
+				/if (${validate_cast[FALSE, spell, ${RunSpeedBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${RunSpeedBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+					/varset CastCheck 1			
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${AtkBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${AtkBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (${DoFerocity} && !${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${AtkBuff}]} && ${Spell[${AtkBuff}].TargetType.Equal[Single]} && ${Me.CurrentMana}>${Spell[${AtkBuff}].Mana} && (!${Me.Casting.ID}) && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
 				/call SpellQueue "${AtkBuff}" ${Group.Member[${bmember}].ID}
-				/varset spellrememtimer 5s
-				/delay 10
+				/if (${validate_cast[FALSE, spell, ${AtkBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${AtkBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+					/varset CastCheck 1
 			}
 		}
 	/next bmember
@@ -140,11 +162,12 @@ Sub BuffGroup
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
 	/if (${Defined[tmpfocusid]}) /deletevar tmpfocusid
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
-	/if (${Group.MainAssist.ID} && ${Target.ID}!=${Group.MainAssist.ID}) {
-		/target id ${Group.MainAssist.ID}
-		/if (${ReTargetDelay}==0) /varset ReTargetDelay 1m
-		/if (${autotargetid}) /varset autotargetid 0
+
+	/if (${CastCheck}) {
+		/call LoadSpellBar
+		/docommand /dgt \aw Done Buffing
 	}
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: HealGroup

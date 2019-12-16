@@ -343,8 +343,8 @@ Sub DoDisc
 |- SUB: get_aggro
 |---------------------------------------------------------------------------- 
 Sub get_aggro
-
 	/if (!${Me.XTarget}) /return
+	/if (!${Target.ID}) /return
 
 	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
 		/call AbilityNow "Taunt"
