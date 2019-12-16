@@ -71,7 +71,9 @@ Sub SetupSpells
 		/varset GroupHealSpell1 ${Spell[Akalit's Feralgia].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Ignite].Level} && ${Me.Book[${Spell[Ignite].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Immolate].Level} && ${Me.Book[${Spell[Immolate].RankName}]}) {
+		/varset NukeSpell1 ${Spell[Immolate].RankName}
+	} else /if (${Me.Level}>=${Spell[Ignite].Level} && ${Me.Book[${Spell[Ignite].RankName}]}) {
 		/varset NukeSpell1 ${Spell[Ignite].RankName}
 	} else /if (${Me.Level}>=${Spell[Burst of Fire].Level} && ${Me.Book[${Spell[Burst of Fire].RankName}]}) {
 		/varset NukeSpell1 ${Spell[Burst of Fire].RankName}
