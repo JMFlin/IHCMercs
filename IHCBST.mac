@@ -63,7 +63,6 @@ Sub Main
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs  
-	/if (${Me.Pet.ID}) /pet follow
 	/if (${Me.Pet.ID}) /pet guard
 
 	/while (${Mode}==1 || ${Mode}==3) {
@@ -113,6 +112,12 @@ Sub self_buff_check(bool _debug)
 				/varset CastCheck 1
 			}
 		}
+		/if (!${Me.Pet.Buff[${PetHaste}]}) {
+			/if (${validate_cast[FALSE, spell, "${PetHaste}", ${Me.Pet.ID}]}) {
+				/call core_cast2 "${PetHaste}" spell ${Me.Pet.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
 	}
 
 	/if (${validate_cast[FALSE, spell, "${FocusSpell}", ${Me.ID}]}) {
@@ -132,13 +137,23 @@ Sub self_buff_check(bool _debug)
 Sub combat
 	/if (!${Me.XTarget}) /return
 	/if (!${Target.ID}) /return
+
+	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs} > 1) {
+		/doability Kick
+		/delay 1s
+	}
 	
+	/call pet_attack
 	/if (!${Target.Buff[${DoTSpell1}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
-
+	/call pet_attack
 	/if (!${Target.Slowed.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+	}
+	/call pet_attack
+	/if (!${Target.Buff[${NukeSpell4}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${NukeSpell4}", ${Target.ID}]}) /call core_cast2 "${NukeSpell4}" spell ${Target.ID} FALSE
 	}
 
 /return
@@ -193,7 +208,7 @@ Sub BuffGroup
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${RunSpeedBuff}]}  && ${Me.CurrentMana}>${Spell[${RunSpeedBuff}].Mana} && ${UseRunSpeed}) {
+			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${RunSpeedBuff}]} && ${Me.CurrentMana}>${Spell[${RunSpeedBuff}].Mana}) {
 				/call SpellQueue "${RunSpeedBuff}" ${Group.Member[${bmember}].ID}
 				/if (${validate_cast[FALSE, spell, ${RunSpeedBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${RunSpeedBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 					/varset CastCheck 1			
@@ -227,7 +242,7 @@ Sub CombatDiscs
 	/if (${DoFerocity} && ${Cast.Status.Equal[I]} && (${Me.SpellReady[${AtkBuff}]}) && (!${Me.Buff[${AtkBuff}].ID})) {
 			/call SpellQueue "${AtkBuff}" ${Me.ID}
 	}
-	/call FindTarget
+	
 	/if ( ${Target.CurrentHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<=${AssistRange} && ${Ok2Assist}) {
 		|- Pet Attack
 		/if ((!${Me.Pet.Combat} || ${Pet.Target.ID}!=${autotargetid}) && ${Me.Pet.ID} && ${Target.Type.Equal[NPC]} && ${Target.ID} && ${Target.CurrentHPs}<=${AutoAssistAt} && ${UsePet}) {
