@@ -232,71 +232,71 @@ Sub CheckSpells
 		/varset NukeSpell1 ${Spell[Frozen Venom].RankName}
 	}
 |-Cold/Poison/Disease Nuke fast cast*
-	/if (${Me.Level}>=${Spell[Beramos' Maelstrom].Level} && ${Me.Book[${Spell[Beramos' Maelstrom].RankName}]})  {
+	/if (${Me.Level}>=${Spell[Beramos' Maelstrom].Level} && ${Me.Book[${Spell[Beramos' Maelstrom].RankName}]}) {
 		/varset NukeSpell2 ${Spell[Beramos' Maelstrom].RankName}
-	} else /if (${Me.Level}>=${Spell[Visoracius' Maelstrom].Level} && ${Me.Book[${Spell[Visoracius' Maelstrom].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Visoracius' Maelstrom].Level} && ${Me.Book[${Spell[Visoracius' Maelstrom].RankName}]}) {
 		/varset NukeSpell2 ${Spell[Visoracius' Maelstrom].RankName}
-	} else /if (${Me.Level}>=${Spell[Nak's Maelstrom].Level} && ${Me.Book[${Spell[Nak's Maelstrom].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Nak's Maelstrom].Level} && ${Me.Book[${Spell[Nak's Maelstrom].RankName}]}) {
 		/varset NukeSpell2 ${Spell[Nak's Maelstrom].RankName}
-	} else /if (${Me.Level}>=${Spell[Bale's Maelstrom].Level} && ${Me.Book[${Spell[Bale's Maelstrom].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Bale's Maelstrom].Level} && ${Me.Book[${Spell[Bale's Maelstrom].RankName}]}) {
 		/varset NukeSpell2 ${Spell[Bale's Maelstrom].RankName}
-	} else /if (${Me.Level}>=${Spell[Kron's Maelstrom].Level} && ${Me.Book[${Spell[Kron's Maelstrom].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Kron's Maelstrom].Level} && ${Me.Book[${Spell[Kron's Maelstrom].RankName}]}) {
 		/varset NukeSpell2 ${Spell[Kron's Maelstrom].RankName}
 	}
 |-Poison Nuke fast cast*
-	/if (${Me.Level}>=${Spell[Mawmun's Bite].Level} && ${Me.Book[${Spell[Mawmun's Bite].RankName}]})  {
+	/if (${Me.Level}>=${Spell[Mawmun's Bite].Level} && ${Me.Book[${Spell[Mawmun's Bite].RankName}]}) {
 		/varset NukeSpell3 ${Spell[Mawmun's Bite].RankName}
-	} else /if (${Me.Level}>=${Spell[Kreig's Bite].Level} && ${Me.Book[${Spell[Kreig's Bite].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Kreig's Bite].Level} && ${Me.Book[${Spell[Kreig's Bite].RankName}]}) {
 		/varset NukeSpell3 ${Spell[Kreig's Bite].RankName}
-	} else /if (${Me.Level}>=${Spell[Poantaar's Bite].Level} && ${Me.Book[${Spell[Poantaar's Bite].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Poantaar's Bite].Level} && ${Me.Book[${Spell[Poantaar's Bite].RankName}]}) {
 		/varset NukeSpell3 ${Spell[Poantaar's Bite].RankName}
-	} else /if (${Me.Level}>=${Spell[Rotsil's Bite].Level} && ${Me.Book[${Spell[Rotsil's Bite].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Rotsil's Bite].Level} && ${Me.Book[${Spell[Rotsil's Bite].RankName}]}) {
 		/varset NukeSpell3 ${Spell[Rotsil's Bite].RankName}
-	} else /if (${Me.Level}>=${Spell[Sarsez' Bite].Level} && ${Me.Book[${Spell[Sarsez' Bite].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Sarsez' Bite].Level} && ${Me.Book[${Spell[Sarsez' Bite].RankName}]}) {
 		/varset NukeSpell3 ${Spell[Sarsez' Bite].RankName}
-	} else /if (${Me.Level}>=${Spell[Bite of the Vitrik].Level} && ${Me.Book[${Spell[Bite of the Vitrik].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Bite of the Vitrik].Level} && ${Me.Book[${Spell[Bite of the Vitrik].RankName}]}) {
 		/varset NukeSpell3 ${Spell[Bite of the Vitrik].RankName}
-	} else /if (${Me.Level}>=${Spell[Bite of the Borrower].Level} && ${Me.Book[${Spell[Bite of the Borrower].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Bite of the Borrower].Level} && ${Me.Book[${Spell[Bite of the Borrower].RankName}]}) {
 		/varset NukeSpell3 ${Spell[Bite of the Borrower].RankName}
-	} else /if (${Me.Level}>=${Spell[Bite of the Empress].Level} && ${Me.Book[${Spell[Bite of the Empress].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Bite of the Empress].Level} && ${Me.Book[${Spell[Bite of the Empress].RankName}]}) {
 		/varset NukeSpell3 ${Spell[Bite of the Empress].RankName}
 	}
 |-Lance#1 Timer#11 Ice Nuke fast cast* 
-	/if (${Me.Level}>=${Spell[Kromtus Lance].Level} && ${Me.Book[${Spell[Kromtus Lance].RankName}]})  {
+	/if (${Me.Level}>=${Spell[Kromtus Lance].Level} && ${Me.Book[${Spell[Kromtus Lance].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Kromtus Lance].RankName}
-	} else /if (${Me.Level}>=${Spell[Frostrift Lance].Level} && ${Me.Book[${Spell[Frostrift Lance].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Frostrift Lance].Level} && ${Me.Book[${Spell[Frostrift Lance].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Frostrift Lance].RankName}
-	} else /if (${Me.Level}>=${Spell[Frigid Lance].Level} && ${Me.Book[${Spell[Frigid Lance].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Frigid Lance].Level} && ${Me.Book[${Spell[Frigid Lance].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Frigid Lance].RankName}
-	} else /if (${Me.Level}>=${Spell[Spiked Sleet].Level} && ${Me.Book[${Spell[Spiked Sleet].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Spiked Sleet].Level} && ${Me.Book[${Spell[Spiked Sleet].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Spiked Sleet].RankName}
-	} else /if (${Me.Level}>=${Spell[Glacier Spear].Level} && ${Me.Book[${Spell[Glacier Spear].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Glacier Spear].Level} && ${Me.Book[${Spell[Glacier Spear].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Glacier Spear].RankName}
-	} else /if (${Me.Level}>=${Spell[Trushar's Frost].Level} && ${Me.Book[${Spell[Trushar's Frost].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Trushar's Frost].Level} && ${Me.Book[${Spell[Trushar's Frost].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Trushar's Frost].RankName}
-	} else /if (${Me.Level}>=${Spell[Ice Shard].Level} && ${Me.Book[${Spell[Ice Shard].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Ice Shard].Level} && ${Me.Book[${Spell[Ice Shard].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Ice Shard].RankName}
-	} else /if (${Me.Level}>=${Spell[Ice Spear].Level} && ${Me.Book[${Spell[Ice Spear].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Ice Spear].Level} && ${Me.Book[${Spell[Ice Spear].RankName}]}) {
 		/varset NukeSpell4 ${Spell[Ice Spear].RankName}
 	}
 |-Lance#2 Timer#7 Ice Nuke fast cast*
-	/if (${Me.Level}>=${Spell[Frostbite Lance].Level} && ${Me.Book[${Spell[Frostbite Lance].RankName}]})  {
+	/if (${Me.Level}>=${Spell[Frostbite Lance].Level} && ${Me.Book[${Spell[Frostbite Lance].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Frostbite Lance].RankName}
-	} else /if (${Me.Level}>=${Spell[Kromrif Lance].Level} && ${Me.Book[${Spell[Kromrif Lance].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Kromrif Lance].Level} && ${Me.Book[${Spell[Kromrif Lance].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Kromrif Lance].RankName}
-	} else /if (${Me.Level}>=${Spell[Glacial Lance].Level} && ${Me.Book[${Spell[Glacial Lance].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Glacial Lance].Level} && ${Me.Book[${Spell[Glacial Lance].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Glacial Lance].RankName}
-	} else /if (${Me.Level}>=${Spell[Jagged Torrent].Level} && ${Me.Book[${Spell[Jagged Torrent].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Jagged Torrent].Level} && ${Me.Book[${Spell[Jagged Torrent].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Jagged Torrent].RankName}
-	} else /if (${Me.Level}>=${Spell[Ancient Savage Ice].Level} && ${Me.Book[${Spell[Ancient Savage Ice].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Ancient Savage Ice].Level} && ${Me.Book[${Spell[Ancient Savage Ice].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Ancient Savage Ice].RankName}
-	} else /if (${Me.Level}>=${Spell[Ancient Frozen Chaos].Level} && ${Me.Book[${Spell[Ancient Frozen Chaos].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Ancient Frozen Chaos].Level} && ${Me.Book[${Spell[Ancient Frozen Chaos].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Ancient Frozen Chaos].RankName}
-	} else /if (${Me.Level}>=${Spell[Frost Spear].Level} && ${Me.Book[${Spell[Frost Spear].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Frost Spear].Level} && ${Me.Book[${Spell[Frost Spear].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Frost Spear].RankName}
-	} else /if (${Me.Level}>=${Spell[Frost Shard].Level} && ${Me.Book[${Spell[Frost Shard].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Frost Shard].Level} && ${Me.Book[${Spell[Frost Shard].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Frost Shard].RankName}
-	} else /if (${Me.Level}>=${Spell[Blast of Frost].Level} && ${Me.Book[${Spell[Blast of Frost].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Blast of Frost].Level} && ${Me.Book[${Spell[Blast of Frost].RankName}]}) {
 		/varset NukeSpell5 ${Spell[Blast of Frost].RankName}
 	}
 |-Poison DoT Instant Cast*
@@ -854,13 +854,13 @@ Sub SetupDiscs
 		/varset EndRegenProcDisc ${Spell[Reflexive Rending].RankName}
 	}
 |-End Regen*
-	/if (${Me.Level}>=${Spell[Breather].Level} && ${Me.CombatAbility[${Spell[Breather].RankName}]})  {
+	/if (${Me.Level}>=${Spell[Breather].Level} && ${Me.CombatAbility[${Spell[Breather].RankName}]}) {
 		/varset EndRegenDisc ${Spell[Breather].RankName}
-	} else /if (${Me.Level}>=${Spell[Rest].Level} && ${Me.CombatAbility[${Spell[Rest].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Rest].Level} && ${Me.CombatAbility[${Spell[Rest].RankName}]}) {
 		/varset EndRegenDisc ${Spell[Rest].RankName}
-	} else /if (${Me.Level}>=${Spell[Reprieve].Level} && ${Me.CombatAbility[${Spell[Reprieve].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Reprieve].Level} && ${Me.CombatAbility[${Spell[Reprieve].RankName}]}) {
 		/varset EndRegenDisc ${Spell[Reprieve].RankName}
-	} else /if (${Me.Level}>=${Spell[Respite].Level} && ${Me.CombatAbility[${Spell[Respite].RankName}]})  {
+	} else /if (${Me.Level}>=${Spell[Respite].Level} && ${Me.CombatAbility[${Spell[Respite].RankName}]}) {
 		/varset EndRegenDisc ${Spell[Respite].RankName}
 	}
 
