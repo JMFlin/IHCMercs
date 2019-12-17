@@ -133,7 +133,7 @@ Sub combat
 	/if (!${Me.XTarget}) /return
 	/if (!${Target.ID}) /return
 	
-	/if (!${Target.Buff[${DoTSpell1}]}) {
+	/if (!${Target.Buff[${DoTSpell1}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
 
