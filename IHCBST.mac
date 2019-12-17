@@ -42,7 +42,11 @@ Sub Main
 	/call WelcomeMsg
 
 	/declare AutoCampRadius int outer 0
+	/declare AutoAssistAt int outer 0
+	/declare AssistRange int outer 0
 	/varset AutoCampRadius 10
+	/varset AutoAssistAt 100
+	/varset AssistRange 10
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -59,6 +63,7 @@ Sub Main
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs  
+	/if (${Me.Pet.ID}) /pet follow
 	/if (${Me.Pet.ID}) /pet guard
 
 	/while (${Mode}==1 || ${Mode}==3) {
@@ -71,6 +76,7 @@ Sub ManualPullCamping
 		/call afk_pull
 		/call get_target
 		
+		/call combat
 		/call Engage
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
@@ -86,17 +92,60 @@ Sub self_buff_check(bool _debug)
 	
 	/if (${Me.XTarget}) /return
 
-	/if (!${Me.Pet.ID} ) {
-		/if (${validate_cast[FALSE, FIND, "${PetSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${PetSpell}" FIND ${Me.ID} FALSE
+	/if (!${Me.Pet.ID}) {
+		/if (${validate_cast[FALSE, spell, "${PetSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${PetSpell}" spell ${Me.ID} FALSE
 			/varset CastCheck 1
 		}
 	}
-	
+
+	/if (${Me.Pet.ID}) {
+		/if (!${Me.Pet.Buff[${PetDamageProc}]}) {
+			/if (${validate_cast[FALSE, spell, "${PetDamageProc}", ${Me.Pet.ID}]}) {
+				/call core_cast2 "${PetDamageProc}" spell ${Me.Pet.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
+
+		/if (!${Me.Pet.Buff[${FocusSpell}]}) {
+			/if (${validate_cast[FALSE, spell, "${FocusSpell}", ${Me.Pet.ID}]}) {
+				/call core_cast2 "${FocusSpell}" spell ${Me.Pet.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
+	}
+
+	/if (${validate_cast[FALSE, spell, "${FocusSpell}", ${Me.ID}]}) {
+		/call core_cast2 "${FocusSpell}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
+
 	/if (${CastCheck}) {
 		/call LoadSpellBar
 		/docommand /dgt \aw Done Buffing
 	}
+
+/return
+|----------------------------------------------------------------------------
+|- SUB: combat 
+|---------------------------------------------------------------------------- 
+Sub combat
+	/if (!${Me.XTarget}) /return
+	/if (!${Target.ID}) /return
+	
+	/if (!${Target.Buff[${DoTSpell1}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
+	}
+
+	/if (!${Target.Slowed.ID}) {
+		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+	}
+
+/return
+|----------------------------------------------------------------------------
+|- SUB: get_aggro 
+|---------------------------------------------------------------------------- 
+Sub get_aggro
 
 /return
 |----------------------------------------------------------------------------
@@ -168,62 +217,6 @@ Sub BuffGroup
 		/docommand /dgt \aw Done Buffing
 	}
 	
-/return
-|----------------------------------------------------------------------------
-|- SUB: HealGroup
-|---------------------------------------------------------------------------- 
-Sub HealGroup
-   /declare worsthurtid		int local 0
-   /declare petworsthp 		int local 100
-   /declare worsthp 		int local 100
-   /declare priorityworsthp	int local 100
-   /declare gmember			int local 0
-   /declare emember			int local 0
-   /declare HurtMember 		int local 0
-   
-	/if (${DoHeals}) {
-		|-Extended Target Healing
-		/for emember 1 to 10
-			/if (${Spawn[pc ${Me.XTarget[${emember}]}].ID} && ${Me.XTarget[${emember}].Type.Equal[PC]} && (!${Me.XTarget[${emember}].Hovering} || ${Me.XTarget[${emember}].Type.NotEqual[Corpse]})) {
-				/if (${Me.XTarget[${emember}].Distance}<=${Spell[${HealSpell1}].Range} && (${Me.XTarget[${emember}].PctHPs}<=${worsthp}) && (${Me.XTarget[${emember}].PctHPs}>=1)) {
-					/varset worsthurtid ${Me.XTarget[${emember}].ID}
-					/varset priorityworsthp ${Me.XTarget[${emember}].PctHPs}
-				}
-			}
-		/next emember
-		/for gmember 0 to ${Group}
-			/if (${Group.Member[${gmember}].Distance}<=${Spell[${HealSpell1}].Range} && (${Group.Member[${gmember}].PctHPs}<100) && (!${Group.Member[${gmember}].Hovering} || ${Spawn[${Group.Member[${gmember}]}].Type.NotEqual[Corpse]})) {
-				/if ((${Group.Member[${gmember}].Distance}<100) && (${Group.Member[${gmember}].PctHPs}<${Healpoint}) && (${Group.Member[${gmember}].PctHPs}>=1)) /varcalc HurtMember ${HurtMember}+1
-				/if (${Group.Member[${gmember}].PctHPs}<=${worsthp} && ((${Spawn[NPC ${Me.XTarget[1].Name}].PctHPs}<=99) || ${Group.Member[${gmember}].Distance}<50) && (${priorityworsthp}>${Healpoint})) {
-					/varset worsthurtid ${Group.Member[${gmember}].ID}
-					/varset worsthp ${Group.Member[${gmember}].PctHPs}
-				}
-			}
-		|-Pet Heal Logic
-			/if (${Group.Member[${gmember}].Pet.ID}) {
-				/if (${Group.Member[${gmember}].Pet.Distance}<=${Spell[${PetHealSpell}].Range} && (${Group.Member[${gmember}].Pet.PctHPs}<=${worsthp}) && (${Group.Member[${gmember}].Pet.PctHPs}<=${PetHealpoint}) && ${PetHealpoint}>0 && (${priorityworsthp}>${Healpoint}) && (${worsthp}>${Healpoint})) {         
-					/varset worsthurtid ${Group.Member[${gmember}].Pet.ID}
-					/varset petworsthp ${Group.Member[${gmember}].Pet.PctHPs}
-				}
-			}
-		/next gmember
-		|-Time to Heal some folks
-		/if ((${Spawn[${MainAssistType} ${assistname}].Distance}<=${Spell[${HealSpell1}].Range}) && (${Spawn[${MainAssistType} ${assistname}].PctHPs}<=${Healpoint}) && ${Spawn[${MainAssistType} ${assistname}].ID}) {
-			/call SpellQueue "${HealSpell1}" ${Spawn[${MainAssistType} ${assistname}].ID}
-			/varset groupbufftimer 1m
-		} else /if (${Spawn[${worsthurtid}].Type.Equal[Pet]} && (${Spawn[${worsthurtid}].Distance}<=${Spell[${PetHealSpell}].Range}) && !${Me.Casting.ID} && (${priorityworsthp}<=${PetHealpoint} || ${worsthp}<=${PetHealpoint} || ${petworsthp}<=${PetHealpoint}) && ${Spawn[${worsthurtid}].ID}) {
-			/call SpellQueue "${PetHealSpell}" ${worsthurtid}
-			/varset groupbufftimer 1m
-		} else /if ((${Spawn[${worsthurtid}].Distance}<=${Spell[${HealSpell1}].Range}) && !${Me.Casting.ID} && (${priorityworsthp}<=${Healpoint} || ${worsthp}<=${Healpoint} || ${petworsthp}<=${Healpoint}) && ${Spawn[${worsthurtid}].ID}) {
-			/call SpellQueue "${HealSpell1}" ${worsthurtid}
-			/varset groupbufftimer 1m
-		} else /if ((${Me.PctMana}>=${Manatonuke} || ${UseMelee}==1) && (${Me.XTarget[1].ID} || ${KillTargetID}) && !${BackOffFlag}) {
-			/call CombatDiscs
-			/varset groupbufftimer 1m
-		}
-	} else /if ((${Me.PctMana}>=${Manatonuke} || ${UseMelee}==1) && (${Me.XTarget[1].ID} || ${KillTargetID}) && !${BackOffFlag}) {
-		/call CombatDiscs
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: CombatDiscs

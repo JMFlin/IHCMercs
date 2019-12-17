@@ -109,7 +109,7 @@ Sub VarSetup
 	/declare rezCombat			bool outer FALSE
 |- AFK camping
     /declare AggressiveRadius 	int outer 100
-	/declare AssistRangeZ 		int outer 20
+	/declare AssistRangeZ 		int outer 100
     /declare PullAbility		string outer NULL
 	/declare PullAbility3		string outer NULL
 	/declare PullAbilityAA 		int outer 0
@@ -650,13 +650,15 @@ Sub afk_pull
 			/doevents
 			/if (${Me.Pet.ID}) /pet back
 		}
-		/if (!${PullAbility.Equal[Melee]} && ${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
+		/if (!${PullAbility.Equal[Melee]}) {
+			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
+		}
 |		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
 		/if (${Mode}!=3) {
 			/if (${Navigation.Active}) /nav stop
 			/return
 		}
-		/if (!${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}>${PullDistance}) /nav id ${PullTargetID}
+		/if (!${Navigation.Active} && (${Spawn[id ${PullTargetID}].Distance}>${PullDistance}) || !${Spawn[id ${PullTargetID}].LineOfSight}) /nav id ${PullTargetID}
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance}<=${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 		/if (${Me.XTarget}) /break
 	}

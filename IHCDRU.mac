@@ -77,10 +77,18 @@ Sub combat
 	/call get_target
 	/if (!${Target.ID}) /return
 
+	/call single_target_heals
+
 	/if (!${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
 	}
 	
+	/call single_target_heals
+
+	/if (!${Target.Buff[${DoTSpell1}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
+	}
+
 	/call single_target_heals
 
 	/if (${validate_cast[FALSE, spell, "${NukeSpell1}", ${Target.ID}]}) /call core_cast2 "${NukeSpell1}" spell ${Target.ID} FALSE
@@ -98,7 +106,7 @@ Sub group_buffs
 
 	/if (${Me.XTarget}) /return
 
-	/for bmember 1 to ${Group}
+	/for bmember 0 to ${Group}
 		/if (${Group.Member[${bmember}].Distance}<${Spell[${Skin}].MyRange} && !${Group.Member[${bmember}].OtherZone}) {
 
 			/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
@@ -130,8 +138,6 @@ Sub group_buffs
 				}
 			}
 
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SoW}].ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SoW}].Stacks" "tmpstackcheck" "bool"
 			/if (${Me.CurrentMana}>${Spell[${SoW}].Mana} && ${Me.Book[${SoW}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SoW}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SoW}].Stacks" "tmpstackcheck" "bool"
@@ -141,8 +147,6 @@ Sub group_buffs
 				}
 			}
 			
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${DamageShield}].ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${DamageShield}].Stacks" "tmpstackcheck" "bool"
 			/if (${Me.CurrentMana}>${Spell[${DamageShield}].Mana} && ${Me.Book[${DamageShield}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${DamageShield}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${DamageShield}].Stacks" "tmpstackcheck" "bool"
