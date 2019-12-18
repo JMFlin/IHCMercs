@@ -1993,13 +1993,13 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 
-		|/if (${Select[${Me.Class.ShortName},BRD]}) {
-		|	| /if (${Me.BardSongPlaying}) /call pulse_stop 9
-	||		/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
-	||			CHECKFACE ${Target2Kill} FALSE
-	|			/call stick_to_target ${Target2Kill}
-	|		}
-	|	}
+		/if (${Select[${Me.Class.ShortName},BRD]}) {
+			| /if (${Me.BardSongPlaying}) /call pulse_stop 9
+			/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
+	|			CHECKFACE ${Target2Kill} FALSE
+				/call stick_to_target ${Target2Kill}
+			}
+		}
 
 		| is the item ready?
 		/if (${Me.ItemReady[${_spell}]}) {
@@ -2051,13 +2051,13 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		|DEBUG ${dep}disc,activedisc${dep}${_spell}
 		/varset _spell ${Spell[${_spell}].RankName}
 
-		|/if (${Select[${Me.Class.ShortName},BRD]}) {
+		/if (${Select[${Me.Class.ShortName},BRD]}) {
 			| /if (${Me.BardSongPlaying}) /call pulse_stop 9
-		|	/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
+			/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
 		|		CHECKFACE ${Target2Kill} FALSE
-		|		/call stick_to_target ${Target2Kill}
-		|	}
-		|}
+				/call stick_to_target ${Target2Kill}
+			}
+		}
 
 		|/if (${_tmpID} == 0) VDISC Disc ${sep} ${csp}${_spell}\ax
 		|/if (${_tmpID} != 0 && ${Target.ID}) VDISC Disc ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
