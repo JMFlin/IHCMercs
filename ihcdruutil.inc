@@ -145,6 +145,8 @@ Sub SetupSpells
 
 	/if (${Me.Level}>=${Spell[Protection of the Glades].Level} && ${Me.Book[${Spell[Protection of the Glades].RankName}]}) {
 		/varset GroupSkin ${Spell[Protection of the Glades].RankName}
+	} else /if (${Me.Level}>=${Spell[Protection of Nature].Level} && ${Me.Book[${Spell[Protection of Nature].RankName}]}) {
+		/varset GroupSkin ${Spell[Protection of Nature].RankName}
 	} else /if (${Me.Level}>=${Spell[Protection of Diamond].Level} && ${Me.Book[${Spell[Protection of Diamond].RankName}]}) {
 		/varset GroupSkin ${Spell[Protection of Diamond].RankName}
 	} else /if (${Me.Level}>=${Spell[Protection of Steel].Level} && ${Me.Book[${Spell[Protection of Steel].RankName}]}) {

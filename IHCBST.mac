@@ -169,7 +169,7 @@ Sub get_aggro
 Sub single_target_heals
 	/declare worsthurtid 		int local 0
 
-	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 40) {
+	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 50) {
 
 		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
 

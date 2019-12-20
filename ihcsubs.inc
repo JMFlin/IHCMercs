@@ -307,10 +307,10 @@ Sub check_state(bool _debug)
 	| have I been knocked down?
 	/if (${Me.State.Equal[FEIGN]}) /stand
 
+	| should I be in battle?
 	/if (${Me.XTarget}) /return
 
-
-	/if (${Me.Class.ShortName.Find[BRD]}) /return
+	|/if (${Me.Class.ShortName.Find[BRD]}) /return
 
 	| if I don't have a target: relax
 	/if (!${Me.XTarget}) {
@@ -653,6 +653,7 @@ Sub afk_pull
 			/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 		}
 		/if (!${PullAbility.Equal[Melee]}) {
+			/nav stop
 			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
 		}
 |		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
@@ -848,7 +849,7 @@ Sub SetControlToon
 |----------------------------------------------------------------------------
 Sub Event_Camping	
 	/if (${Me.Casting.ID}) /stopcast
-	/end
+	/endmacro
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event CAST_RESIST
@@ -972,19 +973,6 @@ Sub Gquery(string DnetName, string tmpquery, string varName, string varType)
 	/delay 20 ${DanNet[${DnetName}].Query["${tmpquery}"].Received}
 /return
 |----------------------------------------------------------------------------
-|- SUB: FollowToon
-|---------------------------------------------------------------------------- 
-Sub FollowToon
-/if (${Spawn[pc =${FollowToonName}].ID}) {
-	/if (${Me.Dead}) /return
-	/if (${Spawn[pc =${FollowToonName}].Distance}>20 && !${Spawn[pc =${FollowToonName}].Dead} && ${Spawn[pc =${FollowToonName}].Distance}<400) {
-		 /squelch /afollow spawn ${Spawn[pc =${FollowToonName}].ID}
-		 /delay 2s ${Spawn[pc =${FollowToonName}].Distance}<20
-		 /if (${Spawn[pc =${FollowToonName}].Distance}<20) /squelch /afollow off
-	}
-}
-/return
-|----------------------------------------------------------------------------
 |- SUB: BagModRods
 |----------------------------------------------------------------------------
 Sub BagModRods
@@ -1016,14 +1004,6 @@ Sub Event_GainSomething(string Line, string text)
     } else /if (${Line.Find[LEVEL]}) {
         /docommand /dgt \aw ${Me.Name} gained a level, now is Level ${Me.Level} \ax
 	}
-/return 
-|----------------------------------------------------------------------------
-|- SUB: Event Unpullable - DanNet message 
-|----------------------------------------------------------------------------    
-Sub Event_Unpullable(string Line, string text)
-    /if (${Line.Find["You cannot cast Distant Strike"]}) {
-        /docommand /dgt \aw Adding ${Target.Name} to unpullable list \ax
-    }
 /return 
 |----------------------------------------------------------------------------
 |- SUB: Event Task Update - DanNet message 
@@ -1062,25 +1042,6 @@ Sub DeathSub
 		/echo \aw Bummer, Insignia on cooldown, you must really suck at this game...
 	} else {
 		/echo \aw Waiting on someone that knows how to heal to \ar rez me
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: AutoMed - Modified SitCheck from auto subs, user configureable end/mana % to start medding at 
-|- Need: EndMedPct and MedPct variables to use.
-|---------------------------------------------------------------------------- 
-Sub AutoMed
-|---SIT Check
-   /if ((${Me.Moving} || ${Me.XTarget[1].ID} || ${MoveTo.Moving} || ${Me.CombatState.Equal[COMBAT]} || ${Stick.Status.Equal[ON]} || ${AdvPath.Following}) && (${enablesit}==1)) /varset enablesit 0
-|--Out of Combat MedTime - Sitting
-	|-/if (${Me.Standing} && !${Me.Moving} && ${Stick.Status.Equal[OFF]} && !${Me.XTarget[1].ID} && !${MoveTo.Moving} && !${AdvPath.Following} && ${Me.CombatState.NotEqual[COMBAT]} && ${Me.CombatState.NotEqual[DEBUFFED]} && ${enablesit}==0 && ((${Me.PctMana}<=${MedPct} && ${Me.MaxMana}>1000) || (${Me.PctEndurance}<=${EndMedPct} && ${Me.MaxEndurance}>1000))) {
-	/if (${Me.Standing} && !${Me.Moving} && ${Stick.Status.Equal[OFF]} && !${Me.XTarget[1].ID} && !${MoveTo.Moving} && !${AdvPath.Following} && ${Me.CombatState.NotEqual[COMBAT]} && ${Me.CombatState.NotEqual[DEBUFFED]} && ${enablesit}==0 && ((${Me.PctMana}<=${MedPct}) || (${Me.PctEndurance}<=${EndMedPct}))) {
-		/varset enablesit 1
-	} else /if (${sittimer}==0 && ${enablesit}==0 && ${Me.Sitting} && (${Me.Moving} || ${Me.XTarget[1].ID} || ${MoveTo.Moving} || ${Me.CombatState.Equal[COMBAT]} || ${Stick.Status.Equal[ON]} || ${AdvPath.Following})) {
-		/stand
-		/varset sittimer 10s
-	} else /if (${sittimer}==0 && ${enablesit}==1 && !${Me.Sitting}) {
-		/sit
-		/varset sittimer 10s
 	}
 /return
 |----------------------------------------------------------------------------
@@ -1163,66 +1124,6 @@ Sub ItemNow(string nextitem)
 	}
 |	/if (${acverbose}!=0) /echo \aw Using Item \ag ${nextitem}
 /return
-|----------------------------------------------------------------------------
-|- SUB: BuffGroupMember
-|---------------------------------------------------------------------------- 
-Sub BuffGroupMember(string buffspell, int member)	
-	/if (!${Me.Book[${buffspell}]}) /return
-	/if (!${Me.Gem[${buffspell}]}) {
-		:waitForMem
-		/mem "${buffspell}" 10
-		/delay 5
-		/if (!${Me.Gem[${buffspell}]}) /goto :waitForMem
-		/delay 20s !${Me.GemTimer[${buffspell}]}
-	}
-	:waitForReady
-	/if (${Me.SpellReady[${buffspell}]}) {
-		/docommand /dgt \ag ${buffspell} \ar =>> \ay ${Spawn[ID ${member}].Name} \ar <<=
-		/target id ${Spawn[ID ${member}].ID}
-		/delay 2s ${Spawn[ID ${member}].ID}==${Target.ID}
-		/cast "${buffspell}" -targetid|${Spawn[ID ${member}].ID} -maxtries|2
-		/delay 1m !${Me.Casting.ID}
-	} else {
-		/if (${Me.XTarget[1].ID}) /return
-		/goto :waitForReady
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: SpellQueue - Modified to use memspell replacement sub and return a cast result
-|---------------------------------------------------------------------------- 
-Sub SpellQueue(string nextspell,int nextid)
-	/if (${Me.CurrentMana}<${Spell[${nextspell}].Mana}) /return
-	/if (!${Me.Book[${nextspell}]}) /return
-	/varset CastResult CAST_NO_RESULT
-	/if (${Me.Sitting}) /stand
-	/if (${Window[SpellBookWnd]}) /book
-	/if (!${Me.Gem[${nextspell}]}) { 
-		/delay 1s !${Me.Casting.ID}
-		/call LoadSpellGem "${nextspell}" ${spellmisc}
-		/if (!${Me.XTarget[1].ID}) {
-			/delay 5s ${Me.GemTimer[${nextspell}]}==0
-			/delay 5s ${Me.SpellReady[${nextspell}]}
-		}
-    }
-	/if (${Me.SpellReady[${nextspell}]}) {
-		/if (${Target.ID}!=${nextid}) {
-			/if (${Me.Combat}) /squelch /attack off
-			/target id ${nextid}
-			/delay 10 ${Target.ID}==${nextid}
-			/if (${Target.FeetWet}!=${Me.FeetWet}) /return
-		}
-		|- /if (${Target.Buff[${nextspell}].ID}) /return
-		/if (${acverbose}!=0) /docommand /dgt \ag ${nextspell} \ar =>> \ay ${Spawn[ID ${nextid}].Name} \ar <<=
-		/cast "${nextspell}"
-		/delay 10 ${Window[CastingWindow].Open}
-		/delay ${Math.Calc[(${Spell[${nextspell}].MyCastTime}*10)+15]} !${Me.Casting.ID}
-	}
-	/if (${CastResult.NotEqual[CAST_CANCELLED]}) {
-		/varset CastResult ${Cast.Result}
-	} else {
-		/varset CastResult CAST_CANCELLED
-	}
-/return ${CastResult}
 |-------------------------------------------------------------------------------------
 |- SUB: CastSpell - Taken from kissassist and modified. Better spell casting control for longer casting spells plus return messages for monitoring resists, interruptions, immune
 |-------------------------------------------------------------------------------------
@@ -1251,26 +1152,6 @@ Sub CastSpell(string WhatSpell, int WhatID, string sentFrom)
     }
 	/delay 4s
 /return ${CastResult}  
-|-------------------------------------------------------------------------------------
-|- SUB: CastWait - Cast Spell sub routine from kissassist
-|-------------------------------------------------------------------------------------
-Sub CastWait(string WaitSpell)
-    /if (${Spell[${WaitSpell}].CastTime}) {
-        /while (${Me.Casting.ID} || ${Cast.Status.Equal[c]}) {
-            /delay 5
-			/if (${Target.Type.Equal[Corpse]} && ${UseSpellInterrupt}) /stopcast
-        }
-    }
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: CastTarget - Cast Spell sub routine from kissassist
-|-------------------------------------------------------------------------------------
-Sub CastTarget(int WhatID)
-    /squelch /target clear
-    /delay 10 !${Target.ID}
-    /target id ${WhatID}
-    /delay 10 ${Target.ID}==${WhatID}
-/return
 |------------------------------------------------------------------------------------------
 |- SUB: LoadSpellGem - Replaces memspell sub
 |------------------------------------------------------------------------------------------
@@ -1307,15 +1188,6 @@ Sub FindNumTargets
 		/if (${Me.XTarget[${xt}].Type.Equal[NPC]}) /varcalc numoftargets ${numoftargets}+1
 	/next xt
 /return 
-|----------------------------------------------------------------------------
-|- SUB: IDUpdateCheck - keeps MA ID updated if it changes ( Death, Zoning )
-|---------------------------------------------------------------------------- 
-Sub IDUpdateCheck
-	/if (${Spawn[pc =${assistname}].ID} && ${Spawn[pc =${assistname}].ID}!=${assistid}) {
-		/echo \aw MA ID Mismatch - \ag Updating
-		/varset assistid ${Spawn[pc =${assistname}].ID}
-	}
-/return
 |-------------------------------------------------------------------------------------
 |- SUB: ClickModRoD - 
 |-------------------------------------------------------------------------------------
@@ -1475,8 +1347,8 @@ Sub high_hp
 |- SUB: get_target  
 |---------------------------------------------------------------------------- 
 Sub get_target
-	/declare x int local 0
-	/declare npcIDontHaveAggroOnID int local 0
+	/declare x 						int local 0
+	/declare npcIDontHaveAggroOnID 	int local 0
 
 	| is there a target to be had?
 	|/echo Checking xtarget
@@ -1484,7 +1356,7 @@ Sub get_target
 
 	| should we be balancing?
 	|/echo Checking balance
-	/if (${Balance}) /return
+	/if (${Me.ID} == ${Group.MainAssist.ID} && ${Balance}) /return
 
 	| if I have a target: assist and get ready
 	/if (${Me.XTarget}) {
@@ -1501,7 +1373,7 @@ Sub get_target
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		| if there is an xtarget close then target the one with lowest hp
-		/if (${SpawnSort[1,asc,PathLength,xtarhater].Distance} < 200) {
+		/if (${SpawnSort[1,asc,PathLength,xtarhater].Distance} < 210) {
 			/target id ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
 		}
 	}
