@@ -1498,6 +1498,12 @@ Sub get_target
 		/return
 	}
 
+	| if I am not the main tank or ma assist then assist the MA
+	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
+		/assist ${Group.MainAssist.Name}
+		/return
+	}
+
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		| if there is an xtarget close then target the one with lowest hp
@@ -1531,8 +1537,6 @@ Sub get_target
 			/assist ${Group.MainAssist.Name}
 		}
 	}
-
-	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) /assist ${Group.MainAssist.Name}
 
 /return
 |-------------------------------------------------------------------------------- 
@@ -2578,6 +2582,15 @@ Sub Bind_QuestSay(string QSayText)
 |-------------------------------------------------------------------------------------
 Sub Bind_ChaseMe
     /squelch /mgx /chase on ${Me.CleanName}
+/return
+
+#Event ZonePoK	"#*#You have entered Plane of Knowledge#*#"
+|----------------------------------------------------------------------------
+|- SUB: Event Event_ZonePoK - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
+Sub Event_ZonePoK
+	/varset Mode 1
+	/doevents flush Event_ZonePoK
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: Help Common - 

@@ -290,7 +290,7 @@ Sub combat
 	/call debuff_xtarget
 	
 	| Have we assisted MA?
-	/call check_state FALSE
+	/call get_target FALSE
 
 	| Do we have a target?
 	/if (!${Target.ID}) /return
@@ -306,7 +306,9 @@ Sub combat
 
 	/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) /call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
 
-	/if (!${Me.Buff[Improved Twincast].ID} && ${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
+	/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
+	}
 
 	/if (${validate_cast[FALSE, spell, "Chromatic Haze", ${Target.ID}]}) /call core_cast2 "Chromatic Haze" alt ${Target.ID} FALSE
 
