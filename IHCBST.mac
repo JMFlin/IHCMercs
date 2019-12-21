@@ -125,6 +125,16 @@ Sub self_buff_check(bool _debug)
 		/varset CastCheck 1
 	}
 
+	/if (${validate_cast[FALSE, spell, "${ManaRegenBuff}", ${Me.ID}]}) {
+		/call core_cast2 "${ManaRegenBuff}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
+
+	/if (${validate_cast[FALSE, spell, "${Haste}", ${Me.ID}]}) {
+		/call core_cast2 "${Haste}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
+
 	/if (${CastCheck}) {
 		/call LoadSpellBar
 		/docommand /dgt \aw Done Buffing
@@ -155,13 +165,20 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
 	/call pet_attack
-	/if (!${Target.Slowed.ID}) {
+	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
+		/docommand /dgt Slowing Combat with =>> \ag ${SlowSpell} <<= \ax
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+	}
+	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
+		/docommand /dgt Crippling Combat with =>> \ag ${CrippleSpell1} <<= \ax
+		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 	}
 	/call pet_attack
 	/if (!${Target.Buff[${NukeSpell4}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NukeSpell4}", ${Target.ID}]}) /call core_cast2 "${NukeSpell4}" spell ${Target.ID} FALSE
 	}
+
+	
 
 /return
 |----------------------------------------------------------------------------
@@ -173,7 +190,7 @@ Sub debuff_xtarget
 	/if (!${Me.XTarget}) /return
 
 	/for x 1 to ${Me.XTarget}
-
+		
 		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /attack off
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
@@ -185,9 +202,13 @@ Sub debuff_xtarget
 		
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
+			/docommand /dgt Slowing XTarget with =>> \ag ${SlowSpell} <<= \ax
+			/echo Slowing XTarget
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 		}
+		/echo Is target slowed: !${Target.Crippled.ID} and !${Target.Buff[${CrippleSpell1}].ID}
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
+			/docommand /dgt Crippling XTarget with =>> \ag ${CrippleSpell1} <<= \ax
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 		}
 		/delay 1s

@@ -115,11 +115,11 @@ Sub debuff_xtarget
 		
 		| How will you handle the AA?
 		/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
+		|	/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
 		}
 
 		/if (!${Target.Buff[${FireAcDebuff}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
+		|	/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
 		}
 		/delay 1s
 	/next x
@@ -208,7 +208,7 @@ Sub single_target_heals
 	/declare gmember			int local 0
 
 	| This only checks pcs
-	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 85) {
+	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 75) {
 
 		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
 
@@ -222,7 +222,7 @@ Sub single_target_heals
 		
 		/if (${Group.Member[${gmember}].Type.Equal[Corpse]}) /continue
 		
-		/if (${Group.Member[${gmember}].Distance} <= 200 && ${Group.Member[${gmember}].PctHPs} < 85) {
+		/if (${Group.Member[${gmember}].Distance} <= 200 && ${Group.Member[${gmember}].PctHPs} < 75) {
 			/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${Group.Member[${gmember}].ID}]}) {
 				/call core_cast2 "${HealSpell1}" spell ${Group.Member[${gmember}].ID} FALSE
 			}

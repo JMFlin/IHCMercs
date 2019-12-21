@@ -48,7 +48,7 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${GroupHealSpell1}" 3
 
 	/call LoadSpellGem "${NukeSpell1}" 4
-	/call LoadSpellGem "${NukeSpell2}" 5
+	/call LoadSpellGem "${FireAtkDebuff}" 5
 	/call LoadSpellGem "${DoTSpell1}" 6
 	/call LoadSpellGem "${DoTSpell2}" 7
 	/call LoadSpellGem "${SnareSpell}" 8

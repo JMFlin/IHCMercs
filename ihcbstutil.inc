@@ -41,6 +41,7 @@ Sub BstSetup
 	/declare AtkHPBuff			string outer NULL
 	/declare AtkHPBuffName		string outer NULL
 	/declare CrippleSpell1 		string outer NULL
+	/declare Haste 				string outer NULL
 |-discs
 	/declare EndRegenDisc		string outer NULL
 	/declare Maul				string outer NULL
@@ -109,7 +110,7 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${NukeSpell4}" 4
 	/call LoadSpellGem "${DoTSpell1}" 5
 	
-	/call LoadSpellGem "${PetDamageProc}" 6
+	/call LoadSpellGem "${CrippleSpell1}" 6
 	/call LoadSpellGem "${SlowSpell}" 7
 	/call LoadSpellGem "${PetSpell}" 8	
 	
@@ -198,6 +199,15 @@ Sub LoadSpellBar
 |- SUB: CheckSpells
 |---------------------------------------------------------------------------- 
 Sub CheckSpells
+
+
+	/if (${Me.Level}>=${Spell[Incapacitate].Level} && ${Me.Book[${Spell[Incapacitate].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Incapacitate].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Alacrity].Level} && ${Me.Book[${Spell[Alacrity].RankName}]}) {
+		/varset Haste ${Spell[Alacrity].RankName}
+	}
 |-Swarm Pet*
 	/if (${Me.Level}>=${Spell[Akalit's Feralgia].Level} && ${Me.Book[${Spell[Akalit's Feralgia].RankName}]}) {
 		/varset SwarmPet ${Spell[Akalit's Feralgia].RankName}
