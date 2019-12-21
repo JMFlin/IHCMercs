@@ -166,11 +166,11 @@ Sub combat
 	}
 	/call pet_attack
 	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
-		/docommand /dgt Slowing Combat with =>> \ag ${SlowSpell} \ax <<=
+		/docommand /dgt Slowing Combat \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 	}
 	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-		/docommand /dgt Crippling Combat with =>> \ag ${CrippleSpell1} \ax <<=
+		/docommand /dgt Crippling Combat \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 	}
 	/call pet_attack
@@ -202,12 +202,12 @@ Sub debuff_xtarget
 		
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
-			/docommand /dgt Slowing XTarget with =>> \ag ${SlowSpell} \ax <<=
+			/docommand /dgt Slowing XTarget \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 		}
 		
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-			/docommand /dgt Crippling XTarget with =>> \ag ${CrippleSpell1} \ax <<=
+			/docommand /dgt Crippling XTarget \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 		}
 		/delay 1s
