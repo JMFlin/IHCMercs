@@ -20,7 +20,10 @@ Sub DruSetup
 	/declare Skin				string outer NULL
 	/declare SoW				string outer NULL
 	/declare DamageShield 		string outer NULL
+
 	/declare FireAtkDebuff 		string outer NULL
+	/declare FireAcDebuff		string outer NULL
+	
 	/declare IceDebuff 			string outer NULL
 	/declare GroupWolfAtkBuff 	string outer NULL
 
@@ -58,7 +61,11 @@ Sub LoadSpellBar
 |---------------------------------------------------------------------------- 
 Sub SetupSpells
 
-	/if (${Me.Level}>=${Spell[Sylvan Infusion].Level} && ${Me.Book[${Spell[Sylvan Infusion].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Ancient Chlorobon].Level} && ${Me.Book[${Spell[Ancient Chlorobon].RankName}]}) {
+		/varset HealSpell1 ${Spell[Ancient Chlorobon].RankName}
+	} else /if (${Me.Level}>=${Spell[Chlorotrope].Level} && ${Me.Book[${Spell[Chlorotrope].RankName}]}) {
+		/varset HealSpell1 ${Spell[Chlorotrope].RankName}
+	} else /if (${Me.Level}>=${Spell[Sylvan Infusion].Level} && ${Me.Book[${Spell[Sylvan Infusion].RankName}]}) {
 		/varset HealSpell1 ${Spell[Sylvan Infusion].RankName}
 	} else /if (${Me.Level}>=${Spell[Karana's Renewal].Level} && ${Me.Book[${Spell[Karana's Renewal].RankName}]}) {
 		/varset HealSpell1 ${Spell[Karana's Renewal].RankName}
@@ -78,14 +85,6 @@ Sub SetupSpells
 		/varset HealSpell1 ${Spell[Light Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
 		/varset HealSpell1 ${Spell[Minor Healing].RankName}
-	}
-
-	/if (${Me.Level}>=${Spell[Akalit's Feralgia].Level} && ${Me.Book[${Spell[Akalit's Feralgia].RankName}]}) {
-		/varset HealSpell2 ${Spell[Akalit's Feralgia].RankName}
-	}
-
-	/if (${Me.Level}>=${Spell[Akalit's Feralgia].Level} && ${Me.Book[${Spell[Akalit's Feralgia].RankName}]}) {
-		/varset GroupHealSpell1 ${Spell[Akalit's Feralgia].RankName}
 	}
 	
 	/if (${Me.Level}>=${Spell[Ancient Starfire of Ro].Level} && ${Me.Book[${Spell[Ancient Starfire of Ro].RankName}]}) {
@@ -109,12 +108,11 @@ Sub SetupSpells
 	} else /if (${Me.Level}>=${Spell[Burst of Flame].Level} && ${Me.Book[${Spell[Burst of Flame].RankName}]}) {
 		/varset NukeSpell1 ${Spell[Burst of Flame].RankName}
 	}
-
-	/if (${Me.Level}>=${Spell[Akalit's Feralgia].Level} && ${Me.Book[${Spell[Akalit's Feralgia].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Akalit's Feralgia].RankName}
-	}
-
-	/if (${Me.Level}>=${Spell[Swarming Death].Level} && ${Me.Book[${Spell[Swarming Death].RankName}]}) {
+	
+	
+	/if (${Me.Level}>=${Spell[Wasp Swarm].Level} && ${Me.Book[${Spell[Wasp Swarm].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Wasp Swarm].RankName}
+	} else /if (${Me.Level}>=${Spell[Swarming Death].Level} && ${Me.Book[${Spell[Swarming Death].RankName}]}) {
 		/varset DoTSpell1 ${Spell[Swarming Death].RankName}
 	} else /if (${Me.Level}>=${Spell[Winged Death].Level} && ${Me.Book[${Spell[Winged Death].RankName}]}) {
 		/varset DoTSpell1 ${Spell[Winged Death].RankName}
@@ -128,10 +126,22 @@ Sub SetupSpells
 		/varset DoTSpell1 ${Spell[Flame Lick].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Akalit's Feralgia].Level} && ${Me.Book[${Spell[Akalit's Feralgia].RankName}]}) {
-		/varset DoTSpell2 ${Spell[Akalit's Feralgia].RankName}
+	/if (${Me.Level}>=${Spell[Blistering Sunray].Level} && ${Me.Book[${Spell[Blistering Sunray].RankName}]}) {
+		/varset FireAcDebuff ${Spell[Blistering Sunray].RankName}
+	} else /if (${Me.Level}>=${Spell[Immolation of the Sun].Level} && ${Me.Book[${Spell[Immolation of the Sun].RankName}]}) {
+		/varset FireAcDebuff ${Spell[Immolation of the Sun].RankName}
+	} else /if (${Me.Level}>=${Spell[Sylvan Embers].Level} && ${Me.Book[${Spell[Sylvan Embers].RankName}]}) {
+		/varset FireAcDebuff ${Spell[Sylvan Embers].RankName}
+	} else /if (${Me.Level}>=${Spell[Immolation of Ro].Level} && ${Me.Book[${Spell[Immolation of Ro].RankName}]}) {
+		/varset FireAcDebuff ${Spell[Immolation of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Vengeance of Nature].Level} && ${Me.Book[${Spell[Vengeance of Nature].RankName}]}) {
+		/varset FireAcDebuff ${Spell[Vengeance of Nature].RankName}
+	} else /if (${Me.Level}>=${Spell[Breath of Ro].Level} && ${Me.Book[${Spell[Breath of Ro].RankName}]}) {
+		/varset FireAcDebuff ${Spell[Breath of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Vengeance of the Wild].Level} && ${Me.Book[${Spell[Vengeance of the Wild].RankName}]}) {
+		/varset FireAcDebuff ${Spell[Vengeance of the Wild].RankName}
 	}
-	
+
 	
 	/if (${Me.Level}>=${Spell[Bonds of Tunare].Level} && ${Me.Book[${Spell[Bonds of Tunare].RankName}]}) {
 		/varset SnareSpell ${Spell[Bonds of Tunare].RankName}
@@ -143,7 +153,13 @@ Sub SetupSpells
 		/varset SnareSpell ${Spell[Snare].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Protection of the Glades].Level} && ${Me.Book[${Spell[Protection of the Glades].RankName}]}) {
+	
+	
+	/if (${Me.Level}>=${Spell[Blessing of Steeloak].Level} && ${Me.Book[${Spell[Blessing of Steeloak].RankName}]}) {
+		/varset GroupSkin ${Spell[Blessing of Steeloak].RankName}
+	} else /if (${Me.Level}>=${Spell[Blessing of the Nine].Level} && ${Me.Book[${Spell[Blessing of the Nine].RankName}]}) {
+		/varset GroupSkin ${Spell[Blessing of the Nine].RankName}
+	} else /if (${Me.Level}>=${Spell[Protection of the Glades].Level} && ${Me.Book[${Spell[Protection of the Glades].RankName}]}) {
 		/varset GroupSkin ${Spell[Protection of the Glades].RankName}
 	} else /if (${Me.Level}>=${Spell[Protection of Nature].Level} && ${Me.Book[${Spell[Protection of Nature].RankName}]}) {
 		/varset GroupSkin ${Spell[Protection of Nature].RankName}
@@ -191,11 +207,11 @@ Sub SetupSpells
 	} else /if (${Me.Level}>=${Spell[Shield of Thistles].Level} && ${Me.Book[${Spell[Shield of Thistles].RankName}]}) {
 		/varset DamageShield ${Spell[Shield of Thistles].RankName}
 	}
-	
-	
 
 	
-	/if (${Me.Level}>=${Spell[Ro's Illumination].Level} && ${Me.Book[${Spell[Ro's Illumination].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Sun's Corona].Level} && ${Me.Book[${Spell[Sun's Corona].RankName}]}) {
+		/varset FireAtkDebuff ${Spell[Sun's Corona].RankName}
+	} else /if (${Me.Level}>=${Spell[Ro's Illumination].Level} && ${Me.Book[${Spell[Ro's Illumination].RankName}]}) {
 		/varset FireAtkDebuff ${Spell[Ro's Illumination].RankName}
 	} else /if (${Me.Level}>=${Spell[Hand of Ro].Level} && ${Me.Book[${Spell[Hand of Ro].RankName}]}) {
 		/varset FireAtkDebuff ${Spell[Hand of Ro].RankName}

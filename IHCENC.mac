@@ -311,7 +311,7 @@ Sub combat
 
 	/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) /call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
 
-	/if (!${Me.Buff[Improved Twincast].ID}) {
+	/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
 	}
 
