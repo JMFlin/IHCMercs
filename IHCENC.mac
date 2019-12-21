@@ -223,7 +223,7 @@ Sub mez_xtarget
 		
 		| If there are more than 2 mobs counted then aoe mez
 		/if (${numberOfSpawn} > 2) {
-			/docommand /dgt There are more than 2 mobs on XTarget. =>> \ag ${MezAESpell} <<= \ax
+			/docommand /dgt There are more than 2 mobs on XTarget. =>> \ag ${MezAESpell} \ax <<=
 			/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
 			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) /call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE
 		}
@@ -258,7 +258,7 @@ Sub mez_xtarget
 
 		| If target is not mezzed then mez
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
-			/docommand /dgt Mezzing ${Target.Name} with =>> \ag ${MezSpell} <<= \ax
+			/docommand /dgt Mezzing \ar ${Target.Name} \ar with =>> \ag ${MezSpell} \ax <<=
 			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) /call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
 		}
 

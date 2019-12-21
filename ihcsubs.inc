@@ -718,7 +718,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 	}
 	
 	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${Distance}) {
-		/if (${Stick.Active}) /stick off
+		/if (${Stick.Status.Equal[ON]}) /stick off
 		/nav locxyz ${Xloc} ${Yloc} ${Zloc}
 		:movinghome
 			/if (${Mode}==0) {
@@ -1497,7 +1497,9 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		
 		| are we moving?
 		/if (${Me.Moving}) /return FALSE
-		/if (${Stick.Active}) /return FALSE
+		
+		/if (${Stick.Status.Equal[ON]}) /stick off
+
 		/if (${Navigation.Active}) /return FALSE
 		/if (${AdvPath.Following}) /return FALSE
 		
