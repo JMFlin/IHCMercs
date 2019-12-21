@@ -461,13 +461,13 @@ Sub Engage
 	/if (!${Target.ID}) /return
 
 	| if target is not an NPC then don't engage
-	/if (!${Target.Type.Equal[NPC]}) /return
+	| /if (!${Target.Type.Equal[NPC]}) /return
 
 	| Do we have line of sight?
 	/if (!${Spawn[id ${Target.ID}].LineOfSight}) /return
 
 	| tank engage if target is close enough
-	/if (${Me.ID} == ${Group.MainTank.ID} && ${Navigation.PathLength[id ${Target.ID}]} < 55) {
+	/if (${Me.ID} == ${Group.MainTank.ID} && (${Target.PctHPs} < 98 || ${Navigation.PathLength[id ${Target.ID}]} < 55)) {
 		/if (${Target.ID}) /face fast
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
@@ -1388,8 +1388,8 @@ Sub get_target
 
 		| if current target is not 100% aggro then get aggro
 		/if (${Target.ID}) {
+			/if (${Target.PctAggro} < 100) /call Engage
 			/if (${Target.PctAggro} < 100) /call get_aggro
-			/if (${Target.PctAggro} < 100) /return
 		}
 
 		| if any npcs on xtarget have less than 100% aggro
@@ -1403,6 +1403,7 @@ Sub get_target
 				| if mob is not mezzed then target it and get aggro
 				/target id ${npcIDontHaveAggroOnID}
 				/delay 5 ${Target.ID} == ${npcIDontHaveAggroOnID}
+				/call Engage
 				/call get_aggro
 			}
 		} else {

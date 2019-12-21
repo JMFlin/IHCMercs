@@ -168,6 +168,8 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 		}
 
+		/call mez_xtarget
+
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 |				/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
 |					/alt act ${Me.AltAbility[${StripBuffSpell}].ID}
@@ -221,6 +223,7 @@ Sub mez_xtarget
 		
 		| If there are more than 2 mobs counted then aoe mez
 		/if (${numberOfSpawn} > 2) {
+			/docommand /dgt There are more than 2 mobs on XTarget. =>> \ag ${MezAESpell} <<= \ax
 			/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
 			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) /call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE
 		}
@@ -229,13 +232,16 @@ Sub mez_xtarget
 	| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
 	/for x 1 to ${Me.XTarget}
 
+		| If target is too far away then skip
+		/if (${Me.XTarget[${x}].Distance} > 200) /continue
+
 		| If the xtarget is already mezzed then skip
 		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
 
-		| Query MA on what is currently being killed		
+		| Query MA on what is currently being killed
 		/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
-		
 		/echo MA Target is ${MATargetID}
+
 		| If xtarget is being targetted by MA then skip
 		/if (${Me.XTarget[${x}].ID} == ${MATargetID}) /continue
 
@@ -245,12 +251,6 @@ Sub mez_xtarget
 		
 		/delay 1s
 
-		| If target is too far away then skip
-		/if (${Target.Distance} > 200) /continue
-
-		| If target is not an NPC then skip
-		/if (!${Target.Type.Equal[NPC]}) /continue
-
 		| If target is not tashed then tash
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
@@ -258,6 +258,7 @@ Sub mez_xtarget
 
 		| If target is not mezzed then mez
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
+			/docommand /dgt Mezzing ${Target.Name} with =>> \ag ${MezSpell} <<= \ax
 			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) /call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
 		}
 
