@@ -40,6 +40,7 @@ Sub BstSetup
 	/declare ManaRegenBuffName	string outer NULL
 	/declare AtkHPBuff			string outer NULL
 	/declare AtkHPBuffName		string outer NULL
+	/declare CrippleSpell1 		string outer NULL
 |-discs
 	/declare EndRegenDisc		string outer NULL
 	/declare Maul				string outer NULL

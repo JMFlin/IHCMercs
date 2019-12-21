@@ -74,6 +74,7 @@ Sub ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub combat
 	/if (!${Me.XTarget}) /return
+	/if (${Me.PctMana} < 85) /return
 	/call get_target
 	/if (!${Target.ID}) /return
 
