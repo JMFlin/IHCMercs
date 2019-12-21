@@ -197,15 +197,16 @@ Sub debuff_xtarget
 |- SUB: mez_xtarget
 |---------------------------------------------------------------------------- 
 Sub mez_xtarget
-	/declare x				 int local 1
-	/declare numberOfSpawn 	 int local 0
+	/declare x				 	int local 1
+	/declare numberOfSpawn 	 	int local 0
+	/declare closestMezzTarget 	int local 0
 
 	| Is there something to mez?
 	/if (!${Me.XTarget}) /return
 	/if (${Me.XTarget} < 2) /return
 
 	| How many mobs are there?
-	/if (${SpawnCount[npc radius 100 zradius 20]} > 2 && ${Me.XTarget} > 2) {
+	/if (${SpawnCount[npc targetable radius 100 zradius 60]} > 2 && ${Me.XTarget} > 2) {
 		
 		/for x 1 to ${Me.XTarget}
 
@@ -215,10 +216,11 @@ Sub mez_xtarget
 			}
 
 		/next x
-
-		| If ther are more than 2 mobs counted then aoe mez
+		
+		| If there are more than 2 mobs counted then aoe mez
 		/if (${numberOfSpawn} > 2) {
-			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${Target.ID}]}) /call core_cast2 "${MezAESpell}" spell ${Target.ID} FALSE
+			/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
+			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) /call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE
 		}
 	}
 
@@ -227,7 +229,13 @@ Sub mez_xtarget
 
 		| If the xtarget is already mezzed then skip
 		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
+
+		| Query MA on what is currently being killed		
+		/call Gquery ${Group.MainAssist.Name} "Me.Target.ID" "MATargetID" "int"
 		
+		| If xtarget is being targetted by MA then skip
+		/if (${Me.XTarget[${x}].ID} == ${MATargetID}) /continue
+
 		| If not mezzed then target it
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
@@ -239,9 +247,6 @@ Sub mez_xtarget
 
 		| If target is not an NPC then skip
 		/if (!${Target.Type.Equal[NPC]}) /continue
-
-		| If targets hp is low then skip. (Assumption is that this is the mob that is being killed by MA)
-		/if (${Target.PctHPs} < 95) /continue
 
 		| If target is not tashed then tash
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
@@ -290,7 +295,7 @@ Sub combat
 	/call debuff_xtarget
 	
 	| Have we assisted MA?
-	/call check_state FALSE
+	/call get_target
 
 	| Do we have a target?
 	/if (!${Target.ID}) /return
@@ -306,7 +311,9 @@ Sub combat
 
 	/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) /call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
 
-	/if (!${Me.Buff[Improved Twincast].ID} && ${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
+	/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
+	}
 
 	/if (${validate_cast[FALSE, spell, "Chromatic Haze", ${Target.ID}]}) /call core_cast2 "Chromatic Haze" alt ${Target.ID} FALSE
 
@@ -427,7 +434,6 @@ Sub self_buffs
 |---------------------------------------------------------------------------- 
 Sub group_buffs
 	/declare bmember			int local 0
-	/varset acverbose 1
 	/declare CastCheck			int local 0
 
 	/if (${Me.XTarget}) /return

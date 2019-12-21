@@ -95,7 +95,36 @@ Sub combat
 
 /return
 |----------------------------------------------------------------------------
-|- SUB: Buffgroup_buffsGroup
+|- SUB: debuff_xtarget
+|---------------------------------------------------------------------------- 
+Sub debuff_xtarget
+	/declare x int local 1
+
+	/if (!${Me.XTarget}) /return
+
+	/for x 1 to ${Me.XTarget}
+
+		/target id ${Me.XTarget[${x}].ID}
+		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		
+		/delay 1s
+
+		/if (${Target.Distance} > 200) /return
+		/if (!${Target.Type.Equal[NPC]}) /return
+		
+		| How will you handle the AA?
+		/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
+		}
+
+		/if (!${Target.Buff[${FireAcDebuff}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
+		}
+		/delay 1s
+	/next x
+/return
+|----------------------------------------------------------------------------
+|- SUB: group_buffs
 |---------------------------------------------------------------------------- 
 Sub group_buffs
 	/declare bmember			int local 0
@@ -175,18 +204,32 @@ Sub group_buffs
 |---------------------------------------------------------------------------- 
 Sub single_target_heals
 	/declare worsthurtid 		int local 0
+	/declare gmember			int local 0
 
+	| This only checks pcs
 	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 85) {
 
 		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
 
 		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${worsthurtid}]}) {
 			/call core_cast2 "${HealSpell1}" spell ${worsthurtid} FALSE
-			/return
 		}
 	}
-/return
 
+	| Includes mercs
+	/for gmember 0 to ${Group}
+		
+		/if (${Group.Member[${gmember}].Type.Equal[Corpse]}) /continue
+		
+		/if (${Group.Member[${gmember}].Distance} <= 200 && ${Group.Member[${gmember}].PctHPs} < 85) {
+			/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${Group.Member[${gmember}].ID}]}) {
+				/call core_cast2 "${HealSpell1}" spell ${Group.Member[${gmember}].ID} FALSE
+			}
+        }
+
+	/next gmember
+
+/return
 |----------------------------------------------------------------------------
 |- SUB: HealGroup
 |---------------------------------------------------------------------------- 
