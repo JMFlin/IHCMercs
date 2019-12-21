@@ -233,8 +233,9 @@ Sub mez_xtarget
 		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
 
 		| Query MA on what is currently being killed		
-		/call Gquery ${Group.MainAssist.Name} "Me.Target.ID" "MATargetID" "int"
+		/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
 		
+		/echo MA Target is ${MATargetID}
 		| If xtarget is being targetted by MA then skip
 		/if (${Me.XTarget[${x}].ID} == ${MATargetID}) /continue
 
@@ -263,7 +264,7 @@ Sub mez_xtarget
 		/delay 1s
 
 	/next x
-	
+	/if (${Defined[MATargetID]}) /deletevar MATargetID
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANDisc

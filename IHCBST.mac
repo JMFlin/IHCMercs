@@ -174,7 +174,7 @@ Sub debuff_xtarget
 
 	/for x 1 to ${Me.XTarget}
 
-		/attack off
+		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /attack off
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 		
