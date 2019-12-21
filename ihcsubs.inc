@@ -166,6 +166,7 @@ Sub VarSetup
 	/call CheckPlugin MQ2SpawnSort
 	/call CheckPlugin MQ2Worsthurt
 	/call CheckPlugin MQ2Yes
+	/call CheckPlugin MQ2sqlite
 	/call UnCheckPlugin MQ2Twist
 	/squelch /rez accept on
     /squelch /rez loot off
@@ -652,7 +653,6 @@ Sub afk_pull
 			/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 		}
 		/if (!${PullAbility.Equal[Melee]}) {
-			/nav stop
 			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
 		}
 |		/if (${Spawn[id ${PullTargetID}].LineOfSight} && ${Me.AltAbilityReady[Distant Strike]}) /alt act 376
@@ -1378,7 +1378,7 @@ Sub get_target
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		| if there is an xtarget close then target the one with lowest hp
-		/if (${SpawnSort[1,asc,PathLength,xtarhater].Distance} < 210) {
+		/if (${SpawnSort[1,asc,PathLength,xtarhater].Distance}) {
 			/target id ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
 		}
 	}

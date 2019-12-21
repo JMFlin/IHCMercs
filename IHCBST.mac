@@ -174,10 +174,11 @@ Sub debuff_xtarget
 
 	/for x 1 to ${Me.XTarget}
 
+		/attack off
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 		
-		/delay 1s
+		/delay 2s
 
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
