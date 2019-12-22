@@ -75,14 +75,14 @@ Sub AFKRadiusCamping
 
 		/call puller_check_group_resources 
 		/call afk_pull
-
+		/doevents
 		/call check_state FALSE
 		/call get_target
 
 		/call balance_hp
 
 		/call check_add_aggro
-
+		/doevents
 		/call Engage
 		/call aoe_aggro
 		/call DoDisc
@@ -145,6 +145,8 @@ Sub combat
 	/if (!${Me.XTarget}) /return
 	/if (!${Target.ID}) /return
 	
+	/squelch /attack on
+
 	/if (!${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
 	}
@@ -152,7 +154,7 @@ Sub combat
 	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 	}
-
+	/doevents
 	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 	}
@@ -160,7 +162,7 @@ Sub combat
 	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
-
+	/doevents
 	/if (${Me.PctMana} > 70) {
 		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
 	}
@@ -170,7 +172,7 @@ Sub combat
 	}
 	
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) /call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
-
+	/doevents
 	/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) /call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 
 /return
@@ -250,6 +252,8 @@ Sub get_aggro
 	/if (!${Me.XTarget}) /return
 	/if (!${Target.ID}) /return
 
+	/squelch /attack on
+
 	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs} > 1 && ${Me.SecondaryPctAggro} >= 100) {
 		/doability Taunt
 		/delay 1s
@@ -270,7 +274,7 @@ Sub get_aggro
 
 	/docommand /dgt Attempting to grab aggro on \ar ${Target.ID} \ax with =>> \ag ${Terror1} \ax <<=
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) /call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
-
+	/doevents
 	/docommand /dgt Attempting to grab aggro on \ar ${Target.ID} \ax with =>> \ag ${Terror2} \ax <<=
 	/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) /call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 
@@ -309,6 +313,8 @@ Sub Event_Iamsnared
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 Sub Event_NotOnTarget
+	/if (!${Target.ID}) /return
+	/if (!${Target.Type.Equal[Corpse]}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
 /return

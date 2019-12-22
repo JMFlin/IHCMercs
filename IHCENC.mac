@@ -213,7 +213,7 @@ Sub mez_xtarget
 	/if (${Me.XTarget} < 2) /return
 
 	| How many mobs are there?
-	/if (${SpawnCount[npc targetable radius 100 zradius 60]} > 2 && ${Me.XTarget} > 2) {
+	/if (${SpawnCount[npc targetable radius 100 zradius 60]} > 1 && ${Me.XTarget} > 1) {
 		
 		/for x 1 to ${Me.XTarget}
 
@@ -224,8 +224,8 @@ Sub mez_xtarget
 
 		/next x
 		
-		| If there are more than 2 mobs counted then aoe mez
-		/if (${numberOfSpawn} > 2) {
+		| If there are more than 1 mobs counted then aoe mez
+		/if (${numberOfSpawn} > 1) {
 			/docommand /dgt AoE mezzing with =>> \ag ${MezAESpell} \ax <<=
 			/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
 			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) /call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE

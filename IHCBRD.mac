@@ -33,7 +33,7 @@ Sub Main
 	}
 	/call CheckSpells
 	/call LoadSongData
-	/call SetControlToon
+|	/call SetControlToon
 	/call LoadSpellBar
 |-Cursor ID
 	/if (${Cursor.ID}) {
@@ -62,12 +62,12 @@ Sub Main
 	/if (${Mode}==5) /call DoEvent
 /goto :mainloop
 /return
-
-
-
+|----------------------------------------------------------------------------
+|- SUB: ManualPullCamping
+|---------------------------------------------------------------------------- 
 Sub ManualPullCamping
 	/call MakeCamp
-    /call RemoveTravelBuffs  
+    /call RemoveTravelBuffs
 
 	/while (${Mode}==1 || ${Mode}==3) {
 
@@ -79,18 +79,18 @@ Sub ManualPullCamping
 |		/if (${ReadyToCast}==0) /call IHCTwist
 		/call Engage
 		/if (${Me.XTarget}) {
-			/if (${MelodyCheck}==0) /stopsong
-			/if (${MelodyCheck}==0) /melody ${BattleMelody}
-			/varset MelodyCheck 1
-			
+			/call pulse FALSE ${BattleMelody}
+|			/if (${MelodyCheck}==0) /stopsong
+|			/if (${MelodyCheck}==0) /melody ${BattleMelody}
+|			/varset MelodyCheck 1
 		}
-		
 		/if (!${Me.XTarget}) {
-			/if (${MelodyCheck}==1) /stopsong
-			/if (${MelodyCheck}==1) /melody ${RegenMelody}
-			/varset MelodyCheck 0
+			/call pulse FALSE ${RegenMelody}
+|			/if (${MelodyCheck}==1) /stopsong
+|			/if (${MelodyCheck}==1) /melody ${RegenMelody}
+|			/varset MelodyCheck 0
 		}
-		/call Combatdps
+		/call combat
 |		/if (${Me.XTarget}>=${MezStartCount} && ${MezOn} && ${Me.GemTimer[${AEMezSong}]}==0) /call DoMezStuff
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) 
@@ -106,6 +106,75 @@ Sub Exit
 	/stopsong
 	/delay 5
 	/stopcast
+/return
+|***
+ *	DES: Sing "Pulse" a single song
+ *	USE: /call pulse [gem##] [type] 
+ *  NOTE:
+ ***|
+Sub pulse(bool _debug, string _melody)
+
+	/declare _song 						int local 0
+	/declare _lnString               	int local ${_melody.Length}
+    /declare _melodyArray[${_lnString}]  	string local
+
+    /for _song 1 to ${_lnString}
+        /varset _melodyArray[${_song}] ${_melody.Mid[${_song},1]}
+    /next _song
+	
+	/if (${_melody} == ${BattleMelody}) /call get_target
+	
+	/call debuff
+	/call selo
+
+	/for _song 1 to ${_lnString}
+		
+		/call debuff
+		/call selo
+		/doevents
+		/call get_target
+		/call Engage
+		
+		/if (!${Me.XTarget} && ${_melody} == ${BattleMelody}) {
+			/call pulse_stop pulse_line_start
+			/return
+		} else /if (${Me.XTarget} && ${_melody} == ${RegenMelody}) {
+			/call pulse_stop pulse_line_start
+			/return
+		}
+		/if (${validate_cast[FALSE, pulse, "${Me.Gem[${_melodyArray[${_song}]}]}", ${Me.ID}]}) {
+			/call core_cast2 "${Me.Gem[${_melodyArray[${_song}]}]}" pulse 0 FALSE
+		}
+
+		/if (${_melody} == ${RegenMelody}) /stopsong
+
+	/next _song
+	
+	
+
+/return TRUE
+
+Sub debuff
+	/if (!${Me.XTarget}) /return
+	/if (!${Target.ID}) /return
+	/if (${Target.Distance} > 150) /return
+	/if (!${Spawn[id ${Target.ID}].LineOfSight}) /return
+
+	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID}) {
+		/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
+			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
+			/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
+		}
+	}
+/return
+
+Sub selo
+	/if (${Me.XTarget}) /return
+
+	/if (${validate_cast[FALSE, pulse, "${Me.Gem[3]}", ${Me.ID}]}) {
+		/call core_cast2 "${Me.Gem[3]}" pulse 0 FALSE
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: IHCTwist
@@ -146,10 +215,18 @@ Sub IHCTwist
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
-Sub Combatdps
+Sub combat
 	/doevents
 
 	/if (!${Me.XTarget}) /return
+
+	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID}) {
+		
+		/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
+			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
+			/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
+		}
+	}
 
 	/declare BurningNow int local 0
 	/if (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) {
@@ -333,10 +410,9 @@ Sub SongQueue(string nextsong)
 |----------------------------------------------------------------------------
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
-|----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
 Sub Event_NotOnTarget
+	/if (!${Target.ID}) /return
+	/if (!${Target.Type.Equal[Corpse]}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
 /return
