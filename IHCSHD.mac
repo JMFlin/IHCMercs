@@ -153,11 +153,11 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.PctHPs} < 99) {
+	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.PctHPs} < 99) {
+	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 

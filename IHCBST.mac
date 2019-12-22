@@ -135,6 +135,11 @@ Sub self_buff_check(bool _debug)
 		/varset CastCheck 1
 	}
 
+	/if (${validate_cast[FALSE, spell, "${AtkBuff}", ${Me.ID}]}) {
+	|	/call core_cast2 "${AtkBuff}" spell ${Me.ID} FALSE
+	|	/varset CastCheck 1
+	}
+
 	/if (${CastCheck}) {
 		/call LoadSpellBar
 		/docommand /dgt \aw Done Buffing
@@ -166,11 +171,11 @@ Sub combat
 	}
 	/call pet_attack
 	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
-		/docommand /dgt Slowing Combat \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+		/docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 	}
 	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-		/docommand /dgt Crippling Combat \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+		/docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 	}
 	/call pet_attack
@@ -178,7 +183,9 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${NukeSpell4}", ${Target.ID}]}) /call core_cast2 "${NukeSpell4}" spell ${Target.ID} FALSE
 	}
 
-	
+	/if (!${Target.Buff[${NukeSpell5}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${NukeSpell5}", ${Target.ID}]}) /call core_cast2 "${NukeSpell5}" spell ${Target.ID} FALSE
+	}
 
 /return
 |----------------------------------------------------------------------------
@@ -195,22 +202,22 @@ Sub debuff_xtarget
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 		
-		/delay 2s
+		/delay 3s
 
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
 		
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
-			/docommand /dgt Slowing XTarget \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 		}
 		
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-			/docommand /dgt Crippling XTarget \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+			/docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 		}
-		/delay 1s
+		/delay 2s
 	/next x
 /return
 |----------------------------------------------------------------------------
@@ -247,7 +254,7 @@ Sub BuffGroup
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${FocusSpell}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Focus.ID" "tmpfocusid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${FocusSpell}]} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && !${Me.Casting.ID} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
+			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
 				/if (${validate_cast[FALSE, spell, ${FocusSpell}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${FocusSpell}" spell ${Group.Member[${bmember}].ID} FALSE
 				/varset CastCheck 1
 			}
@@ -260,15 +267,19 @@ Sub BuffGroup
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${RunSpeedBuff}]} && ${Me.CurrentMana} > ${Spell[${RunSpeedBuff}].Mana}) {
-				/call SpellQueue "${RunSpeedBuff}" ${Group.Member[${bmember}].ID}
 				/if (${validate_cast[FALSE, spell, ${RunSpeedBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${RunSpeedBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 					/varset CastCheck 1			
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${AtkBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${AtkBuff}].Stacks" "tmpstackcheck" "bool"
-			/if (${DoFerocity} && !${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${AtkBuff}]} && ${Spell[${AtkBuff}].TargetType.Equal[Single]} && ${Me.CurrentMana}>${Spell[${AtkBuff}].Mana} && !${Me.Casting.ID} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
-				/call SpellQueue "${AtkBuff}" ${Group.Member[${bmember}].ID}
-				/if (${validate_cast[FALSE, spell, ${AtkBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${AtkBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana} > ${Spell[${AtkBuff}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
+			|	/if (${validate_cast[FALSE, spell, ${AtkBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${AtkBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+			|		/varset CastCheck 1
+			}
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${Haste}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${Haste}].Stacks" "tmpstackcheck" "bool"
+			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana} > ${Spell[${Haste}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
+				/if (${validate_cast[FALSE, spell, ${Haste}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${Haste}" spell ${Group.Member[${bmember}].ID} FALSE
 					/varset CastCheck 1
 			}
 		}
