@@ -198,10 +198,15 @@ Sub group_buffs
 
 	/if (${groupbufftimer}==0) /varset groupbufftimer 10s
 	/for bmember 1 to ${Group}
-		/if (${Group.Member[${bmember}].Distance}<${Spell[${HPBuff}].MyRange} && !${Group.Member[${bmember}].OtherZone} && !${Me.Casting.ID}) {
 
-			/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
-			/if (${Me.XTarget}) /return
+		/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
+		/if (${Me.XTarget}) {
+			/call LoadSpellBar
+			/return
+		}
+		/if (${Mode} !=3 ) /return
+
+		/if (${Group.Member[${bmember}].Distance}<${Spell[${HPBuff}].MyRange} && !${Group.Member[${bmember}].OtherZone} && !${Me.Casting.ID}) {
 
 			/if (!${Me.Book[${GroupHPBuff}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${HPBuff}].ID" "tmpbuffid" "int"
