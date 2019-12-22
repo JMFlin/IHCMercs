@@ -69,7 +69,7 @@ Sub ManualPullCamping
 		/call make_axes	
 
 		/call pre_combat_buffs FALSE "${cheapshot}" disc ${Target.ID}
-		
+		/doevents
 		/call get_target
 		/call check_state FALSE
 
@@ -164,7 +164,7 @@ Sub AANDisc
 		/Disc ${FrenzyBoost}
 		/delay 5
 	}
-
+	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
 	/if (${Target.AggroHolder.ID}==${Me.ID} && ${Me.PctAggro}>90 && (${Target.PctHPs}>20 || ${Target.Named}) && ${Target.Level}>=105 && ${Me.AltAbilityReady[Uncanny Resilience]}) {
@@ -236,7 +236,7 @@ Sub AANDisc
 			/disc ${FlurryDisc}
 		}
 	}
-
+	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
 	/if ((${Me.XTarget}>1 || ${Me.ActiveDisc.ID}==${FlurryDiscID}) && ${Me.AltAbilityReady[Vehement Rage]} && ${Me.Combat} && ${Target.PctHPs}>20 && ${Target.PctHPs}<99) {
@@ -311,7 +311,7 @@ Sub Combatdps
 		/Disc ${AESlice}
 		/delay 5
 	}
-
+	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
 	/if (${Me.CombatAbilityReady[${AEVicious}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 25 zradius 15 targetable playerstate 4]}<2) {
@@ -335,7 +335,7 @@ Sub Combatdps
 		/Disc ${Dfrenzy}
 		/delay 5
 	}	
-
+	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
 	/if (${Me.CombatAbilityReady[${Dvolley}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
@@ -436,6 +436,8 @@ Sub Event_NotOnTarget
 	/if ((${Me.Rooted.ID} || ${Me.ActiveDisc.ID}==30436) && ${Me.AltAbilityReady[Drawn to Blood]} && ${Me.Combat}) {
 		/alt act ${Me.AltAbility[Drawn to Blood].ID}
 	} else /if (${DoAutoEngage}) {
+		/if (!${Target.ID}) /return
+		/if (!${Target.Type.Equal[Corpse]}) /return
 		/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	}
 	/doevents flush NotOnTarget

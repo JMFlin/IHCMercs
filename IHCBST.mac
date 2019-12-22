@@ -70,11 +70,11 @@ Sub ManualPullCamping
 		/call check_state FALSE
 		/call self_buff_check FALSE
 		/call set_timers
-
+		/doevents
 		/call puller_check_group_resources 
 		/call afk_pull
 		/call get_target
-		
+		/doevents
 		/call combat
 		/call Engage
 
@@ -156,7 +156,7 @@ Sub combat
 	
 	/call get_target
 	/call pet_attack
-
+	/doevents
 	/call debuff_xtarget
 	
 	/call get_target
@@ -586,6 +586,8 @@ Sub Event_Chat(string ChatType,string ChatSender,string ChatText)
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 Sub Event_NotOnTarget
+	/if (!${Target.ID}) /return
+	/if (!${Target.Type.Equal[Corpse]}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
 /return

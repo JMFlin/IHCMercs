@@ -329,30 +329,20 @@ Sub check_state(bool _debug)
 		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
 		
 		/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
+
+			|/if (${Me.BardSongPlaying}) {
+			|	/call pulse_stop core_cast_pulsestop
+			|}
 			
 			| check aura one
 			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
 
-				/if (${Me.BardSongPlaying}) {
-					/call pulse_stop core_cast_pulsestop
-				}
-				
 				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-				
-				/if (${Me.BardSongPlaying}) {
-					/delay 1s
-					/call pulse_stop core_cast_pulsestop
-				}
 
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 					
 					| reload the spell if i just memmed aura
 					/call LoadSpellBar
-				}
-
-				/if (${Me.BardSongPlaying}) {
-					/delay 1s
-					/call pulse_stop core_cast_pulsestop
 				}
 			}
 		}
@@ -362,26 +352,16 @@ Sub check_state(bool _debug)
 			| check aura two
 			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
 
-				/if (${Me.BardSongPlaying}) {
-					/call pulse_stop core_cast_pulsestop
-				}
+				|/if (${Me.BardSongPlaying}) {
+				|	/call pulse_stop core_cast_pulsestop
+				|}
 
 				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-				
-				/if (${Me.BardSongPlaying}) {
-					/delay 1s
-					/call pulse_stop core_cast_pulsestop
-				}
 
 				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 
 					| reload the spell if i just memmed aura
 					/call LoadSpellBar
-				}
-
-				/if (${Me.BardSongPlaying}) {
-					/delay 1s
-					/call pulse_stop core_cast_pulsestop
 				}
 			}
 		}
@@ -456,19 +436,20 @@ Sub RemoveTravelBuffs
 |- SUB: Engage
 |---------------------------------------------------------------------------- 
 Sub Engage
-	
+	| if not target then nothing to engage
+	/if (!${Me.XTarget}) /return
+
 	| if not target then nothing to engage
 	/if (!${Target.ID}) /return
 
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
 
-	| Do we have line of sight?
-	/if (!${Spawn[id ${Target.ID}].LineOfSight}) /return
-
 	| tank engage if target is close enough
 	/if (${Me.ID} == ${Group.MainTank.ID} && (${Target.PctHPs} < 98 || ${Navigation.PathLength[id ${Target.ID}]} < 55)) {
 		/if (${Target.ID}) /face fast
+		| Do we have line of sight?
+		/if (!${Spawn[id ${Target.ID}].LineOfSight}) /nav id ${Target.ID}
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
@@ -478,6 +459,8 @@ Sub Engage
 	| melee dps engage if target is close enough
 	/if (${Me.ID} != ${Group.MainTank.ID} && (${Target.PctHPs} < 98 || ${Navigation.PathLength[id ${Target.ID}]} < 40)) {
 		/if (${Target.ID}) /face fast
+		| Do we have line of sight?
+		/if (!${Spawn[id ${Target.ID}].LineOfSight}) /nav id ${Target.ID}
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
@@ -1701,7 +1684,9 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	
 	| what type is it?
 	| /if (${_type.Equal[FIND]}) {
-	/if (${Select[${_type},FIND,FORCE]}) {
+	/if (${Select[${_type},FIND,FORCE]} && ${Select[${Me.Class.ShortName},BRD]}) {
+		/varset _type pulse
+	} else /if (${Select[${_type},FIND,FORCE]}) {
 		|DEBUG ${dep}_type${dep}\a-w${_type}\ax
 		/if (${Me.AltAbilityReady[${_spell}]}) {	
 			/varset _type alt

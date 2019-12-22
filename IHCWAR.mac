@@ -489,6 +489,8 @@ Sub Event_Iamsnared
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 Sub Event_NotOnTarget
+	/if (!${Target.ID}) /return
+	/if (!${Target.Type.Equal[Corpse]}) /return
 	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
 /return
