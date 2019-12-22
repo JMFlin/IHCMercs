@@ -74,15 +74,14 @@ Sub ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub combat
 	/if (!${Me.XTarget}) /return
-	/if (${Me.PctMana} < 85) /return
 	/call get_target
 	/if (!${Target.ID}) /return
-
-	/call single_target_heals
 
 	/if (!${Target.Snared.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
 	}
+
+	/if (${Me.PctMana} < 85) /return
 	
 	/call single_target_heals
 
@@ -115,11 +114,15 @@ Sub debuff_xtarget
 		
 		| How will you handle the AA?
 		/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
-		|	/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
+			/docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
+			/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
 		}
 
+		/call single_target_heals
+
 		/if (!${Target.Buff[${FireAcDebuff}].ID}) {
-		|	/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
+			/docommand /dgt Ac debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
+			/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
 		}
 		/delay 1s
 	/next x

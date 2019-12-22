@@ -112,7 +112,7 @@ Sub LoadSpellBar
 	
 	/call LoadSpellGem "${CrippleSpell1}" 6
 	/call LoadSpellGem "${SlowSpell}" 7
-	/call LoadSpellGem "${PetSpell}" 8	
+	/call LoadSpellGem "${AtkBuff}" 8	
 	
 	/if (${Me.Level}>105 && ${spellmisc}>=13) {
 		/call LoadSpellGem "${SwarmPet}" 6

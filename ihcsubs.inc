@@ -100,7 +100,7 @@ Sub VarSetup
 	/declare RunAndGunMedTimer	timer outer	0
 
 	/declare UseItems 			int outer 0
-
+	/declare petFollow 			int outer 0
 	/declare illusionItem 		string outer "Bone Mask of Horror"
 |- Rezzing
 	/declare setCombatRadius	int outer 50
@@ -425,7 +425,7 @@ Sub ModeSet
 		/if (${Mode}==5) /varset ModeName DoEvent
 		/if (${Mode}==6) /varset ModeName Raid
 
- 		/docommand /dgt \ar Previous mode ${PreviousModeName} \ag Current mode ${ModeName}
+ 		/docommand /dgt  Previous mode \ar ${PreviousModeName} \ax Current mode \ag ${ModeName}
 		/varset PreviousMode ${Mode}
 	}
 /return
@@ -511,8 +511,10 @@ Sub Travel
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
 	/attack off
 	/if (${Me.Pet.ID} && ${Me.Combat}) /pet back off
-	/if (${Me.Pet.ID}) /pet follow
-
+	/if (${Me.Pet.ID} && !${petFollow}) {
+		/pet follow
+		/varset petFollow 1
+	}
 	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID} != ${Me.ID}) {
 		/if (!${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} > 50) /nav id ${Group.Leader.ID}
 		/if (${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} < 20) /nav stop
@@ -660,7 +662,11 @@ Sub afk_pull
 			/if (${Navigation.Active}) /nav stop
 			/return
 		}
-		/if (!${Navigation.Active} && (${Spawn[id ${PullTargetID}].Distance} > ${PullDistance}) || !${Spawn[id ${PullTargetID}].LineOfSight}) /nav id ${PullTargetID}
+		/if (${PullAbility.Equal[Melee]}) {
+			/if (!${Navigation.Active} && (${Spawn[id ${PullTargetID}].Distance} > ${PullDistance}) || !${Spawn[id ${PullTargetID}].LineOfSight}) /nav id ${PullTargetID}
+		} else {
+			/if (!${Navigation.Active} && (${Spawn[id ${PullTargetID}].Distance} > (${PullDistance} + 50)) || !${Spawn[id ${PullTargetID}].LineOfSight}) /nav id ${PullTargetID}
+		}
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance} <= ${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 		/if (${Me.XTarget}) /break
 	}
@@ -768,13 +774,13 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 |- SUB: PetAttack
 |---------------------------------------------------------------------------- 
 Sub pet_attack
+	/varset ${petFollow} 0
 	/if (!${Me.Pet.ID}) /return
 	/if (!${Target.Type.Equal[NPC]}) /return
-	/if (${Target.PctHPs} > ${AutoAssistAt}) /return
-	/if (${Target.Distance} > 25) /return
+	/if (${Target.PctHPs} > 98 && ${Navigation.PathLength[id ${Target.ID}]} > 40) /return
 
 	|- Pet Attack
-	/if (${Target.PctHPs}>=30 && ${Me.AltAbilityReady[Spirit Call]}) {
+	/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
 		/if (!${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /alt act 177
 		/delay 2
 	}
