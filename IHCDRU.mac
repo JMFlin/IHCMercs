@@ -143,7 +143,11 @@ Sub group_buffs
 		/if (${Group.Member[${bmember}].Distance}<${Spell[${Skin}].MyRange} && !${Group.Member[${bmember}].OtherZone}) {
 
 			/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
-			/if (${Me.XTarget}) /return
+			/if (${Me.XTarget}) {
+				/call LoadSpellBar
+				/return
+			}
+			/if (${Mode} !=3 ) /return
 
 			/if (!${Me.Book[${GroupSkin}]}) {
 				

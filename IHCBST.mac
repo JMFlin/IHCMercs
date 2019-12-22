@@ -153,13 +153,15 @@ Sub combat
 	/if (!${Me.XTarget}) /return
 	/if (!${Target.ID}) /return
 
+	
 	/call get_target
 	/call pet_attack
 
 	/call debuff_xtarget
 	
 	/call get_target
-	
+	/squelch /attack on
+
 	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs} > 1) {
 		/doability Kick
 		/delay 1s
@@ -202,7 +204,7 @@ Sub debuff_xtarget
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 		
-		/delay 3s
+		/delay 2s
 
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
@@ -250,6 +252,14 @@ Sub BuffGroup
 	/declare CastCheck			int local 0
 	
 	/for bmember 0 to ${Group}
+
+		/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
+		/if (${Me.XTarget}) {
+			/call LoadSpellBar
+			/return
+		}
+		/if (${Mode} !=3 ) /return
+
 		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID}) && ${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower}]}) {
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${FocusSpell}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Focus.ID" "tmpfocusid" "int"

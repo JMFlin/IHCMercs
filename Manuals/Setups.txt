@@ -29,7 +29,7 @@ Classes GROUP
 #7. merc merc merc dru bst wiz
 8. merc merc merc dru bst wiz 
 9. merc merc merc shm ber brd 
-10. merc merc merc shm ber wiz 
+10. merc merc merc shm ber wiz
 
 ###########################################
 Names RAID

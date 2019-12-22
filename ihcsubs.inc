@@ -511,7 +511,7 @@ Sub Travel
 	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
 	/attack off
 	/if (${Me.Pet.ID} && ${Me.Combat}) /pet back off
-	/if (${Me.Pet.ID} && ${petFollow} == 0) {
+	/if (${Me.Pet.ID} && !${petFollow}) {
 		/pet follow
 		/varset petFollow 1
 	}
@@ -774,8 +774,8 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 |- SUB: PetAttack
 |---------------------------------------------------------------------------- 
 Sub pet_attack
-	 /if (${petFollow}) /varset petFollow 0
 	/if (!${Me.Pet.ID}) /return
+	/if (${petFollow}) /varset petFollow 0
 	/if (!${Target.Type.Equal[NPC]}) /return
 	/if (${Target.PctHPs} > 98 && ${Navigation.PathLength[id ${Target.ID}]} > 40) /return
 

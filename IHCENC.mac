@@ -459,6 +459,7 @@ Sub group_buffs
 				/call LoadSpellBar
 				/return
 			}
+			/if (${Mode} !=3 ) /return
 
 			/if (!${Me.Book[${GroupMana}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SingleMana}].ID" "tmpbuffid" "int"
