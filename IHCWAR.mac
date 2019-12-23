@@ -372,7 +372,7 @@ Sub get_aggro
 		/call AANow ${Me.AltAbility[Knee Strike].ID}
 	}
 
-	/if (${Me.PctEndurance}>30 && ${Me.CombatAbilityReady[${knuckle}]} && ${Target.PctHPs}>1) {
+	/if (${Target.Named} && ${Me.PctEndurance}>30 && ${Me.CombatAbilityReady[${knuckle}]} && ${Target.PctHPs}>1) {
 		/call DiscNow ${knuckle}
 	}
 	/if (${Me.CombatAbilityReady[${StrikeDisc}]} && ${Target.PctHPs}>1) {

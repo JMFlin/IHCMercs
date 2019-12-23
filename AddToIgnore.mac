@@ -1,6 +1,9 @@
 #turbo 80
 Sub Main
-	/plugin mq2sqlite
+	/if (!${Bool[${Plugin[mq2sqlite]}]}) {
+        /squelch /plugin mq2sqlite noauto
+        /echo \aw mq2sqlite \ar not detected! \aw This macro requires it! Loading ...
+    }
 	/declare Update 				int outer 1
 	/declare PreviousTarget 		int outer 0
 	/declare InDataBase				int outer 0
