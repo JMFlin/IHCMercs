@@ -205,7 +205,9 @@ Sub CheckSpells
 		/varset CrippleSpell1 ${Spell[Incapacitate].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Alacrity].Level} && ${Me.Book[${Spell[Alacrity].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Celerity].Level} && ${Me.Book[${Spell[Celerity].RankName}]}) {
+		/varset Haste ${Spell[Celerity].RankName}
+	} else /if (${Me.Level}>=${Spell[Alacrity].Level} && ${Me.Book[${Spell[Alacrity].RankName}]}) {
 		/varset Haste ${Spell[Alacrity].RankName}
 	}
 |-Swarm Pet*

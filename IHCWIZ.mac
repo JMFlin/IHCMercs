@@ -181,7 +181,7 @@ Sub combat
 		/if (!${Spawn[${Me.Name} pccorpse radius 50].ID}) {
 			
 			| Trigger first harvest
-			/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
 		}
 	}
 
