@@ -399,6 +399,26 @@ Sub self_buffs
 			/varset CastCheck 1
 		}
 	} 
+
+	/if (!${Me.Pet.ID} && ${FindItem[=Tiny Dagger].ID}) {
+		/if (${validate_cast[FALSE, spell, "${PetSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${PetSpell}" spell 0 FALSE
+			/varset CastCheck 1
+		}
+	}
+
+	/if (${Me.Pet.ID}) {
+		/if (${validate_cast[FALSE, spell, "${PetBuffSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${PetBuffSpell}" spell 0 FALSE
+			/varset CastCheck 1
+		}
+	}
+|				/call SpellQueue "${PetSpell}" ${Me.ID}
+|				/varset CastCheck 1
+|				/delay 5
+|	} else /if (${UsePet} && !${UseCharmPet} && ${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetBuffSpell}]} && ${Me.CurrentMana}>${Spell[${PetBuffSpell}].Mana} && !${Me.Pet.Buff[${PetBuffSpell}]}) {
+|				/call SpellQueue "${PetBuffSpell}" ${Me.Pet.ID}
+|				/varset CastCheck 1
 |	else /if (!${Me.Buff[${GroupMana}].ID} && ${Cast.Status.Equal[I]} && (${Spell[${GroupMana}].Stacks}) && ${Me.Book[${GroupMana}]} && ${Me.CurrentMana}>${Spell[${GroupMana}].Mana}) {
 ||				/call SpellQueue "${GroupMana}" ${Me.ID}
 |				/varset CastCheck 1

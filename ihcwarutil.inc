@@ -137,9 +137,11 @@ Sub SetupDiscs
 
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Knuckle Crush].RankName}]}) {
 		/varset knuckle ${Spell[Knuckle Crush].RankName}
+	} else /if (${Me.Level}>=80 && ${Me.CombatAbility[${Spell[Knuckle Smash].RankName}]}) {
+		/varset knuckle ${Spell[Knuckle Smash].RankName}
 	}
 
-	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Throat Jab].RankName}]}) {
+	/if (${Me.Level}>=73 && ${Me.CombatAbility[${Spell[Throat Jab].RankName}]}) {
 		/varset throat ${Spell[Throat Jab].RankName}
 	}
 
