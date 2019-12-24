@@ -13,10 +13,6 @@
 #warning
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
-#Event NotOnTarget	"#*#You cannot see your target#*#"
-#Event NotOnTarget	"#*#Your target is too far away#*#"
-#Event WornOff      "Your #1# spell has worn off of #*#."
-#Event GroupChange	"#*#has joined the group#*#"
 
 Sub Main
 	/delay ${Math.Rand[10]}

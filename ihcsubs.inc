@@ -461,6 +461,12 @@ Sub Engage
 		/if (${Target.ID}) /face fast
 		| Do we have line of sight?
 		/if (!${Spawn[id ${Target.ID}].LineOfSight}) /nav id ${Target.ID}
+
+		/while (${Navigation.Active}) {
+			/delay 5
+			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
+		}
+
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
@@ -595,7 +601,7 @@ Sub afk_pull
 	/if (!${Group.Puller.ID}==${Me.ID}) /return
 	/if (${Me.Casting.ID}) /return
 
-	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC,BST]}) {
+	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC,BST,MAG,CLR,DRU,SHM]}) {
 		/if (${Me.PctMana} < 20) /return
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,MNK,BER,ROG]}) {
@@ -2422,40 +2428,12 @@ Sub BegForCure
 	/if (${Defined[tmpCureSpellReady]}) /deletevar tmpCureSpellReady
 	/delay 5
 /return
-|-------------------------------------------------------------------------------------
-|- SUB: BIND KillMATarget
-|-------------------------------------------------------------------------------------
-Sub Bind_KillMATarget
-	/call KillTarget
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: BIND SetAutoTargetID
-|-------------------------------------------------------------------------------------
-Sub Bind_SetAutoTargetID
-	/varset autotargetid ${Target.ID}
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: BIND QuestSay
-|-------------------------------------------------------------------------------------
-Sub Bind_QuestSay(string QSayText)
-	/squelch /mgax /target id ${Target.ID}
-	/delay 5
-	/squelch /mgax /say ${QSayText}
-	/delay 5
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: BIND ChaseMe
-|-------------------------------------------------------------------------------------
-Sub Bind_ChaseMe
-    /squelch /mgx /chase on ${Me.CleanName}
-/return
-
 #Event ZonePoK	"#*#You have entered Plane of Knowledge#*#"
 |----------------------------------------------------------------------------
 |- SUB: Event Event_ZonePoK - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 Sub Event_ZonePoK
-	/varset Mode 1
+	/varset Mode 0
 	/doevents flush Event_ZonePoK
 /return
 |-------------------------------------------------------------------------------------

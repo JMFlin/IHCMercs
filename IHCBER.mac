@@ -15,10 +15,6 @@
 #include IHCMercs\ihcevents.inc
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
-#Event NotOnTarget	"#*#You cannot see your target#*#"
-#Event NotOnTarget	"#*#Your target is too far away#*#"
-#Event GroupChange	"#*#has left the group#*#"
-#Event GroupChange	"#*#has joined the group#*#"
 Sub Main
 	/delay ${Math.Rand[5]}
 	/doevents flush
@@ -405,48 +401,3 @@ Sub make_axes
 		/if (${Cursor.ID}) /autoinventory
 	}
 /return
-|----------------------------------------------------------------------------
-|- SUB: AllianceCheck - check for other zerkers in group
-|---------------------------------------------------------------------------- 
-Sub AllianceCheck
-	/if (${UseAlliance}) {
-		/echo \aw Alliance Use is \ag on \aw, checking for other Berserkers!
-		/declare Gsize int local 0
-		/declare i int local
-		/varcalc Gsize ${Group.GroupSize}-1
-		/varset ZerkerCount 1
-		/for i 1 to ${Gsize}
-			/if (${Group.Member[${i}].Class.ShortName.Equal[BER]}) {
-				/varcalc ZerkerCount ${ZerkerCount}+1
-			}
-		/next i
-		/if (${ZerkerCount}>=3) {
-			/echo \aw Woot! \ag ${ZerkerCount} \aw Zerkers found
-			/echo \aw Shits about to blow up!
-		} else /if (${ZerkerCount}<3) {
-			/echo \aw Sorry only \ag ${ZerkerCount} \aw Zerker(s) found :(
-			/echo \aw No Alliance for joo!
-		}
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if ((${Me.Rooted.ID} || ${Me.ActiveDisc.ID}==30436) && ${Me.AltAbilityReady[Drawn to Blood]} && ${Me.Combat}) {
-		/alt act ${Me.AltAbility[Drawn to Blood].ID}
-	} else /if (${DoAutoEngage}) {
-		/if (!${Target.ID}) /return
-		/if (!${Target.Type.Equal[Corpse]}) /return
-		/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
-	}
-	/doevents flush NotOnTarget
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event GroupChange
-|----------------------------------------------------------------------------
-Sub Event_GroupChange
-	/if (${UseAlliance}) {
-		/call AllianceCheck
-	}
-/return 

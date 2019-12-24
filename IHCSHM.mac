@@ -14,10 +14,6 @@
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
 #bind BNDSingleCure	/curesingle
-#Event NotOnTarget	"#*#You cannot see your target#*#"
-#Event NotOnTarget	"#*#Your target is too far away#*#"
-#Event WornOff      "Your #1# spell has worn off of #*#."
-#Event GroupChange	"#*#has joined the group#*#"
 
 Sub Main
 	/delay ${Math.Rand[6]}
@@ -789,18 +785,6 @@ Sub Event_Chat(string ChatType,string ChatSender,string ChatText)
 		/if (${Select[${ChatText},Cure,cure,CURE,RC,Radiant,GC]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<200)) /call SingleCure ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
 	}
 /return
-|----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if (${DoAutoEngage}) {
-		/squelch /attack off
-		/if (${DoAutoTarget}) /call FindTarget
-		/delay 5
-		/if (${Target.Distance}<${AssistRange}) /call EngageTarget
-	}
-	/doevents flush NotOnTarget
-/return 
 |----------------------------------------------------------------------------
 |- SUB: Event_WornOff
 |----------------------------------------------------------------------------

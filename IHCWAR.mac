@@ -15,10 +15,6 @@
 #bind CmdList       /ihchelp
 #bind DefenseDisc    /defdisc
 #bind FortitudeDisc  /evadedisc
-#Event NotOnTarget	"#*#You cannot see your target#*#"
-#Event NotOnTarget	"#*#Your target is too far away#*#"
-#Event Iamsnared	"#*#You are entangled by webs#*#"
-#Event Buff 			"Your #1# spell has worn off of #*#."
 |- #Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
 
 Sub Main
@@ -483,14 +479,5 @@ Sub Event_Iamsnared
 	/if (${DoGroupBeg}) {
 	 /call BegForCure	
 	}
-	/doevents flush NotOnTarget
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if (!${Target.ID}) /return
-	/if (!${Target.Type.Equal[Corpse]}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
 	/doevents flush NotOnTarget
 /return

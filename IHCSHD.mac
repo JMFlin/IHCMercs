@@ -15,11 +15,6 @@
 #bind CmdList       /ihchelp
 #bind DefenseDisc    /defdisc
 #bind FortitudeDisc  /evadedisc
-|-#Event NotOnTarget	"#*#You cannot see your target#*#"
-|-#Event NotOnTarget	"#*#Your target is too far away#*#"
-#Event Iamsnared	"#*#You are entangled by webs#*#"
-#Event Buff 			"Your #1# spell has worn off of #*#."
-|- #Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
 
 Sub Main
 	/delay ${Math.Rand[3]}
@@ -151,7 +146,7 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.PctHPs} < 90) {
+	/if (${Me.PctHPs} < 99) {
 		/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 	}
 	/doevents
@@ -272,11 +267,16 @@ Sub get_aggro
 		/delay 1s
 	}
 
-	/docommand /dgt Attempting to grab aggro on \ar ${Target.ID} \ax with =>> \ag ${Terror1} \ax <<=
-	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) /call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {
+		/docommand /dgt Attempting to grab aggro on \ar ${Target.Name} \ax with =>> \ag ${Terror1} \ax <<=
+		/call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
+	}	
 	/doevents
-	/docommand /dgt Attempting to grab aggro on \ar ${Target.ID} \ax with =>> \ag ${Terror2} \ax <<=
-	/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) /call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
+	
+	/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) {
+		/docommand /dgt Attempting to grab aggro on \ar ${Target.Name} \ax with =>> \ag ${Terror2} \ax <<=
+		/call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
+	}
 
 /return
 |----------------------------------------------------------------------------
@@ -287,7 +287,7 @@ Sub aoe_aggro
 	/if (!${Me.XTarget}) /return
 
 	/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {
-		/docommand /dgt Two or more mobs near me. using AoE aggro \ax with =>> \ag ${Denial} \ax <<=
+		/docommand /dgt Using AoE aggro with =>> \ag ${Denial} \ax <<=
 		/if (${validate_cast[FALSE, spell, "${Denial}", ${Target.ID}]}) /call core_cast2 "${Denial}" spell ${Target.ID} FALSE
 	}
 	
@@ -299,22 +299,4 @@ Sub aoe_aggro
 | 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
 	}
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event Iamsnared
-|----------------------------------------------------------------------------
-Sub Event_Iamsnared 
-	/if (${DoGroupBeg}) {
-	 /call BegForCure	
-	}
-	/doevents flush NotOnTarget
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if (!${Target.ID}) /return
-	/if (!${Target.Type.Equal[Corpse]}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
-	/doevents flush NotOnTarget
 /return

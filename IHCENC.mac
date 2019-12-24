@@ -13,8 +13,6 @@
 #Chat group
 #Chat tell
 #Chat raid
-#Event MezBroke          "#1# has been awakened by #2#."
-#Event WornOff      "Your #1# spell has worn off of #*#."
 #bind SetVarInt			/setvarint
 #bind CmdList			/ihchelp
 #bind SingleBanish		/banish
@@ -146,6 +144,7 @@ Sub debuff_xtarget
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
+		/call mez_xtarget
 
 		/if (!${Target.Buff[${DoTSpell3}].ID} && ${Target.Named}) {
 			/if (${validate_cast[FALSE, spell, "${DoTSpell3}", ${Target.ID}]}) /call core_cast2 "${DoTSpell3}" spell ${Target.ID} FALSE
@@ -160,11 +159,13 @@ Sub debuff_xtarget
 			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 		}
+		/call mez_xtarget
 
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
 			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) /call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
 		}
+		/call mez_xtarget
 
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
@@ -241,12 +242,14 @@ Sub mez_xtarget
 		| If the xtarget is already mezzed then skip
 		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
 
-		| Query MA on what is currently being killed
+		| Query MA and MT on what is currently being killed
 		/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
 		/echo MA Target is ${MATargetID}
+		/call Gquery ${Group.MainTank.Name.Lower} "Target.ID" "MTTargetID" "int"
+		/echo MT Target is ${MTTargetID}
 
-		| If xtarget is being targetted by MA then skip
-		/if (${Me.XTarget[${x}].ID} == ${MATargetID}) /continue
+		| If xtarget is being targetted by MA or MT then skip
+		/if (${Me.XTarget[${x}].ID} == ${MATargetID} || ${Me.XTarget[${x}].ID} == ${MTTargetID}) /continue
 
 		| If not mezzed then target it
 		/target id ${Me.XTarget[${x}].ID}
@@ -261,14 +264,17 @@ Sub mez_xtarget
 
 		| If target is not mezzed then mez
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
-			/docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
-			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) /call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) {
+				/docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
+				/call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
+			}
 		}
 
 		/delay 1s
 
 	/next x
 	/if (${Defined[MATargetID]}) /deletevar MATargetID
+	/if (${Defined[MTTargetID]}) /deletevar MTTargetID
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
@@ -408,8 +414,8 @@ Sub self_buffs
 	}
 
 	/if (${Me.Pet.ID}) {
-		/if (${validate_cast[FALSE, spell, "${PetBuffSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${PetBuffSpell}" spell 0 FALSE
+		/if (${validate_cast[FALSE, spell, "${PetBuffSpell}", ${Me.Pet.ID}]}) {
+			/call core_cast2 "${PetBuffSpell}" spell ${Me.Pet.ID} FALSE
 			/varset CastCheck 1
 		}
 	}
