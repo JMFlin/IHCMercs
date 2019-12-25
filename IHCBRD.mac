@@ -40,7 +40,7 @@ Sub Main
 	}
 	/call WelcomeMsg
 
-	/call alliance_check_group
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
 
  :mainloop
@@ -134,12 +134,18 @@ Sub debuff
 	/if (${Target.Distance} > 150) /return
 	/if (!${Spawn[id ${Target.ID}].LineOfSight}) /return
 
-	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID}) {
+	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && ${slowImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
 			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
 			/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
 		}
+		/doevents CAST_IMMUNE
+		/if (${Select[${castReturn},CAST_IMMUNE]}) {
+			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
+			/varset slowImmuneID ${Target.ID}
+		}
 	}
+	
 /return
 
 Sub selo

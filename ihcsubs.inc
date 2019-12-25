@@ -151,7 +151,6 @@ Sub VarSetup
 	/declare kick 			bool outer FALSE
 	/declare backstab 		bool outer FALSE
 	/declare frenzy 		bool outer FALSE
-	/declare tigerclaw 		bool outer FALSE
 	/declare flyingkick 	bool outer FALSE
 	/declare roundkick  	bool outer FALSE
 	/declare bash 			bool outer FALSE
@@ -160,7 +159,8 @@ Sub VarSetup
 	/declare UseAlliance 	bool outer FALSE
 
 |- events
-	/declare snareImmuneID 	int outer 0
+	/declare snareImmuneID 		int outer 0
+	/declare slowImmuneID 		int outer 0
 	/declare HybridManaLimit 	int outer 80
 
 	/echo -----${MacroName} LOADING------
@@ -860,27 +860,6 @@ Sub SetControlToon
 	|- /if (${Group.Member[${assistname}].ID} && ${Group.Leader.ID}==${Me.ID} && ${Group.MainAssist.ID}!=${assistid}) /grouproles set ${Group.Member[${assistname}].ID} 2 
 /return 
 |----------------------------------------------------------------------------
-|- SUB: Event Camping - end macro
-|----------------------------------------------------------------------------
-Sub Event_Camping	
-	/if (${Me.Casting.ID}) /stopcast
-	/endmacro
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event CAST_RESIST
-|----------------------------------------------------------------------------
-Sub Event_CAST_RESIST
-	/varset CastResult CAST_RESIST
-	/doevents flush Event_CAST_RESIST
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event CAST_IMMUNE
-|----------------------------------------------------------------------------
-Sub Event_CAST_IMMUNE
-	/varset CastResult CAST_IMMUNE
-	/doevents flush Event_CAST_IMMUNE
-/return
-|----------------------------------------------------------------------------
 |- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
 |----------------------------------------------------------------------------
 Sub Bind_Campfire
@@ -911,18 +890,6 @@ Sub Bind_Campfire
 		/windowstate FellowshipWnd close
 		/if (${Me.Fellowship.Campfire}) /echo Campfire Dropped
     }
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event Zoned
-|----------------------------------------------------------------------------
-Sub Event_Zoned(Message)
-	/call Zoning
-/return
-	
-Sub Zoning
-	/delay 1m !${Me.Zoning}
-	
-	/delay 50
 /return
 |----------------------------------------------------------------------------
 |- SUB: Load Ini
@@ -2611,14 +2578,6 @@ Sub BegForCure
 	/if (${Defined[tmpCureSpellName]}) /deletevar tmpCureSpellName
 	/if (${Defined[tmpCureSpellReady]}) /deletevar tmpCureSpellReady
 	/delay 5
-/return
-#Event ZonePoK	"#*#You have entered Plane of Knowledge#*#"
-|----------------------------------------------------------------------------
-|- SUB: Event Event_ZonePoK - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_ZonePoK
-	/varset Mode 0
-	/doevents flush Event_ZonePoK
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: Help Common - 

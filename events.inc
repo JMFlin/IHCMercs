@@ -6,6 +6,16 @@
  *   
  ***|
 
+|***
+ *	TODO: 
+ * #Event MezBroke          "#1# has been awakened by #2#."
+ * #Event WornOff      "Your #1# spell has worn off of #*#."
+ * #Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
+ * #Event Buff 			"Your #1# spell has worn off of #*#."
+ * Check raid in group alliance so that you dont turn it off when you sdwitch groups...
+ ***|
+
+
 
 
 |***
@@ -36,7 +46,7 @@ sub events_speakline(string _target, string _verbage)
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 #Event NotOnTargetLoS	"#*#You cannot see your target#*#"
-Sub Event_NotOnTargetLoS
+Sub Event_NotOnTargetLoS(string line)
 	/if (!${Target.ID}) /return
 	/if (!${Target.Type.Equal[Corpse]}) /return
 	
@@ -52,7 +62,7 @@ Sub Event_NotOnTargetLoS
 /return
 
 #Event NotOnTargetDistance	"#*#Your target is too far away#*#"
-Sub Event_NotOnTargetDistance
+Sub Event_NotOnTargetDistance(string line)
 	/if (!${Target.ID}) /return
 	/if (!${Target.Type.Equal[Corpse]}) /return
 	
@@ -87,16 +97,14 @@ Sub alliance_check_group(bool _debug)
 	/next i
 
 	/if (${_myclasscount} >= 3) {
-		/echo \ag ${_myclasscount} \aw ${Me.Class.ShortName} found. Setting Alliance to TRUE.
+		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw. Setting Alliance to TRUE.
     /return TRUE
 	} else /if (${_myclasscount} < 3) {
-		/echo \aw Only \ag ${_myclasscount} \aw ${Me.Class.ShortName} found. Setting Alliance to FALSE.
+		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw . Setting Alliance to FALSE.
 	}
 /return FALSE
-|----------------------------------------------------------------------------
-|- SUB: Event GroupChange
-|----------------------------------------------------------------------------
-Sub Event_GroupChange
+
+Sub Event_GroupChange(string line)
 		/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE 
 /return ${UseAlliance}
 |----------------------------------------------------------------------------
@@ -104,7 +112,7 @@ Sub Event_GroupChange
 |---------------------------------------------------------------------------- 
 #Event GroupChange	"#*#has left the group#*#"
 #Event GroupChange	"#*#has joined the group#*#"
-Sub Event_HybridHealerLimit(bool _debug)
+Sub hybrid_healer_limit(bool _debug)
 
 	/declare _groupsize int local ${Group.GroupSize}-1
   /declare _clrclasscount int local 0
@@ -117,13 +125,17 @@ Sub Event_HybridHealerLimit(bool _debug)
 	/next i
 
 	/if (${_clrclasscount} >= 1) {
-		/echo \ag ${_clrclasscount} \aw CLRs found. Setting DPS mana limit to 40.
-    /varset HybridManaLimit 40
+		/echo CLRs found \ag ${_clrclasscount} \aw . Setting DPS mana limit to 40.
+    /return TRUE
 	} else /if (${_clrclasscount} < 1) {
-		/echo \ag ${_clrclasscount} \aw CLRs found. Setting DPS mana limit to 80.
-    /varset HybridManaLimit 80
+		/echo CLRs found \ar ${_clrclasscount} \aw . Setting DPS mana limit to 80.
+    /return FALSE
 	}
 /return
+
+Sub Event_HybridHealerLimit(string line)
+		/if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 50 
+/return ${UseAlliance}
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in raid
 |---------------------------------------------------------------------------- 
@@ -142,25 +154,16 @@ Sub alliance_check_raid(bool _debug)
 	/next i
 
 	/if (${_myclasscount} >= 3) {
-		/echo \ag ${_myclasscount} \aw ${Me.Class.ShortName} found. Setting Alliance to TRUE.
+		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw. Setting Alliance to TRUE.
     /return TRUE
 	} else /if (${_myclasscount} < 3) {
-		/echo \aw Only \ag ${_myclasscount} \aw ${Me.Class.ShortName} found. Setting Alliance to FALSE.
+		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw . Setting Alliance to FALSE.
 	}
 /return FALSE
-|----------------------------------------------------------------------------
-|- SUB: Event GroupChange
-|----------------------------------------------------------------------------
-Sub Event_RaidChange
+
+Sub Event_RaidChange(string line)
 		/if (${alliance_check_raid[FALSE]}) /varset UseAlliance TRUE 
 /return ${UseAlliance}
-
-
-|#Event MezBroke          "#1# has been awakened by #2#."
-|#Event WornOff      "Your #1# spell has worn off of #*#."
-|#Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
-|#Event Buff 			"Your #1# spell has worn off of #*#."
-
 
 |----------------------------------------------------------------------------
 |- SUB: Event Gain Something - DanNet message 
@@ -178,9 +181,36 @@ Sub Event_GainSomething(string Line, string text)
 Sub Event_TaskUpdate(string Line, string name) 
     /if (${acverbose}!=0) /docommand /dgt \at Task updated...(${name})\ax    
 /return
+|----------------------------------------------------------------------------
+|- SUB: Event Camping - end macro
+|----------------------------------------------------------------------------
+Sub Event_Camping	
+	/if (${Me.Casting.ID}) /stopcast
+	/endmacro
+/return
 
+|----------------------------------------------------------------------------
+|- SUB: Event Zoned
+|----------------------------------------------------------------------------
+Sub Event_Zoned(Message)
+	/call Zoning
+/return
+	
+Sub Zoning
+	/delay 1m !${Me.Zoning}
+	
+	/delay 50
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event Event_ZonePoK - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
+#Event ZonePoK	"#*#You have entered Plane of Knowledge#*#"
+Sub Event_ZonePoK(string line)
+	/varset Mode 0
+	/doevents flush Event_ZonePoK
+/return
 
-        
+    
 |***
  *	DES: cast return events
  *	USE: 

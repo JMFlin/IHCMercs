@@ -33,8 +33,8 @@ Sub Main
 		/autoinventory
 	}
 	/call WelcomeMsg
-	/call alliance_check_group
-	/doevents HybridHealerLimit
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
+	/if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 50
 	/declare AssistRange int outer 10
 	/declare AutoCampRadius int outer 10
  :mainloop
@@ -74,15 +74,14 @@ Sub combat
 	/if (!${Me.XTarget}) /return
 	/call get_target
 	/if (!${Target.ID}) /return
-
-	/if (!${Target.Snared.ID}) {
-		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-	}
-
+	
 	/if (!${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
 		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) /varset snareImmuneID ${Target.ID}
+		/if (${Select[${castReturn},CAST_IMMUNE]}) {
+			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
+			/varset snareImmuneID ${Target.ID}
+		}
 	}
 
 	/if (${Me.PctMana} < ${HybridManaLimit}) /return
@@ -118,15 +117,20 @@ Sub debuff_xtarget
 		
 		| How will you handle the AA?
 		/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
-			/docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
-			/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
+			
+			/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) {
+				/docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
+				/call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
+			}
 		}
 
 		/call single_target_heals
 
 		/if (!${Target.Buff[${FireAcDebuff}].ID}) {
-			/docommand /dgt Ac debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
-			/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) {
+				/docommand /dgt Ac debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
+				/call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
+			}
 		}
 		/delay 1s
 	/next x

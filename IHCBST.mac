@@ -44,7 +44,7 @@ Sub Main
 	/varset AutoAssistAt 100
 	/varset AssistRange 10
 
-	/call alliance_check_group
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
 	
  :mainloop
@@ -171,14 +171,28 @@ Sub combat
 	/if (!${Target.Buff[${DoTSpell1}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
+	/call Engage
 	/call pet_attack
-	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
-		/docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+
+	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${slowImmuneID} != ${Target.ID}) {
+		
+		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+			/docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+			/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+		}
+		/doevents CAST_IMMUNE
+		/if (${Select[${castReturn},CAST_IMMUNE]}) {
+			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
+			/varset slowImmuneID ${Target.ID}
+		}
 	}
+	/call Engage
 	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-		/docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
-		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+
+		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
+			/docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+			/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+		}
 	}
 	/call pet_attack
 	/if (!${Target.Buff[${NukeSpell4}].ID}) {
@@ -210,14 +224,23 @@ Sub debuff_xtarget
 		/if (!${Target.Type.Equal[NPC]}) /return
 		
 		| How will you handle the AA?
-		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
-			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${slowImmuneID} != ${Target.ID}) {
+			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+				/docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+			}
+			/doevents CAST_IMMUNE
+			/if (${Select[${castReturn},CAST_IMMUNE]}) {
+				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
+				/varset slowImmuneID ${Target.ID}
+			}
 		}
 		
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-			/docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
-			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
+				/docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+			}
 		}
 		/delay 2s
 	/next x

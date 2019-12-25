@@ -37,7 +37,7 @@ Sub Main
 		/echo Sending Item on Cursor to Bag
 		/autoinventory
 	}
-	/call alliance_check_group
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/varset UseSpellInterrupt 1
 
 :mainloop
