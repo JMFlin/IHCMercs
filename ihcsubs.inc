@@ -2391,6 +2391,102 @@ sub check_hurt(bool _debug, string _type)
 	}
 
 /return FALSE
+
+|***
+ *	DES: use base melee discs
+ *	USE: /call use_skill_melee TARGET
+ *	NOTE: 
+ ***|
+sub use_skill_melee(int _tmpID, bool _debug)
+
+	/if (!${Bool[${_tmpID}]}) /return	
+	/if (${Target.Type.Equal[Corpse]}) /return
+	
+	/if (${Target.ID} != ${_tmpID}) {
+		/squelch /target ID ${_tmpID}
+		/delay 5 ${Target.ID} == ${_tmpID}
+	}
+
+	| taunt /onoff agro
+	/if (${Me.ID} == ${Group.MainTank.ID} && ${Me.AbilityReady[Taunt]} && ${Spawn[${_tmpID}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
+		/if (${Target.ID}) /doability Taunt
+	}
+	
+	| disarm
+	/if (${Bool[${disarm}]} && !${Skill[Disarm].Auto}) {
+		/if (${Me.AbilityReady[Disarm]} && ${Spawn[${_tmpID}].Distance} <= 15 && ${swAgro}) {
+			/if (${Target.ID}) /doability Disarm
+		}
+	}
+		
+	| kick
+	/if (${Bool[${kick}]} && !${Skill[Kick].Auto}) {
+	 	/if (${Me.AbilityReady[Kick]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+			/if (${Target.ID}) /doability Kick
+		}
+	}
+	
+	| bash
+	/if (${Bool[${bash}]} && !${Skill[Bash].Auto}) {
+		/if (${Me.AbilityReady[Bash]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+			/if (${Bool[${swBandolier}]} && ${Bool[${bandolierBash}]} && ${Bool[${bandolierNormal}]}) {
+				/if (${Target.ID}) {
+					/call bandolier_swap Bash
+					/doability Bash
+					/call bandolier_swap Normal
+				}
+			} else /if (!${Bool[${swBandolier}]}) {
+				/if (${Target.ID}) /doability Bash
+			}
+		}
+	}	
+	
+	| Intimidation
+	/if (${Select[${Me.Class.ShortName},BRD,ROG,MNK,BER]}) {
+		/if (${intimidation} && ${Bool[${intimidation}]}) {
+			/if (${Me.AbilityReady[Intimidation]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+				/if (${Target.ID}) /doability Intimidation		
+			}
+		}
+	}
+
+	| Zerker only skill
+	/if (${Select[${Me.Class.ShortName},BER]}) {
+		/if (!${frenzy} && ${Skill[Frenzy].Auto}) {
+			/if (${Me.AbilityReady[Frenzy]} && ${Spawn[${_tmpID}].Distance} <= 13) {
+				/if (${Target.ID}) /doability Frenzy
+			}
+		}
+	}
+
+	| rogue only skill
+	/if (${Select[${Me.Class.ShortName},ROG]}) { 
+		/if (${backstab} && !${Skill[Backstab].Auto}) {
+			/if (${Me.AbilityReady[Backstab]} && ${Spawn[${_tmpID}].Distance} <= 13) {
+				/if (${Target.ID}) /doability Backstab
+			}
+		}
+	}
+	
+	| monk/bst only skill 
+	/if (${Select[${Me.Class.ShortName},MNK,BST]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+		| fist
+		/if (${Bool[${dragonpunch}]} && !${Skill[Dragon Punch].Auto} && (${Me.AbilityReady[Dragon Punch]} || ${Me.AbilityReady[Tail Rake]})) {
+			/if (${Target.ID}) /doability "Dragon Punch"
+		} else /if (${Bool[${eaglestrike}]} && !${Skill[Eagle Strike].Auto} && ${Me.AbilityReady[Eagle Strike]}) {
+			/if (${Target.ID}) /doability "Eagle Strike"
+		} else /if (${Bool[${tigerclaw}]} && !${Skill[Tiger Claw].Auto} && ${Me.AbilityReady[Tiger Claw]}) {
+			/if (${Target.ID}) /doability "Tiger Claw"
+		}
+		| kick
+	 	/if (${Bool[${flyingkick}]} && !${Skill[Flying Kick].Auto} && ${Me.AbilityReady[Flying Kick]}) {
+			/if (${Target.ID}) /doability "Flying Kick"
+		} else /if (${Bool[${roundkick}]} && !${Skill[Round Kick].Auto} && ${Me.AbilityReady[Round Kick]}) {
+			/if (${Target.ID}) /doability "Round Kick"
+		}		
+	}
+
+/return
 |-------------------------------------------------------------------------------------
 |- SUB: BegForCure
 |-------------------------------------------------------------------------------------
