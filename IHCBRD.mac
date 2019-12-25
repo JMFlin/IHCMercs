@@ -49,6 +49,8 @@ Sub Main
 		/call ZoneEventChk
 	}
 
+	/if (!${Skill[Kick].Auto}) /autoskill Kick
+
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel

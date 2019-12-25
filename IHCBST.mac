@@ -43,6 +43,14 @@ Sub Main
 	/varset AutoCampRadius 10
 	/varset AutoAssistAt 100
 	/varset AssistRange 10
+
+	/if (!${Me.Level} < 70) {
+		/if (!${Skill[Kick].Auto}) /autoskill bash
+	} else {
+		/if (!${Skill[Eagle Strike].Auto}) /autoskill eagle strike
+		/if (!${Skill[Round Kick].Auto}) /autoskill Round Kick
+	}
+	
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel

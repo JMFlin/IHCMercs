@@ -42,7 +42,7 @@ Sub Main
 
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call AddToAlert
 
-	/autoskill bash
+	/if (!${Skill[Bash].Auto}) /autoskill bash
 
  :mainloop
 	/call ModeSet

@@ -146,7 +146,7 @@ Sub LoadSpellBar
 		/if (${GambitSpell.NotEqual[NULL]} && ${Me.Book[${GambitSpell}]}) {
 			/call LoadSpellGem "${GambitSpell}" 8
 		} else {
-			/call LoadSpellGem "${HarvestSpell1}"8
+			/call LoadSpellGem "${HarvestSpell1}" 8
 		}
 
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {

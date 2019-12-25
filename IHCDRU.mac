@@ -170,7 +170,7 @@ Sub group_buffs
 					/varset CastCheck 1
 				}
 			}
-
+			/sit
 			/if (${Me.CurrentMana}>${Spell[${SoW}].Mana} && ${Me.Book[${SoW}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SoW}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SoW}].Stacks" "tmpstackcheck" "bool"
@@ -188,6 +188,7 @@ Sub group_buffs
 					/varset CastCheck 1
 				}
 			}
+			/sit
 		}
 	/next bmember
 	|- Delete variable's

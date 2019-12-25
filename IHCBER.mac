@@ -40,6 +40,8 @@ Sub Main
 	/if (${UseZoneLogic}) {
 		/call ZoneEventChk
 	}
+
+	/if (!${Skill[Frenzy].Auto}) /autoskill Frenzy
 	
  :mainloop
 	/call ModeSet
