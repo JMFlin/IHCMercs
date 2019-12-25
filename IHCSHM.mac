@@ -35,7 +35,7 @@ Sub Main
 	/call CheckSpells
 	/call SetControlToon
 	/call LoadSpellBar
-	/call alliance_check_group
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/if (${UseMelee}) /djoin ihcdps
 	/pet hold on
 |-Cursor ID

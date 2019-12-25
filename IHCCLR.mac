@@ -43,7 +43,7 @@ Sub Main
 		/autoinventory
 	}
 	/call WelcomeMsg
-	/call alliance_check_group
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 
  :mainloop
 	/call ModeSet

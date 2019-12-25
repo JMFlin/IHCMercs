@@ -42,7 +42,7 @@ Sub Main
 
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call AddToAlert
 
-	/call alliance_check_group
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
 
  :mainloop
@@ -143,8 +143,13 @@ Sub combat
 	
 	/squelch /attack on
 
-	/if (!${Target.Snared.ID}) {
+	/if (!${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+		/doevents CAST_IMMUNE
+		/if (${Select[${castReturn},CAST_IMMUNE]}) {
+			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
+			/varset snareImmuneID ${Target.ID}
+		}
 	}
 
 	/if (${Me.PctHPs} < 99) {
