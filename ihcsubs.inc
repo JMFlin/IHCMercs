@@ -2283,37 +2283,24 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
  ***|
 sub check_hurt(bool _debug, string _type)
 
-	/declare _count int local 0
-	/varset hurtID ${Me.ID}
-	/varset hurtPctHP 100
-	| /varset hurtPctHP ${If[${setHealOverride},${Float[${setHealOverride}].Centi},99.99]}
-	/varset hurtCLS ${Me.Class.ShortName}
-	/varset hurtCount 0
-	/declare _hurtWeight float local 0
-	/declare _tmpWeight float local 0
+	/declare _count 				int local 0
+	/declare countGroupHeal			int local 3
+	/declare hpGroupHeal			int local 80
+	/declare hurtCount 				int local 0
 
 	| check group hurt
 	/if (${_type.Equal[group]}) {
 		/for _count 0 to ${Group}
-			|/if (${Group.Member[${_count}].PctHPs} > ${${Group.Member[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
-			| /if (${Group.Member[${_count}].PctHPs} > ${hurtPctHP}) /continue
-			|/if (${Group.Member[${_count}].Distance} > ${setMobAgro}) /continue
-			/if (!${Group.Member[${_count}].Present} || ${Group.Member[${_count}].Dead}) /continue
-			|/if (${Group.Member[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
-			|/if (${lstNoHeal.Find[${Group.Member[${_count}].DisplayName}]}) /continue
-			/varcalc _tmpWeight (${Group.Member[${_count}].PctHPs} / ${${Group.Member[${_count}].Class.ShortName}Point}) + .${${Group.Member[${_count}].Class.ShortName}Point}
-
-			/if (${_tmpWeight} > ${_hurtWeight}) { 
-				/varcalc _hurtWeight ${_tmpWeight}
-				/varset hurtPctHP ${Group.Member[${_count}].PctHPs}
-				/varset hurtID ${Group.Member[${_count}].ID}
-				/varset hurtCLS ${Group.Member[${_count}].Class.ShortName}
-				/varcalc hurtCount ${hurtCount}+1
-				/if (${useGroupHeal} && ${hurtCount} >= ${useGroupHeal}) {
-					/break
-				}
-			}
 		
+			/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+			
+			/if (${Group.Member[${_count}].Distance} <= 200 && ${Group.Member[${_count}].PctHPs} < ${hpGroupHeal}) {
+				/varcalc hurtCount ${hurtCount}+1
+			}
+			/if (${hurtCount} >= ${countGroupHeal}) {
+				/break
+			}
+
 		/next _count
 		/return ${hurtCount}
 

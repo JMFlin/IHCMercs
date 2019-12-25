@@ -250,24 +250,8 @@ Sub single_target_heals
 |- SUB: HealGroup
 |---------------------------------------------------------------------------- 
 Sub group_heals
-	/declare gmember			int local 0
-	/declare HurtMember     	int local 0
-	
-	/if (${Me.PctHPs} <= 80) {
-		/varcalc HurtMember ${HurtMember}+1
-	}
 
-   	/for gmember 1 to ${Group}
-		
-		/if (${Group.Member[${gmember}].Type.Equal[Corpse]}) /continue
-		
-		/if (${Group.Member[${gmember}].Distance} <= 200 && ${Group.Member[${gmember}].PctHPs} < 80) {
-			/varcalc HurtMember ${HurtMember}+1
-        }
-
-	/next gmember
-
-	/if (${HurtMember} >= 3) {
+	/if (${check_hurt[FALSE, group]} >= 3) {
 		/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
 	}
 

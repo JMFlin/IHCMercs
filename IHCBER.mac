@@ -270,7 +270,7 @@ Sub Combatdps
 		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
 		/doevents CAST_IMMUNE
 		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/echo /docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${Snare} \ax <<=
+			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${Snare} \ax <<=
 			/varset snareImmuneID ${Target.ID}
 		}
 	}
