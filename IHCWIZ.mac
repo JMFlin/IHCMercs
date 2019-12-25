@@ -7,7 +7,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcwizutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #Chat group
 #Chat tell
@@ -32,18 +32,13 @@ Sub Main
 	/call LoadSpellBar
 	/call CheckOptions
 	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
-	}
 
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
 	}
+	/call alliance_check_group
 	/varset UseSpellInterrupt 1
-
-	/call UnCheckPlugin MQ2Cast
 
 :mainloop
 	/call ModeSet

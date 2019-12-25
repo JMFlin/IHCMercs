@@ -8,7 +8,7 @@
 #include IHCMercs\ihcenchmez.inc
 |-#include IHCMercs\ihcxtenchmez.inc
 #include IHCMercs\ihcenchutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #Chat group
 #Chat tell
@@ -33,14 +33,11 @@ Sub Main
 	/call LoadSpellBar
 	/call CheckOptions
 	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
 	}
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
-	}
+	/call alliance_check_group
 :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel

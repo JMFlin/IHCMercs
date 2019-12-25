@@ -9,7 +9,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcshmutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
@@ -28,9 +28,14 @@ Sub Main
 	/if (${IHCVersion.NotEqual[${IHCMacVersion}]}) {
 		/call ClassAliasSetup
 	}
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
+	}
 	/call CheckSpells
 	/call SetControlToon
 	/call LoadSpellBar
+	/call alliance_check_group
 	/if (${UseMelee}) /djoin ihcdps
 	/pet hold on
 |-Cursor ID

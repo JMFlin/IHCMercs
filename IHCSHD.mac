@@ -9,7 +9,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcshdutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #bind SetVarInt		/setvarint
 #bind CmdList       /ihchelp
@@ -42,8 +42,8 @@ Sub Main
 
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call AddToAlert
 
-	/if (!${Skill[Bash].Auto}) /autoskill bash
-	/if (!${Skill[Disarm].Auto}) /autoskill disarm
+	/call alliance_check_group
+	/call setup_skill_melee FALSE
 
  :mainloop
 	/call ModeSet

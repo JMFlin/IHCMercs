@@ -12,7 +12,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcberutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
 Sub Main
@@ -28,20 +28,10 @@ Sub Main
 	/call AliasSetup
 	/call SetupDiscs
 	/call SetControlToon
-	/if (${UseAlliance}) {
-		/call AllianceCheck
-	}
-	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
-	}
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
-	}
 
-	/if (!${Skill[Frenzy].Auto}) /autoskill Frenzy
+	/call WelcomeMsg
+	/call alliance_check_group
+	/call setup_skill_melee FALSE
 	
  :mainloop
 	/call ModeSet
@@ -64,7 +54,6 @@ Sub ManualPullCamping
 	/while (${Mode}==1 || ${Mode}==3) {
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/call make_axes	
 
 		/call pre_combat_buffs FALSE "${cheapshot}" disc ${Target.ID}
 		/doevents
@@ -277,11 +266,12 @@ Sub Combatdps
 	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
 	/if (${Target.Mezzed.ID}) /return
 
-	/if (${Me.CombatAbilityReady[${Snare}]} && !${Target.Snared.ID} && ${Target.Fleeing}) {
-		/Disc ${Snare}
-		/delay 5
+	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && ${snareImmuneID} != ${Target.ID}) {
+		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
+		/doevents CAST_IMMUNE
+		/if (${Select[${castReturn},CAST_IMMUNE]}) /varset snareImmuneID ${Target.ID}
 	}
-
+	
 |	/if (${Me.CombatAbilityReady[${JoltDisc}]} && ${Target.PctAggro}>50) {
 |		/Disc ${JoltDisc}
 |		/delay 5
@@ -291,7 +281,7 @@ Sub Combatdps
 		/delay 5
 	}
 	
-	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Demolisher's Alliance Trigger].ID} && ${UseAlliance} && (${ZerkerCount}>=3 || ${ForceAlliance})) {
+	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Demolisher's Alliance Trigger].ID} && ${UseAlliance}) {
 		/Disc ${Alliance}
 		/delay 5
 	}
@@ -305,17 +295,17 @@ Sub Combatdps
 			/delay 5
 		}
 	}
-	/if (${Me.CombatAbilityReady[${AESlice}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 40 zradius 15 targetable playerstate 4]}<2) {
-		/Disc ${AESlice}
+	/if (${SpawnCount[npc radius 40 zradius 15 targetable playerstate 4]} < 2) {
+		/if (${validate_cast[FALSE, disc, "${AESlice}", ${Target.ID}]}) /call core_cast2 "${AESlice}" disc ${Target.ID} FALSE
 		/delay 5
 	}
 	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
-	/if (${Me.CombatAbilityReady[${AEVicious}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat} && ${SpawnCount[npc radius 25 zradius 15 targetable playerstate 4]}<2) {
-		/Disc ${AEVicious}
-		/delay 5
-	}
+	|/if (${SpawnCount[npc radius 25 zradius 15 targetable playerstate 4]} < 2) {
+	|	/if (${validate_cast[FALSE, disc, "${AEVicious}", ${Target.ID}]}) /call core_cast2 "${AEVicious}" disc ${Target.ID} FALSE
+	|	/delay 5
+	|}
 	/if (!${Target.Buff[Sarnak Finesse].ID} && ${Target.Type.Equal[npc]} && ${Me.Combat} && ${Me.AltAbilityReady[War Cry of the Braxi]} && ${Me.CombatAbilityReady[${DichoSpell}]}) {
 		/alt act 1013
 		/delay 5
@@ -329,10 +319,9 @@ Sub Combatdps
 		/doability Frenzy
 		/delay 5
 	}	
-	/if (${Me.CombatAbilityReady[${Dfrenzy}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
-		/Disc ${Dfrenzy}
-		/delay 5
-	}	
+
+	/if (${validate_cast[FALSE, disc, "${Dfrenzy}", ${Target.ID}]}) /call core_cast2 "${Dfrenzy}" disc ${Target.ID} FALSE
+
 	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
@@ -360,7 +349,7 @@ Sub Combatdps
 |----------------------------------------------------------------------------
 |- SUB: DowntimeDiscs
 |---------------------------------------------------------------------------- 
-Sub make_axes
+Sub make_axes(string AxeName, string AxeComponents)
 
 	/if (${Me.Combat}) /return
 	/if (${Me.XTarget}) /return
@@ -368,38 +357,16 @@ Sub make_axes
 	/if (${Navigation.Active}) /return
 	
 
-	/if (${FindItemCount[${AutoAxeName}]}<${AutoAxeMin} && ${AutoAxe} && ${AutoAxeCount}>0) {
-		:axecast
+	/while (${FindItemCount[${AxeName}]} < 200 && ${FindItemCount[${AxeComponents}]} > 0) {
 		/if (${Cursor.ID}) /autoinventory
 		/if (${Me.XTarget}) /return
 		/if (${Mode}==0) /return
-		/if (${FindItemCount[${AutoAxeComponents}]} && !${Me.Casting.ID} && !${Cursor.ID} && ${Me.CombatAbilityReady[${AutoAxeName}]}) {
-			/disc ${AutoAxeName}
-			/delay 8s
+		/if (${FindItemCount[${AxeComponents}]} && !${Me.Casting.ID} && !${Cursor.ID} && ${Me.CombatAbilityReady[${AxeName}]}) {
+			/if (${validate_cast[FALSE, disc, "${AxeName}", ${Me.ID}]}) /call core_cast2 "${AxeName}" disc 0 FALSE
 			/if (${Cursor.ID}) /autoinventory
-		} else /if (!${FindItemCount[${AutoAxeComponents}]}) {
-			/echo \ar OUT OF AXE COMPONENTS \aw - Turning \ar OFF \aw Auto Axe
-			/multiline ; /beep ; /timed 1 /beep ; /timed 1 /beep
-			/varset AutoAxe 0
 		}
-		/if (${AutoAxe} && ${FindItemCount[${AutoAxeName}]}<${AutoAxeCount}) /goto :axecast
+		/if (${FindItemCount[${AxeName}]} > 200) /break
 		/if (${Cursor.ID}) /autoinventory
 	}
-	/if (${FindItemCount[${AutoAxe2Name}]}<${AutoAxe2Min} && ${AutoAxe2} && ${AutoAxe2Count}>0) {
-		:axe2cast
-		/if (${Cursor.ID}) /autoinventory
-		/if (${Me.XTarget}) /return
-		/if (${Mode}==0) /return
-		/if (${FindItemCount[${AutoAxe2Components}]} && !${Me.Casting.ID} && !${Cursor.ID} && ${Me.CombatAbilityReady[${AutoAxe2Name}]}) {
-			/disc ${AutoAxe2Name}
-			/delay 8s
-			/if (${Cursor.ID}) /autoinventory
-		} else /if (!${FindItemCount[${AutoAxe2Components}]}) {
-			/echo \ar OUT OF AXE COMPONENTS \aw - Turning \ar OFF \aw Auto Axe 2
-			/multiline ; /beep ; /timed 1 /beep ; /timed 1 /beep
-			/varset AutoAxe2 0
-		}
-		/if (${AutoAxe2} && ${FindItemCount[${AutoAxe2Name}]}<${AutoAxe2Count}) /goto :axe2cast
-		/if (${Cursor.ID}) /autoinventory
-	}
+	
 /return

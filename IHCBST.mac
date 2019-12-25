@@ -9,7 +9,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcbstutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
@@ -44,12 +44,8 @@ Sub Main
 	/varset AutoAssistAt 100
 	/varset AssistRange 10
 
-	/if (!${Me.Level} < 70) {
-		/if (!${Skill[Kick].Auto}) /autoskill bash
-	} else {
-		/if (!${Skill[Eagle Strike].Auto}) /autoskill eagle strike
-		/if (!${Skill[Round Kick].Auto}) /autoskill Round Kick
-	}
+	/call alliance_check_group
+	/call setup_skill_melee FALSE
 	
  :mainloop
 	/call ModeSet

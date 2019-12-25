@@ -9,7 +9,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcwarutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #bind SetVarInt		/setvarint
 #bind CmdList       /ihchelp
@@ -37,14 +37,10 @@ Sub Main
 		/autoinventory
 	}
 	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
-	}
+
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
 
-	/autoskill bash
+	/call setup_skill_melee FALSE
 
  :mainloop
 	/call ModeSet

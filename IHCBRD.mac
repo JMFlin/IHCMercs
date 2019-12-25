@@ -10,7 +10,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcbrdutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
@@ -39,17 +39,9 @@ Sub Main
 		/autoinventory
 	}
 	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
-	}
 
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
-	}
-
-	/if (!${Skill[Kick].Auto}) /autoskill Kick
+	/call alliance_check_group
+	/call setup_skill_melee FALSE
 
  :mainloop
 	/call ModeSet
@@ -98,8 +90,8 @@ Sub ManualPullCamping
  ***|
 Sub pulse(bool _debug, string _melody)
 
-	/declare _song 						int local 0
-	/declare _lnString               	int local ${_melody.Length}
+	/declare _song 							int local 0
+	/declare _lnString               		int local ${_melody.Length}
     /declare _melodyArray[${_lnString}]  	string local
 
     /for _song 1 to ${_lnString}

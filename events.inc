@@ -49,11 +49,8 @@ Sub Event_NotOnTargetLoS
 			/delay 5
 		}
 	}
-
-	/doevents flush NotOnTargetLoS
 /return
 
-|**
 #Event NotOnTargetDistance	"#*#Your target is too far away#*#"
 Sub Event_NotOnTargetDistance
 	/if (!${Target.ID}) /return
@@ -63,56 +60,101 @@ Sub Event_NotOnTargetDistance
 		/alt act ${Me.AltAbility[Drawn to Blood].ID}
 	}
 
-	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,CLR,ENC,SHM]}) {
+	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,CLR,ENC,SHM]} && ${Spawn[id ${Target.ID}].Distance} > 190) {
 		/if (${Navigation.MeshLoaded}) /nav id ${Target.ID}
 		/while (${Navigation.Active}) {
-			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
+			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight} && ${Spawn[id ${Target.ID}].Distance} < 150) /nav stop
 			/delay 5
 		}
 	}
-
-	/doevents flush NotOnTargetDistance
 /return
-**|
 
-
-| TO DO:
-|**
+|----------------------------------------------------------------------------
+|- SUB: AllianceCheck - check for others in group
+|---------------------------------------------------------------------------- 
 #Event GroupChange	"#*#has left the group#*#"
 #Event GroupChange	"#*#has joined the group#*#"
-|----------------------------------------------------------------------------
-|- SUB: AllianceCheck - check for other zerkers in group
-|---------------------------------------------------------------------------- 
-Sub AllianceCheck
-	/if (${UseAlliance}) {
-		/echo \aw Alliance Use is \ag on \aw, checking for other Berserkers!
-		/declare Gsize int local 0
-		/declare i int local
-		/varcalc Gsize ${Group.GroupSize}-1
-		/varset ZerkerCount 1
-		/for i 1 to ${Gsize}
-			/if (${Group.Member[${i}].Class.ShortName.Equal[BER]}) {
-				/varcalc ZerkerCount ${ZerkerCount}+1
-			}
-		/next i
-		/if (${ZerkerCount}>=3) {
-			/echo \aw Woot! \ag ${ZerkerCount} \aw Zerkers found
-			/echo \aw Shits about to blow up!
-		} else /if (${ZerkerCount}<3) {
-			/echo \aw Sorry only \ag ${ZerkerCount} \aw Zerker(s) found :(
-			/echo \aw No Alliance for joo!
+Sub alliance_check_group(bool _debug)
+
+	/declare _groupsize int local ${Group.GroupSize}-1
+  /declare _myclasscount int local 1
+  /declare i int local
+
+	/for i 1 to ${_groupsize}
+		/if (${Group.Member[${i}].Class.ShortName.Equal[${Me.Class.ShortName}]}) {
+			/varcalc _myclasscount ${_myclasscount}+1
 		}
+	/next i
+
+	/if (${_myclasscount} >= 3) {
+		/echo \ag ${_myclasscount} \aw ${Me.Class.ShortName} found. Setting Alliance to TRUE.
+    /return TRUE
+	} else /if (${_myclasscount} < 3) {
+		/echo \aw Only \ag ${_myclasscount} \aw ${Me.Class.ShortName} found. Setting Alliance to FALSE.
 	}
-/return
+/return FALSE
 |----------------------------------------------------------------------------
 |- SUB: Event GroupChange
 |----------------------------------------------------------------------------
 Sub Event_GroupChange
-	/if (${UseAlliance}) {
-		/call AllianceCheck
+		/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE 
+/return ${UseAlliance}
+|----------------------------------------------------------------------------
+|- SUB: DRU SHM
+|---------------------------------------------------------------------------- 
+#Event GroupChange	"#*#has left the group#*#"
+#Event GroupChange	"#*#has joined the group#*#"
+Sub Event_HybridHealerLimit(bool _debug)
+
+	/declare _groupsize int local ${Group.GroupSize}-1
+  /declare _clrclasscount int local 0
+  /declare i int local
+
+	/for i 1 to ${_groupsize}
+		/if (${Select[${Group.Member[${i}].Class.ShortName},CLR]}) {
+			/varcalc _clrclasscount ${_clrclasscount}+1
+		}
+	/next i
+
+	/if (${_clrclasscount} >= 1) {
+		/echo \ag ${_clrclasscount} \aw CLRs found. Setting DPS mana limit to 40.
+    /varset HybridManaLimit 40
+	} else /if (${_clrclasscount} < 1) {
+		/echo \ag ${_clrclasscount} \aw CLRs found. Setting DPS mana limit to 80.
+    /varset HybridManaLimit 80
 	}
-/return 
-**|
+/return
+|----------------------------------------------------------------------------
+|- SUB: AllianceCheck - check for others in raid
+|---------------------------------------------------------------------------- 
+#Event RaidChange	"#*#has left the raid#*#"
+#Event RaidChange	"#*#has joined the raid#*#"
+Sub alliance_check_raid(bool _debug)
+
+	/declare _raidsize int local ${Raid.RaidSize}-1
+  /declare _myclasscount int local 1
+  /declare i int local
+
+	/for i 1 to ${_raidsize}
+		/if (${Group.Member[${i}].Class.ShortName.Equal[${Me.Class.ShortName}]}) {
+			/varcalc _myclasscount ${_myclasscount}+1
+		}
+	/next i
+
+	/if (${_myclasscount} >= 3) {
+		/echo \ag ${_myclasscount} \aw ${Me.Class.ShortName} found. Setting Alliance to TRUE.
+    /return TRUE
+	} else /if (${_myclasscount} < 3) {
+		/echo \aw Only \ag ${_myclasscount} \aw ${Me.Class.ShortName} found. Setting Alliance to FALSE.
+	}
+/return FALSE
+|----------------------------------------------------------------------------
+|- SUB: Event GroupChange
+|----------------------------------------------------------------------------
+Sub Event_RaidChange
+		/if (${alliance_check_raid[FALSE]}) /varset UseAlliance TRUE 
+/return ${UseAlliance}
+
 
 |#Event MezBroke          "#1# has been awakened by #2#."
 |#Event WornOff      "Your #1# spell has worn off of #*#."
@@ -120,7 +162,22 @@ Sub Event_GroupChange
 |#Event Buff 			"Your #1# spell has worn off of #*#."
 
 
-
+|----------------------------------------------------------------------------
+|- SUB: Event Gain Something - DanNet message 
+|----------------------------------------------------------------------------    
+Sub Event_GainSomething(string Line, string text)
+    /if (${Line.Find["ABILITY POINT!"]}) {
+        /docommand /dgt \aw ${Me.Name} gained an AA, now has ${Me.AAPoints} unspent \ax
+    } else /if (${Line.Find[LEVEL]}) {
+        /docommand /dgt \aw ${Me.Name} gained a level, now is Level ${Me.Level} \ax
+	}
+/return 
+|----------------------------------------------------------------------------
+|- SUB: Event Task Update - DanNet message 
+|----------------------------------------------------------------------------    
+Sub Event_TaskUpdate(string Line, string name) 
+    /if (${acverbose}!=0) /docommand /dgt \at Task updated...(${name})\ax    
+/return
 
 
         
@@ -180,13 +237,13 @@ sub Event_CAST_FIZZLE(string line)
 /return ${castReturn}
 
 
-| #event CAST_IMMUNE                 "Your target has no mana to affect#*#"
-| #event CAST_IMMUNE                 "Your target is immune to changes in its attack speed#*#"
-| #event CAST_IMMUNE                 "Your target is immune to changes in its run speed#*#"
-| #event CAST_IMMUNE                 "Your target is immune to snare spells#*#"
-| #event CAST_IMMUNE                 "Your target is immune to the stun portion of this effect#*#"
-| #event CAST_IMMUNE                 "Your target cannot be mesmerized#*#"
-| #event CAST_IMMUNE                 "Your target looks unaffected#*#"
+#event CAST_IMMUNE                 "Your target has no mana to affect#*#"
+#event CAST_IMMUNE                 "Your target is immune to changes in its attack speed#*#"
+#event CAST_IMMUNE                 "Your target is immune to changes in its run speed#*#"
+#event CAST_IMMUNE                 "Your target is immune to snare spells#*#"
+#event CAST_IMMUNE                 "Your target is immune to the stun portion of this effect#*#"
+#event CAST_IMMUNE                 "Your target cannot be mesmerized#*#"
+#event CAST_IMMUNE                 "Your target looks unaffected#*#"
 sub Event_CAST_IMMUNE(string line)
 	/varset castReturn CAST_IMMUNE
 /return ${castReturn}
@@ -249,7 +306,8 @@ sub Event_CAST_RECOVER(string line)
 
 
 | #event CAST_RESISTED               "Your target resisted the #1# spell#*#"
-| #event CAST_RESISTED               "#*# resisted your #1#!"                                   
+| #event CAST_RESISTED               "#*# resisted your #1#!"
+| #event CAST_RESISTED               "#*# avoided your #1#!"                               
 sub Event_CAST_RESISTED(string line, string _name)
 	/if (!${CheckResisted}) /return
 	OUT \aw${_name.Right[-11].Left[-1]} was Resisted \ag
