@@ -155,7 +155,7 @@ Sub group_buffs
 				/call LoadSpellBar
 				/return
 			}
-			/if (${Mode} !=3 ) /return
+			/if (${Mode} != 3) /return
 
 			/if (!${Me.Book[${GroupSkin}]}) {
 				
@@ -177,7 +177,6 @@ Sub group_buffs
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupSkin}].Stacks" "tmpstackcheck" "bool"
 				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${GroupSkin}]} && ${Me.CurrentMana}>${Spell[${GroupSkin}].Mana} && !${Me.Casting.ID}) {
-					/echo ${Group.Member[${bmember}].Name} does not have aego in tmpbuffid ${tmpbuffid} and aegoid ${tmpaegoid}
 					/if (${validate_cast[FALSE, spell, ${GroupSkin}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupSkin}" spell ${Group.Member[${bmember}].ID} FALSE
 					/varset CastCheck 1
 				}
@@ -191,7 +190,7 @@ Sub group_buffs
 					/varset CastCheck 1
 				}
 			}
-			
+			/if (${Mode} != 3) /return
 			/if (${Me.CurrentMana}>${Spell[${DamageShield}].Mana} && ${Me.Book[${DamageShield}]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${DamageShield}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${DamageShield}].Stacks" "tmpstackcheck" "bool"

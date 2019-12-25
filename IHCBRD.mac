@@ -141,11 +141,11 @@ Sub debuff
 		}
 		/doevents CAST_IMMUNE
 		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
+			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSong} \ax <<=
 			/varset slowImmuneID ${Target.ID}
 		}
 	}
-	
+
 /return
 
 Sub selo

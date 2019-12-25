@@ -153,20 +153,29 @@ Sub debuff_xtarget
 		
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
-			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) /call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+			
+			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+			}
 		}
 		/call mez_xtarget
 
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
-			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
-			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) /call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+			
+			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
+				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+			}
 		}
 		/call mez_xtarget
 
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
-			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) /call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+			
+			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
+				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+			}
 		}
 
 		/call mez_xtarget
@@ -224,9 +233,11 @@ Sub mez_xtarget
 		
 		| If there are more than 1 mobs counted then aoe mez
 		/if (${numberOfSpawn} > 1) {
-			/docommand /dgt AoE mezzing with =>> \ag ${MezAESpell} \ax <<=
 			/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
-			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) /call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE
+			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) {
+				/docommand /dgt AoE mezzing with =>> \ag ${MezAESpell} \ax <<=
+				/call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE
+			}
 		}
 	}
 
@@ -320,8 +331,10 @@ Sub combat
 	/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 
 	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
-		/docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
-		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) /call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
+			/docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+			/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+		}
 	}
 
 	/call mez_xtarget
