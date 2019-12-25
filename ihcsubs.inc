@@ -155,6 +155,9 @@ Sub VarSetup
 	/declare slowImmuneID 		int outer 0
 	/declare HybridManaLimit 	int outer 80
 
+|- observers
+	/declare lstObserverCure 	string outer "|Me|TotalCounters|CountersDisease|CountersCurse|CountersPoison|CountersCorruption|Snared|Mezzed|Maloed|Tashed"
+
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
 		/echo Extended Target 1 HAS TO BE SET TO Auto Hater
@@ -2521,6 +2524,77 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	}
 
 /return
+
+|***
+ *	DES: creates observers
+ *	USE: /call observer [DEBUG T/F] [string of things to observe] [add|drop] [SILENT T/F]
+ *	NOTE: the variable passed to this sub, _observer, is a list. 
+ *	NOTE: the first item in the list is the tlo, all the other items are members you want to check
+ *	NOTE: if you want to use more then 1 TLO, call the sub multiple times with different lists
+ ***|
+
+sub set_observers(bool _debug, string _observer, string _action, bool _silent)
+
+	/declare _countT 					int 		local 0
+	/declare _countE					int 		local 0
+	/declare _actionD					string	local FALSE
+	/declare _actionO					string	local FALSE
+	/declare _name		 				string 	local FALSE
+	/declare _element					string	local FALSE
+	/declare _TLO						string 	local ${lstObserver${_observer}.Arg[1,|]}
+	/declare _timestart					int			local 0
+	/declare _timeend					int			local 0
+	/declare DanNetMacroChannel 		string local all
+
+	| correct/check the action variable
+	/if (${_action.Equal[drop]}) {
+		/varset _actionO -drop
+		/varset _actionD Drop
+	} else /if (${_action.Equal[add]}) {
+		/varset _actionO
+		/varset _actionD Add
+	} else {
+		/return FALSE
+	}
+
+	
+	/varset _timestart ${MacroQuest.Running}
+	
+	| cycle the toons inside the dan group
+	/for _countT 1 to ${DanNet.PeerCount[${DanNetMacroChannel}]}
+		/varset _timestart ${MacroQuest.Running}
+		/varset _name ${DanNet.Peers[${DanNetMacroChannel}].Arg[${_countT},|]}
+
+		| loop the string, skip the first one
+		/for _countE 2 to ${lstObserver${_observer}.Count[|]}
+
+			| set the element
+			/varset _element ${lstObserver${_observer}.Arg[${_countE},|]}
+		
+			| existing
+			/if (${_action.Equal[add]}) {
+				/if (${DanNet[${_name}].ObserveSet["${_TLO}.${_element}"]} && ${Defined[${_name}_${_element}]}) /continue 
+			}
+			
+			| create or delete the variables as we need
+			/if (${_action.Equal[drop]}) {
+				/if (${Defined[${_name}_${_element}]}) /deletevar ${_name}_${_element}
+			} else /if (${_action.Equal[add]}) {
+				/if (!${Defined[${_name}_${_element}]}) /declare ${_name}_${_element} string outer
+			}
+
+			| set observer
+			/dobserve ${_name} -q "${_TLO}.${_element}" -o ${_name}_${_element} ${_actionO}
+
+		/next _countE
+
+		/varset _timeend ${MacroQuest.Running}
+
+	/next _countT
+
+/return
+
+
 |-------------------------------------------------------------------------------------
 |- SUB: BegForCure
 |-------------------------------------------------------------------------------------

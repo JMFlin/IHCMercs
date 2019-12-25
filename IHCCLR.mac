@@ -45,6 +45,8 @@ Sub Main
 	/call WelcomeMsg
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 
+|	/call set_observers FALSE Cure add FALSE
+
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -80,6 +82,8 @@ Sub ManualPullCamping
 
 |		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffCheck
 		/call group_buffs
+
+|		/call cures
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
@@ -179,6 +183,20 @@ Sub ConfigHeal
 		/varcalc bighealpoint ${raidhealpoint}-10
 	}
 /return
+
+Sub cures
+	/declare _count			int local 0
+	/for _count 1 to ${Group}
+		/if (!${${Group.Member[1].Name.Lower}_TotalCounters}) /continue
+
+		/if (${${Group.Member[1].Name.Lower}_CountersDisease}) /echo Use Disease cure
+		/if (${${Group.Member[1].Name.Lower}_CountersCurse})	/echo Use Curse cure
+		/if (${${Group.Member[1].Name.Lower}_CountersPoison}) 	/echo Use Poison cure
+		/if (${${Group.Member[1].Name.Lower}_CountersCorruption}) /echo Use Corruption cure
+
+	/next _count
+		
+/return	
 |----------------------------------------------------------------------------
 |- SUB: group_buffs
 |---------------------------------------------------------------------------- 
