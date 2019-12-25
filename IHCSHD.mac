@@ -293,8 +293,10 @@ Sub aoe_aggro
 	/if (!${Me.XTarget}) /return
 
 	/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {
-		/docommand /dgt Using AoE aggro with =>> \ag ${Denial} \ax <<=
-		/if (${validate_cast[FALSE, spell, "${Denial}", ${Target.ID}]}) /call core_cast2 "${Denial}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${Denial}", ${Target.ID}]}) {
+			/docommand /dgt Using AoE aggro with =>> \ag ${Denial} \ax <<=
+			/call core_cast2 "${Denial}" spell ${Target.ID} FALSE
+		}
 	}
 	
 	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
