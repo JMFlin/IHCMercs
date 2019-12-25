@@ -105,16 +105,21 @@ Sub self_buff_check(bool _debug)
 				/varset CastCheck 1
 			}
 		}
-
-		/if (!${Me.Pet.Buff[${FocusSpell}]}) {
-			/if (${validate_cast[FALSE, spell, "${FocusSpell}", ${Me.Pet.ID}]}) {
-				/call core_cast2 "${FocusSpell}" spell ${Me.Pet.ID} FALSE
-				/varset CastCheck 1
-			}
-		}
+		|/if (!${Me.Pet.Buff[${FocusSpell}]}) {
+		|	/if (${validate_cast[FALSE, spell, "${FocusSpell}", ${Me.Pet.ID}]}) {
+		|		/call core_cast2 "${FocusSpell}" spell ${Me.Pet.ID} FALSE
+		|		/varset CastCheck 1
+		|	}
+		|}
 		/if (!${Me.Pet.Buff[${PetHaste}]}) {
 			/if (${validate_cast[FALSE, spell, "${PetHaste}", ${Me.Pet.ID}]}) {
 				/call core_cast2 "${PetHaste}" spell ${Me.Pet.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
+		/if (!${Me.Pet.Buff[${PetOffenseBuff}]}) {
+			/if (${validate_cast[FALSE, spell, "${PetOffenseBuff}", ${Me.Pet.ID}]}) {
+				/call core_cast2 "${PetOffenseBuff}" spell ${Me.Pet.ID} FALSE
 				/varset CastCheck 1
 			}
 		}
@@ -166,13 +171,16 @@ Sub combat
 		/doability Kick
 		/delay 1s
 	}
-	
-	
+
 	/if (!${Target.Buff[${DoTSpell1}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
 	/call Engage
 	/call pet_attack
+
+	/if (!${Me.Song[${PetGrowl}].ID} && ${Target.PctHPs} > 30) {
+		/if (${validate_cast[FALSE, spell, "${PetGrowl}", ${Me.ID}]}) /call core_cast2 "${PetGrowl}" spell 0 FALSE
+	}
 
 	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${slowImmuneID} != ${Target.ID}) {
 		
@@ -198,7 +206,7 @@ Sub combat
 	/if (!${Target.Buff[${NukeSpell4}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NukeSpell4}", ${Target.ID}]}) /call core_cast2 "${NukeSpell4}" spell ${Target.ID} FALSE
 	}
-
+	/call Engage
 	/if (!${Target.Buff[${NukeSpell5}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NukeSpell5}", ${Target.ID}]}) /call core_cast2 "${NukeSpell5}" spell ${Target.ID} FALSE
 	}
@@ -274,6 +282,8 @@ Sub BuffGroup
 	/declare bmember			int local 0
 	/declare CastCheck			int local 0
 	
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${AutoCampRadius}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+
 	/for bmember 0 to ${Group}
 
 		/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue

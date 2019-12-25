@@ -182,10 +182,20 @@ Sub combat
 
 	/if (!${Target.ID}) /return
 
-	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID}) {
+	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID}) {
+		/doevents CAST_IMMUNE
+		/if (${Select[${castReturn},CAST_IMMUNE]}) {
+			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
+			/varset snareImmuneID ${Target.ID}
+		}
+	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
+		/doevents CAST_IMMUNE
+		/if (${Select[${castReturn},CAST_IMMUNE]}) {
+			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${RootSpell} \ax <<=
+			/varset snareImmuneID ${Target.ID}
+		}
 	}
 
 	/if (${Target.PctAggro} > 30) {

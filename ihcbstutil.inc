@@ -105,14 +105,14 @@ Sub LoadSpellBar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 	/call LoadSpellGem "${HealSpell1}" 1
-	/call LoadSpellGem "${PetHealSpell}" 2
+	/call LoadSpellGem "${AtkBuff}" 2
 	/call LoadSpellGem "${NukeSpell5}" 3
 	/call LoadSpellGem "${NukeSpell4}" 4
 	/call LoadSpellGem "${DoTSpell1}" 5
 	
 	/call LoadSpellGem "${CrippleSpell1}" 6
 	/call LoadSpellGem "${SlowSpell}" 7
-	/call LoadSpellGem "${AtkBuff}" 8	
+	/call LoadSpellGem "${PetGrowl}" 8	
 	
 	/if (${Me.Level}>105 && ${spellmisc}>=13) {
 		/call LoadSpellGem "${SwarmPet}" 6
