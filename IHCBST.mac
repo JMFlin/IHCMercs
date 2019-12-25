@@ -155,10 +155,9 @@ Sub self_buff_check(bool _debug)
 |- SUB: combat 
 |---------------------------------------------------------------------------- 
 Sub combat
-	/if (!${Me.XTarget}) /return
-	/if (!${Target.ID}) /return
 
-	
+	/if (!${validate_melee_combat[FALSE]}) /return
+
 	/call get_target
 	/call pet_attack
 	/doevents

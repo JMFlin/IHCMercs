@@ -64,7 +64,7 @@ Sub ManualPullCamping
 		|| ADD CHECK FOR WHICH AXE IS USED AND SEND IT INTO THE FUNCTION
 		/call AANDisc
 
-		/call Combatdps
+		/call combat
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
@@ -106,11 +106,7 @@ Sub ManualRunAndGun
 |---------------------------------------------------------------------------- 
 Sub AANDisc
 
-	/if (!${Target.ID}) /return
-	/if (!${Target.Type.Equal[NPC]}) /return
-	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
-	/if (${Target.Mezzed.ID}) /return
+	/if (!${validate_melee_combat[FALSE]}) /return
 
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
 		/alt act ${Me.AltAbility[Communion of Blood].ID}
@@ -258,13 +254,9 @@ Sub AANDisc
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
-Sub Combatdps
+Sub combat
 
-	/if (!${Target.ID}) /return
-	/if (!${Target.Type.Equal[NPC]}) /return
-	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
-	/if (${Target.Mezzed.ID}) /return
+	/if (!${validate_melee_combat[FALSE]}) /return
 
 	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE

@@ -270,8 +270,7 @@ Sub CombatBuffs
 |---------------------------------------------------------------------------- 
 Sub DoDisc
 
-	/if (!${Me.XTarget}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
+	/if (!${validate_melee_combat[FALSE]}) /return
 
 	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
 

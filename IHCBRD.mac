@@ -162,7 +162,7 @@ Sub selo
 Sub combat
 	/doevents
 
-	/if (!${Me.XTarget}) /return
+	/if (!${validate_melee_combat[FALSE]}) /return
 
 	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID}) {
 		
@@ -240,6 +240,9 @@ Sub combat
 |---------------------------------------------------------------------------- 
 Sub AANDisc
 	/doevents
+
+	/if (!${validate_melee_combat[FALSE]}) /return
+
 	/if (${FindItem[=${Epicsword}].ID} && ${Me.ItemReady[=${Epicsword}]}) {
 		/call StopTune
 		/useitem "${Epicsword}"

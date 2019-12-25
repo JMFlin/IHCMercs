@@ -158,6 +158,10 @@ Sub VarSetup
 |- observers
 	/declare lstObserverCure 	string outer "|Me|TotalCounters|CountersDisease|CountersCurse|CountersPoison|CountersCorruption|Snared|Mezzed|Maloed|Tashed"
 
+|- assisting
+	/declare AutoAssistAt 		int outer 0
+	/declare AssistRange 		int outer 0
+
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
 		/echo Extended Target 1 HAS TO BE SET TO Auto Hater
@@ -222,8 +226,8 @@ Sub LoadCommonConfig
 	} else {
 		/call LoadIni General acverbose				int 0
 	}
-	/call LoadIni General AssistRange			int 100
-	/call LoadIni General AutoAssistAt			int 98
+	|/call LoadIni General AssistRange			int 100
+	|/call LoadIni General AutoAssistAt			int 98
 	/call LoadIni General AutoCampHold			int 1
 	/call LoadIni General AutoCampRadius		int 30
 	/call LoadIni General BurnAlways 			int 0
@@ -1374,6 +1378,20 @@ Sub get_target
 
 /return
 |-------------------------------------------------------------------------------- 
+| Sub validate_melee_combat
+|--------------------------------------------------------------------------------
+sub validate_melee_combat(bool _debug)
+	
+	/if (!${Me.XTarget}) /return FALSE
+	/if (!${Target.ID}) /return FALSE
+	/if (!${Target.Type.Equal[NPC]}) /return FALSE
+	/if (${Target.Type.Equal[Corpse]}) /return FALSE
+	/if (${Target.PctHPs} > ${AutoAssistAt}) /return FALSE
+	/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return FALSE
+	/if (${Target.Mezzed.ID}) /return FALSE
+
+/return TRUE
+|-------------------------------------------------------------------------------- 
 | Sub DummyMode
 |--------------------------------------------------------------------------------
 Sub DummyMode
@@ -2433,6 +2451,20 @@ sub setup_skill_melee(bool _debug)
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/varset bash TRUE
 		/if (!${Skill[Bash].Auto}) /autoskill Bash
+	}
+
+	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
+		/varset AutoAssistAt 99
+		/varset AssistRange 10
+	}
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
+		/varset AutoAssistAt 98
+		/varset AssistRange 45
+	}
+
+	/if (${Select[${Me.Class.ShortName},WIZ,ENC,DRU,MAG]}) {
+		/varset AutoAssistAt 100
+		/varset AssistRange 100
 	}
 
 /return
