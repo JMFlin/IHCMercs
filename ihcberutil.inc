@@ -53,6 +53,12 @@ Sub BerSetup
 	/declare JoltDisc 				string outer NULL
 	/declare BloodDisc 				string outer NULL
 	/declare SappingStrike 			string outer NULL
+	/declare VolleyAxeName 			string outer NULL
+	/declare SnareAxeName 			string outer NULL
+	/declare ThrowAxeName 			string outer NULL
+	/declare VolleyAxeComponent		string outer NULL
+	/declare SnareAxeComponent		string outer NULL
+	/declare ThrowAxeComponent		string outer NULL
 |-Config Options
 	/call LoadCommonConfig
 	/call LoadIni Combat AllowMezBreak		 	int 0
@@ -120,8 +126,15 @@ Sub INIChanges
 /return 
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs
-|---------------------------------------------------------------------------- 
+|----------------------------------------------------------------------------
 Sub SetupDiscs
+
+|-	Axe Components
+|-	Balanced Axe Components
+|-	Basic Axe Components
+|-	Crafted Axe Components
+|-	Masterwork Axe Components
+
 |---One off abilities
 	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Phantom Assailant].RankName}]}) /varset Phantom ${Spell[Phantom Assailant].RankName}
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Mangler's Alliance].RankName}]}) {
@@ -136,12 +149,52 @@ Sub SetupDiscs
 		/varset CryHavoc Cry Havoc
 	}
 |---Snare
-	/if (${Me.Level}>=54 && ${Me.CombatAbility[Leg Slice]}) {
-		/varset CryHavoc Leg Slice
+	/if (${Me.Level}>=106 && ${Me.CombatAbility[Tendon Rip]}) {
+		/varset Snare Tendon Rip
+		/varset SnareAxeName Axe of the Vindicator
+	} else /if (${Me.Level}>=106 && ${Me.CombatAbility[Tendon Rupture]}) {
+		/varset Snare Tendon Rupture
+		/varset SnareAxeName Axe of the Mangler
+	} else /if (${Me.Level}>=101 && ${Me.CombatAbility[Tendon Tear]}) {
+		/varset Snare Tendon Tear
+		/varset SnareAxeName Axe of the Demolisher
+	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[Tendon Gash]}) {
+		/varset Snare Tendon Gash
+		/varset SnareAxeName Axe of the Brute
+	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[Tendon Slash]}) {
+		/varset Snare Tendon Slash
+		/varset SnareAxeName Axe of the Sunderer
+	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[Tendon Lacerate]}) {
+		/varset Snare Tendon Lacerate
+		/varset SnareAxeName Axe of the Savage
+	} else /if (${Me.Level}>=81 && ${Me.CombatAbility[Tendon Shear]}) {
+		/varset Snare Tendon Shear
+		/varset SnareAxeName Axe of the Eradicator
+	} else /if (${Me.Level}>=76 && ${Me.CombatAbility[Tendor Sever]}) {
+		/varset Snare Tendor Sever
+		/varset SnareAxeName Axe of the Decimitor
+		/varset SnareAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=71 && ${Me.CombatAbility[Tendor Cleave]}) {
+		/varset Snare Tendor Cleave
+		/varset SnareAxeName Axe of the Annihilator
+		/varset SnareAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=67 && ${Me.CombatAbility[Crippling Strike]}) {
+		/varset Snare Crippling Strike
+		/varset SnareAxeName Axe of the Destroyer
+		/varset SnareAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=54 && ${Me.CombatAbility[Leg Slice]}) {
+		/varset Snare Leg Slice
+		/varset SnareAxeName Rage Axe
+		/varset SnareAxeComponent Axe Component
 	} else /if (${Me.Level}>=32 && ${Me.CombatAbility[Leg Cut]}) {
 		/varset Snare Leg Cut
+		/varset SnareAxeName Bonesplicer Axe
+		/varset SnareAxeComponent Axe Component
+	} else /if (${Me.Level}>=8 && ${Me.CombatAbility[Leg Strike]}) {
+		/varset Snare Leg Strike
+		/varset SnareAxeName Blunt Axe
+		/varset SnareAxeComponent Axe Component
 	}
-
 |- Blood Axe TIMER 1
 |- NEED BUFF EFFECT NAME ON MOB TO CHECK IN COMBATDPS
 	/if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Blood Brand].RankName}]}) {
@@ -317,7 +370,9 @@ Sub SetupDiscs
 		/varset DichoSpell ${Spell[Dichotomic Rage].RankName}
 	}
 |---Frenzy Combat Ability not normal Frenzy - Updated for RoS
-	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Mangling Frenzy].RankName}]}) {
+	/if (${Me.Level}>=111 && ${Me.CombatAbility[${Spell[Vindicating Frenzy].RankName}]}) {
+		/varset Dfrenzy ${Spell[Vindicating Frenzy].RankName}
+	} else /if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Mangling Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Mangling Frenzy].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Demolishing Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Demolishing Frenzy].RankName}
@@ -331,45 +386,67 @@ Sub SetupDiscs
 		/varset Dfrenzy ${Spell[Overpowering Frenzy].RankName}
 	}
 |---Volley - Updated for RoS
-	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Mangling Volley].RankName}]}) {
+	/if (${Me.Level}>=114 && ${Me.CombatAbility[${Spell[Vindicating Volley].RankName}]}) {
+		/varset Dvolley ${Spell[Vindicating Volley].RankName}
+		|/varset VolleyAxeName Axe of the Vindicator
+	} else /if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Mangling Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Mangling Volley].RankName}
+		|/varset VolleyAxeName Axe of the Mangler
 	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Demolishing Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Demolishing Volley].RankName}
+		|/varset VolleyAxeName Axe of the Demolisher
 	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Brutal Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Brutal Volley].RankName}
+		|/varset VolleyAxeName Axe of the Brute
 	} else /if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Sundering Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Sundering Volley].RankName}
+		|/varset VolleyAxeName Axe of the Sunderer
 	} else /if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Savage Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Savage Volley].RankName}
+		|/varset VolleyAxeName Axe of the Savage
 	} else /if (${Me.Level}>=84 && ${Me.CombatAbility[${Spell[Eradicator's Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Eradicator's Volley].RankName}
+		|/varset VolleyAxeName Axe of the Eradicator
 	} else /if (${Me.Level}>=79 && ${Me.CombatAbility[${Spell[Decimator's Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Decimator's Volley].RankName}
+		|/varset VolleyAxeName Axe of the Decimator
+		|/varset VolleyAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=74 && ${Me.CombatAbility[${Spell[Annihilator's Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Annihilator's Volley].RankName}
+		|/varset VolleyAxeName Axe of the Annihilator
+		|/varset VolleyAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=69 && ${Me.CombatAbility[${Spell[Destroyer's Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Destroyer's Volley].RankName}
+		|/varset VolleyAxeName Axe of the Destroyer
+		|/varset VolleyAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=61 && ${Me.CombatAbility[${Spell[Rage Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Rage Volley].RankName}
+		|/varset VolleyAxeName Rage Axe
+		|/varset VolleyAxeComponent Axe Components
 	}
-
-|- Sapping strike
-	/if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Sapping Strikes].RankName}]}) {
-		/varset SappingStrike ${Spell[Sapping Strikes].RankName}
-	} 
 |---Axe Throw - Updated for RoS
 	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Mangling Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Mangling Axe Throw].RankName}
+		/varset ThrowAxeName Axe of the Mangler
 	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Demolishing Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Demolishing Axe Throw].RankName}
+		/varset ThrowAxeName Axe of the Demolisher
 	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Brutal Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Brutal Axe Throw].RankName}
+		/varset ThrowAxeName Axe of the Brute
 	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Spirited Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Spirited Axe Throw].RankName}
+		/varset ThrowAxeName Axe of the Sunderer
 	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Energetic Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Energetic Axe Throw].RankName}
+		/varset ThrowAxeName Axe of the Savage
 	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Vigorous Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Vigorous Axe Throw].RankName}
+		/varset ThrowAxeName Axe of the Eradicator
+	}
+|- Sapping strike
+	/if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Sapping Strikes].RankName}]}) {
+		/varset SappingStrike ${Spell[Sapping Strikes].RankName}
 	}
 |---Axe of - No Update
 	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Axe of Empyr].RankName}]}) {
@@ -425,12 +502,7 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=55 && ${Me.CombatAbility[${Spell[Aura of Rage].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of Rage].RankName}
 	}
-
-	/if (${Me.AltAbilityReady[${Spell[Bloodlust Aura].RankName}]}) {
-		/varset HarvestSpell1 ${Spell[Bloodlust Aura].RankName}
-	} 
 	
-
 /return
 |----------------------------------------------------------------------------
 |-SUB: Bind Change Var Int resets various interger settings from ini file

@@ -10,12 +10,10 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcbrdutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
-#Event NotOnTarget	"#*#You cannot see your target#*#"
-#Event NotOnTarget	"#*#Your target is too far away#*#"
 
 Sub Main
 	/delay ${Math.Rand[10]}
@@ -41,17 +39,10 @@ Sub Main
 		/autoinventory
 	}
 	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
-	}
 
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
-	}
+	/call alliance_check_group
+	/call setup_skill_melee FALSE
 
-	/declare MelodyCheck int outer 0
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -74,21 +65,12 @@ Sub ManualPullCamping
 		/call check_state FALSE
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/call get_target
-|		/if (!${Me.XTarget[1].ID} && !${Me.Invis} && !${Me.Combat}) /call DowntimeSongs
-|		/if (${Me.XTarget[1].ID} && ${CurrentMelody.Equal[OOC]}) /call StopTune
-|		/if (${ReadyToCast}==0) /call IHCTwist
 		/call Engage
 		/if (${Me.XTarget}) {
 			/call pulse FALSE ${BattleMelody}
-|			/if (${MelodyCheck}==0) /stopsong
-|			/if (${MelodyCheck}==0) /melody ${BattleMelody}
-|			/varset MelodyCheck 1
 		}
 		/if (!${Me.XTarget}) {
 			/call pulse FALSE ${RegenMelody}
-|			/if (${MelodyCheck}==1) /stopsong
-|			/if (${MelodyCheck}==1) /melody ${RegenMelody}
-|			/varset MelodyCheck 0
 		}
 		/call combat
 |		/if (${Me.XTarget}>=${MezStartCount} && ${MezOn} && ${Me.GemTimer[${AEMezSong}]}==0) /call DoMezStuff
@@ -101,12 +83,6 @@ Sub ManualPullCamping
 	}
 /return
 
-Sub Exit
- :OnExit
-	/stopsong
-	/delay 5
-	/stopcast
-/return
 |***
  *	DES: Sing "Pulse" a single song
  *	USE: /call pulse [gem##] [type] 
@@ -114,8 +90,8 @@ Sub Exit
  ***|
 Sub pulse(bool _debug, string _melody)
 
-	/declare _song 						int local 0
-	/declare _lnString               	int local ${_melody.Length}
+	/declare _song 							int local 0
+	/declare _lnString               		int local ${_melody.Length}
     /declare _melodyArray[${_lnString}]  	string local
 
     /for _song 1 to ${_lnString}
@@ -150,8 +126,6 @@ Sub pulse(bool _debug, string _melody)
 
 	/next _song
 	
-	
-
 /return TRUE
 
 Sub debuff
@@ -175,42 +149,6 @@ Sub selo
 		/call core_cast2 "${Me.Gem[3]}" pulse 0 FALSE
 	}
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: IHCTwist
-|---------------------------------------------------------------------------- 
-Sub IHCTwist
-	/if ((${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${DoBurn}==0) {
-		/varset DoBurn 1
-	} else /if (${DoBurn}==1) {
-		/varset DoBurn 0
-	}
-	/if (${Me.Buff[Tune Stuck in Your Head].ID} && ${TuneStuckActive}==0) {
-		/varset TuneStuckActive 1
-	} else {
-		/varset TuneStuckActive 0
-	}
-	/declare twc int local 0
-	/for twc 1 to ${TwistSize}
-		/if (${FindItem[=${Song${twc}.Arg[1,|]}].ID} && ${Me.ItemReady[=${Song${twc}.Arg[1,|]}]} && ${SongTimer${twc}}<=6 && ${ReadyToCast}==0 && (${Song${twc}.Arg[3,|].Replace[^,$]})) {
-			/call StopTune
-			/useitem "${Song${twc}.Arg[1,|]}"
-			/delay 10
-			/break
-		} else /if (${Me.AltAbility[${Song${twc}.Arg[1,|]}].ID} && ${Me.AltAbilityReady[${Song${twc}.Arg[1,|]}]} && ${SongTimer${twc}}<=6 && (${Song${twc}.Arg[3,|].Replace[^,$]})) {
-			/alt act ${Me.AltAbility[${Song${twc}.Arg[1,|]}].ID}
-			/delay 5
-			/break
-		} else /if (${Me.CombatAbility[${Song${twc}.Arg[1,|]}].ID} && ${Me.CombatAbilityReady[${Song${twc}.Arg[1,|]}]} && ${SongTimer${twc}}<=6 && (${Song${twc}.Arg[3,|].Replace[^,$]})) {
-			/disc ${Song${twc}.Arg[1,|]}
-			/delay 5
-			/break
-		} else /if (${Me.GemTimer[${Song${twc}.Arg[1,|]}]}==0 && ${SongTimer${twc}}<=6 && ${ReadyToCast}==0 && ${Me.CurrentMana}>${Spell[${Song${twc}.Arg[1,|]}].Mana} && ${Me.Gem[${Song${twc}.Arg[1,|]}]} && (${Song${twc}.Arg[3,|].Replace[^,$]})) {
-			/call SongQueue "${Song${twc}.Arg[1,|]}"
-			/varset SongTimer${twc} ${Song${twc}.Arg[2,|]}s
-			/break
-		}
-	/next twc
 /return
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
@@ -314,56 +252,6 @@ Sub AANDisc
 		/delay 5
 	}
 /return
-|----------------------------------------------------------------------------
-|- SUB: DoMezStuff
-|---------------------------------------------------------------------------- 
-Sub DoMezStuff
-	/doevents
-	/if (${Me.XTarget}>=${MezStartCount} && ${Me.GemTimer[${AEMezSong}]}==0 && ${Me.CurrentMana}>${Spell[${AEMezSong}].Mana} && ${Me.Gem[${AEMezSong}]} && ${Target.Distance}<50 && ${Target.ID}) {
-		/call StopTune
-		/if (${Me.AltAbilityReady[Tune Stuck in Your Head]}) {
-			/alt act ${Me.AltAbility[Tune Stuck in Your Head].ID}
-			/delay 5
-		}
-		/if (${Me.AltAbilityReady[Lure of the Siren's Song]}) {
-			/alt act ${Me.AltAbility[Lure of the Siren's Song].ID}
-			/delay 5
-		}
-		/call SongQueue "${AEMezSong}"
-		/delay 35
-	}
-	:mezdelay
-		/delay 5
-		/if (${ReadyToCast}!=0) /goto :mezdelay
-/return
-|----------------------------------------------------------------------------
-|- SUB: DowntimeSongs
-|---------------------------------------------------------------------------- 
-Sub DowntimeSongs
-|-Out of Combat
-|	/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Moving} && !${Me.Invis} && !${Me.Sitting} && ${Me.State.NotEqual[FEIGN]} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${UseAura}) {
-|		/if (!${Me.Gem[${BardAura}]}) {
-||			/call LoadSpellGem "${BardAura}" ${spellmisc}
-|		}
-|		/call SongQueue "${BardAura}"
-|		/varset spellrememtimer 7s
-|		/varset CurrentMelody OOC
-	/if (${Group} && ${Me.GemTimer[${PulseRegenSong}]}==0 && !${Me.Invis} && !${Me.Sitting} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${Me.Gem[${PulseRegenSong}]} && ${Me.Song[${PulseRegenSong}].Duration.Seconds}<=6 && ${OOCManaSong}) {
-		/call SongQueue "${PulseRegenSong}"
-		/varset CurrentMelody OOC
-	} else /if (${Group} && ${Me.GemTimer[${ChorusRegenSong}]}==0 && !${Me.Invis} && !${Me.Sitting} && ${ReadyToCast}==0 && !${Me.Combat} && ${Me.XTarget}==0 && ${Me.Gem[${ChorusRegenSong}]} && ${Me.Song[${ChorusRegenSong}].Duration.Seconds}<=6 && ${OOCManaSong}) {
-		/call SongQueue "${ChorusRegenSong}"
-		/varset CurrentMelody OOC
-	} else /if (${Spell[Selo's Sonata].Stacks} && !${Me.Buff[Selo's Sonata].ID} && !${Me.Invis} && ${Me.AltAbilityReady[3704]} && ${Me.State.NotEqual[FEIGN]} && ${UseAASelo}) {
-		/squelch /alt act 3704
-		/delay 10
-	} else /if (${Me.Casting.ID} && ${ReadyToCast}==0) {
-		/call StopTune
-	} else /if (!${Me.Gem[${spellmisc}].Name.Equal[${miscspellremem}]} && ${spellrememtimer}==0 && ${miscspellremem.NotEqual[NULL]} && !${BringYourOwnSpells} && ${ReadyToCast}==0) {
-		/call StopTune
-		/call LoadSpellGem "${miscspellremem}" ${spellmisc}
-	}
-/return
 |***
  *	DES: quit singing.
  *	USE: 
@@ -377,42 +265,3 @@ sub pulse_stop(string _marker, bool _debug)
 		/delay 10 !${Me.Casting.ID}
 	}	
 /return TRUE
-|----------------------------------------------------------------------------
-|- SUB: BuffCheck
-|----------------------------------------------------------------------------
-Sub BuffCheck
-	|-Apply poison to weapon if enabled
-	/if (${UsePoisons} && ${FindItem[${PoisonName}].ID} && ${Cast.Ready[${PoisonName}]} && !${Me.Buff[${PoisonBuffName}].ID}) {
-		/useitem "${PoisonName}"
-		/delay 50
-	} else /if (${UsePoisons} && !${FindItem[${PoisonName}].ID}) {
-		/echo No Poison Found in Inventory - Disabling
-		/varset UsePoisons 0
-		/varset changetoini 1
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: StopTune
-|---------------------------------------------------------------------------- 
-Sub StopTune
-		/stopsong 
-		/varset CurrentMelody NULL
-/return
-|----------------------------------------------------------------------------
-|- SUB: SongQueue
-|---------------------------------------------------------------------------- 
-Sub SongQueue(string nextsong)
-	/if (${Me.Casting.ID}) /stopcast
-	/delay 10 !${Me.Casting.ID}
-	/cast ${Me.Gem[${nextsong}]}
-	/varset ReadyToCast ${Math.Calc[(${Spell[${nextsong}].MyCastTime}/100)+5]}
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if (!${Target.ID}) /return
-	/if (!${Target.Type.Equal[Corpse]}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
-	/doevents flush NotOnTarget
-/return

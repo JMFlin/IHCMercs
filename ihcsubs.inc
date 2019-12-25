@@ -144,6 +144,25 @@ Sub VarSetup
 	/declare TimeForMez					timer outer	0
 	/declare TimeForMezVariable			int outer 0
 
+|- melee skills
+	/declare intimidation 	bool outer FALSE
+	/declare eaglestrike 	bool outer FALSE
+	/declare tigerclaw 		bool outer FALSE
+	/declare kick 			bool outer FALSE
+	/declare backstab 		bool outer FALSE
+	/declare frenzy 		bool outer FALSE
+	/declare tigerclaw 		bool outer FALSE
+	/declare flyingkick 	bool outer FALSE
+	/declare roundkick  	bool outer FALSE
+	/declare bash 			bool outer FALSE
+
+|- alliance
+	/declare UseAlliance 	bool outer FALSE
+
+|- events
+	/declare snareImmuneID 	int outer 0
+	/declare HybridManaLimit 	int outer 80
+
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
 		/echo Extended Target 1 HAS TO BE SET TO Auto Hater
@@ -311,64 +330,65 @@ Sub check_state(bool _debug)
 	| should I be in battle?
 	/if (${Me.XTarget}) /return
 
-	|/if (${Me.Class.ShortName.Find[BRD]}) /return
+	| if stick is on we can turn it off
+	/if (${Stick.Status.Equal[ON]}) /stick off
 
-	| if I don't have a target: relax
-	/if (!${Me.XTarget}) {
+	| turn autoattack off
+	/attack off
 
-		| if stick is on we can turn it off
-		/if (${Stick.Status.Equal[ON]}) /stick off
+	| clear target
+	/if (${Target.ID}) /target clear
 
-		| turn autoattack off
-		/attack off
+	| check pet
+	/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
+	
+	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
 
-		| clear target
-		/if (${Target.ID}) /target clear
-
-		| check pet
-		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
+		|/if (${Me.BardSongPlaying}) {
+		|	/call pulse_stop core_cast_pulsestop
+		|}
 		
-		/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
+		| check aura one
+		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
+
+			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+
+			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+				
+				| reload the spell if i just memmed aura
+				/call LoadSpellBar
+			}
+		}
+	}
+
+	/if (${Me.Book[${Aura2}]}) {
+		
+		| check aura two
+		/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
 
 			|/if (${Me.BardSongPlaying}) {
 			|	/call pulse_stop core_cast_pulsestop
 			|}
-			
-			| check aura one
-			/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
 
-				/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
 
-				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
-					
-					| reload the spell if i just memmed aura
-					/call LoadSpellBar
-				}
+			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+
+				| reload the spell if i just memmed aura
+				/call LoadSpellBar
 			}
 		}
-
-		/if (${Me.Book[${Aura2}]}) {
-			
-			| check aura two
-			/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
-
-				|/if (${Me.BardSongPlaying}) {
-				|	/call pulse_stop core_cast_pulsestop
-				|}
-
-				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-
-				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
-
-					| reload the spell if i just memmed aura
-					/call LoadSpellBar
-				}
-			}
-		}
-|		/call check_illusion FALSE ${illusionItem}
-		/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 	}
 
+	/if (${Select[${Me.Class.ShortName},BER]}) {
+		|/call make_axes ${VolleyAxeName} ${VolleyAxeComponent}
+		/call make_axes ${SnareAxeName} ${SnareAxeComponent}
+		/call make_axes ${ThrowAxeName} ${ThrowAxeComponent}
+	}
+
+|		/call check_illusion FALSE ${illusionItem}
+	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: set_timers
@@ -461,6 +481,12 @@ Sub Engage
 		/if (${Target.ID}) /face fast
 		| Do we have line of sight?
 		/if (!${Spawn[id ${Target.ID}].LineOfSight}) /nav id ${Target.ID}
+
+		/while (${Navigation.Active}) {
+			/delay 5
+			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
+		}
+
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
@@ -595,7 +621,7 @@ Sub afk_pull
 	/if (!${Group.Puller.ID}==${Me.ID}) /return
 	/if (${Me.Casting.ID}) /return
 
-	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC,BST]}) {
+	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC,BST,MAG,CLR,DRU,SHM]}) {
 		/if (${Me.PctMana} < 20) /return
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,MNK,BER,ROG]}) {
@@ -982,22 +1008,6 @@ Sub BagModRods
 		/varset ShitOnCursor NULL
 	}
 	/if (${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.FreeInventory}>1) /autoinventory
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event Gain Something - DanNet message 
-|----------------------------------------------------------------------------    
-Sub Event_GainSomething(string Line, string text)
-    /if (${Line.Find["ABILITY POINT!"]}) {
-        /docommand /dgt \aw ${Me.Name} gained an AA, now has ${Me.AAPoints} unspent \ax
-    } else /if (${Line.Find[LEVEL]}) {
-        /docommand /dgt \aw ${Me.Name} gained a level, now is Level ${Me.Level} \ax
-	}
-/return 
-|----------------------------------------------------------------------------
-|- SUB: Event Task Update - DanNet message 
-|----------------------------------------------------------------------------    
-Sub Event_TaskUpdate(string Line, string name) 
-    /if (${acverbose}!=0) /docommand /dgt \at Task updated...(${name})\ax    
 /return
 |----------------------------------------------------------------------------
 |- SUB: Check Plugin
@@ -1853,22 +1863,20 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			}
 
 		}
-		/return		
-		
-		
+		/return
 	| item
 	} else /if (${Select[${_type},item,epicitem]}) {
 	|	DEBUG ${dep}item,epicitem${dep}${_spell}
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 
-		/if (${Select[${Me.Class.ShortName},BRD]}) {
+		|/if (${Select[${Me.Class.ShortName},BRD]}) {
 			| /if (${Me.BardSongPlaying}) /call pulse_stop 9
-			/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
+		|	/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
 	|			CHECKFACE ${Target2Kill} FALSE
 				/call stick_to_target ${Target2Kill}
-			}
-		}
+		|	}
+		|}
 
 		| is the item ready?
 		/if (${Me.ItemReady[${_spell}]}) {
@@ -1911,22 +1919,20 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			}
 
 		}
-		/return		
-		
-
+		/return
 		
 	| disc
 	} else /if (${Select[${_type},disc,activedisc]}) {
 		|DEBUG ${dep}disc,activedisc${dep}${_spell}
 		/varset _spell ${Spell[${_spell}].RankName}
 
-		/if (${Select[${Me.Class.ShortName},BRD]}) {
+		|/if (${Select[${Me.Class.ShortName},BRD]}) {
 			| /if (${Me.BardSongPlaying}) /call pulse_stop 9
-			/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
+		|	/if (${coreAuto} && (${swCombatMelee} || ${swCombatRange}) && ${Target2Kill}) {
 		|		CHECKFACE ${Target2Kill} FALSE
-				/call stick_to_target ${Target2Kill}
-			}
-		}
+		|		/call stick_to_target ${Target2Kill}
+		|	}
+		|}
 
 		|/if (${_tmpID} == 0) VDISC Disc ${sep} ${csp}${_spell}\ax
 		|/if (${_tmpID} != 0 && ${Target.ID}) VDISC Disc ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
@@ -1936,10 +1942,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/delay 5
 		/while (${Me.Casting.ID} && ${Window[CastingWindow].Open}) {
 			/delay 5
-		}	
-			
-
-
+		}
+		/return
 	| bard song	
 	} else /if (${Select[${_type},pulse]}) {
 	|	DEBUG ${dep}pulse${dep}${_spell}
@@ -2000,6 +2004,40 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	}
 
 /return FALSE
+
+|***
+ *	DES: process casting results from core_ cast2()
+ *	USE: 
+ *	NOTE: not for public consumption
+ ***|
+sub check_cast_events(bool _debug)
+
+	/doevents CAST_BEGIN
+	/doevents CAST_CANNOTSEE    
+	/doevents CAST_COLLAPSE
+	/doevents CAST_COMPONENTS
+	/doevents CAST_DISTRACTED    
+	/doevents CAST_FDFAIL    
+	/doevents CAST_FIZZLE  
+	/doevents CAST_IMMUNE
+	/doevents CAST_INTERRUPTED
+	/doevents CAST_NOMOUNT   
+	/doevents CAST_NOTARGET
+	/doevents CAST_NOTREADY
+	/doevents CAST_OUTDOORS
+	/doevents CAST_OUTOFMANA  
+	/doevents CAST_OUTOFRANGE
+	/doevents CAST_RECOVER    
+	| /varset CheckResisted 1
+	| /doevents CAST_RESISTED    
+	| /varset CheckResisted 0  
+	| /doevents CAST_RESISTEDYOU    
+	/doevents CAST_STANDING 
+	/doevents CAST_STUNNED
+	/doevents CAST_TAKEHOLD    
+	/varcalc _checkLoops ${_checkLoops}-1
+	
+/return
 
 |***
  *	DES: Memorize a spell/song
@@ -2384,6 +2422,158 @@ sub check_hurt(bool _debug, string _type)
 	}
 
 /return FALSE
+
+sub setup_skill_melee(bool _debug)
+
+	/if (${Select[${Me.Class.ShortName},BRD,ROG,MNK,BER]} && ${Me.AltAbility[Intimidation].Rank} >= 2) {
+		/varset intimidation TRUE
+		/if (!${Skill[Intimidation].Auto}) /autoskill Intimidation
+	}
+
+	/if (${Select[${Me.Class.ShortName},BRD]}) {
+		/varset kick TRUE
+		/if (!${Skill[Kick].Auto}) /autoskill Kick
+	}
+
+	/if (${Select[${Me.Class.ShortName},BST]}) {
+		/if (${Me.Level} < 70) {
+			/varset kick FALSE
+		} else {
+			/varset eaglestrike TRUE
+			/varset tigerclaw TRUE
+			/varset kick FALSE
+			/if (!${Skill[Eagle Strike].Auto}) /autoskill Eagle Strike
+			/if (!${Skill[Round Kick].Auto}) /autoskill Round Kick
+		}	
+	}
+
+	/if (${Select[${Me.Class.ShortName},ROG]}) {
+		/if (${Me.Level} >= 10) {
+			/varset backstab TRUE
+			/if (!${Skill[Backstab].Auto}) /autoskill Backstab
+		}
+	}
+
+	/if (${Select[${Me.Class.ShortName},BER]}) {
+		/if (${Me.Level} >= 6) {
+			/varset frenzy TRUE
+			/if (!${Skill[Frenzy].Auto}) /autoskill Frenzy
+		}
+	}
+
+	/if (${Select[${Me.Class.ShortName},MNK]}) {
+		/if (${Me.Level} >= 70) {
+			/varset tigerclaw TRUE
+			/if (!${Skill[Tiger Claw].Auto}) /autoskill Tiger Claw
+		}	
+		
+		/if (${Me.Level} >= 30) {
+			/varset flyingkick TRUE
+			/varset roundkick FALSE
+			/varset kick FALSE
+			/if (!${Skill[Flying Kick].Auto}) /autoskill Flying Kick
+		} else /if (${Me.Level} >= 5) {
+			/varset kick FALSE
+			/varset roundkick TRUE
+		} else /if (${Me.Level} < 5) {
+			/varset kick TRUE
+		} 
+	}
+
+	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
+		/varset bash TRUE
+		/if (!${Skill[Bash].Auto}) /autoskill Bash
+	}
+
+/return
+
+|***
+ *	DES: use base melee discs
+ *	USE: /call use_skill_melee TARGET
+ *	NOTE: 
+ ***|
+sub use_skill_melee(int _tmpID, bool _debug)
+
+	/if (!${Bool[${_tmpID}]}) /return	
+	/if (${Target.Type.Equal[Corpse]}) /return
+	
+	/if (${Target.ID} != ${_tmpID}) {
+		/squelch /target ID ${_tmpID}
+		/delay 5 ${Target.ID} == ${_tmpID}
+	}
+
+	| taunt /onoff agro
+	/if (${Me.ID} == ${Group.MainTank.ID} && ${Me.AbilityReady[Taunt]} && ${Spawn[${_tmpID}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
+		/if (${Target.ID}) /doability Taunt
+	}
+	
+	| disarm
+	/if (!${Skill[Disarm].Auto}) {
+		/if (${Me.AbilityReady[Disarm]} && ${Spawn[${_tmpID}].Distance} <= 15 && ${swAgro}) {
+			/if (${Target.ID}) /doability Disarm
+		}
+	}
+		
+	| kick
+	/if (${Bool[${kick}]} && !${Skill[Kick].Auto}) {
+	 	/if (${Me.AbilityReady[Kick]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+			/if (${Target.ID}) /doability Kick
+		}
+	}
+	
+	| bash
+	/if (${Bool[${bash}]} && !${Skill[Bash].Auto}) {
+		/if (${Me.AbilityReady[Bash]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+			/if (${Target.ID}) /doability Bash
+		}
+	}
+	
+	| Intimidation
+	/if (${Select[${Me.Class.ShortName},BRD,ROG,MNK,BER]}) {
+		/if (${intimidation} && ${Bool[${intimidation}]}) {
+			/if (${Me.AbilityReady[Intimidation]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+				/if (${Target.ID}) /doability Intimidation		
+			}
+		}
+	}
+
+	| Zerker only skill
+	/if (${Select[${Me.Class.ShortName},BER]}) {
+		/if (!${frenzy} && !${Skill[Frenzy].Auto}) {
+			/if (${Me.AbilityReady[Frenzy]} && ${Spawn[${_tmpID}].Distance} <= 13) {
+				/if (${Target.ID}) /doability Frenzy
+			}
+		}
+	}
+
+	| rogue only skill
+	/if (${Select[${Me.Class.ShortName},ROG]}) { 
+		/if (${backstab} && !${Skill[Backstab].Auto}) {
+			/if (${Me.AbilityReady[Backstab]} && ${Spawn[${_tmpID}].Distance} <= 13) {
+				/if (${Target.ID}) /doability Backstab
+			}
+		}
+	}
+	
+	| monk/bst only skill 
+	/if (${Select[${Me.Class.ShortName},MNK,BST]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+		| fist
+		/if (${Bool[${dragonpunch}]} && !${Skill[Dragon Punch].Auto} && (${Me.AbilityReady[Dragon Punch]} || ${Me.AbilityReady[Tail Rake]})) {
+			/if (${Target.ID}) /doability "Dragon Punch"
+		} else /if (${Bool[${eaglestrike}]} && !${Skill[Eagle Strike].Auto} && ${Me.AbilityReady[Eagle Strike]}) {
+			/if (${Target.ID}) /doability "Eagle Strike"
+		} else /if (${Bool[${tigerclaw}]} && !${Skill[Tiger Claw].Auto} && ${Me.AbilityReady[Tiger Claw]}) {
+			/if (${Target.ID}) /doability "Tiger Claw"
+		}
+		| kick
+	 	/if (${Bool[${flyingkick}]} && !${Skill[Flying Kick].Auto} && ${Me.AbilityReady[Flying Kick]}) {
+			/if (${Target.ID}) /doability "Flying Kick"
+		} else /if (${Bool[${roundkick}]} && !${Skill[Round Kick].Auto} && ${Me.AbilityReady[Round Kick]}) {
+			/if (${Target.ID}) /doability "Round Kick"
+		}		
+	}
+
+/return
 |-------------------------------------------------------------------------------------
 |- SUB: BegForCure
 |-------------------------------------------------------------------------------------
@@ -2421,40 +2611,12 @@ Sub BegForCure
 	/if (${Defined[tmpCureSpellReady]}) /deletevar tmpCureSpellReady
 	/delay 5
 /return
-|-------------------------------------------------------------------------------------
-|- SUB: BIND KillMATarget
-|-------------------------------------------------------------------------------------
-Sub Bind_KillMATarget
-	/call KillTarget
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: BIND SetAutoTargetID
-|-------------------------------------------------------------------------------------
-Sub Bind_SetAutoTargetID
-	/varset autotargetid ${Target.ID}
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: BIND QuestSay
-|-------------------------------------------------------------------------------------
-Sub Bind_QuestSay(string QSayText)
-	/squelch /mgax /target id ${Target.ID}
-	/delay 5
-	/squelch /mgax /say ${QSayText}
-	/delay 5
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: BIND ChaseMe
-|-------------------------------------------------------------------------------------
-Sub Bind_ChaseMe
-    /squelch /mgx /chase on ${Me.CleanName}
-/return
-
 #Event ZonePoK	"#*#You have entered Plane of Knowledge#*#"
 |----------------------------------------------------------------------------
 |- SUB: Event Event_ZonePoK - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 Sub Event_ZonePoK
-	/varset Mode 1
+	/varset Mode 0
 	/doevents flush Event_ZonePoK
 /return
 |-------------------------------------------------------------------------------------

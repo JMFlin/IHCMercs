@@ -9,14 +9,10 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcbstutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
-#Event NotOnTarget	"#*#You cannot see your target#*#"
-#Event NotOnTarget	"#*#Your target is too far away#*#"
-#Event WornOff      "Your #1# spell has worn off of #*#."
-#Event GroupChange	"#*#has joined the group#*#"
 
 Sub Main
 	/delay ${Math.Rand[10]}
@@ -47,6 +43,10 @@ Sub Main
 	/varset AutoCampRadius 10
 	/varset AutoAssistAt 100
 	/varset AssistRange 10
+
+	/call alliance_check_group
+	/call setup_skill_melee FALSE
+	
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -108,8 +108,8 @@ Sub self_buff_check(bool _debug)
 
 		/if (!${Me.Pet.Buff[${FocusSpell}]}) {
 			/if (${validate_cast[FALSE, spell, "${FocusSpell}", ${Me.Pet.ID}]}) {
-			|	/call core_cast2 "${FocusSpell}" spell ${Me.Pet.ID} FALSE
-			|	/varset CastCheck 1
+				/call core_cast2 "${FocusSpell}" spell ${Me.Pet.ID} FALSE
+				/varset CastCheck 1
 			}
 		}
 		/if (!${Me.Pet.Buff[${PetHaste}]}) {
@@ -136,8 +136,8 @@ Sub self_buff_check(bool _debug)
 	}
 
 	/if (${validate_cast[FALSE, spell, "${AtkBuff}", ${Me.ID}]}) {
-	|	/call core_cast2 "${AtkBuff}" spell ${Me.ID} FALSE
-	|	/varset CastCheck 1
+		/call core_cast2 "${AtkBuff}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
 	}
 
 	/if (${CastCheck}) {
@@ -581,15 +581,6 @@ Sub Event_Chat(string ChatType,string ChatSender,string ChatText)
 	|/if (${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}) {
 	|	/if (${Select[${ChatText},SoW,RunSpeedBuff,Tala]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<200)) /call SpellQueue "${RunSpeedBuff}" ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
 	|}
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
-|----------------------------------------------------------------------------
-Sub Event_NotOnTarget
-	/if (!${Target.ID}) /return
-	/if (!${Target.Type.Equal[Corpse]}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]} < 50) /face fast
-	/doevents flush NotOnTarget
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event_WornOff

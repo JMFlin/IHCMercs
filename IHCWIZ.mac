@@ -7,7 +7,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcwizutil.inc
-#include IHCMercs\ihcevents.inc
+#include IHCMercs\events.inc
 #warning
 #Chat group
 #Chat tell
@@ -32,18 +32,13 @@ Sub Main
 	/call LoadSpellBar
 	/call CheckOptions
 	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
-	}
 
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
 	}
+	/call alliance_check_group
 	/varset UseSpellInterrupt 1
-
-	/call UnCheckPlugin MQ2Cast
 
 :mainloop
 	/call ModeSet
@@ -181,7 +176,7 @@ Sub combat
 		/if (!${Spawn[${Me.Name} pccorpse radius 50].ID}) {
 			
 			| Trigger first harvest
-			/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
 		}
 	}
 
@@ -343,13 +338,13 @@ Sub ManageAggro
 |- SUB: global_cooldown_spells - Cast between spell casts (Weave)
 |---------------------------------------------------------------------------- 
 Sub global_cooldown_spells
-	/if (${Me.AltAbilityReady[Force of Flame]} && ${Me.AltAbility[Force of Flame].Rank}>=1) {
+	/if (${Me.AltAbilityReady[Force of Flame]} && ${Me.AltAbility[Force of Flame].Rank} >= 1) {
 		/alt act ${Me.AltAbility[Force of Flame].ID}
 	}
-	/if (${Me.AltAbilityReady[Force of Ice]} && ${Me.AltAbility[Force of Ice].Rank}>=1) {
+	/if (${Me.AltAbilityReady[Force of Ice]} && ${Me.AltAbility[Force of Ice].Rank} >= 1) {
 		/alt act ${Me.AltAbility[Force of Ice].ID}
 	}
-	/if (${Me.AltAbilityReady[Force of Will]} && ${Me.AltAbility[Force of Will].Rank}>=1) {
+	/if (${Me.AltAbilityReady[Force of Will]} && ${Me.AltAbility[Force of Will].Rank} >= 1) {
 		/alt act ${Me.AltAbility[Force of Will].ID}
 	}
 /return
