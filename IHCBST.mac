@@ -178,7 +178,7 @@ Sub combat
 	/call Engage
 	/call pet_attack
 
-	/if (!${Me.Buff[${PetGrowl}].ID}) {
+	/if (!${Me.Song[${PetGrowl}].ID} && ${Target.PctHPs} > 30) {
 		/if (${validate_cast[FALSE, spell, "${PetGrowl}", ${Me.ID}]}) /call core_cast2 "${PetGrowl}" spell 0 FALSE
 	}
 
@@ -206,7 +206,7 @@ Sub combat
 	/if (!${Target.Buff[${NukeSpell4}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NukeSpell4}", ${Target.ID}]}) /call core_cast2 "${NukeSpell4}" spell ${Target.ID} FALSE
 	}
-
+	/call Engage
 	/if (!${Target.Buff[${NukeSpell5}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NukeSpell5}", ${Target.ID}]}) /call core_cast2 "${NukeSpell5}" spell ${Target.ID} FALSE
 	}

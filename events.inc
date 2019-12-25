@@ -138,7 +138,7 @@ Sub Event_HybridHealerLimit(string line)
 #Event RaidChange	"#*#has joined the raid#*#"
 Sub alliance_check_raid(bool _debug)
 
-	/declare _raidsize int local ${Raid.RaidSize}-1
+	/declare _raidsize int local ${Raid.Members}-1
   /declare _myclasscount int local 1
   /declare i int local
 
