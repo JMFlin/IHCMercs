@@ -7,18 +7,6 @@
  ***|
 
 |***
- *	TODO: 
- * #Event MezBroke          "#1# has been awakened by #2#."
- * #Event WornOff      "Your #1# spell has worn off of #*#."
- * #Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
- * #Event Buff 			"Your #1# spell has worn off of #*#."
- * Check raid in group alliance so that you dont turn it off when you sdwitch groups...
- ***|
-
-
-
-
-|***
  *	DES: 
  *	USE: many events require movement to a mob to echo a response.
  *  NOTE: 
@@ -27,7 +15,6 @@ sub events_speakline(string _target, string _verbage)
 
 	/if (${Spawn[${_target}].Distance} > 50) /echo I need to Move Closer To ${_target}
 
-	/call clear_combat
 	/stick off
 
 	/target ${_target}
@@ -41,6 +28,13 @@ sub events_speakline(string _target, string _verbage)
 
 /return
 
+|***
+ *	TODO: 
+ * #Event MezBroke          "#1# has been awakened by #2#."
+ * #Event WornOff      "Your #1# spell has worn off of #*#."
+ * #Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
+ * #Event Buff 			"Your #1# spell has worn off of #*#."
+ ***|
 
 |----------------------------------------------------------------------------
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
@@ -78,13 +72,14 @@ Sub Event_NotOnTargetDistance(string line)
 		}
 	}
 /return
-
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in group
 |---------------------------------------------------------------------------- 
 #Event GroupChange	"#*#has left the group#*#"
 #Event GroupChange	"#*#has joined the group#*#"
 Sub alliance_check_group(bool _debug)
+
+  /if (${Raid.Members}) /return ${alliance_check_raid[FALSE]}
 
 	/declare _groupsize int local ${Group.GroupSize}-1
   /declare _myclasscount int local 1
@@ -100,7 +95,7 @@ Sub alliance_check_group(bool _debug)
 		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw. Setting Alliance to TRUE.
     /return TRUE
 	} else /if (${_myclasscount} < 3) {
-		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw . Setting Alliance to FALSE.
+		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw. Setting Alliance to FALSE.
 	}
 /return FALSE
 
@@ -125,17 +120,17 @@ Sub hybrid_healer_limit(bool _debug)
 	/next i
 
 	/if (${_clrclasscount} >= 1) {
-		/echo CLRs found \ag ${_clrclasscount} \aw . Setting DPS mana limit to 40.
+		/echo CLRs found \ag ${_clrclasscount} \aw. Setting DPS mana limit to 40.
     /return TRUE
 	} else /if (${_clrclasscount} < 1) {
-		/echo CLRs found \ar ${_clrclasscount} \aw . Setting DPS mana limit to 80.
+		/echo CLRs found \ar ${_clrclasscount} \aw. Setting DPS mana limit to 80.
     /return FALSE
 	}
 /return
 
 Sub Event_HybridHealerLimit(string line)
-		/if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 50 
-/return ${UseAlliance}
+		/if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 40 
+/return ${HybridManaLimit}
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in raid
 |---------------------------------------------------------------------------- 
@@ -148,7 +143,7 @@ Sub alliance_check_raid(bool _debug)
   /declare i int local
 
 	/for i 1 to ${_raidsize}
-		/if (${Group.Member[${i}].Class.ShortName.Equal[${Me.Class.ShortName}]}) {
+		/if (${Raid.Member[${i}].Class.ShortName.Equal[${Me.Class.ShortName}]}) {
 			/varcalc _myclasscount ${_myclasscount}+1
 		}
 	/next i
@@ -157,17 +152,17 @@ Sub alliance_check_raid(bool _debug)
 		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw. Setting Alliance to TRUE.
     /return TRUE
 	} else /if (${_myclasscount} < 3) {
-		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw . Setting Alliance to FALSE.
+		/echo \aw ${Me.Class.ShortName} found \ag ${_myclasscount} \aw. Setting Alliance to FALSE.
 	}
 /return FALSE
 
 Sub Event_RaidChange(string line)
 		/if (${alliance_check_raid[FALSE]}) /varset UseAlliance TRUE 
 /return ${UseAlliance}
-
 |----------------------------------------------------------------------------
 |- SUB: Event Gain Something - DanNet message 
 |----------------------------------------------------------------------------    
+#Event GainSomething	 "#*#You have gained|#1#|"
 Sub Event_GainSomething(string Line, string text)
     /if (${Line.Find["ABILITY POINT!"]}) {
         /docommand /dgt \aw ${Me.Name} gained an AA, now has ${Me.AAPoints} unspent \ax
@@ -178,20 +173,24 @@ Sub Event_GainSomething(string Line, string text)
 |----------------------------------------------------------------------------
 |- SUB: Event Task Update - DanNet message 
 |----------------------------------------------------------------------------    
+#Event TaskUpdate		 "#*#Your task |#1#| has been updated#*#" 
 Sub Event_TaskUpdate(string Line, string name) 
     /if (${acverbose}!=0) /docommand /dgt \at Task updated...(${name})\ax    
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Camping - end macro
 |----------------------------------------------------------------------------
+#Event Camping           "#*#seconds to prepare your camp."
 Sub Event_Camping	
 	/if (${Me.Casting.ID}) /stopcast
+  /if (${Me.BardSongPlaying}) /stopsong
 	/endmacro
 /return
-
 |----------------------------------------------------------------------------
 |- SUB: Event Zoned
 |----------------------------------------------------------------------------
+#Event Zoned             "LOADING, PLEASE WAIT#*#"
+#Event Zoned             "You have entered#*#"
 Sub Event_Zoned(Message)
 	/call Zoning
 /return
@@ -204,10 +203,9 @@ Sub Zoning
 |----------------------------------------------------------------------------
 |- SUB: Event Event_ZonePoK - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
-#Event ZonePoK	"#*#You have entered Plane of Knowledge#*#"
+#Event ZonePoK	"#*#You have entered The Plane of Knowledge.#*#"
 Sub Event_ZonePoK(string line)
 	/varset Mode 0
-	/doevents flush Event_ZonePoK
 /return
 
     
@@ -339,8 +337,6 @@ sub Event_CAST_RECOVER(string line)
 | #event CAST_RESISTED               "#*# resisted your #1#!"
 | #event CAST_RESISTED               "#*# avoided your #1#!"                               
 sub Event_CAST_RESISTED(string line, string _name)
-	/if (!${CheckResisted}) /return
-	OUT \aw${_name.Right[-11].Left[-1]} was Resisted \ag
 	/if (${castReturn.NotEqual[CAST_IMMUNE]}) /varset castReturn CAST_RESISTED
 /return ${castReturn}
 
