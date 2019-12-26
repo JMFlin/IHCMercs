@@ -106,6 +106,8 @@ Sub ManualRunAndGun
 |---------------------------------------------------------------------------- 
 Sub AANDisc
 
+	/call get_target
+
 	/if (!${validate_melee_combat[FALSE]}) /return
 
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
@@ -256,7 +258,11 @@ Sub AANDisc
 |---------------------------------------------------------------------------- 
 Sub combat
 
+	/call get_target
+
 	/if (!${validate_melee_combat[FALSE]}) /return
+
+	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
@@ -280,7 +286,7 @@ Sub combat
 		/Disc ${Alliance}
 		/delay 5
 	}
-	/if (${FindItem[${ChestItemName}].ID} && ${ChestCombatCast} && !${FindItem[${ChestCombatCast}].TimerReady}) {
+	/if (${FindItem[${ChestItemName}].ID} && !${FindItem[${ChestCombatCast}].TimerReady}) {
 		/useitem "${ChestItemName}"
 		/delay 10	
 	}
@@ -310,10 +316,6 @@ Sub combat
 		/alt act 642
 		/delay 5
 	}	
-	/if (${Me.AbilityReady[Frenzy]} && ${Me.Combat}) {
-		/doability Frenzy
-		/delay 5
-	}	
 
 	/if (${validate_cast[FALSE, disc, "${Dfrenzy}", ${Target.ID}]}) /call core_cast2 "${Dfrenzy}" disc ${Target.ID} FALSE
 
@@ -336,10 +338,7 @@ Sub combat
 		/Disc ${Phantom}
 		/delay 5
 	}
-	/if (${Me.AbilityReady[Intimidation]} && ${Me.Combat} && ${UseIntimidate} && ${Me.Level}>100) {
-		/doability Intimidation
-		/delay 5
-	}
+
  /return
 |----------------------------------------------------------------------------
 |- SUB: DowntimeDiscs

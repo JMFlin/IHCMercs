@@ -1386,9 +1386,12 @@ sub validate_melee_combat(bool _debug)
 	/if (!${Target.ID}) /return FALSE
 	/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
-	/if (${Target.PctHPs} > ${AutoAssistAt}) /return FALSE
-	/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return FALSE
-	/if (${Target.Mezzed.ID}) /return FALSE
+	
+	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
+		/if (${Target.PctHPs} > ${AutoAssistAt}) /return FALSE
+		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return FALSE
+		/if (${Target.Mezzed.ID}) /return FALSE
+	}
 
 /return TRUE
 |-------------------------------------------------------------------------------- 
@@ -2475,9 +2478,6 @@ sub setup_skill_melee(bool _debug)
  *	NOTE: 
  ***|
 sub use_skill_melee(int _tmpID, bool _debug)
-
-	/if (!${Bool[${_tmpID}]}) /return	
-	/if (${Target.Type.Equal[Corpse]}) /return
 	
 	/if (${Target.ID} != ${_tmpID}) {
 		/squelch /target ID ${_tmpID}
@@ -2491,7 +2491,7 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	
 	| disarm
 	/if (!${Skill[Disarm].Auto}) {
-		/if (${Me.AbilityReady[Disarm]} && ${Spawn[${_tmpID}].Distance} <= 15 && ${swAgro}) {
+		/if (${Me.AbilityReady[Disarm]} && ${Spawn[${_tmpID}].Distance} <= 15) {
 			/if (${Target.ID}) /doability Disarm
 		}
 	}

@@ -334,12 +334,10 @@ Sub DoDisc
 |- SUB: get_aggro
 |---------------------------------------------------------------------------- 
 Sub get_aggro
-	/if (!${Me.XTarget}) /return
-	/if (!${Target.ID}) /return
 
-	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
-		/call AbilityNow "Taunt"
-	}
+	/if (!${validate_melee_combat[FALSE]}) /return
+
+	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${shout}]} && ${Target.PctHPs}>1) {
 		/call DiscNow "${shout}"
@@ -375,15 +373,6 @@ Sub get_aggro
 	}
 	/if (${Me.AltAbilityReady[Call of Challenge]} && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Call of Challenge].ID}
-	}
-	/if (${Me.AbilityReady[Disarm]} && ${Target.PctHPs}>1) {
-		/call AbilityNow "Disarm"
-	}
-	/if (${Me.AbilityReady[Bash]} && ${Target.PctHPs}>1) {
-		/call AbilityNow "Bash"
-	}
-	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs}>1) {
-		/call AbilityNow "Kick"
 	}
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
