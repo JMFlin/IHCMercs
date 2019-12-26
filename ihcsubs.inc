@@ -373,8 +373,8 @@ Sub check_state(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},BER]}) {
 		|/call make_axes ${VolleyAxeName} ${VolleyAxeComponent}
-		/call make_axes ${SnareAxeName} ${SnareAxeComponent}
-		/call make_axes ${ThrowAxeName} ${ThrowAxeComponent}
+		/call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
+		|/call make_axes ${ThrowAxeName} ${ThrowAxeComponent}
 	}
 
 |		/call check_illusion FALSE ${illusionItem}
