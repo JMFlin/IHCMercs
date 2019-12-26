@@ -273,7 +273,7 @@ Sub DoDisc
 
 	/if (!${validate_melee_combat[FALSE]}) /return
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -290,7 +290,7 @@ Sub DoDisc
 		/disc ${parryall}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -451,7 +451,7 @@ Sub AoEAggro
 		/next x
 
 		| If no mob is yet mezzed hit them all
-		/if (${numberOfSpawn} > ${Me.XTarget}) {
+		/if (${numberOfSpawn} > 1) {
 			/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
 		}
 	}

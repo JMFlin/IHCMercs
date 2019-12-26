@@ -456,7 +456,7 @@ Sub Engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
 
 	| engage if target is close enough
-	/if (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 55) {
+	/if (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 65) || ${Navigation.PathLength[id ${Target.ID}]} < 55) {
 	
 		/if (${Target.ID}) /face fast
 
@@ -2461,6 +2461,10 @@ sub setup_skill_melee(bool _debug)
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/varset bash TRUE
 		/if (!${Skill[Bash].Auto}) /autoskill Bash
+	}
+
+	/if (${Me.AbilityReady[Disarm]} && ${Select[${Me.Class.ShortName},WAR,PAL,SHD,BER,ROG,MNK,BRD,BST]}) {
+		/if (!${Skill[Disarm].Auto}) /autoskill Disarm
 	}
 
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
