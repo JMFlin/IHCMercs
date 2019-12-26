@@ -619,13 +619,9 @@ Sub AddToAlert
 |---------------------------------------------------------------------------- 
 Sub afk_pull
 	/declare PullTargetID 	int local 0
-	/declare Dummy 			int local 0
-	/declare i 				int local 1
-	/declare MobsInRadius 	int local 0
-	/declare PathLength 	int local 9999
 
-	/if (${Me.XTarget[1].ID}) /return
-	/if (!${Group.Puller.ID}==${Me.ID}) /return
+	/if (${Me.XTarget}) /return
+	/if (!${Group.Puller.ID} == ${Me.ID}) /return
 	/if (${Me.Casting.ID}) /return
 
 	/if (${Select[${Me.Class.ShortName},SHD,WIZ,PAL,DRU,ENC,BST,MAG,CLR,DRU,SHM]}) {
@@ -659,7 +655,8 @@ Sub afk_pull
 		/delay 1s ${Spawn[id ${PullTargetID}].Distance} <= ${PullDistance}
 		/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
 		/if (${Me.XTarget}) /varset PullTargetID ${Me.XTarget[1].ID}
-		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance} <= ${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
+		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance} <= (${PullDistance} - 20) && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
+		/if (${Navigation.Active} && ${Me.XTarget}) /nav stop
 	}
 	
 	/if ((!${Target.ID} != ${PullTargetID} || !${Target.ID}) && ${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
@@ -682,7 +679,7 @@ Sub afk_pull
 		/if (${PullAbility.Equal[Melee]}) {
 			/if (!${Navigation.Active} && (${Spawn[id ${PullTargetID}].Distance} > ${PullDistance}) || !${Spawn[id ${PullTargetID}].LineOfSight}) /nav id ${PullTargetID}
 		} else {
-			/if (!${Navigation.Active} && (${Spawn[id ${PullTargetID}].Distance} > (${PullDistance} + 50)) || !${Spawn[id ${PullTargetID}].LineOfSight}) /nav id ${PullTargetID}
+			/if (!${Navigation.Active} && (${Spawn[id ${PullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight})) /nav id ${PullTargetID}
 		}
 		/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance} <= ${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
 		/if (${Me.XTarget}) /break

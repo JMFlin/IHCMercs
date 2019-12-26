@@ -294,20 +294,26 @@ Sub BuffGroup
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Focus.ID" "tmpfocusid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
-				/if (${validate_cast[FALSE, spell, ${FocusSpell}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${FocusSpell}" spell ${Group.Member[${bmember}].ID} FALSE
-				/varset CastCheck 1
+				/if (${validate_cast[FALSE, spell, ${FocusSpell}, ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${FocusSpell}" spell ${Group.Member[${bmember}].ID} FALSE
+					/varset CastCheck 1
+				}
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${ManaRegenBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${ManaRegenBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${ManaRegenBuff}]} && ${Me.CurrentMana}>${Spell[${ManaRegenBuff}].Mana} && !${Me.Casting.ID}) {
-					/if (${validate_cast[FALSE, spell, ${ManaRegenBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${ManaRegenBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, ${ManaRegenBuff}, ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${ManaRegenBuff}" spell ${Group.Member[${bmember}].ID} FALSE
 					/varset CastCheck 1
+				}
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${RunSpeedBuff}]} && ${Me.CurrentMana} > ${Spell[${RunSpeedBuff}].Mana}) {
-				/if (${validate_cast[FALSE, spell, ${RunSpeedBuff}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${RunSpeedBuff}" spell ${Group.Member[${bmember}].ID} FALSE
-					/varset CastCheck 1			
+				/if (${validate_cast[FALSE, spell, ${RunSpeedBuff}, ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${RunSpeedBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+					/varset CastCheck 1
+				}		
 			}
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${AtkBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${AtkBuff}].Stacks" "tmpstackcheck" "bool"
@@ -318,8 +324,10 @@ Sub BuffGroup
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${Haste}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${Haste}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana} > ${Spell[${Haste}].Mana} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
-				/if (${validate_cast[FALSE, spell, ${Haste}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${Haste}" spell ${Group.Member[${bmember}].ID} FALSE
+				/if (${validate_cast[FALSE, spell, ${Haste}, ${Group.Member[${bmember}].ID}]}) {
+					/call core_cast2 "${Haste}" spell ${Group.Member[${bmember}].ID} FALSE
 					/varset CastCheck 1
+				}
 			}
 		}
 	/next bmember
