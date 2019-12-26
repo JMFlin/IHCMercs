@@ -349,7 +349,7 @@ Sub make_axes(string AxeName, string AxeComponents)
 	/if (${Me.XTarget}) /return
 	/if (${Me.Moving}) /return
 	/if (${Navigation.Active}) /return
-	
+	/echo ${AxeName} ${AxeComponents}
 	/while (${FindItemCount[${AxeName}]} < 200 && ${FindItemCount[${AxeComponents}]} > 0) {
 		/if (${Cursor.ID}) /autoinventory
 		/if (${Me.XTarget}) /return
