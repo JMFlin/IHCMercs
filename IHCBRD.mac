@@ -165,14 +165,6 @@ Sub combat
 
 	/if (!${validate_melee_combat[FALSE]}) /return
 
-	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID}) {
-		
-		/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
-			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
-			/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
-		}
-	}
-
 	/declare BurningNow int local 0
 	/if (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) {
 		/if (${Me.CombatAbilityReady[Thousand Blades]}) {
@@ -243,6 +235,8 @@ Sub AANDisc
 	/doevents
 
 	/if (!${validate_melee_combat[FALSE]}) /return
+
+	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (${FindItem[=${Epicsword}].ID} && ${Me.ItemReady[=${Epicsword}]}) {
 		/call StopTune

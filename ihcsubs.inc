@@ -456,59 +456,50 @@ Sub Engage
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
 
-	| tank engage if target is close enough
-	/if (${Me.ID} == ${Group.MainTank.ID} && (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 55)) {
+	| engage if target is close enough
+	/if (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 55) {
+	
 		/if (${Target.ID}) /face fast
-		/if (${Target.Distance} > 200) {
-			/if (${Stick.Active}) /stick off
-			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/return
-		}
-		| Do we have line of sight?
-		/if (!${Spawn[id ${Target.ID}].LineOfSight}) {
-			/if (${Stick.Active}) /stick off
-			/nav id ${Target.ID}
-		}
-
-		/while (${Navigation.Active}) {
-			/delay 5
-			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
-		}
-
-		/if (!${Stick.Active}) /stick 12 moveback loose
-		/delay 10 ${Stick.Active}
-		/if (${Target.ID}) /squelch /attack on
-		/call pet_attack
-	}
-
-	| melee dps engage if target is close enough
-	/if (${Me.ID} != ${Group.MainTank.ID} && (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 45)) {
-		/if (${Target.ID}) /face fast
-		| Do we have line of sight?
-		
-		/if (${Target.Distance} > 200) {
-			/if (${Stick.Active}) /stick off
-			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/return
-		}
 
 		/if (!${Spawn[id ${Target.ID}].LineOfSight}) {
 			/if (${Stick.Active}) /stick off
 			/nav id ${Target.ID}
 		}
 
+		/if (!${check_target_distance[FALSE]}) /return
+
 		/while (${Navigation.Active}) {
 			/delay 5
+			/if (!${check_target_distance[FALSE]}) {
+				/nav stop
+				/return
+			}
 			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
 		}
+	
+		/if (${Me.ID} == ${Group.MainTank.ID}) {
+			/if (!${Stick.Active}) /stick 12 moveback loose
+			/delay 10 ${Stick.Active}
+		}
 
-		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
-		/delay 10 ${Stick.Active}
+		/if (${Me.ID} != ${Group.MainTank.ID}) {
+			/if (!${Stick.Active}) /stick 12 hold moveback !front loose
+			/delay 10 ${Stick.Active}
+		}
 		/if (${Target.ID}) /squelch /attack on
 		/call pet_attack
 	}
 
 /return
+
+sub check_target_distance(bool _debug)
+	/if (${Target.Distance} > 200) {
+		/if (${Stick.Active}) /stick off
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/return FALSE
+	}
+/return TRUE
+
 |----------------------------------------------------------------------------
 |- SUB: CastersEngage
 |---------------------------------------------------------------------------- 
@@ -801,19 +792,20 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 Sub pet_attack
 	/if (!${Me.Pet.ID}) /return
 	/if (${petFollow}) /varset petFollow 0
-	/if (!${Target.Type.Equal[NPC]}) /return
-	/if (${Target.PctHPs} > 98 && ${Navigation.PathLength[id ${Target.ID}]} > 40) /return
+	/call validate_melee_combat FALSE
 
-	|- Pet Attack
-	/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
-		/if (!${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /alt act 177
-		/delay 2
+	/if (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 55) {
+
+		|- Spirit call
+		/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
+			/if (!${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /alt act 177
+			/delay 2
+		}
+		/if (!${Me.Pet.Combat}) {
+			/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet attack 
+			/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet swarm
+		}
 	}
-	/if (!${Me.Pet.Combat}) {
-		/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet attack 
-		/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet swarm
-	}
-	
 	/if (!${Spawn[${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
 	/if (${Spawn[${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
 /return
@@ -2474,7 +2466,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
 		/varset AutoAssistAt 99
-		/varset AssistRange 10
+		/varset AssistRange 45
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/varset AutoAssistAt 98

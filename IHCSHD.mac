@@ -138,8 +138,8 @@ Sub downtime_buffs
 |- SUB: combat 
 |---------------------------------------------------------------------------- 
 Sub combat
-	/if (!${Me.XTarget}) /return
-	/if (!${Target.ID}) /return
+	
+	/if (!${validate_melee_combat[FALSE]}) /return
 	
 	/squelch /attack on
 
@@ -249,28 +249,12 @@ Sub DoDisc
 |- SUB: get_aggro
 |---------------------------------------------------------------------------- 
 Sub get_aggro
-	/if (!${Me.XTarget}) /return
-	/if (!${Target.ID}) /return
+	
+	/if (!${validate_melee_combat[FALSE]}) /return
 
 	/squelch /attack on
 
-	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs} > 1 && ${Me.SecondaryPctAggro} >= 100) {
-		/doability Taunt
-		/delay 1s
-	}
-
-	/if (${Me.AbilityReady[Disarm]} && ${Target.PctHPs}>1) {
-		/doability Disarm
-		/delay 1s
-	}
-	/if (${Me.AbilityReady[Bash]} && ${Target.PctHPs}>1) {
-		/doability Bash
-		/delay 1s
-	}
-	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs}>1) {
-		/doability Kick
-		/delay 1s
-	}
+	/call use_skill_melee ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {
 		/docommand /dgt Attempting to grab aggro on \ar ${Target.Name} \ax with =>> \ag ${Terror1} \ax <<=
@@ -289,7 +273,7 @@ Sub get_aggro
 |---------------------------------------------------------------------------- 
 Sub aoe_aggro
 
-	/if (!${Me.XTarget}) /return
+	/if (!${validate_melee_combat[FALSE]}) /return
 
 	/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {
 		/if (${validate_cast[FALSE, spell, "${Denial}", ${Target.ID}]}) {

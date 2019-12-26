@@ -166,16 +166,11 @@ Sub combat
 	/call get_target
 	/squelch /attack on
 
-	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs} > 1) {
-		/doability Kick
-		/delay 1s
-	}
+	/call use_skill_melee ${Target.ID} FALSE
 
 	/if (!${Target.Buff[${DoTSpell1}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
-	/call Engage
-	/call pet_attack
 
 	/if (!${Me.Song[${PetGrowl}].ID} && ${Target.PctHPs} > 30) {
 		/if (${validate_cast[FALSE, spell, "${PetGrowl}", ${Me.ID}]}) /call core_cast2 "${PetGrowl}" spell 0 FALSE
@@ -193,7 +188,9 @@ Sub combat
 			/varset slowImmuneID ${Target.ID}
 		}
 	}
+	
 	/call Engage
+
 	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 
 		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
@@ -201,11 +198,11 @@ Sub combat
 			/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 		}
 	}
-	/call pet_attack
+
 	/if (!${Target.Buff[${NukeSpell4}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NukeSpell4}", ${Target.ID}]}) /call core_cast2 "${NukeSpell4}" spell ${Target.ID} FALSE
 	}
-	/call Engage
+	
 	/if (!${Target.Buff[${NukeSpell5}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NukeSpell5}", ${Target.ID}]}) /call core_cast2 "${NukeSpell5}" spell ${Target.ID} FALSE
 	}
