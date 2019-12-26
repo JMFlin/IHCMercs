@@ -494,6 +494,8 @@ Sub Engage
 sub check_target_distance(bool _debug)
 	/if (${Target.Distance} > 200) {
 		/if (${Stick.Active}) /stick off
+		/if (${Navigation.Active}) /nav stop
+		/target clear
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/return FALSE
 	}
@@ -563,7 +565,7 @@ Sub puller_check_group_resources
 			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 			}
-			/echo ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} has ${ResPct}% resources
+			|/echo ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} has ${ResPct}% resources
 			/if (${ResPct} < ${Limit}) {
 				/varset ResourceChecker 0 
 				/delay 5
