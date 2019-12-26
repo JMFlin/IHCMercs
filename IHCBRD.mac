@@ -73,6 +73,7 @@ Sub ManualPullCamping
 			/call pulse FALSE ${RegenMelody}
 		}
 		/call combat
+		/call selo
 |		/if (${Me.XTarget}>=${MezStartCount} && ${MezOn} && ${Me.GemTimer[${AEMezSong}]}==0) /call DoMezStuff
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) 

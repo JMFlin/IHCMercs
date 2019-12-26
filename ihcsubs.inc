@@ -342,10 +342,6 @@ Sub check_state(bool _debug)
 	/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
 	
 	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
-
-		|/if (${Me.BardSongPlaying}) {
-		|	/call pulse_stop core_cast_pulsestop
-		|}
 		
 		| check aura one
 		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
@@ -364,10 +360,6 @@ Sub check_state(bool _debug)
 		
 		| check aura two
 		/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
-
-			|/if (${Me.BardSongPlaying}) {
-			|	/call pulse_stop core_cast_pulsestop
-			|}
 
 			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
 
@@ -465,7 +457,7 @@ Sub Engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
 
 	| tank engage if target is close enough
-	/if (${Me.ID} == ${Group.MainTank.ID} && (${Target.PctHPs} < 98 || ${Navigation.PathLength[id ${Target.ID}]} < 55)) {
+	/if (${Me.ID} == ${Group.MainTank.ID} && (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 55)) {
 		/if (${Target.ID}) /face fast
 		| Do we have line of sight?
 		/if (!${Spawn[id ${Target.ID}].LineOfSight}) /nav id ${Target.ID}
@@ -476,7 +468,7 @@ Sub Engage
 	}
 
 	| melee dps engage if target is close enough
-	/if (${Me.ID} != ${Group.MainTank.ID} && (${Target.PctHPs} < 98 || ${Navigation.PathLength[id ${Target.ID}]} < 40)) {
+	/if (${Me.ID} != ${Group.MainTank.ID} && (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 45)) {
 		/if (${Target.ID}) /face fast
 		| Do we have line of sight?
 		/if (!${Spawn[id ${Target.ID}].LineOfSight}) /nav id ${Target.ID}
@@ -1386,7 +1378,7 @@ sub validate_melee_combat(bool _debug)
 	/if (!${Target.ID}) /return FALSE
 	/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
-	
+
 	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/if (${Target.PctHPs} > ${AutoAssistAt}) /return FALSE
 		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}) /return FALSE
