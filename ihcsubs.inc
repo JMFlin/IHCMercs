@@ -459,8 +459,22 @@ Sub Engage
 	| tank engage if target is close enough
 	/if (${Me.ID} == ${Group.MainTank.ID} && (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 55)) {
 		/if (${Target.ID}) /face fast
+		/if (${Target.Distance} > 200) {
+			/if (${Stick.Active}) /stick off
+			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/return
+		}
 		| Do we have line of sight?
-		/if (!${Spawn[id ${Target.ID}].LineOfSight}) /nav id ${Target.ID}
+		/if (!${Spawn[id ${Target.ID}].LineOfSight}) {
+			/if (${Stick.Active}) /stick off
+			/nav id ${Target.ID}
+		}
+
+		/while (${Navigation.Active}) {
+			/delay 5
+			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
+		}
+
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
 		/if (${Target.ID}) /squelch /attack on
@@ -471,7 +485,17 @@ Sub Engage
 	/if (${Me.ID} != ${Group.MainTank.ID} && (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 45)) {
 		/if (${Target.ID}) /face fast
 		| Do we have line of sight?
-		/if (!${Spawn[id ${Target.ID}].LineOfSight}) /nav id ${Target.ID}
+		
+		/if (${Target.Distance} > 200) {
+			/if (${Stick.Active}) /stick off
+			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/return
+		}
+
+		/if (!${Spawn[id ${Target.ID}].LineOfSight}) {
+			/if (${Stick.Active}) /stick off
+			/nav id ${Target.ID}
+		}
 
 		/while (${Navigation.Active}) {
 			/delay 5
