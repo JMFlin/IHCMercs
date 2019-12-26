@@ -447,11 +447,10 @@ Sub RemoveTravelBuffs
 |- SUB: Engage
 |---------------------------------------------------------------------------- 
 Sub Engage
-	| if not target then nothing to engage
-	/if (!${Me.XTarget}) /return
 
 	| if not target then nothing to engage
-	/if (!${Target.ID}) /return
+	/call get_target
+	/if (!${validate_melee_combat[FALSE]}) /return
 
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
@@ -461,12 +460,12 @@ Sub Engage
 	
 		/if (${Target.ID}) /face fast
 
+		/if (!${check_target_distance[FALSE]}) /return
+
 		/if (!${Spawn[id ${Target.ID}].LineOfSight}) {
 			/if (${Stick.Active}) /stick off
 			/nav id ${Target.ID}
 		}
-
-		/if (!${check_target_distance[FALSE]}) /return
 
 		/while (${Navigation.Active}) {
 			/delay 5
