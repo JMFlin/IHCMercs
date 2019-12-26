@@ -170,6 +170,7 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=81 && ${Me.CombatAbility[Tendon Shear]}) {
 		/varset Snare Tendon Shear
 		/varset SnareAxeName Axe of the Eradicator
+		/varset SnareAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=76 && ${Me.CombatAbility[Tendor Sever]}) {
 		/varset Snare Tendor Sever
 		/varset SnareAxeName Axe of the Decimitor
