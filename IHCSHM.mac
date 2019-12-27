@@ -548,64 +548,64 @@ Sub Combatdps
 Sub BuffGroup
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
-	/declare bmember			int local 0
+	/declare _count			int local 0
 	/declare CastCheck			int local 0
-	/for bmember 1 to ${Group}
+	/for _count 1 to ${Group}
 
-		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID})) {
+		/if (${Group.Member[${_count}].Distance}<100 && !${Group.Member[${_count}].OtherZone} && (!${Me.Casting.ID})) {
 
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Focus.ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${FocusSpell}]} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && (!${Me.Casting.ID})) {
-				/call BuffGroupMember "${FocusSpell}" ${Group.Member[${bmember}].ID}
+				/call BuffGroupMember "${FocusSpell}" ${Group.Member[${_count}].ID}
 				/varset CastCheck 1
 			}
 			/if (${Me.XTarget[1].ID}) /return
 
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
 			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana}>${Spell[${RunSpeedBuff}].Mana} && ${UseRunSpeed} && (!${Me.Casting.ID})) {
 				/if (${Me.AltAbilityReady[Lupine Spirit]} && ${Me.AltAbility[Lupine Spirit].Rank}>=4) {
 					/alt act ${Me.AltAbility[Lupine Spirit].ID}
 					/delay 70
 				} else /if (${Me.Book[${RunSpeedBuff}]}) {
-					/call BuffGroupMember "${RunSpeedBuff}" ${Group.Member[${bmember}].ID}
+					/call BuffGroupMember "${RunSpeedBuff}" ${Group.Member[${_count}].ID}
 					/varset CastCheck 1
 				}					
 			}
 			/if (${Me.XTarget[1].ID}) /return
 			|-- Main Tank Buffs
-			/if (${Group.Member[${bmember}].ID}==${assistid} && !${Me.Casting.ID}) {
+			/if (${Group.Member[${_count}].ID}==${assistid} && !${Me.Casting.ID}) {
 				/if (${Me.CurrentMana}>${Spell[${GrowthBuff}].Mana} && ${UseGrowthBuff}) {
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GrowthBuff}].ID" "tmpbuffid" "int"
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GrowthBuff}].Stacks" "tmpstackcheck" "bool"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff}].ID" "tmpbuffid" "int"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GrowthBuff}].Stacks" "tmpstackcheck" "bool"
 					/if (!${tmpbuffid} && ${tmpstackcheck}) {
-						/call BuffGroupMember "${GrowthBuff}" ${Group.Member[${bmember}].ID}
+						/call BuffGroupMember "${GrowthBuff}" ${Group.Member[${_count}].ID}
 						/varset CastCheck 1
 					}
 				}
 				/if (${Me.XTarget[1].ID}) /return
 				/if (${Me.CurrentMana}>${Spell[${AllianceBuff}].Mana} && ${UseAllianceBuff}) {
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
 					/if (!${tmpbuffid} && ${tmpstackcheck}) {
-						/call BuffGroupMember "${AllianceBuff}" ${Group.Member[${bmember}].ID}
+						/call BuffGroupMember "${AllianceBuff}" ${Group.Member[${_count}].ID}
 						/varset CastCheck 1
 					}
 				}
 				/if (${Me.XTarget[1].ID}) /return
 				/if (${Me.CurrentMana}>${Spell[${SlowProcBuff}].Mana}) {
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SlowProcBuff}].ID" "tmpbuffid" "int"
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SlowProcBuff}].Stacks" "tmpstackcheck" "bool"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SlowProcBuff}].ID" "tmpbuffid" "int"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SlowProcBuff}].Stacks" "tmpstackcheck" "bool"
 					/if (!${tmpbuffid} && ${tmpstackcheck}) {
-						/call BuffGroupMember "${SlowProcBuff}" ${Group.Member[${bmember}].ID}
+						/call BuffGroupMember "${SlowProcBuff}" ${Group.Member[${_count}].ID}
 						/varset CastCheck 1
 					}
 				}
 				/if (${Me.XTarget[1].ID}) /return
 			}
 		}
-	/next bmember
+	/next _count
 
 	|- Delete variable's
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid

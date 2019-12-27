@@ -108,7 +108,7 @@ Sub AANDisc
 
 	/call get_target
 
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
 		/alt act ${Me.AltAbility[Communion of Blood].ID}
@@ -260,7 +260,7 @@ Sub combat
 
 	/call get_target
 
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	/call use_skill_melee FALSE ${Target.ID}
 

@@ -163,7 +163,7 @@ Sub selo
 Sub combat
 	/doevents
 
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	/declare BurningNow int local 0
 	/if (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) {
@@ -234,7 +234,7 @@ Sub combat
 Sub AANDisc
 	/doevents
 
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	/call use_skill_melee FALSE ${Target.ID}
 

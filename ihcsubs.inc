@@ -162,6 +162,10 @@ Sub VarSetup
 	/declare AutoAssistAt 		int outer 0
 	/declare AssistRange 		int outer 0
 
+|- healing
+	/declare mercsInGroup		int outer 0
+
+
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
 		/echo Extended Target 1 HAS TO BE SET TO Auto Hater
@@ -450,7 +454,7 @@ Sub Engage
 
 	| if not target then nothing to engage
 	/call get_target
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
@@ -553,26 +557,26 @@ Sub puller_check_group_resources
 	/if (${Me.XTarget[1].ID}) /return
 	/if (${Group.Puller.ID} != ${Me.ID}) /return
 
-	/declare bmember	int local 0
+	/declare _count	int local 0
 	/if (${Limit} == 50 && ${ResourceChecker} == 0) /varset Limit 85
 	/if (${Limit} == 85 && ${ResourceChecker} == 1) /varset Limit 50
 	/varset ResourceChecker 1
 
-	/for bmember 0 to ${Group}
-		/if (${Group.Member[${bmember}].Distance} < 100 && !${Group.Member[${bmember}].OtherZone}) {
-			/if (${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctMana" "ResPct" "int"
-			} else /if (${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
+	/for _count 0 to ${Group}
+		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
+			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "ResPct" "int"
+			} else /if (${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 			}
-			|/echo ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} has ${ResPct}% resources
+			|/echo ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} has ${ResPct}% resources
 			/if (${ResPct} < ${Limit}) {
 				/varset ResourceChecker 0 
 				/delay 5
 			}
 			/if (${ResourceChecker} == 0) /return
 		}
-	/next bmember
+	/next _count
 /return
 |----------------------------------------------------------------------------
 |- SUB: check_add_aggro
@@ -790,7 +794,7 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 Sub pet_attack
 	/if (!${Me.Pet.ID}) /return
 	/if (${petFollow}) /varset petFollow 0
-	/call validate_melee_combat FALSE
+	/call validate_combat FALSE
 
 	/if (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 55) {
 
@@ -807,6 +811,42 @@ Sub pet_attack
 	/if (!${Spawn[${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
 	/if (${Spawn[${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
 /return
+
+|***
+ *	DES: the the mass group buff
+ *	USE: CHECKINPUTS
+ *	NOTE: 
+ ***|
+sub check_buffs_mgb(bool _debug)
+	
+	| do not use outside raid
+	/if (!${Raid.Members}) /return FALSE
+	
+	| caster?
+	/if (!${validate_class[FALSE, ${lstClassCast}]}) /return FALSE
+	
+	| need more mana
+	/if (${Me.PctMana} < ${BuffMGBMana}) /return FALSE
+	
+	| more people!
+	/if (${Raid.Members} < ${BuffMGBCount}) /return FALSE
+
+	| is my stuff ready?
+	/if (!${Me.AltAbilityReady[Tranquil Blessings]} && !${Me.AltAbilityReady[Mass Group Buff]}) /return FALSE
+	
+	| do I have
+	/if (${Bool[${Me.Buff[${BuffMGBchk}].Duration}]}) /return FALSE
+	
+	| TB or MGB ??
+	/if (${Me.AltAbilityReady[Tranquil Blessings]}) {
+		/if (${validate_cast[FALSE, alt, "Tranquil Blessings", ${Me.ID}]}) /call core_cast2 "Tranquil Blessings" alt 0 FALSE	
+	} else /if (${Me.AltAbilityReady[Mass Group Buff]}) {
+		/if (${validate_cast[FALSE, alt, "Mass Group Buff", ${Me.ID}]}) /call core_cast2 "Mass Group Buff" alt 0 FALSE	
+	}
+	/if (${validate_cast[FALSE, spell, "${BuffMGBname}", ${Me.ID}]}) /call core_cast2 "${BuffMGBname}" ${buffgem} ${Me.ID} FALSE
+
+/return
+
 |----------------------------------------------------------------------------  
 |- SUB: SetControlToon
 |----------------------------------------------------------------------------
@@ -944,7 +984,7 @@ Sub CLCheck
 |- SUB: Gquery. Used for DanNet Queries on other connected members. Creates new variables for use in subs  
 |- Before calling this sub check for a connected member, ex:/if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Group.Member[#].Name.Lower}]})
 |- Calling this sub quotes around tmpquery, varName and varType are recommended to avoid any potential concatenation of strings
-|- EX:/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
+|- EX:/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
 |---------------------------------------------------------------------------- 
 Sub Gquery(string DnetName, string tmpquery, string varName, string varType)
 	/if (!${Defined[${varName}]} && ${Defined[varType]}) {
@@ -1166,18 +1206,6 @@ Sub ClickModRoD
 	/if (${FindItem[Transvergence].ID} && ${FindItem[Transvergence].Timer}==0 && ${Me.PctMana}<=${ModRodManaPct} && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Transvergence]}"
 	/if (${FindItem[Modulation].ID} && ${FindItem[Modulation].Timer}==0 && ${Me.PctMana}<=${ModRodManaPct} && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Modulation]}"
 /return 
-|-------------------------------------------------------------------------------------
-|- SUB: PlayersInGroup - Checking for PC vs Merc
-|-------------------------------------------------------------------------------------
-Sub PlayersInGroup
-	/declare i int local 0
-	/declare gcnt int local 0
-	/for i 1 to ${Group.Members}
-		/if (${Group.Member[${i}].Type.Equal[PC]}) {
-			/varcalc gcnt ${gcnt}+1
-		}
-	/next i
-/return ${gcnt}
 |----------------------------------------------------------------------------
 |- BIND: GroupFrontFace - Credit EQMules mod of kissassist
 |----------------------------------------------------------------------------
@@ -1384,9 +1412,9 @@ Sub get_target
 
 /return
 |-------------------------------------------------------------------------------- 
-| Sub validate_melee_combat
+| Sub validate_combat
 |--------------------------------------------------------------------------------
-sub validate_melee_combat(bool _debug)
+sub validate_combat(bool _debug)
 	
 	/if (!${Me.XTarget}) /return FALSE
 	/if (!${Target.ID}) /return FALSE
@@ -2312,12 +2340,11 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
  *	USE: /call check_hurt [DEBUG T/F] [group|pet|xtarget|self|mypet]} || ${check_hurt[DEBUG, group|pet|xtarget|self|mypet]}
  *	NOTE: shared by PAL,DRU,CLR,SHM this returns the # of "hurt" for the group check you request as the pass/fail marker
  ***|
-sub check_hurt(bool _debug, string _type)
+sub check_hurt(bool _debug, string _type, int _hpLimit)
 
-	/declare _count 				int local 0
-	/declare countGroupHeal			int local 3
-	/declare hpGroupHeal			int local 80
-	/declare hurtCount 				int local 0
+	/declare _count		 				int local 0
+	/declare countGroupHeal				int local 3
+	/declare hurtCount	 				int local 0
 
 	| check group hurt
 	/if (${_type.Equal[group]}) {
@@ -2325,12 +2352,10 @@ sub check_hurt(bool _debug, string _type)
 		
 			/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 			
-			/if (${Group.Member[${_count}].Distance} <= 200 && ${Group.Member[${_count}].PctHPs} < ${hpGroupHeal}) {
+			/if (${Group.Member[${_count}].Distance} <= 200 && ${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
 				/varcalc hurtCount ${hurtCount}+1
 			}
-			/if (${hurtCount} >= ${countGroupHeal}) {
-				/break
-			}
+			/if (${hurtCount} >= ${countGroupHeal}) /break
 
 		/next _count
 		/return ${hurtCount}
@@ -2400,6 +2425,46 @@ sub check_hurt(bool _debug, string _type)
 
 /return FALSE
 
+|***
+ *	DES: check  health
+ *	USE: /call check_hurt [DEBUG T/F] [group|pet|xtarget|self|mypet]} || ${check_hurt[DEBUG, group|pet|xtarget|self|mypet]}
+ *	NOTE: shared by PAL,DRU,CLR,SHM this returns the # of "hurt" for the group check you request as the pass/fail marker
+ ***|
+Sub get_heal_target(int _hpLimit)
+
+	/declare _worstHurtId		int local 0
+	/declare _count		     	int local 0
+	
+	/if (${mercsInGroup}) {
+
+		| Includes mercs
+		/for _count 0 to ${Group}
+		
+			/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+		
+			/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
+
+			/if (${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
+				/varset _worstHurtId ${Group.Member[${_count}].ID}
+				/varset _hpLimit ${Group.Member[${_count}].PctHPs}
+			}
+
+		/next _count
+
+	} else {
+		| This only checks pcs
+		/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < ${_hpLimit}) {
+			/varset _worstHurtId ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
+		}
+	}
+
+/return ${_worstHurtId}
+
+|***
+ *	DES: check  health
+ *	USE: /call check_hurt [DEBUG T/F] [group|pet|xtarget|self|mypet]} || ${check_hurt[DEBUG, group|pet|xtarget|self|mypet]}
+ *	NOTE: shared by PAL,DRU,CLR,SHM this returns the # of "hurt" for the group check you request as the pass/fail marker
+ ***|
 sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},BRD,ROG,MNK,BER]} && ${Me.AltAbility[Intimidation].Rank} >= 2) {

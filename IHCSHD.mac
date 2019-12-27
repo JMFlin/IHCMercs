@@ -139,7 +139,8 @@ Sub downtime_buffs
 |---------------------------------------------------------------------------- 
 Sub combat
 	
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/call get_target
+	/if (!${validate_combat[FALSE]}) /return
 	
 	/squelch /attack on
 
@@ -182,7 +183,7 @@ Sub combat
 |---------------------------------------------------------------------------- 
 Sub DoDisc
 
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${IchorGuardDisc}]}) {
 
@@ -250,7 +251,7 @@ Sub DoDisc
 |---------------------------------------------------------------------------- 
 Sub get_aggro
 	
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	/squelch /attack on
 
@@ -273,7 +274,7 @@ Sub get_aggro
 |---------------------------------------------------------------------------- 
 Sub aoe_aggro
 
-	/if (!${validate_melee_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {
 		/if (${validate_cast[FALSE, spell, "${Denial}", ${Target.ID}]}) {

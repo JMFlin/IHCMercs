@@ -180,7 +180,8 @@ Sub combat
 		}
 	}
 
-	/if (!${Target.ID}) /return
+	/call get_target
+	/if (!${validate_combat[FALSE]}) /return
 
 	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
