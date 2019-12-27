@@ -153,6 +153,8 @@ Sub VarSetup
 |- events
 	/declare snareImmuneID 		int outer 0
 	/declare slowImmuneID 		int outer 0
+	/declare mezzImmuneID 		int outer 0
+	/declare stunImmuneID 		int outer 0
 	/declare HybridManaLimit 	int outer 80
 
 |- observers

@@ -177,7 +177,6 @@ Sub debuff_xtarget
 				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 			}
 		}
-
 		/call mez_xtarget
 
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
@@ -271,10 +270,15 @@ Sub mez_xtarget
 		}
 
 		| If target is not mezzed then mez
-		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
+		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && ${mezzImmuneID} != ${Target.ID}) {
 			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) {
 				/docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
 				/call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
+				/doevents CAST_IMMUNE
+				/if (${Select[${castReturn},CAST_IMMUNE]}) {
+					/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${MezSpell} \ax <<=
+					/varset mezzImmuneID ${Target.ID}
+				}
 			}
 		}
 
@@ -324,10 +328,16 @@ Sub combat
 	| Start dpsing
 	/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 
-	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
+	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && ${stunImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
 			/docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 			/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+			
+			/doevents CAST_IMMUNE
+			/if (${Select[${castReturn},CAST_IMMUNE]}) {
+				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SingleStunSpell1} \ax <<=
+				/varset stunImmuneID ${Target.ID}
+			}
 		}
 	}
 

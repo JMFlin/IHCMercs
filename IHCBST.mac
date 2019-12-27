@@ -181,11 +181,12 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 			/docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 			/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-		}
-		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
-			/varset slowImmuneID ${Target.ID}
+
+			/doevents CAST_IMMUNE
+			/if (${Select[${castReturn},CAST_IMMUNE]}) {
+				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
+				/varset slowImmuneID ${Target.ID}
+			}
 		}
 	}
 	
@@ -232,11 +233,12 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 				/docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-			}
-			/doevents CAST_IMMUNE
-			/if (${Select[${castReturn},CAST_IMMUNE]}) {
-				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
-				/varset slowImmuneID ${Target.ID}
+				
+				/doevents CAST_IMMUNE
+				/if (${Select[${castReturn},CAST_IMMUNE]}) {
+					/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
+					/varset slowImmuneID ${Target.ID}
+				}
 			}
 		}
 		
