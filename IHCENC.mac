@@ -13,8 +13,6 @@
 #Chat group
 #Chat tell
 #Chat raid
-#bind SetVarInt			/setvarint
-#bind CmdList			/ihchelp
 #bind SingleBanish		/banish
 #bind AEBanish			/aebanish
 Sub Main
@@ -155,7 +153,7 @@ Sub debuff_xtarget
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 			}
 		}
@@ -164,7 +162,7 @@ Sub debuff_xtarget
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
-				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
 			}
 		}
@@ -173,11 +171,10 @@ Sub debuff_xtarget
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
-				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 			}
 		}
-
 		/call mez_xtarget
 
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
@@ -235,7 +232,7 @@ Sub mez_xtarget
 		/if (${numberOfSpawn} > 1) {
 			/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
 			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) {
-				/docommand /dgt AoE mezzing with =>> \ag ${MezAESpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${MezAESpell} \ax <<=
 				/call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE
 			}
 		}
@@ -271,10 +268,11 @@ Sub mez_xtarget
 		}
 
 		| If target is not mezzed then mez
-		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
+		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && ${mezzImmuneID} != ${Target.ID}) {
 			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) {
-				/docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
 				/call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
+				/call check_cast_events CAST_IMMUNE "${MezSpell}"
 			}
 		}
 
@@ -318,22 +316,17 @@ Sub combat
 	| Have we assisted MA?
 	/call get_target
 
-	| Do we have a target?
-	/if (!${Target.ID}) /return
-
-	| Is target within nuking distance?
-	/if (${Target.Distance}>${AssistRange}) /return
-
-	| Is target HP below defined assist threshold?
-	/if (${Target.PctHPs}>${AutoAssistAt}) /return
+	| Do we have a valid target?
+	/if (!${validate_combat[FALSE]}) /return
 
 	| Start dpsing
 	/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 
-	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
+	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
-			/docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 			/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+			/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
 		}
 	}
 
@@ -475,7 +468,7 @@ Sub self_buffs
 |	}
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return
@@ -483,13 +476,13 @@ Sub self_buffs
 |- SUB: group_buffs
 |---------------------------------------------------------------------------- 
 Sub group_buffs
-	/declare bmember			int local 0
+	/declare _count			int local 0
 	/declare CastCheck			int local 0
 
 	/if (${Me.XTarget}) /return
 
-	/for bmember 0 to ${Group}
-		/if (${Group.Member[${bmember}].Distance} < 100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID})) {
+	/for _count 0 to ${Group}
+		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone} && (!${Me.Casting.ID})) {
 			
 			/if (${Me.XTarget}) {
 				/call LoadSpellBar
@@ -498,58 +491,58 @@ Sub group_buffs
 			/if (${Mode} !=3 ) /return
 
 			/if (!${Me.Book[${GroupMana}]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SingleMana}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleMana}].Stacks" "tmpstackcheck" "bool"
-				/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-					/if (${validate_cast[FALSE, spell, "${SingleMana}", ${Group.Member[${bmember}].ID}]}) {
-						/call core_cast2 "${SingleMana}" spell ${Group.Member[${bmember}].ID} FALSE
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SingleMana}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SingleMana}].Stacks" "tmpstackcheck" "bool"
+				/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+					/if (${validate_cast[FALSE, spell, "${SingleMana}", ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${SingleMana}" spell ${Group.Member[${_count}].ID} FALSE
 						/delay 10
 						/varset CastCheck 1 
 					}
 				}
 			}
 
-			/if (!${Me.Book[${GroupHaste}]} && ${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK,SHD,PAL]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SingleHaste}].ID" "tmpbuffid" "bool"
+			/if (!${Me.Book[${GroupHaste}]} && ${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK,SHD,PAL]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SingleHaste}].ID" "tmpbuffid" "bool"
 				/if (!${tmpbuffid}) {
-					/if (${validate_cast[FALSE, spell, "${SingleHaste}", ${Group.Member[${bmember}].ID}]}) {
-						/call core_cast2 "${SingleHaste}" spell ${Group.Member[${bmember}].ID} FALSE
+					/if (${validate_cast[FALSE, spell, "${SingleHaste}", ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${SingleHaste}" spell ${Group.Member[${_count}].ID} FALSE
 						/delay 10
 						/varset CastCheck 1
 					}
 				}
 			}
 			
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupHaste}].ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupHaste}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
-				/if (${validate_cast[FALSE, spell, "${GroupHaste}", ${Group.Member[${bmember}].ID}]}) {
-					/call core_cast2 "${GroupHaste}" spell ${Group.Member[${bmember}].ID} FALSE
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupHaste}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupHaste}].Stacks" "tmpstackcheck" "bool"
+			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG]}) {
+				/if (${validate_cast[FALSE, spell, "${GroupHaste}", ${Group.Member[${_count}].ID}]}) {
+					/call core_cast2 "${GroupHaste}" spell ${Group.Member[${_count}].ID} FALSE
 					/delay 10
 					/varset CastCheck 1
 				}
 			}
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupMana}].ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupMana}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${bmember}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-				/if (${validate_cast[FALSE, spell, "${GroupMana}", ${Group.Member[${bmember}].ID}]}) {
-					/call core_cast2 "${GroupMana}" spell ${Group.Member[${bmember}].ID} FALSE
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupMana}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupMana}].Stacks" "tmpstackcheck" "bool"
+			/if (!${tmpbuffid} && ${tmpstackcheck} && !${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+				/if (${validate_cast[FALSE, spell, "${GroupMana}", ${Group.Member[${_count}].ID}]}) {
+					/call core_cast2 "${GroupMana}" spell ${Group.Member[${_count}].ID} FALSE
 					/delay 10
 					/varset CastCheck 1
 				}
 			}
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${ProcBuff}].ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${ProcBuff}].Stacks" "tmpstackcheck" "bool"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[Illusion Benefit Greater Jann].ID" "jaanbuffid" "int"
-			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Select[${Group.Member[${bmember}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD,WAR]}) {
-				/if (${validate_cast[FALSE, spell, "${ProcBuff}", ${Group.Member[${bmember}].ID}]}) {
-					/call core_cast2 "${ProcBuff}" spell ${Group.Member[${bmember}].ID} FALSE
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${ProcBuff}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${ProcBuff}].Stacks" "tmpstackcheck" "bool"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[Illusion Benefit Greater Jann].ID" "jaanbuffid" "int"
+			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Select[${Group.Member[${_count}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD,WAR]}) {
+				/if (${validate_cast[FALSE, spell, "${ProcBuff}", ${Group.Member[${_count}].ID}]}) {
+					/call core_cast2 "${ProcBuff}" spell ${Group.Member[${_count}].ID} FALSE
 					/delay 10
 					/varset CastCheck 1
 				}
 			}
 		}
-	/next bmember
+	/next _count
 
 	|- Delete variable's
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
@@ -558,7 +551,7 @@ Sub group_buffs
 	/if (${Window[SpellBookWnd]}) /book
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 /return
 |----------------------------------------------------------------------------

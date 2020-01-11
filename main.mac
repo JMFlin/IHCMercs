@@ -1,0 +1,82 @@
+#Chat group
+#Chat tell
+#Chat raid
+#turbo 80
+#include IHCMercs\ihcsubs.inc
+#include IHCMercs\ihc${Me.Class.ShortName}util.inc
+#include IHCMercs\events.inc
+#warning
+
+Sub Main
+	/doevents flush
+	/declare MacroName       	string outer IHC${Me.Class.ShortName}
+	/declare MacroPath       	string outer IHCMercs\IHC${Me.Class.ShortName}
+	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
+
+	/call ShdSetup	
+	/call VarSetup
+	/call AliasSetup
+	/call SetupSpells
+	/call LoadSpellBar
+|-Cursor ID
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
+	}
+	/call WelcomeMsg
+	
+	/declare AssistRange int outer 10
+	/declare AutoCampRadius int outer 10
+
+	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call AddToAlert
+
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
+	/call setup_skill_melee FALSE
+
+ :mainloop
+	/call ModeSet
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call AFKRadiusCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+/goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: AFKRadiusCamping 
+|---------------------------------------------------------------------------- 
+Sub AFKRadiusCamping
+    /call MakeCamp
+    /call RemoveTravelBuffs
+	/target clear
+	/if (${Group.Leader.ID} == ${Me.ID}) /docommand /campfire
+
+	/while (${Mode}==3) {
+
+		/call DummyMode
+
+		/call set_timers
+
+		/call puller_check_group_resources 
+		/call afk_pull
+		/doevents
+		/call check_state FALSE
+		/call get_target
+
+		/call balance_hp
+
+		/call check_add_aggro
+		/doevents
+		/call Engage
+		/call aoe_aggro
+		/call DoDisc
+		/call get_aggro
+		/call downtime_buffs
+		/call combat
+
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+
+		/doevents
+	}
+/return

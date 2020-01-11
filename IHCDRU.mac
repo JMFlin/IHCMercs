@@ -71,22 +71,25 @@ Sub ManualPullCamping
 |- SUB: combat 
 |---------------------------------------------------------------------------- 
 Sub combat
-	/if (!${Me.XTarget}) /return
 	/call get_target
-	/if (!${Target.ID}) /return
+	
+	/if (!${validate_combat[FALSE]}) /return
 	
 	/if (!${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
-		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
-			/varset snareImmuneID ${Target.ID}
+		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+		
+			/doevents CAST_IMMUNE
+			/if (${Select[${castReturn},CAST_IMMUNE]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
+				/varset snareImmuneID ${Target.ID}
+			}
 		}
 	}
 
-	/if (${Me.PctMana} < ${HybridManaLimit}) /return
-	
 	/call single_target_heals
+
+	/if (${Me.PctMana} < ${HybridManaLimit}) /return
 
 	/if (!${Target.Buff[${DoTSpell1}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
@@ -119,7 +122,7 @@ Sub debuff_xtarget
 		/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) {
-				/docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
 				/call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
 			}
 		}
@@ -128,7 +131,7 @@ Sub debuff_xtarget
 
 		/if (!${Target.Buff[${FireAcDebuff}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) {
-				/docommand /dgt Ac debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Ac debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
 				/call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
 			}
 		}
@@ -139,18 +142,19 @@ Sub debuff_xtarget
 |- SUB: group_buffs
 |---------------------------------------------------------------------------- 
 Sub group_buffs
-	/declare bmember			int local 0
+	/declare _count				int local 0
 	/declare CastCheck			int local 0
-	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
-	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
-	/if (${Me.Casting.ID}) /return
 
 	/if (${Me.XTarget}) /return
+	/if (${Me.Casting.ID}) /return
 
-	/for bmember 0 to ${Group}
-		/if (${Group.Member[${bmember}].Distance}<${Spell[${Skin}].MyRange} && !${Group.Member[${bmember}].OtherZone}) {
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 
-			/if (${Group.Member[${bmember}].Type.Equal[Corpse]}) /continue
+	/for _count 0 to ${Group}
+		/if (${Group.Member[${_count}].Distance}<${Spell[${Skin}].MyRange} && !${Group.Member[${_count}].OtherZone}) {
+
+			/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 			/if (${Me.XTarget}) {
 				/call LoadSpellBar
 				/return
@@ -159,49 +163,57 @@ Sub group_buffs
 
 			/if (!${Me.Book[${GroupSkin}]}) {
 				
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${Skin}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${Skin}].Stacks" "tmpstackcheck" "bool"
-				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${Skin}]} && ${Me.CurrentMana}>${Spell[${Skin}].Mana} && !${Me.Casting.ID}) {
-					/if (${validate_cast[FALSE, spell, ${Skin}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${Skin}" spell ${Group.Member[${bmember}].ID} FALSE
-					/varset CastCheck 1
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${Skin}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${Skin}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid}) {
+					/if (${validate_cast[FALSE, spell, ${Skin}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${Skin}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
 				}
 
 			} else {
 			
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupSkin}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupSkin}].Stacks" "tmpstackcheck" "bool"
-				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${GroupSkin}]} && ${Me.CurrentMana}>${Spell[${GroupSkin}].Mana} && !${Me.Casting.ID}) {
-					/if (${validate_cast[FALSE, spell, ${GroupSkin}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${GroupSkin}" spell ${Group.Member[${bmember}].ID} FALSE
-					/varset CastCheck 1
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupSkin}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupSkin}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid}) {
+					/if (${validate_cast[FALSE, spell, ${GroupSkin}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${GroupSkin}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
 				}
 			}
 			/sit
 			/if (${Me.CurrentMana}>${Spell[${SoW}].Mana} && ${Me.Book[${SoW}]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${SoW}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${SoW}].Stacks" "tmpstackcheck" "bool"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SoW}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SoW}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck}) {
-					/if (${validate_cast[FALSE, spell, ${SoW}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${SoW}" spell ${Group.Member[${bmember}].ID} FALSE
-					/varset CastCheck 1
+					/if (${validate_cast[FALSE, spell, ${SoW}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${SoW}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
 				}
 			}
 			/if (${Mode} != 3) /return
 			/if (${Me.CurrentMana}>${Spell[${DamageShield}].Mana} && ${Me.Book[${DamageShield}]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${DamageShield}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${DamageShield}].Stacks" "tmpstackcheck" "bool"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${DamageShield}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${DamageShield}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck}) {
-					/if (${validate_cast[FALSE, spell, ${DamageShield}, ${Group.Member[${bmember}].ID}]}) /call core_cast2 "${DamageShield}" spell ${Group.Member[${bmember}].ID} FALSE
-					/varset CastCheck 1
+					/if (${validate_cast[FALSE, spell, ${DamageShield}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${DamageShield}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
 				}
 			}
 			/sit
 		}
-	/next bmember
+	/next _count
 	|- Delete variable's
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
 	/if (${Defined[tmpskinid]}) /deletevar tmpskinid
@@ -211,49 +223,29 @@ Sub group_buffs
 
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return
 |----------------------------------------------------------------------------
-|- SUB: HealGroup
+|- SUB: Single Heal
 |---------------------------------------------------------------------------- 
 Sub single_target_heals
-	/declare worsthurtid 		int local 0
-	/declare gmember			int local 0
 
-	| This only checks pcs
-	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 75) {
-
-		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
-
-		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${worsthurtid}]}) {
-			/call core_cast2 "${HealSpell1}" spell ${worsthurtid} FALSE
-		}
+	/call get_heal_target 85
+	/declare _worstHurtId int local ${Macro.Return}
+	
+	/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${_worstHurtId}]}) {
+		/call core_cast2 "${HealSpell1}" spell ${_worstHurtId} FALSE
 	}
-
-	| Includes mercs
-	/for gmember 0 to ${Group}
-		
-		/if (${Group.Member[${gmember}].Type.Equal[Corpse]}) /continue
-		
-		/if (${Group.Member[${gmember}].Distance} <= 200 && ${Group.Member[${gmember}].PctHPs} < 75) {
-			/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${Group.Member[${gmember}].ID}]}) {
-				/call core_cast2 "${HealSpell1}" spell ${Group.Member[${gmember}].ID} FALSE
-			}
-        }
-
-	/next gmember
-
 /return
 |----------------------------------------------------------------------------
 |- SUB: HealGroup
 |---------------------------------------------------------------------------- 
 Sub group_heals
 
-	/if (${check_hurt[FALSE, group]} >= 3) {
+	/if (${check_hurt[FALSE, group, 85]} >= 3) {
 		/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
 	}
 
 /return
-	

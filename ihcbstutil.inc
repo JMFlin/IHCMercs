@@ -173,7 +173,9 @@ Sub LoadSpellBar
 		/call LoadSpellGem "${PetGrowl}" 9
 		/call LoadSpellGem "${AtkBuff}" 10
 		/varset miscspellremem ${AtkBuff}
-	} else /if (${Me.Level}>72 && ${Me.Level}<75) {
+	} 
+	|**
+	else /if (${Me.Level}>72 && ${Me.Level}<75) {
 		/call LoadSpellGem "${SwarmPet}" 6
 		/call LoadSpellGem "${SlowSpell}" 7
 		/call LoadSpellGem "${NukeSpell3}" 8
@@ -191,6 +193,7 @@ Sub LoadSpellBar
 	|	/call LoadSpellGem "${PetSpell}" 8
 	|	/if (${Me.Level}<=55) /varset miscspellremem ${PetSpell}
 	|}
+	**|
 	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}

@@ -360,7 +360,7 @@ Sub SetupDiscs
 
 	/if (${Me.CombatAbility[${insult}]}) {
 		/varset PullAbility ${insult}
-		/varset PullDistance 90
+		/varset PullDistance 100
 	} else {
 		/varset PullAbility ${Spell[Throw Stone].RankName}
 		/varset PullDistance 60

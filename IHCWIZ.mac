@@ -24,6 +24,7 @@ Sub Main
 	/declare IHCVersion       		string outer 2.0
 	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini	
 
+	/call setup_plugins
 	/call WizSetup
 	/call VarSetup
 	/call AliasSetup
@@ -180,21 +181,28 @@ Sub combat
 		}
 	}
 
-	/if (!${Target.ID}) /return
+	/call get_target
+	/if (!${validate_combat[FALSE]}) /return
 
 	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
-		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
-			/varset snareImmuneID ${Target.ID}
+		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+		
+			/doevents CAST_IMMUNE
+			/if (${Select[${castReturn},CAST_IMMUNE]}) {
+				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
+				/varset snareImmuneID ${Target.ID}
+			}
 		}
 	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
-		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
-		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${RootSpell} \ax <<=
-			/varset snareImmuneID ${Target.ID}
+		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
+			
+			/doevents CAST_IMMUNE
+			/if (${Select[${castReturn},CAST_IMMUNE]}) {
+				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${RootSpell} \ax <<=
+				/varset snareImmuneID ${Target.ID}
+			}
 		}
 	}
 
@@ -328,7 +336,7 @@ Sub self_buff_check(bool _debug)
 	
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return
