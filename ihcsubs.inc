@@ -140,6 +140,7 @@ Sub VarSetup
 	/declare intimidation 	bool outer FALSE
 	/declare eaglestrike 	bool outer FALSE
 	/declare tigerclaw 		bool outer FALSE
+	/declare dragonpunch 	bool outer FALSE
 	/declare kick 			bool outer FALSE
 	/declare backstab 		bool outer FALSE
 	/declare frenzy 		bool outer FALSE
@@ -356,7 +357,7 @@ Sub check_state(bool _debug)
 		}
 	}
 
-	/if (${Me.Book[${Aura2}]}) {
+	/if (${Me.Book[${Aura2}]} && ${Me.AltAbility[Auroria Mastery].Rank} >= 1) {
 		
 		| check aura two
 		/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
