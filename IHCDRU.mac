@@ -81,7 +81,7 @@ Sub combat
 		
 			/doevents CAST_IMMUNE
 			/if (${Select[${castReturn},CAST_IMMUNE]}) {
-				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
 				/varset snareImmuneID ${Target.ID}
 			}
 		}
@@ -122,7 +122,7 @@ Sub debuff_xtarget
 		/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) {
-				/docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
 				/call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
 			}
 		}
@@ -131,7 +131,7 @@ Sub debuff_xtarget
 
 		/if (!${Target.Buff[${FireAcDebuff}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${FireAcDebuff}", ${Target.ID}]}) {
-				/docommand /dgt Ac debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Ac debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
 				/call core_cast2 "${FireAcDebuff}" spell ${Target.ID} FALSE
 			}
 		}
@@ -223,7 +223,7 @@ Sub group_buffs
 
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return

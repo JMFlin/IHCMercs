@@ -147,7 +147,7 @@ Sub self_buff_check(bool _debug)
 
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return
@@ -179,14 +179,9 @@ Sub combat
 	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${slowImmuneID} != ${Target.ID}) {
 		
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-			/docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 			/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-
-			/doevents CAST_IMMUNE
-			/if (${Select[${castReturn},CAST_IMMUNE]}) {
-				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
-				/varset slowImmuneID ${Target.ID}
-			}
+			/call check_cast_events CAST_IMMUNE "${SlowSpell}"
 		}
 	}
 	
@@ -195,7 +190,7 @@ Sub combat
 	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 
 		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
-			/docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 			/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 		}
 	}
@@ -231,20 +226,15 @@ Sub debuff_xtarget
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${slowImmuneID} != ${Target.ID}) {
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-				/docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-				
-				/doevents CAST_IMMUNE
-				/if (${Select[${castReturn},CAST_IMMUNE]}) {
-					/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSpell} \ax <<=
-					/varset slowImmuneID ${Target.ID}
-				}
+				/call check_cast_events CAST_IMMUNE "${SlowSpell}"
 			}
 		}
 		
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
-				/docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 			}
 		}
@@ -340,7 +330,7 @@ Sub BuffGroup
 
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 	
 /return

@@ -24,6 +24,7 @@ Sub Main
 	/declare IHCVersion       		string outer 2.0
 	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini	
 
+	/call setup_plugins
 	/call WizSetup
 	/call VarSetup
 	/call AliasSetup
@@ -335,7 +336,7 @@ Sub self_buff_check(bool _debug)
 	
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return

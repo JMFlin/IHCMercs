@@ -13,8 +13,6 @@
 #Chat group
 #Chat tell
 #Chat raid
-#bind SetVarInt			/setvarint
-#bind CmdList			/ihchelp
 #bind SingleBanish		/banish
 #bind AEBanish			/aebanish
 Sub Main
@@ -155,7 +153,7 @@ Sub debuff_xtarget
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 			}
 		}
@@ -164,7 +162,7 @@ Sub debuff_xtarget
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
-				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
 			}
 		}
@@ -173,7 +171,7 @@ Sub debuff_xtarget
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
-				/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 			}
 		}
@@ -234,7 +232,7 @@ Sub mez_xtarget
 		/if (${numberOfSpawn} > 1) {
 			/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
 			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) {
-				/docommand /dgt AoE mezzing with =>> \ag ${MezAESpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${MezAESpell} \ax <<=
 				/call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE
 			}
 		}
@@ -272,13 +270,9 @@ Sub mez_xtarget
 		| If target is not mezzed then mez
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && ${mezzImmuneID} != ${Target.ID}) {
 			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) {
-				/docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
 				/call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
-				/doevents CAST_IMMUNE
-				/if (${Select[${castReturn},CAST_IMMUNE]}) {
-					/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${MezSpell} \ax <<=
-					/varset mezzImmuneID ${Target.ID}
-				}
+				/call check_cast_events CAST_IMMUNE "${MezSpell}"
 			}
 		}
 
@@ -328,16 +322,11 @@ Sub combat
 	| Start dpsing
 	/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 
-	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && ${stunImmuneID} != ${Target.ID}) {
+	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
-			/docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 			/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
-			
-			/doevents CAST_IMMUNE
-			/if (${Select[${castReturn},CAST_IMMUNE]}) {
-				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SingleStunSpell1} \ax <<=
-				/varset stunImmuneID ${Target.ID}
-			}
+			/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
 		}
 	}
 
@@ -479,7 +468,7 @@ Sub self_buffs
 |	}
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return
@@ -562,7 +551,7 @@ Sub group_buffs
 	/if (${Window[SpellBookWnd]}) /book
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 /return
 |----------------------------------------------------------------------------

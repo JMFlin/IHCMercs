@@ -6,17 +6,10 @@
 |- Updated: 4/25/2019
 |- Modified version of the above file to maintain compatability with the automac's / kissassist
 |- Modified to fit the IHC mac's and mod's better
-#bind QuestSay			/qsay
-#bind BackOff        /backoff
 #bind Campfire       /campfire
-#bind ChangeVarInt   /changevarint
-#bind ToggleVariable /togglevariable
 #bind GroupBehindMe  /rallybehind
 #bind GroupFrontFace /rallyfront
 #bind KillMATarget   /killtarget
-#bind SetAutoTargetID /settarget
-#bind ChaseMe		   /chaseme
-#Bind SheepMove	     /sheepmove
 |----------------------------------------------------------------------------
 |- SUB: Compatibility with KissAssist Aliases Old and New
 |----------------------------------------------------------------------------
@@ -167,7 +160,23 @@ Sub VarSetup
 |- healing
 	/declare mercsInGroup		int outer 0
 
+|- sets 
+	/declare immuneSet			 set
+	/declare immuneSetIterator	 setiterator
+|- verbose
+	/declare verboseSHD 		bool outer TRUE
+	/declare verboseWAR 		bool outer TRUE
+	/declare verboseBST 		bool outer TRUE
+	/declare verboseDRU 		bool outer TRUE
+	/declare verboseSHM 		bool outer TRUE
+	/declare verboseBER 		bool outer TRUE
+	/declare verboseWIZ 		bool outer TRUE
+	/declare verboseENC 		bool outer TRUE
+	/declare verboseBRD 		bool outer TRUE
 
+/return 
+
+Sub setup_plugins
 	/echo -----${MacroName} LOADING------
 	/if (${Me.XTarget[1].TargetType.NotEqual[Auto Hater]}) {
 		/echo Extended Target 1 HAS TO BE SET TO Auto Hater
@@ -191,7 +200,10 @@ Sub VarSetup
 	/call CheckPlugin MQ2Worsthurt
 	/call CheckPlugin MQ2Yes
 	/call CheckPlugin MQ2sqlite
+	/call CheckPlugin MQ2Collections
 	/call UnCheckPlugin MQ2Twist
+	/call UnCheckPlugin MQ2Cast
+	/call UnCheckPlugin MQ2Exchange
 	/squelch /rez accept on
     /squelch /rez loot off
 	/squelch /rez pct 20
@@ -339,10 +351,13 @@ Sub check_state(bool _debug)
 	/if (${Stick.Status.Equal[ON]}) /stick off
 
 	| turn autoattack off
-	/attack off
+	/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 
 	| clear target
 	/if (${Target.ID}) /target clear
+	
+	| clear sets
+	/if (${immuneSet.Count} > 0) ${immuneSet.Clear}
 
 	| check pet
 	/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
@@ -476,7 +491,7 @@ Sub Engage
 		/while (${Navigation.Active}) {
 			/delay 5
 			/if (!${check_target_distance[FALSE]}) {
-				/nav stop
+				/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 				/return
 			}
 			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
@@ -502,7 +517,6 @@ sub check_target_distance(bool _debug)
 		/if (${Stick.Active}) /stick off
 		/if (${Navigation.Active}) /nav stop
 		/target clear
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		/return FALSE
 	}
 /return TRUE
@@ -728,19 +742,19 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 	/if (${Navigation.Active}) /return
 
 	| if I have a target then the distance to move to camp is larger to allow for a larger assist range
-	/if (${Me.XTarget}) {
-		/if (${Distance}>80) {
-			/varcalc Distance ${Distance}*1.1
-		} else /if (${Distance}>50) {
-			/varcalc Distance ${Distance}*1.7
-		} else /if (${Distance}>25) {
-			/varcalc Distance ${Distance}*2
-		} else /if (${Distance}>10) {
-			/varcalc Distance ${Distance}*2.5
-		} else /if (${Distance}>0) {
-			/varcalc Distance ${Distance}*4
-		}
-	}
+	|/if (${Me.XTarget}) {
+	|	/if (${Distance}>80) {
+	|		/varcalc Distance ${Distance}*1.1
+	|	} else /if (${Distance}>50) {
+	|		/varcalc Distance ${Distance}*1.7
+	|	} else /if (${Distance}>25) {
+	|		/varcalc Distance ${Distance}*2
+	|	} else /if (${Distance}>10) {
+	|		/varcalc Distance ${Distance}*2.5
+	|	} else /if (${Distance}>0) {
+	|		/varcalc Distance ${Distance}*4
+	|	}
+	|}
 	
 	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${Distance}) {
 		/if (${Stick.Status.Equal[ON]}) /stick off
@@ -1030,7 +1044,7 @@ Sub BagModRods
 Sub CheckPlugin(string pluginname)
     /if (!${Bool[${Plugin[${pluginname}]}]}) {
         /squelch /plugin ${pluginname} noauto
-        /echo \aw ${pluginname} \ar not detected! \aw This macro requires it! Loading ...
+        /echo \aw ${pluginname} not detected! Loading ...
     }
 /return	
 |----------------------------------------------------------------------------
@@ -1063,7 +1077,7 @@ Sub DeathSub
 Sub UnCheckPlugin(string pluginname)
     /if (${Bool[${Plugin[${pluginname}]}]}) {
         /squelch /plugin ${pluginname} unload
-        /echo \ar ${pluginname} detected! \aw Unloading it before it fucks shit up! UnLoading ...
+        /echo \aw ${pluginname} detected! Unloading ...
     }
 /return	
 |----------------------------------------------------------------------------
@@ -1420,7 +1434,7 @@ sub validate_combat(bool _debug)
 	
 	/if (!${Me.XTarget}) /return FALSE
 	/if (!${Target.ID}) /return FALSE
-	/if (!${Target.Type.Equal[NPC]}) /return FALSE
+	|/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 
 	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
@@ -2030,34 +2044,34 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
  *	USE: 
  *	NOTE: not for public consumption
  ***|
-sub check_cast_events(bool _debug)
+|sub check_cast_events(bool _debug)
 
-	/doevents CAST_BEGIN
-	/doevents CAST_CANNOTSEE    
-	/doevents CAST_COLLAPSE
-	/doevents CAST_COMPONENTS
-	/doevents CAST_DISTRACTED    
-	/doevents CAST_FDFAIL    
-	/doevents CAST_FIZZLE  
-	/doevents CAST_IMMUNE
-	/doevents CAST_INTERRUPTED
-	/doevents CAST_NOMOUNT   
-	/doevents CAST_NOTARGET
-	/doevents CAST_NOTREADY
-	/doevents CAST_OUTDOORS
-	/doevents CAST_OUTOFMANA  
-	/doevents CAST_OUTOFRANGE
-	/doevents CAST_RECOVER    
+|	/doevents CAST_BEGIN
+|	/doevents CAST_CANNOTSEE    
+|	/doevents CAST_COLLAPSE
+|	/doevents CAST_COMPONENTS
+|	/doevents CAST_DISTRACTED    
+|	/doevents CAST_FDFAIL    
+|	/doevents CAST_FIZZLE  
+|	/doevents CAST_IMMUNE
+|	/doevents CAST_INTERRUPTED
+|	/doevents CAST_NOMOUNT   
+|	/doevents CAST_NOTARGET
+|	/doevents CAST_NOTREADY
+|	/doevents CAST_OUTDOORS
+|	/doevents CAST_OUTOFMANA  
+|	/doevents CAST_OUTOFRANGE
+|	/doevents CAST_RECOVER    
 	| /varset CheckResisted 1
 	| /doevents CAST_RESISTED    
 	| /varset CheckResisted 0  
 	| /doevents CAST_RESISTEDYOU    
-	/doevents CAST_STANDING 
-	/doevents CAST_STUNNED
-	/doevents CAST_TAKEHOLD    
-	/varcalc _checkLoops ${_checkLoops}-1
+|	/doevents CAST_STANDING 
+|	/doevents CAST_STUNNED
+|	/doevents CAST_TAKEHOLD    
+|	/varcalc _checkLoops ${_checkLoops}-1
 	
-/return
+|/return
 
 |***
  *	DES: Memorize a spell/song
@@ -2529,9 +2543,9 @@ sub setup_skill_melee(bool _debug)
 		/if (!${Skill[Bash].Auto}) /autoskill Bash
 	}
 
-	/if (${Me.AbilityReady[Disarm]} && ${Select[${Me.Class.ShortName},WAR,PAL,SHD,BER,ROG,MNK,BRD,BST]}) {
-		/if (!${Skill[Disarm].Auto}) /autoskill Disarm
-	}
+	|/if (${Me.AbilityReady[Disarm]} && ${Select[${Me.Class.ShortName},WAR,PAL,SHD,BER,ROG,MNK,BRD,BST]}) {
+	|	/if (!${Skill[Disarm].Auto}) /autoskill Disarm
+	|}
 
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
 		/varset AutoAssistAt 99
@@ -2562,27 +2576,27 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	}
 
 	| taunt /onoff agro
-	/if (${Me.ID} == ${Group.MainTank.ID} && ${Me.AbilityReady[Taunt]} && ${Spawn[${_tmpID}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
+	/if (${Me.ID} == ${Group.MainTank.ID} && ${Me.AbilityReady[Taunt]} && ${Spawn[id ${_tmpID}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
 		/if (${Target.ID}) /doability Taunt
 	}
 	
 	| disarm
 	/if (!${Skill[Disarm].Auto}) {
-		/if (${Me.AbilityReady[Disarm]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+		/if (${Me.AbilityReady[Disarm]} && ${Spawn[id ${_tmpID}].Distance} <= 15) {
 			/if (${Target.ID}) /doability Disarm
 		}
 	}
 		
 	| kick
 	/if (${Bool[${kick}]} && !${Skill[Kick].Auto}) {
-	 	/if (${Me.AbilityReady[Kick]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+	 	/if (${Me.AbilityReady[Kick]} && ${Spawn[id ${_tmpID}].Distance} <= 15) {
 			/if (${Target.ID}) /doability Kick
 		}
 	}
 	
 	| bash
 	/if (${Bool[${bash}]} && !${Skill[Bash].Auto}) {
-		/if (${Me.AbilityReady[Bash]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+		/if (${Me.AbilityReady[Bash]} && ${Spawn[id ${_tmpID}].Distance} <= 15) {
 			/if (${Target.ID}) /doability Bash
 		}
 	}
@@ -2590,7 +2604,7 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	| Intimidation
 	/if (${Select[${Me.Class.ShortName},BRD,ROG,MNK,BER]}) {
 		/if (${intimidation} && ${Bool[${intimidation}]}) {
-			/if (${Me.AbilityReady[Intimidation]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+			/if (${Me.AbilityReady[Intimidation]} && ${Spawn[id ${_tmpID}].Distance} <= 15) {
 				/if (${Target.ID}) /doability Intimidation		
 			}
 		}
@@ -2599,7 +2613,7 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	| Zerker only skill
 	/if (${Select[${Me.Class.ShortName},BER]}) {
 		/if (!${frenzy} && !${Skill[Frenzy].Auto}) {
-			/if (${Me.AbilityReady[Frenzy]} && ${Spawn[${_tmpID}].Distance} <= 13) {
+			/if (${Me.AbilityReady[Frenzy]} && ${Spawn[id ${_tmpID}].Distance} <= 13) {
 				/if (${Target.ID}) /doability Frenzy
 			}
 		}
@@ -2608,14 +2622,14 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	| rogue only skill
 	/if (${Select[${Me.Class.ShortName},ROG]}) { 
 		/if (${backstab} && !${Skill[Backstab].Auto}) {
-			/if (${Me.AbilityReady[Backstab]} && ${Spawn[${_tmpID}].Distance} <= 13) {
+			/if (${Me.AbilityReady[Backstab]} && ${Spawn[id ${_tmpID}].Distance} <= 13) {
 				/if (${Target.ID}) /doability Backstab
 			}
 		}
 	}
 	
 	| monk/bst only skill 
-	/if (${Select[${Me.Class.ShortName},MNK,BST]} && ${Spawn[${_tmpID}].Distance} <= 15) {
+	/if (${Select[${Me.Class.ShortName},MNK,BST]} && ${Spawn[id ${_tmpID}].Distance} <= 15) {
 		| fist
 		/if (${Bool[${dragonpunch}]} && !${Skill[Dragon Punch].Auto} && (${Me.AbilityReady[Dragon Punch]} || ${Me.AbilityReady[Tail Rake]})) {
 			/if (${Target.ID}) /doability "Dragon Punch"
@@ -2701,6 +2715,23 @@ sub set_observers(bool _debug, string _observer, string _action, bool _silent)
 
 	/next _countT
 
+/return
+
+
+Sub check_cast_events(string _spell, string _event, int _tmpID)
+	
+	/doevents ${_event}
+
+	/if (!${Select[${castReturn},${_event}]}) /return
+
+	/if (${String[${_event}].Equal[CAST_IMMUNE]}) {
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${_spell} \ax <<=
+			
+		/if (!${immuneSet.Add[${_tmpID}]}) {
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Set Add of ${_tmpID} failed.
+		}
+	|		/varset slowImmuneID ${_tmpID}
+	}
 /return
 
 
