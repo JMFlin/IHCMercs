@@ -1484,7 +1484,7 @@ Sub DummyMode
 		/delay 1s 
 	/next TimeInc
 |${AggressiveRadius}
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 140]}>6)) /goto :waitabit 
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 110]}>6)) /goto :waitabit 
 	/afk off 
 	/delay 1s 
 
