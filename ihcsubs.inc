@@ -732,8 +732,9 @@ Sub afk_pull
 	} else {
 		/target id ${PullTargetID}
 	}
-	/delay 1s
-	/delay 5
+
+	/delay 3s !${Me.Moving}
+	
 	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget}) {
 		/attack on
 		/doevents
@@ -1481,7 +1482,8 @@ Sub DummyMode
 	:waitabit 
 	/for TimeInc 1 to ${DummyTime}
 		/echo (${TimeInc}/${DummyTime})
-		/delay 1s 
+		/delay 1s
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 	/next TimeInc
 |${AggressiveRadius}
 	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 110]}>6)) /goto :waitabit 
