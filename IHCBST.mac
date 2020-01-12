@@ -22,12 +22,12 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
+	/call setup_plugins
 	/call BstSetup
 	/call VarSetup
 	/call AliasSetup
 	/call SetupDiscs
 	/call CheckSpells
-	/call SetControlToon
 	/call LoadSpellBar
 	/pet hold on
 |-Cursor ID
@@ -38,8 +38,6 @@ Sub Main
 	/call WelcomeMsg
 
 	/declare AutoCampRadius int outer 0
-	/declare AutoAssistAt int outer 0
-	/declare AssistRange int outer 0
 	/varset AutoCampRadius 10
 	/varset AutoAssistAt 100
 	/varset AssistRange 10
@@ -70,17 +68,15 @@ Sub ManualPullCamping
 		/call check_state FALSE
 		/call self_buff_check FALSE
 		/call set_timers
-		/doevents
 		/call puller_check_group_resources 
 		/call afk_pull
 		/call get_target
-		/doevents
 		/call combat
 		/call Engage
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 		
-		/doevents
+		/call misc
 	}
 /return
 |----------------------------------------------------------------------------
@@ -159,11 +155,13 @@ Sub combat
 	/if (!${validate_combat[FALSE]}) /return
 
 	/call get_target
+	/call Engage
 	/call pet_attack
 	/doevents
-	/call debuff_xtarget
+|	/call debuff_xtarget
 	
 	/call get_target
+	/call Engage
 	/squelch /attack on
 
 	/call use_skill_melee ${Target.ID} FALSE
@@ -181,11 +179,9 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 			/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-			/call check_cast_events CAST_IMMUNE "${SlowSpell}"
+			/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 		}
 	}
-	
-	/call Engage
 
 	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 
@@ -228,7 +224,7 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-				/call check_cast_events CAST_IMMUNE "${SlowSpell}"
+				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 		

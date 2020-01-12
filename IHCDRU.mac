@@ -22,6 +22,7 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
+	/call setup_plugins
 	/call DruSetup
 	/call VarSetup
 	/call SetupSpells
@@ -37,6 +38,7 @@ Sub Main
 	/if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 50
 	/declare AssistRange int outer 10
 	/declare AutoCampRadius int outer 10
+	/call setup_skill_melee FALSE
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -64,6 +66,7 @@ Sub ManualPullCamping
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
+		/call misc
 		/doevents
 	}
 /return
@@ -235,8 +238,10 @@ Sub single_target_heals
 	/call get_heal_target 85
 	/declare _worstHurtId int local ${Macro.Return}
 	
-	/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${_worstHurtId}]}) {
-		/call core_cast2 "${HealSpell1}" spell ${_worstHurtId} FALSE
+	/if (${_worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${_worstHurtId}]}) {
+			/call core_cast2 "${HealSpell1}" spell ${_worstHurtId} FALSE
+		}
 	}
 /return
 |----------------------------------------------------------------------------

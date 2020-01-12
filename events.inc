@@ -39,6 +39,7 @@ sub events_speakline(string _target, string _verbage)
 |----------------------------------------------------------------------------
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
+|***
 #Event NotOnTargetLoS	"#*#You cannot see your target#*#"
 Sub Event_NotOnTargetLoS(string line)
 	/if (!${Target.ID}) /return
@@ -57,6 +58,7 @@ Sub Event_NotOnTargetLoS(string line)
   /doevents flush NotOnTargetLoS
 
 /return
+***|
 
 #Event NotOnTargetDistance	"#*#Your target is too far away#*#"
 Sub Event_NotOnTargetDistance(string line)
@@ -78,6 +80,7 @@ Sub Event_NotOnTargetDistance(string line)
   /doevents flush NotOnTargetDistance
 
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in group
 |---------------------------------------------------------------------------- 

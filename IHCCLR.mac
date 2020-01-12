@@ -29,12 +29,13 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
+	/call setup_plugins
 	/call VarSetup
-	/call ClrSetup	
+	/call ClrSetup
 	/call AliasSetup
 	/call CheckSpells
-	/call SetControlToon
 	/call LoadSpellBar
+
 	/squelch /alert clear 3
 	/squelch /alert clear 4
 |-Cursor ID
@@ -72,7 +73,7 @@ Sub ManualPullCamping
 |		/if (${DynamicHealing}) /call ConfigHeal
 		/call single_target_heals
 		/call group_heals
-		/call check_for_corpse FALSE
+		/if (!${Me.XTarget}) /call check_for_corpse FALSE
 |		/call ExtraHeal
 |		/if (${Me.Song["Touch of the Divine"].ID}) /call DALogic
 |		/if ((${Me.PctAggro}>90||${Me.XTarget[2].PctAggro}>90 || ${Me.XTarget[3].PctAggro}>90) && (${Me.PctHPs}<=${grouphealpoint}) && (!${Me.Buff[Sanctuary].ID})) /call AggroCheck
@@ -87,6 +88,7 @@ Sub ManualPullCamping
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
+		/call misc
 		/doevents
 	}
 /return
@@ -285,9 +287,11 @@ Sub single_target_heals
 
 	/call get_heal_target 85
 	/declare _worstHurtId int local ${Macro.Return}
-	
-	/if (${validate_cast[FALSE, spell, "${remedyheal1}", ${_worstHurtId}]}) {
-		/call core_cast2 "${remedyheal1}" spell ${_worstHurtId} FALSE
+
+	/if (${_worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${remedyheal1}", ${_worstHurtId}]}) {
+			/call core_cast2 "${remedyheal1}" spell ${_worstHurtId} FALSE
+		}
 	}
 /return
 |----------------------------------------------------------------------------

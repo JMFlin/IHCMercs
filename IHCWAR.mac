@@ -25,12 +25,11 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
+	/call setup_plugins
 	/call WarSetup	
 	/call VarSetup
 	/call AliasSetup
-	/call CheckOptions
 	/call SetupDiscs
-	/call SetControlToon
 |-Cursor ID
 	/if (${Cursor.ID}) {
 		/echo Sending Item on Cursor to Bag
@@ -166,12 +165,6 @@ Sub AFKRadiusCamping
 
 	/while (${Mode}==3) {
 
-		/call DummyMode
-
-		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
-		
-		/call set_timers
-
 		/call puller_check_group_resources 
 		/call afk_pull
 
@@ -192,6 +185,7 @@ Sub AFKRadiusCamping
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/call misc
 		/doevents
 	}
 /return

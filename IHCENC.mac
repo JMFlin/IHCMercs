@@ -24,18 +24,19 @@ Sub Main
 	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini	
 
 	/call EnchSetup
+	/call setup_plugins
 	/call VarSetup
 	/call AliasSetup
 	/call SetEncSpells
-	/call SetControlToon
 	/call LoadSpellBar
-	/call CheckOptions
+
 	/call WelcomeMsg
 	/if (${Cursor.ID}) {
 		/echo Sending Item on Cursor to Bag
 		/autoinventory
 	}
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
+	/call setup_skill_melee FALSE
 :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -82,7 +83,8 @@ Sub ManualPullCamping
 |		/if (${UseModRods}) /call ClickModRoD
 		
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-|		/doevents
+		/call misc
+		/doevents
 	}
 /return
 |----------------------------------------------------------------------------
@@ -155,6 +157,7 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 		/call mez_xtarget
@@ -164,6 +167,7 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 		/call mez_xtarget
@@ -256,7 +260,7 @@ Sub mez_xtarget
 		| If xtarget is being targetted by MA or MT then skip
 		/if (${Me.XTarget[${x}].ID} == ${MATargetID} || ${Me.XTarget[${x}].ID} == ${MTTargetID}) /continue
 
-		| If not mezzed then target it
+		| If not then target it
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 		
@@ -272,7 +276,7 @@ Sub mez_xtarget
 			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
 				/call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
-				/call check_cast_events CAST_IMMUNE "${MezSpell}"
+				/call check_cast_events "${MezSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 
@@ -416,7 +420,7 @@ Sub self_buffs
 		}
 	}
 
-	/if (${Me.Pet.ID}) {
+	/if (${Me.Pet.ID} && !${Me.Pet.Buff[${PetBuffSpell}]}) {
 		/if (${validate_cast[FALSE, spell, "${PetBuffSpell}", ${Me.Pet.ID}]}) {
 			/call core_cast2 "${PetBuffSpell}" spell ${Me.Pet.ID} FALSE
 			/varset CastCheck 1

@@ -24,6 +24,7 @@ Sub Main
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 	/declare SongFileName     	string outer ${MacroPath}_Songs_${EverQuest.Server}_${Me.CleanName}.ini
 
+	/call setup_plugins
 	/call BrdSetup
 	/call VarSetup
 	/if (${IHCVersion.NotEqual[${IHCMacVersion}]}) {
@@ -31,7 +32,6 @@ Sub Main
 	}
 	/call CheckSpells
 	/call LoadSongData
-|	/call SetControlToon
 	/call LoadSpellBar
 |-Cursor ID
 	/if (${Cursor.ID}) {
@@ -80,6 +80,7 @@ Sub ManualPullCamping
 
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/call misc
 		/doevents
 	}
 /return

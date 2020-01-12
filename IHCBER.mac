@@ -24,10 +24,10 @@ Sub Main
 	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
 	/call BerSetup
+	/call setup_plugins
 	/call VarSetup
 	/call AliasSetup
 	/call SetupDiscs
-	/call SetControlToon
 
 	/call WelcomeMsg
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
@@ -56,17 +56,16 @@ Sub ManualPullCamping
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 		/call pre_combat_buffs FALSE "${cheapshot}" disc ${Target.ID}
-		/doevents
 		/call get_target
 		/call check_state FALSE
 
 		/call Engage
-		|| ADD CHECK FOR WHICH AXE IS USED AND SEND IT INTO THE FUNCTION
 		/call AANDisc
 
 		/call combat
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/call misc
 		/doevents
 	}
 /return
@@ -277,7 +276,7 @@ Sub combat
 |		/Disc ${JoltDisc}
 |		/delay 5
 |	}
-	/if (${Me.CombatAbilityReady[${BloodDisc}]}) {
+	/if (${Me.CombatAbilityReady[${BloodDisc}]} && !${Target.Buff[${BloodDisc}].ID}) {
 		/Disc ${BloodDisc}
 		/delay 5
 	}

@@ -24,6 +24,7 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
+	/call setup_plugins
 	/call ShdSetup	
 	/call VarSetup
 	/call AliasSetup
@@ -72,14 +73,12 @@ Sub AFKRadiusCamping
 
 		/call puller_check_group_resources 
 		/call afk_pull
-		/doevents
 		/call check_state FALSE
 		/call get_target
 
 		/call balance_hp
 
 		/call check_add_aggro
-		/doevents
 		/call Engage
 		/call aoe_aggro
 		/call DoDisc
@@ -89,6 +88,7 @@ Sub AFKRadiusCamping
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
+		/call misc
 		/doevents
 	}
 /return

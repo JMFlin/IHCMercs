@@ -334,8 +334,10 @@ Sub CheckSpells
 		/varset ChorusRegenSong ${Spell[Chorus of Lunanyn].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Chorus of Renewal].RankName}]})  {
 		/varset ChorusRegenSong ${Spell[Chorus of Renewal].RankName}
-	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Chorus of Restoration].RankName}]})  {
-		/varset ChorusRegenSong ${Spell[Chorus of Restoration].RankName}
+	}  else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Chorus of Renewal].RankName}]})  {
+		/varset ChorusRegenSong ${Spell[Chorus of Renewal].RankName}
+	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Chorus of Rodect].RankName}]})  {
+		/varset ChorusRegenSong ${Spell[Chorus of Rodect].RankName}
 	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Erollisi's Chorus].RankName}]})  {
 		/varset ChorusRegenSong ${Spell[Erollisi's Chorus].RankName}
 	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Cantata of Life].RankName}]})  {

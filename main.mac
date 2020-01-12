@@ -3,32 +3,24 @@
 #Chat raid
 #turbo 80
 #include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihc${Me.Class.ShortName}util.inc
 #include IHCMercs\events.inc
 #warning
 
 Sub Main
 	/doevents flush
-	/declare MacroName       	string outer IHC${Me.Class.ShortName}
-	/declare MacroPath       	string outer IHCMercs\IHC${Me.Class.ShortName}
-	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
-	/call ShdSetup	
+	/call setup_plugins
 	/call VarSetup
 	/call AliasSetup
-	/call SetupSpells
-	/call LoadSpellBar
+	/call ${Me.Class.ShortName}util.inc
+
 |-Cursor ID
 	/if (${Cursor.ID}) {
 		/echo Sending Item on Cursor to Bag
 		/autoinventory
 	}
-	/call WelcomeMsg
-	
-	/declare AssistRange int outer 10
-	/declare AutoCampRadius int outer 10
 
-	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call AddToAlert
+	/call WelcomeMsg
 
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
@@ -50,32 +42,22 @@ Sub AFKRadiusCamping
     /call MakeCamp
     /call RemoveTravelBuffs
 	/target clear
+	/if (${Group.Puller.ID} == ${Me.ID}) /call AddToAlert
 	/if (${Group.Leader.ID} == ${Me.ID}) /docommand /campfire
 
-	/while (${Mode}==3) {
-
-		/call DummyMode
-
-		/call set_timers
+	/while (${Mode} == 3) {
 
 		/call puller_check_group_resources 
 		/call afk_pull
 		/doevents
+		
 		/call check_state FALSE
 		/call get_target
-
-		/call balance_hp
-
+		|/call balance_hp MAKE THIS INTO A BIND KEY
 		/call check_add_aggro
-		/doevents
-		/call Engage
-		/call aoe_aggro
-		/call DoDisc
-		/call get_aggro
-		/call downtime_buffs
-		/call combat
-
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+
+		/call main_${Me.Class.ShortName}
 
 		/doevents
 	}
