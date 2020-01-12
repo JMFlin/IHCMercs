@@ -183,7 +183,7 @@ Sub AFKRadiusCamping
 		/call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${PCRadiusCheck}]}>1)) { 
+		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 140]}>6)) { 
   			/echo PC nearby! 
   			/call DummyMode 
 		}
