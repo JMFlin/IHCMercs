@@ -67,8 +67,6 @@ Sub AFKRadiusCamping
 
 	/while (${Mode}==3) {
 
-		/call DummyMode
-
 		/call set_timers
 
 		/call puller_check_group_resources 
@@ -89,7 +87,10 @@ Sub AFKRadiusCamping
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 		/call misc
-		/call DummyMode
+		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${PCRadiusCheck}]}>1)) { 
+  			/echo PC nearby! 
+  			/call DummyMode 
+		}
 		/doevents
 	}
 /return
