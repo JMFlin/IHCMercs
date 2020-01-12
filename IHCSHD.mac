@@ -89,6 +89,7 @@ Sub AFKRadiusCamping
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 		/call misc
+		/call DummyMode
 		/doevents
 	}
 /return

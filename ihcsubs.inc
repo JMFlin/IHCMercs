@@ -1470,30 +1470,25 @@ sub validate_combat(bool _debug)
 |-------------------------------------------------------------------------------- 
 | Sub DummyMode
 |--------------------------------------------------------------------------------
-Sub DummyMode
+Sub DummyMode 
 
+	/declare TimeInc int local
 	/if (${Me.XTarget}) /return
-	/if (!${Spawn[gm].ID}) /return 
-	/if (!(${SpawnCount[pc radius ${AggressiveRadius}]}>6)) /return 
-
-	/declare i int local
-
 	/echo Entering Dummy Mode... 
-	/delay 3s 
+	/delay 1s 
 	/afk ${DummyMsg}
 
 	:waitabit 
-	/for i 1 to ${DummyTime}
-		/echo ${i}/${DummyTime}
-		/if (${Me.XTarget}) /return
+	/for TimeInc 1 to ${DummyTime}
+		/echo (${TimeInc}/${DummyTime})
 		/delay 1s 
-	/next i
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) /goto :waitabit 
-	
-	/afk off
+	/next TimeInc
+|${AggressiveRadius}
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 140]}>6)) /goto :waitabit 
+	/afk off 
 	/delay 1s 
-/return
 
+/return
 |***
  *	DES: validates casting of "things on a target
  *	USE: /call ${validate_cast[[TRUE|FALSE], [spell|alt|disc|item|pulse|FIND], name, targetID, ForceTarget]
