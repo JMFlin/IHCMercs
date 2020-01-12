@@ -152,24 +152,31 @@ Sub SetupDiscs
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[Tendon Rip]}) {
 		/varset Snare Tendon Rip
 		/varset SnareAxeName Axe of the Vindicator
+		/varset SnareAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=106 && ${Me.CombatAbility[Tendon Rupture]}) {
 		/varset Snare Tendon Rupture
 		/varset SnareAxeName Axe of the Mangler
+		/varset SnareAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=101 && ${Me.CombatAbility[Tendon Tear]}) {
 		/varset Snare Tendon Tear
 		/varset SnareAxeName Axe of the Demolisher
+		/varset SnareAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[Tendon Gash]}) {
 		/varset Snare Tendon Gash
 		/varset SnareAxeName Axe of the Brute
+		/varset SnareAxeComponent NULL
 	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[Tendon Slash]}) {
 		/varset Snare Tendon Slash
 		/varset SnareAxeName Axe of the Sunderer
+		/varset SnareAxeComponent NULL
 	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[Tendon Lacerate]}) {
 		/varset Snare Tendon Lacerate
 		/varset SnareAxeName Axe of the Savage
+		/varset SnareAxeComponent NULL
 	} else /if (${Me.Level}>=81 && ${Me.CombatAbility[Tendon Shear]}) {
 		/varset Snare Tendon Shear
 		/varset SnareAxeName Axe of the Eradicator
+		/varset SnareAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=76 && ${Me.CombatAbility[Tendor Sever]}) {
 		/varset Snare Tendor Sever
 		/varset SnareAxeName Axe of the Decimitor
@@ -428,21 +435,27 @@ Sub SetupDiscs
 	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Mangling Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Mangling Axe Throw].RankName}
 		/varset ThrowAxeName Axe of the Mangler
+		/varset ThrowAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Demolishing Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Demolishing Axe Throw].RankName}
 		/varset ThrowAxeName Axe of the Demolisher
+		/varset ThrowAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Brutal Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Brutal Axe Throw].RankName}
 		/varset ThrowAxeName Axe of the Brute
+		/varset ThrowAxeComponent NULL
 	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Spirited Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Spirited Axe Throw].RankName}
 		/varset ThrowAxeName Axe of the Sunderer
+		/varset ThrowAxeComponent NULL
 	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Energetic Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Energetic Axe Throw].RankName}
 		/varset ThrowAxeName Axe of the Savage
+		/varset ThrowAxeComponent NULL
 	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Vigorous Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Vigorous Axe Throw].RankName}
 		/varset ThrowAxeName Axe of the Eradicator
+		/varset ThrowAxeComponent Balanced Axe Components
 	}
 |- Sapping strike
 	/if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Sapping Strikes].RankName}]}) {

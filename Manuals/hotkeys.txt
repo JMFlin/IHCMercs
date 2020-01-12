@@ -1,3 +1,4 @@
+/mqchat reset
 
 Invite
 /invite Keunayin 

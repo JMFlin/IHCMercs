@@ -24,13 +24,13 @@ Sub Main
 	/declare IHCVersion       		string outer 2.0
 	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini	
 
+	/call setup_plugins
 	/call WizSetup
 	/call VarSetup
 	/call AliasSetup
 	/call SetWizSpells
-	/call SetControlToon
 	/call LoadSpellBar
-	/call CheckOptions
+
 	/call WelcomeMsg
 
 	/if (${Cursor.ID}) {
@@ -38,8 +38,7 @@ Sub Main
 		/autoinventory
 	}
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/varset UseSpellInterrupt 1
-
+	/call setup_skill_melee FALSE
 :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -72,7 +71,8 @@ Sub ManualPullCamping
 		
 		
 	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-|		/doevents
+		/call misc
+		/doevents
 	}
 /return
 |----------------------------------------------------------------------------
@@ -180,21 +180,28 @@ Sub combat
 		}
 	}
 
-	/if (!${Target.ID}) /return
+	/call get_target
+	/if (!${validate_combat[FALSE]}) /return
 
 	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
-		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) /call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
-			/varset snareImmuneID ${Target.ID}
+		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+		
+			/doevents CAST_IMMUNE
+			/if (${Select[${castReturn},CAST_IMMUNE]}) {
+				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
+				/varset snareImmuneID ${Target.ID}
+			}
 		}
 	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
-		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) /call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
-		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${RootSpell} \ax <<=
-			/varset snareImmuneID ${Target.ID}
+		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
+			
+			/doevents CAST_IMMUNE
+			/if (${Select[${castReturn},CAST_IMMUNE]}) {
+				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${RootSpell} \ax <<=
+				/varset snareImmuneID ${Target.ID}
+			}
 		}
 	}
 
@@ -204,6 +211,10 @@ Sub combat
 
 |	/if (${Target.PctAggro} > 99) /return
 	/if (${Target.PctHPs} >= 100) /return
+
+	/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
+		}
 
 	/if (${Me.Buff[Improved Twincast].ID}) {
 
@@ -328,7 +339,7 @@ Sub self_buff_check(bool _debug)
 	
 	/if (${CastCheck}) {
 		/call LoadSpellBar
-		/docommand /dgt \aw Done Buffing
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return

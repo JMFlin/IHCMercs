@@ -25,12 +25,11 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
+	/call setup_plugins
 	/call WarSetup	
 	/call VarSetup
 	/call AliasSetup
-	/call CheckOptions
 	/call SetupDiscs
-	/call SetControlToon
 |-Cursor ID
 	/if (${Cursor.ID}) {
 		/echo Sending Item on Cursor to Bag
@@ -166,12 +165,6 @@ Sub AFKRadiusCamping
 
 	/while (${Mode}==3) {
 
-		/call DummyMode
-
-		/call check_resources FALSE "${endregen}" disc ${Me.ID} 15
-		
-		/call set_timers
-
 		/call puller_check_group_resources 
 		/call afk_pull
 
@@ -190,8 +183,9 @@ Sub AFKRadiusCamping
 		/call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-
+		/call DummyMode
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/call misc
 		/doevents
 	}
 /return
@@ -200,7 +194,8 @@ Sub AFKRadiusCamping
 |---------------------------------------------------------------------------- 
 Sub CombatBuffs
 	
-	/if (!${Me.XTarget}) /return
+	/if (!${validate_combat[FALSE]}) /return
+
 	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}+30) /return 
 
 	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupac}]} && !${Me.Song[Field].ID} && ${DoBuffs}) {
@@ -270,10 +265,9 @@ Sub CombatBuffs
 |---------------------------------------------------------------------------- 
 Sub DoDisc
 
-	/if (!${Me.XTarget}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
+	/if (!${validate_combat[FALSE]}) /return
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -290,7 +284,7 @@ Sub DoDisc
 		/disc ${parryall}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -335,12 +329,10 @@ Sub DoDisc
 |- SUB: get_aggro
 |---------------------------------------------------------------------------- 
 Sub get_aggro
-	/if (!${Me.XTarget}) /return
-	/if (!${Target.ID}) /return
 
-	/if (${Me.AbilityReady[Taunt]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=100) {
-		/call AbilityNow "Taunt"
-	}
+	/if (!${validate_combat[FALSE]}) /return
+
+	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${shout}]} && ${Target.PctHPs}>1) {
 		/call DiscNow "${shout}"
@@ -376,15 +368,6 @@ Sub get_aggro
 	}
 	/if (${Me.AltAbilityReady[Call of Challenge]} && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Call of Challenge].ID}
-	}
-	/if (${Me.AbilityReady[Disarm]} && ${Target.PctHPs}>1) {
-		/call AbilityNow "Disarm"
-	}
-	/if (${Me.AbilityReady[Bash]} && ${Target.PctHPs}>1) {
-		/call AbilityNow "Bash"
-	}
-	/if (${Me.AbilityReady[Kick]} && ${Target.PctHPs}>1) {
-		/call AbilityNow "Kick"
 	}
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
@@ -439,7 +422,7 @@ Sub AoEAggro
 	/declare x				 int local 1
 	/declare numberOfSpawn 	 int local 0
 
-	/if (!${Me.XTarget}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
 	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1) {
 		/if (${validate_cast[FALSE, disc, "${aeroar}", ${Target.ID}]}) /call core_cast2 "${aeroar}" disc ${Target.ID} FALSE
@@ -462,7 +445,7 @@ Sub AoEAggro
 		/next x
 
 		| If no mob is yet mezzed hit them all
-		/if (${numberOfSpawn} > ${Me.XTarget}) {
+		/if (${numberOfSpawn} > 1) {
 			/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
 		}
 	}

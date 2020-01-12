@@ -134,7 +134,14 @@ Sub LoadSpellBar
 		/call LoadSpellGem "${ClawNuke}" 1
 		/call LoadSpellGem "${CloudburstNuke}" 2
 		/call LoadSpellGem "${JoltSpell}" 3
-		/call LoadSpellGem "${WildNuke}" 4
+		
+		/if (${Me.Book[${TwincastSpell}]}) {
+			/call LoadSpellGem "${TwincastSpell}" 4
+		} else {
+			/call LoadSpellGem "${WildNuke}" 4
+		}
+
+
 		/if (${Me.Book[${SnareSpell}]}) {
 			/call LoadSpellGem "${SnareSpell}" 5
 		} else /if (${Me.Book[${RootSpell}]}) {
@@ -456,6 +463,8 @@ Sub SetWizSpells
 		/varset ClawNuke ${Spell[Claw of the Abyss].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Glacial Claw].RankName}]}) {
 		/varset ClawNuke ${Spell[Glacial Claw].RankName}
+	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Claw of Gorenaire].RankName}]}) {
+		/varset ClawNuke ${Spell[Claw of Gorenaire].RankName}
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Claw of Selig].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of Selig].RankName}
 	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Claw of Selay].RankName}]}) {

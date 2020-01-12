@@ -24,10 +24,10 @@ Sub Main
 	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
 	/call BerSetup
+	/call setup_plugins
 	/call VarSetup
 	/call AliasSetup
 	/call SetupDiscs
-	/call SetControlToon
 
 	/call WelcomeMsg
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
@@ -56,17 +56,16 @@ Sub ManualPullCamping
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 		/call pre_combat_buffs FALSE "${cheapshot}" disc ${Target.ID}
-		/doevents
 		/call get_target
 		/call check_state FALSE
 
 		/call Engage
-		|| ADD CHECK FOR WHICH AXE IS USED AND SEND IT INTO THE FUNCTION
 		/call AANDisc
 
-		/call Combatdps
+		/call combat
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/call misc
 		/doevents
 	}
 /return
@@ -106,11 +105,9 @@ Sub ManualRunAndGun
 |---------------------------------------------------------------------------- 
 Sub AANDisc
 
-	/if (!${Target.ID}) /return
-	/if (!${Target.Type.Equal[NPC]}) /return
-	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
-	/if (${Target.Mezzed.ID}) /return
+	/call get_target
+
+	/if (!${validate_combat[FALSE]}) /return
 
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
 		/alt act ${Me.AltAbility[Communion of Blood].ID}
@@ -258,13 +255,13 @@ Sub AANDisc
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
-Sub Combatdps
+Sub combat
 
-	/if (!${Target.ID}) /return
-	/if (!${Target.Type.Equal[NPC]}) /return
-	/if (${Target.PctHPs}>${AutoAssistAt}) /return
-	/if (${Navigation.PathLength[id ${Target.ID}]}>${AssistRange}) /return 
-	/if (${Target.Mezzed.ID}) /return
+	/call get_target
+
+	/if (!${validate_combat[FALSE]}) /return
+
+	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
@@ -279,7 +276,7 @@ Sub Combatdps
 |		/Disc ${JoltDisc}
 |		/delay 5
 |	}
-	/if (${Me.CombatAbilityReady[${BloodDisc}]}) {
+	/if (${Me.CombatAbilityReady[${BloodDisc}]} && !${Target.Buff[${BloodDisc}].ID}) {
 		/Disc ${BloodDisc}
 		/delay 5
 	}
@@ -288,7 +285,7 @@ Sub Combatdps
 		/Disc ${Alliance}
 		/delay 5
 	}
-	/if (${FindItem[${ChestItemName}].ID} && ${ChestCombatCast} && !${FindItem[${ChestCombatCast}].TimerReady}) {
+	/if (${FindItem[${ChestItemName}].ID} && !${FindItem[${ChestCombatCast}].TimerReady}) {
 		/useitem "${ChestItemName}"
 		/delay 10	
 	}
@@ -318,10 +315,6 @@ Sub Combatdps
 		/alt act 642
 		/delay 5
 	}	
-	/if (${Me.AbilityReady[Frenzy]} && ${Me.Combat}) {
-		/doability Frenzy
-		/delay 5
-	}	
 
 	/if (${validate_cast[FALSE, disc, "${Dfrenzy}", ${Target.ID}]}) /call core_cast2 "${Dfrenzy}" disc ${Target.ID} FALSE
 
@@ -344,10 +337,7 @@ Sub Combatdps
 		/Disc ${Phantom}
 		/delay 5
 	}
-	/if (${Me.AbilityReady[Intimidation]} && ${Me.Combat} && ${UseIntimidate} && ${Me.Level}>100) {
-		/doability Intimidation
-		/delay 5
-	}
+
  /return
 |----------------------------------------------------------------------------
 |- SUB: DowntimeDiscs
@@ -359,12 +349,11 @@ Sub make_axes(string AxeName, string AxeComponents)
 	/if (${Me.Moving}) /return
 	/if (${Navigation.Active}) /return
 	
-
 	/while (${FindItemCount[${AxeName}]} < 200 && ${FindItemCount[${AxeComponents}]} > 0) {
 		/if (${Cursor.ID}) /autoinventory
 		/if (${Me.XTarget}) /return
-		/if (${Mode}==0) /return
-		/if (${FindItemCount[${AxeComponents}]} && !${Me.Casting.ID} && !${Cursor.ID} && ${Me.CombatAbilityReady[${AxeName}]}) {
+		/if (${Mode} == 0) /return
+		/if (!${Me.Casting.ID} && !${Cursor.ID}) {
 			/if (${validate_cast[FALSE, disc, "${AxeName}", ${Me.ID}]}) /call core_cast2 "${AxeName}" disc 0 FALSE
 			/if (${Cursor.ID}) /autoinventory
 		}

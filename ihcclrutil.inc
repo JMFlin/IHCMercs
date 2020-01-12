@@ -31,7 +31,7 @@ Sub ClrSetup
 	/declare patchheal		        string          outer NULL
 	/declare patchheal2		        string          outer NULL
 	/declare groupfastheal	        string          outer NULL
-	/declare groupheal		        string          outer NULL
+	/declare GroupHealSpell1		string          outer NULL
 	/declare grouphealnocure        string          outer NULL
 	/declare promheal		        string          outer NULL
 	/declare bigheal1		        string          outer NULL
@@ -211,8 +211,8 @@ Sub LoadSpellBar
 		/if (!${Me.Gem[${spellgem}].Name.Equal[${patchheal2}]} && ${Me.Book[${patchheal2}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${patchheal2}" ${spellgem}
 		/if (${Me.Book[${patchheal2}]}) /varcalc spellgem ${spellgem}+1
 		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${groupheal}]} && ${Me.Book[${groupheal}]} && ${BringYourOwnSpells}!=1 && ${NoCures}!=1) /call LoadSpellGem "${groupheal}" ${spellgem}
-		/if (${Me.Book[${groupheal}]} && ${NoCures}!=1) /varcalc spellgem ${spellgem}+1
+		/if (!${Me.Gem[${spellgem}].Name.Equal[${GroupHealSpell1}]} && ${Me.Book[${GroupHealSpell1}]} && ${BringYourOwnSpells}!=1 && ${NoCures}!=1) /call LoadSpellGem "${GroupHealSpell1}" ${spellgem}
+		/if (${Me.Book[${GroupHealSpell1}]} && ${NoCures}!=1) /varcalc spellgem ${spellgem}+1
 		/if (!${Me.Gem[${spellgem}].Name.Equal[${grouphealnocure}]} && ${Me.Book[${grouphealnocure}]} && ${BringYourOwnSpells}!=1 && ${NoCures}==1) /call LoadSpellGem "${grouphealnocure}" ${spellgem}
 		/if (${Me.Book[${grouphealnocure}]} && ${NoCures}==1) /varcalc spellgem ${spellgem}+1
 		
@@ -413,33 +413,33 @@ Sub CheckSpells
 	}
 |---Group Heals Slot 5
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Word of Greater Restoration].RankName}]})  {
-		/varset groupheal ${Spell[Word of Greater Restoration].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Greater Restoration].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Word of Greater Reformation].RankName}]})  {
-		/varset groupheal ${Spell[Word of Greater Reformation].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Greater Reformation].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Word of Reformation].RankName}]})  {
-		/varset groupheal ${Spell[Word of Reformation].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Reformation].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Word of Rehabilitation].RankName}]})  {
-		/varset groupheal ${Spell[Word of Rehabilitation].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Rehabilitation].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Word of Resurgence].RankName}]})  {
-		/varset groupheal ${Spell[Word of Resurgence].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Resurgence].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Word of Recovery].RankName}]})  {
-		/varset groupheal ${Spell[Word of Recovery].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Recovery].RankName}
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Word of Vivacity].RankName}]})  {
-		/varset groupheal ${Spell[Word of Vivacity].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Vivacity].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Word of Vivification].RankName}]})  {
-		/varset groupheal ${Spell[Word of Vivification].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Vivification].RankName}
 	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Word of Replenishment].RankName}]})  {
-		/varset groupheal ${Spell[Word of Replenishment].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Replenishment].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Word of Redemption].RankName}]})  {
-		/varset groupheal ${Spell[Word of Redemption].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Redemption].RankName}
 	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[Word of Restoration].RankName}]})  {
-		/varset groupheal ${Spell[Word of Restoration].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Restoration].RankName}
 	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Word of Vigor].RankName}]})  {
-		/varset groupheal ${Spell[Word of Vigor].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Vigor].RankName}
 	} else /if (${Me.Level}>=45 && ${Me.Book[${Spell[Word of Healing].RankName}]})  {
-		/varset groupheal ${Spell[Word of Healing].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Healing].RankName}
 	} else /if (${Me.Level}>=30 && ${Me.Book[${Spell[Word of Health].RankName}]})  {
-		/varset groupheal ${Spell[Word of Health].RankName}
+		/varset GroupHealSpell1 ${Spell[Word of Health].RankName}
 	}
 |---Group Heals No Cure Slot 5
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Word of Mending].RankName}]})  {

@@ -322,13 +322,13 @@ Sub SetupSpells
 	| Pull ability
 	/if (${Me.Book[${Touch3}]} && !${Me.Book[${Terror1}]} && !${Me.Book[${Terror2}]}) {
 		/varset PullAbility ${Touch3}
-		/varset PullDistance 150
+		/varset PullDistance 190
 	} else /if (${Me.Book[${Terror1}]}) {
 		/varset PullAbility ${Terror1}
-		/varset PullDistance 150
+		/varset PullDistance 190
 	} else /if (${Me.Book[${Terror2}]}) {
 		/varset PullAbility ${Terror2}
-		/varset PullDistance 150
+		/varset PullDistance 190
 	} else {
 		/varset PullAbility Melee
 		/varset PullDistance 5

@@ -24,6 +24,7 @@ Sub Main
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 	/declare SongFileName     	string outer ${MacroPath}_Songs_${EverQuest.Server}_${Me.CleanName}.ini
 
+	/call setup_plugins
 	/call BrdSetup
 	/call VarSetup
 	/if (${IHCVersion.NotEqual[${IHCMacVersion}]}) {
@@ -31,7 +32,6 @@ Sub Main
 	}
 	/call CheckSpells
 	/call LoadSongData
-|	/call SetControlToon
 	/call LoadSpellBar
 |-Cursor ID
 	/if (${Cursor.ID}) {
@@ -73,12 +73,14 @@ Sub ManualPullCamping
 			/call pulse FALSE ${RegenMelody}
 		}
 		/call combat
+		/call selo
 |		/if (${Me.XTarget}>=${MezStartCount} && ${MezOn} && ${Me.GemTimer[${AEMezSong}]}==0) /call DoMezStuff
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) 
 
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/call misc
 		/doevents
 	}
 /return
@@ -162,15 +164,7 @@ Sub selo
 Sub combat
 	/doevents
 
-	/if (!${Me.XTarget}) /return
-
-	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID}) {
-		
-		/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
-			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
-			/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
-		}
-	}
+	/if (!${validate_combat[FALSE]}) /return
 
 	/declare BurningNow int local 0
 	/if (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) {
@@ -240,6 +234,11 @@ Sub combat
 |---------------------------------------------------------------------------- 
 Sub AANDisc
 	/doevents
+
+	/if (!${validate_combat[FALSE]}) /return
+
+	/call use_skill_melee FALSE ${Target.ID}
+
 	/if (${FindItem[=${Epicsword}].ID} && ${Me.ItemReady[=${Epicsword}]}) {
 		/call StopTune
 		/useitem "${Epicsword}"

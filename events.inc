@@ -39,6 +39,7 @@ sub events_speakline(string _target, string _verbage)
 |----------------------------------------------------------------------------
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
+|***
 #Event NotOnTargetLoS	"#*#You cannot see your target#*#"
 Sub Event_NotOnTargetLoS(string line)
 	/if (!${Target.ID}) /return
@@ -47,13 +48,17 @@ Sub Event_NotOnTargetLoS(string line)
 	/if ((${Me.Rooted.ID} || ${Me.ActiveDisc.ID}==30436) && ${Me.AltAbilityReady[Drawn to Blood]} && ${Me.Combat}) {
 		/alt act ${Me.AltAbility[Drawn to Blood].ID}
 	} else {
-		/if (${Navigation.MeshLoaded} && !${Spawn[id ${Target.ID}].LineOfSight} && ${Navigation.PathLength[id ${Target.ID}]} < 50) /nav id ${Target.ID}
+		/if (${Navigation.MeshLoaded} && !${Spawn[id ${Target.ID}].LineOfSight} && ${Navigation.PathLength[id ${Target.ID}]} < 55) /nav id ${Target.ID}
 		/while (${Navigation.Active}) {
-			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
+			/if (${Navigation.Active} && (${Spawn[id ${Target.ID}].LineOfSight} || ${Spawn[id ${Target.ID}].Distance} > 400)) /nav stop
 			/delay 5
 		}
 	}
+
+  /doevents flush NotOnTargetLoS
+
 /return
+***|
 
 #Event NotOnTargetDistance	"#*#Your target is too far away#*#"
 Sub Event_NotOnTargetDistance(string line)
@@ -67,23 +72,26 @@ Sub Event_NotOnTargetDistance(string line)
 	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,CLR,ENC,SHM]} && ${Spawn[id ${Target.ID}].Distance} > 190) {
 		/if (${Navigation.MeshLoaded}) /nav id ${Target.ID}
 		/while (${Navigation.Active}) {
-			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight} && ${Spawn[id ${Target.ID}].Distance} < 150) /nav stop
+			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight} && (${Spawn[id ${Target.ID}].Distance} < 150 || ${Spawn[id ${Target.ID}].Distance} > 400)) /nav stop
 			/delay 5
 		}
 	}
+
+  /doevents flush NotOnTargetDistance
+
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in group
 |---------------------------------------------------------------------------- 
 #Event GroupChange	"#*#has left the group#*#"
 #Event GroupChange	"#*#has joined the group#*#"
 Sub alliance_check_group(bool _debug)
-
-  /if (${Raid.Members}) /return ${alliance_check_raid[FALSE]}
-
-	/declare _groupsize int local ${Group.GroupSize}-1
+  /declare _groupsize int local ${Group.GroupSize}-1
   /declare _myclasscount int local 1
   /declare i int local
+
+  /if (${Raid.Members}) /return ${alliance_check_raid[FALSE]}
 
 	/for i 1 to ${_groupsize}
 		/if (${Group.Member[${i}].Class.ShortName.Equal[${Me.Class.ShortName}]}) {
@@ -100,18 +108,19 @@ Sub alliance_check_group(bool _debug)
 /return FALSE
 
 Sub Event_GroupChange(string line)
-		/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE 
+  /if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 /return ${UseAlliance}
 |----------------------------------------------------------------------------
 |- SUB: DRU SHM
 |---------------------------------------------------------------------------- 
-#Event GroupChange	"#*#has left the group#*#"
-#Event GroupChange	"#*#has joined the group#*#"
+#Event HybridHealerLimit	"#*#has left the group#*#"
+#Event HybridHealerLimit	"#*#has joined the group#*#"
 Sub hybrid_healer_limit(bool _debug)
-
-	/declare _groupsize int local ${Group.GroupSize}-1
+  /declare _groupsize int local ${Group.GroupSize}-1
   /declare _clrclasscount int local 0
   /declare i int local
+
+  /if (${Raid.Members}) /return 50
 
 	/for i 1 to ${_groupsize}
 		/if (${Select[${Group.Member[${i}].Class.ShortName},CLR]}) {
@@ -129,8 +138,26 @@ Sub hybrid_healer_limit(bool _debug)
 /return
 
 Sub Event_HybridHealerLimit(string line)
-		/if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 40 
+  /if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 40 
 /return ${HybridManaLimit}
+|-------------------------------------------------------------------------------------
+|- SUB: PlayersInGroup - Checking for PC vs Merc
+|-------------------------------------------------------------------------------------
+#Event CheckPlayersInGroup	"#*#has left the group#*#"
+#Event CheckPlayersInGroup	"#*#has joined the group#*#"
+Sub Event_CheckPlayersInGroup(string line)
+	/declare _count			    int local 0
+	/declare _playerCount 	int local 0
+
+	/for _count 1 to ${Group.Members}
+		/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+			/varcalc _playerCount ${_playerCount}+1
+		}
+	/next _count
+
+  /varcalc MercsInGroup ${Group.Members} - ${_playerCount}
+
+/return ${_playerCount}
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in raid
 |---------------------------------------------------------------------------- 
@@ -157,17 +184,17 @@ Sub alliance_check_raid(bool _debug)
 /return FALSE
 
 Sub Event_RaidChange(string line)
-		/if (${alliance_check_raid[FALSE]}) /varset UseAlliance TRUE 
+	/if (${alliance_check_raid[FALSE]}) /varset UseAlliance TRUE
 /return ${UseAlliance}
 |----------------------------------------------------------------------------
 |- SUB: Event Gain Something - DanNet message 
 |----------------------------------------------------------------------------    
 #Event GainSomething	 "#*#You have gained|#1#|"
 Sub Event_GainSomething(string Line, string text)
-    /if (${Line.Find["ABILITY POINT!"]}) {
-        /docommand /dgt \aw ${Me.Name} gained an AA, now has ${Me.AAPoints} unspent \ax
-    } else /if (${Line.Find[LEVEL]}) {
-        /docommand /dgt \aw ${Me.Name} gained a level, now is Level ${Me.Level} \ax
+  /if (${Line.Find["ABILITY POINT!"]}) {
+    /docommand /dgt \aw ${Me.Name} gained an AA, now has ${Me.AAPoints} unspent \ax
+  } else /if (${Line.Find[LEVEL]}) {
+    /docommand /dgt \aw ${Me.Name} gained a level, now is Level ${Me.Level} \ax
 	}
 /return 
 |----------------------------------------------------------------------------
@@ -175,7 +202,7 @@ Sub Event_GainSomething(string Line, string text)
 |----------------------------------------------------------------------------    
 #Event TaskUpdate		 "#*#Your task |#1#| has been updated#*#" 
 Sub Event_TaskUpdate(string Line, string name) 
-    /if (${acverbose}!=0) /docommand /dgt \at Task updated...(${name})\ax    
+  /docommand /dgt \at Task updated...(${name})\ax    
 /return
 |----------------------------------------------------------------------------
 |- SUB: Event Camping - end macro
@@ -184,6 +211,9 @@ Sub Event_TaskUpdate(string Line, string name)
 Sub Event_Camping	
 	/if (${Me.Casting.ID}) /stopcast
   /if (${Me.BardSongPlaying}) /stopsong
+  /if (${Navigation.Active}) /nav stop
+  /if (${Stick.Active}) /stick off
+	/if (${AdvPath.Following}) /afollow off
 	/endmacro
 /return
 |----------------------------------------------------------------------------
@@ -201,9 +231,11 @@ Sub Zoning
 	/delay 50
 /return
 |----------------------------------------------------------------------------
-|- SUB: Event Event_ZonePoK - For dealing with too far away and cannot see messages
+|- SUB: Event Event_ZonePoK - Go into a passive mode
 |----------------------------------------------------------------------------
 #Event ZonePoK	"#*#You have entered The Plane of Knowledge.#*#"
+#Event ZonePoK	"#*#You have entered The Guild Lobby.#*#"
+#Event ZonePoK	"#*#You have entered The Guild Hall.#*#"
 Sub Event_ZonePoK(string line)
 	/varset Mode 0
 /return
@@ -2238,3 +2270,20 @@ sub Event_Nexona()
 |********************************************************************************************
  ** The Burning Lands (December 11, 2018)
  **|
+
+|********************************************************************************************
+ ** Torment of Velious (December 18, 2019)
+ **|
+#event DuckOn "#*#The ice encrusted Avatar of War shouts that #1# must bend the knee!#*#"
+Sub Event_DuckOn(line, player)
+  /if (${player.Equal[${Me.Name}]}) {
+    /if (!${Me.Ducking}) /keypress duck
+  }
+  /doevents flush DuckOn
+/return
+
+#event DuckOff "#*#The Avatar of War nods, accepting the subservience of those that gave it.#*#"
+Sub Event_DuckOff
+  /if (${Me.State.NotEqual[STAND]}) /stand
+  /doevents flush DuckOff
+/return

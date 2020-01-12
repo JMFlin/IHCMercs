@@ -1,0 +1,64 @@
+#Chat group
+#Chat tell
+#Chat raid
+#turbo 80
+#include IHCMercs\ihcsubs.inc
+#include IHCMercs\events.inc
+#warning
+
+Sub Main
+	/doevents flush
+
+	/call setup_plugins
+	/call VarSetup
+	/call AliasSetup
+	/call ${Me.Class.ShortName}util.inc
+
+|-Cursor ID
+	/if (${Cursor.ID}) {
+		/echo Sending Item on Cursor to Bag
+		/autoinventory
+	}
+
+	/call WelcomeMsg
+
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
+	/call setup_skill_melee FALSE
+
+ :mainloop
+	/call ModeSet
+	/if (${Mode}==0) /call Travel
+	/if (${Mode}==1) /call ManualPullCamping
+	/if (${Mode}==2) /call ManualRunAndGun
+	/if (${Mode}==3) /call AFKRadiusCamping
+	/if (${Mode}==4) /call AFKRunAndGun
+	/if (${Mode}==5) /call DoEvent
+/goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: AFKRadiusCamping 
+|---------------------------------------------------------------------------- 
+Sub AFKRadiusCamping
+    /call MakeCamp
+    /call RemoveTravelBuffs
+	/target clear
+	/if (${Group.Puller.ID} == ${Me.ID}) /call AddToAlert
+	/if (${Group.Leader.ID} == ${Me.ID}) /docommand /campfire
+
+	/while (${Mode} == 3) {
+
+		/call puller_check_group_resources 
+		/call afk_pull
+		/doevents
+		
+		/call check_state FALSE
+		/call get_target
+		|/call balance_hp MAKE THIS INTO A BIND KEY
+		/call check_add_aggro
+		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+
+		/call main_${Me.Class.ShortName}
+
+		/doevents
+	}
+/return

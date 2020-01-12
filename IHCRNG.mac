@@ -224,33 +224,33 @@ Sub Combatdps
 |- SUB: BuffGroup
 |---------------------------------------------------------------------------- 
 Sub BuffGroup
-	/declare bmember			int local 0
+	/declare _count			int local 0
 	/if (${groupbufftimer}==0) /varset groupbufftimer 10s
-	/for bmember 1 to ${Group}
-		/if (${Group.Member[${bmember}].Distance}<100 && !${Group.Member[${bmember}].OtherZone} && (!${Me.Casting.ID}) && ${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower}]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupPredatorBuff}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupPredatorBuff}].Stacks" "tmpstackcheck" "bool"
+	/for _count 1 to ${Group}
+		/if (${Group.Member[${_count}].Distance}<100 && !${Group.Member[${_count}].OtherZone} && (!${Me.Casting.ID}) && ${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower}]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupPredatorBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupPredatorBuff}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana}>${Spell[${ShoutBuff}].Mana} && (!${Me.Casting.ID}) && ${Me.Book[${ShoutBuff}]}) {
-					/call SpellQueue "${ShoutBuff}" ${Group.Member[${bmember}].ID}
+					/call SpellQueue "${ShoutBuff}" ${Group.Member[${_count}].ID}
 					/varset spellrememtimer 5s
 					/delay 10
 				}
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupStrengthBuff}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupStrengthBuff}].Stacks" "tmpstackcheck" "bool"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupStrengthBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupStrengthBuff}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana}>${Spell[${ShoutBuff}].Mana} && (!${Me.Casting.ID}) && ${Me.Book[${ShoutBuff}]}) {
-					/call SpellQueue "${ShoutBuff}" ${Group.Member[${bmember}].ID}
+					/call SpellQueue "${ShoutBuff}" ${Group.Member[${_count}].ID}
 					/varset spellrememtimer 5s
 					/delay 10
 				}
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Me.Buff[${GroupEnrichmentBuff}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${bmember}].Name.Lower} "Spell[${GroupEnrichmentBuff}].Stacks" "tmpstackcheck" "bool"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupEnrichmentBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupEnrichmentBuff}].Stacks" "tmpstackcheck" "bool"
 				/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana}>${Spell[${GroupEnrichmentBuff}].Mana} && (!${Me.Casting.ID}) && ${Me.Book[${GroupEnrichmentBuff}]}) {
-					/call SpellQueue "${GroupEnrichmentBuff}" ${Group.Member[${bmember}].ID}
+					/call SpellQueue "${GroupEnrichmentBuff}" ${Group.Member[${_count}].ID}
 					/varset spellrememtimer 5s
 					/delay 10
 				}
 		}
-	/next bmember
+	/next _count
 	|- Delete variable's
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
