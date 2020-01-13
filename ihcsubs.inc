@@ -710,11 +710,6 @@ Sub afk_pull
 		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return
 	}
 
-<<<<<<< HEAD
-	/if (${AdvPath.Following}) /afollow off
-	
-=======
->>>>>>> 62d9dec15c6fc94e11e8eeb901b69a30d911697b
 	/varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 	
 	/if (!${PullTargetID}) /return
@@ -737,8 +732,8 @@ Sub afk_pull
 	} else {
 		/target id ${PullTargetID}
 	}
-	/delay 1s
-	/delay 5
+	/delay 3s
+
 	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget}) {
 		/attack on
 		/doevents
