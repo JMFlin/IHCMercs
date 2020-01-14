@@ -1055,6 +1055,7 @@ Sub SetEncSpells
 	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Arcane Rune].RankName}]}) {
 		/varset SelfRune1 ${Spell[Arcane Rune].RankName}
 	}
+	
 |-Self Rune 2 * Var Name: SelfRune2 string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Polyfluorescent Rune].RankName}]}) {
 		/varset SelfRune2 ${Spell[Polyfluorescent Rune].RankName}
@@ -1073,6 +1074,7 @@ Sub SetEncSpells
 	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Polychromatic Rune].RankName}]}) {
 		/varset SelfRune2 ${Spell[Polychromatic Rune].RankName}
 	}
+	
 |-Single Rune * Var Name: SingleRune string outer
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Rune of Skrizix].RankName}]}) {
 		/varset SingleRune ${Spell[Rune of Skrizix].RankName}

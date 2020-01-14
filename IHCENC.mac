@@ -426,6 +426,28 @@ Sub self_buffs
 			/varset CastCheck 1
 		}
 	}
+
+	/if (!${Me.Buff[${MezBuff}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${MezBuff}", ${Me.ID}]}) {
+			/call core_cast2 "${MezBuff}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	} 
+
+	/if (!${Me.Buff[${SelfRune1}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
+			/call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	} 
+
+	/if (!${Me.Buff[${SelfRune2}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${SelfRune2}", ${Me.ID}]}) {
+			/call core_cast2 "${SelfRune2}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	} 
+	
 |				/call SpellQueue "${PetSpell}" ${Me.ID}
 |				/varset CastCheck 1
 |				/delay 5
