@@ -197,6 +197,10 @@ Sub combat
 
 	/if (${Target.PctHPs} >= 100) /return
 
+	/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
+		/call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE
+	}
+
 	/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
 		/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
 	}
