@@ -621,6 +621,7 @@ Sub Travel
 		/stopsong
 		/melody 3 1
 	}
+	/call misc
 /return
 |----------------------------------------------------------------------------
 |- SUB: puller_check_group_resources
@@ -2490,6 +2491,30 @@ Sub get_heal_target(int _hpLimit)
 	}
 
 /return ${_worstHurtId}
+
+Sub validate_pre_heal_target(int _hpLimit)
+
+	/declare _count		     	int local 0
+	
+	/for _count 0 to ${Group}
+	
+		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+
+		/if (${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+			
+			/if (${Group.Member[${_count}].Distance} > 200) /return FALSE
+
+			/if (${Group.Member[${_count}].PctHPs} >= ${_hpLimit}) {
+				/return TRUE
+			} else {
+				/return FALSE
+			}
+		}
+
+	/next _count
+
+/return FALSE
+
 
 |***
  *	DES: check  health

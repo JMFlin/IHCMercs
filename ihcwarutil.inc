@@ -206,6 +206,14 @@ Sub SetupDiscs
 		/varset defenseac ${Spell[Staunch Defense].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.CombatAbility[${Spell[Bracing Defense].RankName}]})  {
 		/varset defenseac ${Spell[Bracing Defense].RankName}
+	} else /if (${Me.Level}>=81 && ${Me.CombatAbility[${Spell[Armor of Timeworn Runes].RankName}]})  {
+		/varset defenseac ${Spell[Armor of Timeworn Runes].RankName}
+	} else /if (${Me.Level}>=76 && ${Me.CombatAbility[${Spell[Armor of Draconic Runes].RankName}]})  {
+		/varset defenseac ${Spell[Armor of Draconic Runes].RankName}
+	} else /if (${Me.Level}>=70 && ${Me.CombatAbility[${Spell[Shocking Defence Discipline].RankName}]})  {
+		/varset defenseac ${Spell[Shocking Defence Discipline].RankName}
+	} else /if (${Me.Level}>=70 && ${Me.CombatAbility[${Spell[Aura of Runes Discipline].RankName}]})  {
+		/varset defenseac ${Spell[Aura of Runes Discipline].RankName}
 	} 
 
 	/if (${Me.Level}>=85) {

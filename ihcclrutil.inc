@@ -96,7 +96,9 @@ Sub ClrSetup
 	/declare CureID					int				outer 0
 	/declare grouphealpoint 		int 			outer 75
 	/declare MassRezSpell 			string 			outer NULL
-	/declare RezSpell	 			string 			outer NULL	
+	/declare RezSpell	 			string 			outer NULL
+	/declare CasterSpeedBuff 		string 			outer NULL
+	/declare SingleElixirSpell 		string 			outer NULL
 |-Grab Options from INI
 	/call LoadIni Mount mountitem				string "Bracelet of the Severed Hand"
 	/call LoadCommonConfig
@@ -192,75 +194,21 @@ Sub INIChanges
 |- SUB: LoadSpellBar
 |------------------------------------------------------------------------------------------
 Sub LoadSpellBar
-	/if (!${BringYourOwnSpells}) {
-		/varset spellgem 1
-		/if (${Me.Standing}) /sit
-		/delay 10 ${Me.Sitting}
-		/echo \aw Loading Spell Bar
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${wardspell}]} && ${Me.Book[${wardspell}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${wardspell}" ${spellgem}
-		/if (${Me.Book[${wardspell}]}) /varcalc spellgem ${spellgem}+1
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${remedyheal1}]} && ${Me.Book[${remedyheal1}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${remedyheal1}" ${spellgem}
-		/if (${Me.Book[${remedyheal1}]}) /varcalc spellgem ${spellgem}+1
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${remedyheal2}]} && ${Me.Book[${remedyheal2}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${remedyheal2}" ${spellgem}
-		/if (${Me.Book[${remedyheal2}]}) /varcalc spellgem ${spellgem}+1
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${patchheal}]} && ${Me.Book[${patchheal}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${patchheal}" ${spellgem}
-		/if (${Me.Book[${patchheal}]}) /varcalc spellgem ${spellgem}+1
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${patchheal2}]} && ${Me.Book[${patchheal2}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${patchheal2}" ${spellgem}
-		/if (${Me.Book[${patchheal2}]}) /varcalc spellgem ${spellgem}+1
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${GroupHealSpell1}]} && ${Me.Book[${GroupHealSpell1}]} && ${BringYourOwnSpells}!=1 && ${NoCures}!=1) /call LoadSpellGem "${GroupHealSpell1}" ${spellgem}
-		/if (${Me.Book[${GroupHealSpell1}]} && ${NoCures}!=1) /varcalc spellgem ${spellgem}+1
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${grouphealnocure}]} && ${Me.Book[${grouphealnocure}]} && ${BringYourOwnSpells}!=1 && ${NoCures}==1) /call LoadSpellGem "${grouphealnocure}" ${spellgem}
-		/if (${Me.Book[${grouphealnocure}]} && ${NoCures}==1) /varcalc spellgem ${spellgem}+1
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${groupfastheal}]} && ${Me.Book[${groupfastheal}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${groupfastheal}" ${spellgem}
-		/if (${Me.Book[${groupfastheal}]}) /varcalc spellgem ${spellgem}+1
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${yaulpspell}]} && ${Me.Book[${yaulpspell}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${yaulpspell}" ${spellgem}
-		/if (${Me.Book[${yaulpspell}]}) /varcalc spellgem ${spellgem}+1
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${bigheal1}]} && ${Me.Book[${bigheal1}]} && ${BringYourOwnSpells}!=1 && !${UseHealNukes}) /call LoadSpellGem "${bigheal1}" ${spellgem}
-		/if (${Me.Book[${bigheal1}]} && !${UseHealNukes}) /varcalc spellgem ${spellgem}+1
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${bigheal2}]} && ${Me.Book[${bigheal2}]} && ${BringYourOwnSpells}!=1 && !${UseHealNukes}) /call LoadSpellGem "${bigheal2}" ${spellgem}
-		/if (${Me.Book[${bigheal2}]} && !${UseHealNukes}) /varcalc spellgem ${spellgem}+1
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${healnuke1}]} && ${Me.Book[${healnuke1}]} && ${BringYourOwnSpells}!=1  && ${UseHealNukes}) /call LoadSpellGem "${healnuke1}" ${spellgem}
-		/if (${Me.Book[${healnuke1}]} && ${UseHealNukes}) /varcalc spellgem ${spellgem}+1
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${healnuke2}]} && ${Me.Book[${healnuke2}]} && ${BringYourOwnSpells}!=1 && ${UseHealNukes}) /call LoadSpellGem "${healnuke2}" ${spellgem}
-		/if (${Me.Book[${healnuke2}]} && ${UseHealNukes}) /varcalc spellgem ${spellgem}+1
-		
-		/if (!${Me.Gem[${spellgem}].Name.Equal[${ReverseDS}]} && ${Me.Book[${ReverseDS}]} && ${BringYourOwnSpells}!=1  && ${spellslots}>=12) {
-			/call LoadSpellGem "${ReverseDS}" ${spellgem}
-			/varcalc spellgem ${spellgem}+1
-		}
-		|-/if (!${Me.Gem[${spellgem}].Name.Equal[${nukeheal1}]} && ${Me.Book[${nukeheal1}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${nukeheal1}" ${spellgem}
-		|-/if (${Me.Book[${nukeheal1}]}) /varcalc spellgem ${spellgem}+1
-		|-/if (!${Me.Gem[${spellgem}].Name.Equal[${nukeheal2}]} && ${Me.Book[${nukeheal2}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${nukeheal2}" ${spellgem}
-		|-/if (${Me.Book[${nukeheal2}]}) /varcalc spellgem ${spellgem}+1
-		
-		|-/if (!${Me.Gem[${spellgem}].Name.Equal[${stunnuke}]} && ${Me.Book[${stunnuke}]} && ${BringYourOwnSpells}!=1) /call LoadSpellGem "${stunnuke}" ${spellgem}
-		|-/if (${Me.Book[${stunnuke}]}) /varcalc spellgem ${spellgem}+1
-		
-		|-Divine/Promised Gem Setup
-		/if (${Me.Gem[${DivineBuff}]}) /varset divinegem ${Me.Gem[${DivineBuff}]}
-		/if (${Me.Gem[${promheal}]}) /varset promgem ${Me.Gem[${promheal}]}
-		/if (${DivineBuffOn}==1 && ${Me.Book[${DivineBuff}]} && ${BringYourOwnSpells}!=1) {
-			/varcalc divinegem ${spellslots}-1
-			/varcalc spellmisc ${spellslots}-2
-			/varset promgem ${spellslots}
-			/call LoadSpellGem "${DivineBuff}" ${divinegem}
-			/call LoadSpellGem "${promheal}" ${promgem}
-		} else /if (${usepromheals}==1 && ${Me.Book[${promheal}]} && ${BringYourOwnSpells}!=1) {
-			/varset promgem ${spellslots}
-			/varcalc spellmisc ${spellslots}-1
-			/call LoadSpellGem "${promheal}" ${promgem}
-		} else {
-			/varset spellmisc ${spellslots}
-		}
-	}
+	
+	
+	/if (${Me.Standing}) /sit
+	/delay 10 ${Me.Sitting}
+	/echo \aw Loading Spell Bar
+	
+	/call LoadSpellGem "${SingleElixirSpell}" 1
+	/call LoadSpellGem "${promheal}" 2
+	/call LoadSpellGem "${remedyheal1}" 3
+	/call LoadSpellGem "${remedyheal2}" 4
+	/call LoadSpellGem "${patchheal}" 5
+	/call LoadSpellGem "${GroupHealSpell1}" 6
+	/call LoadSpellGem "${GroupSymbolBuff}" 7
+	/call LoadSpellGem "${wardspell}" 8
+	
 	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -276,30 +224,32 @@ Sub CheckSpells
 		/varset wardspell ${Spell[Ward of Surety].RankName}
 	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Ward of Certitude].RankName}]})  {
 		/varset wardspell ${Spell[Ward of Certitude].RankName}
-	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Zealous Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Zealous Elixir].RankName}
+	}
+	
+	/if (${Me.Level}>=92 && ${Me.Book[${Spell[Zealous Elixir].RankName}]})  {
+		/varset SingleElixirSpell ${Spell[Zealous Elixir].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Earnest Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Earnest Elixir].RankName}
+		/varset SingleElixirSpell ${Spell[Earnest Elixir].RankName}
 	} else /if (${Me.Level}>=82 && ${Me.Book[${Spell[Devout Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Devout Elixir].RankName}
+		/varset SingleElixirSpell ${Spell[Devout Elixir].RankName}
 	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Solemn Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Solemn Elixir].RankName}
+		/varset SingleElixirSpell ${Spell[Solemn Elixir].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Sacred Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Sacred Elixir].RankName}
+		/varset SingleElixirSpell ${Spell[Sacred Elixir].RankName}
 	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Pious Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Pious Elixir].RankName}
+		/varset SingleElixirSpell ${Spell[Pious Elixir].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Holy Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Holy Elixir].RankName}
+		/varset SingleElixirSpell ${Spell[Holy Elixir].RankName}
 	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Supernal Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Supernal Elixir].RankName}
+		/varset SingleElixirSpell ${Spell[Supernal Elixir].RankName}
 	} else /if (${Me.Level}>=59 && ${Me.Book[${Spell[Celestial Elixir].RankName}]})  {
-		/varset wardspell ${Spell[Celestial Elixir].RankName}
+		/varset SingleElixirSpell ${Spell[Celestial Elixir].RankName}
 	} else /if (${Me.Level}>=44 && ${Me.Book[${Spell[Celestial Healing].RankName}]})  {
-		/varset wardspell ${Spell[Celestial Healing].RankName}
+		/varset SingleElixirSpell ${Spell[Celestial Healing].RankName}
 	} else /if (${Me.Level}>=29 && ${Me.Book[${Spell[Celestial Health].RankName}]})  {
-		/varset wardspell ${Spell[Celestial Health].RankName}
+		/varset SingleElixirSpell ${Spell[Celestial Health].RankName}
 	} else /if (${Me.Level}>=19 && ${Me.Book[${Spell[Celestial Remedy].RankName}]})  {
-		/varset wardspell ${Spell[Celestial Remedy].RankName}
+		/varset SingleElixirSpell ${Spell[Celestial Remedy].RankName}
 	}
 |---Remedy Slot 2 and 3
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Merciful Remedy].RankName}]}) {
@@ -620,6 +570,13 @@ Sub CheckSpells
 	} else /if (${Me.Level}>=45 && ${Me.Book[${Spell[Blessing of Temperance].RankName}]})  {
 		/varset GroupHPBuff ${Spell[Blessing of Temperance].RankName}
 	}
+
+	/if (${Me.Level}>=86 && ${Me.Book[${Spell[Blessing of Will].RankName}]})  {
+		/varset CasterSpeedBuff ${Spell[Blessing of Will].RankName}
+	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Blessing of Loyalty].RankName}]})  {
+		/varset CasterSpeedBuff ${Spell[Blessing of Loyalty].RankName}
+	}
+
 |--Self Buff for Mana Regen and armor
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Armor of the Merciful].RankName}]})  {
 		/varset SelfBuff ${Spell[Armor of the Merciful].RankName}
