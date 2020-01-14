@@ -140,24 +140,6 @@ Sub hybrid_healer_limit(bool _debug)
 Sub Event_HybridHealerLimit(string line)
   /if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 40 
 /return ${HybridManaLimit}
-|-------------------------------------------------------------------------------------
-|- SUB: PlayersInGroup - Checking for PC vs Merc
-|-------------------------------------------------------------------------------------
-#Event CheckPlayersInGroup	"#*#has left the group#*#"
-#Event CheckPlayersInGroup	"#*#has joined the group#*#"
-Sub Event_CheckPlayersInGroup(string line)
-	/declare _count			    int local 0
-	/declare _playerCount 	int local 0
-
-	/for _count 1 to ${Group.Members}
-		/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-			/varcalc _playerCount ${_playerCount}+1
-		}
-	/next _count
-
-  /varcalc MercsInGroup ${Group.Members} - ${_playerCount}
-
-/return ${_playerCount}
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in raid
 |---------------------------------------------------------------------------- 

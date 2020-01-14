@@ -262,9 +262,9 @@ Sub mez_xtarget
 
 		| If not then target it
 		/target id ${Me.XTarget[${x}].ID}
-		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
-		
-		/delay 1s
+		/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		/delay 2s !${Me.Moving}
+		/delay 2s !${Me.Casting}
 
 		| If target is not tashed then tash
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {

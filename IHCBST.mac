@@ -184,7 +184,6 @@ Sub combat
 	}
 
 	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-
 		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 			/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
@@ -207,14 +206,15 @@ Sub debuff_xtarget
 	/declare x int local 1
 
 	/if (!${Me.XTarget}) /return
+	/if (${Me.XTarget} < 2) /return
 
 	/for x 1 to ${Me.XTarget}
 		
 		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /attack off
 		/target id ${Me.XTarget[${x}].ID}
-		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
-		
-		/delay 2s
+		/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		/delay 2s !${Me.Moving}
+		/delay 2s !${Me.Casting}
 
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
