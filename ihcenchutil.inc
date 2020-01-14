@@ -1032,6 +1032,8 @@ Sub SetEncSpells
 		/varset SingleHaste ${Spell[Speed of Milyex].RankName}
 	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Speed of Novak].RankName}]}) {
 		/varset SingleHaste ${Spell[Speed of Novak].RankName}
+	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Speed of Erradin].RankName}]}) {
+		/varset SingleHaste ${Spell[Speed of Erradin].RankName}
 	} else /if (${Me.Level}>=53 && ${Me.Book[${Spell[Aanya's Quickening].RankName}]}) {
 		/varset SingleHaste ${Spell[Aanya's Quickening].RankName}
 	}
