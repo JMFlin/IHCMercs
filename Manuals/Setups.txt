@@ -1,7 +1,7 @@
 Classes RAID
 
 1.
-war war war shm clr clr
+war war war clr clr clr
 war sk sk sk clr clr
 
 2.
@@ -17,17 +17,17 @@ ber ber ber bst brd shm
 
 Classes GROUP
 
-#1. war wiz wiz wiz ench clr 
-#2. war wiz wiz wiz ench clr 
+#1. war wiz wiz wiz ench clr
+#2. war wiz wiz wiz ench clr
 
 #3. sk wiz wiz wiz ench clr
-#4. sk wiz wiz wiz wiz dru 
+4. sk wiz wiz wiz wiz dru
 
-#5. sk ber ber ber brd dru
+5. sk ber ber ber brd dru
 #6. war ber ber ber brd clr
 
 
 #7. merc merc merc dru bst wiz
-8. merc merc merc dru bst wiz 
+#8. merc merc merc dru bst wiz 
 9. merc merc merc shm ber brd 
 10. merc merc merc shm ber wiz
