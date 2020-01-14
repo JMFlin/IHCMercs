@@ -158,9 +158,6 @@ Sub VarSetup
 	/declare AutoAssistAt 		int outer 0
 	/declare AssistRange 		int outer 0
 
-|- healing
-	/declare mercsInGroup		int outer 0
-
 |- sets 
 	/declare immuneSet			 set outer
 	/declare immuneSetIterator	 setiterator outer
@@ -2469,7 +2466,7 @@ Sub get_heal_target(int _hpLimit)
 	/declare _worstHurtId		int local 0
 	/declare _count		     	int local 0
 	
-	/if (${mercsInGroup}) {
+	/if (${Group.MercenaryCount}) {
 
 		| Includes mercs
 		/for _count 0 to ${Group}
