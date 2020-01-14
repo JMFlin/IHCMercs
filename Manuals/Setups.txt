@@ -21,7 +21,10 @@ Classes GROUP
 #2. war wiz wiz wiz ench clr
 
 #3. sk wiz wiz wiz ench clr
+
 4. sk wiz wiz wiz wiz dru
+OR
+4. sk mag mag mag mag dru
 
 5. sk ber ber ber brd dru
 #6. war ber ber ber brd clr
