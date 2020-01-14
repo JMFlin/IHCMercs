@@ -259,7 +259,12 @@ Sub combat
 
 	/call get_target
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[FALSE]}) {
+		/if (${validate_cast[FALSE, disc, "${JoltDisc}", ${Target.ID}]}) {
+			/call core_cast2 "${JoltDisc}" disc ${Target.ID} FALSE
+		} else {
+			/return
+	}
 
 	/call use_skill_melee FALSE ${Target.ID}
 

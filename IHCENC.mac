@@ -150,7 +150,17 @@ Sub debuff_xtarget
 		/if (!${Target.Buff[Mental Contortion].ID} && ${Target.Named}) {
 			/if (${validate_cast[FALSE, alt, "Mental Contortion", ${Target.ID}]}) /call core_cast2 "Mental Contortion" alt ${Target.ID} FALSE
 		}
+
+		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
+			
+			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
+			}
+		}
 		
+		/call mez_xtarget
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
 			
@@ -162,15 +172,7 @@ Sub debuff_xtarget
 		}
 		/call mez_xtarget
 
-		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
-			
-			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
-				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
-				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
-			}
-		}
-		/call mez_xtarget
+		
 
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 			
