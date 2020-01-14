@@ -186,35 +186,20 @@ Sub combat
 	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
 			/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-		
-			/doevents CAST_IMMUNE
-			/if (${Select[${castReturn},CAST_IMMUNE]}) {
-				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SnareSpell} \ax <<=
-				/varset snareImmuneID ${Target.ID}
-			}
+			/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
 		}
 	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) {
 			/call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
-			
-			/doevents CAST_IMMUNE
-			/if (${Select[${castReturn},CAST_IMMUNE]}) {
-				/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${RootSpell} \ax <<=
-				/varset snareImmuneID ${Target.ID}
-			}
+			/call check_cast_events "${RootSpell}" CAST_IMMUNE ${Target.ID}
 		}
 	}
 
-	/if (${Target.PctAggro} > 30) {
-		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
-	}
-
-|	/if (${Target.PctAggro} > 99) /return
 	/if (${Target.PctHPs} >= 100) /return
 
 	/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
-		}
+		/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
+	}
 
 	/if (${Me.Buff[Improved Twincast].ID}) {
 
@@ -258,6 +243,8 @@ Sub combat
 			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
 		}
 
+		/call manage_aggro
+
 		/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
 			/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
 		}
@@ -265,6 +252,8 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
 			/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
 		}
+
+		/call manage_aggro
 	}
 /return
 
@@ -323,20 +312,20 @@ Sub self_buff_check(bool _debug)
 	/if (${validate_cast[FALSE, alt, "${ACPyromancy}", ${Me.ID}]}) /call core_cast2 "${ACPyromancy}" alt ${Me.ID} FALSE
 
 	/if (${validate_cast[FALSE, FIND, "${FamiliarBuff}", ${Me.ID}]}) {
-			/call core_cast2 "${FamiliarBuff}" FIND ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
+		/call core_cast2 "${FamiliarBuff}" FIND ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
 
 	/if (${validate_cast[FALSE, FIND, "${SelfHPBuff}", ${Me.ID}]}) {
-			/call core_cast2 "${SelfHPBuff}" FIND ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
+		/call core_cast2 "${SelfHPBuff}" FIND ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
 
 	/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
-			/call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
-	
+		/call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
+
 	/if (${CastCheck}) {
 		/call LoadSpellBar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
@@ -352,21 +341,13 @@ Sub BurnRoutine
 |----------------------------------------------------------------------------
 |- SUB: ManageAggro
 |---------------------------------------------------------------------------- 
-Sub ManageAggro
+Sub manage_aggro
 	
-/return
-|----------------------------------------------------------------------------
-|- SUB: global_cooldown_spells - Cast between spell casts (Weave)
-|---------------------------------------------------------------------------- 
-Sub global_cooldown_spells
-	/if (${Me.AltAbilityReady[Force of Flame]} && ${Me.AltAbility[Force of Flame].Rank} >= 1) {
-		/alt act ${Me.AltAbility[Force of Flame].ID}
-	}
-	/if (${Me.AltAbilityReady[Force of Ice]} && ${Me.AltAbility[Force of Ice].Rank} >= 1) {
-		/alt act ${Me.AltAbility[Force of Ice].ID}
-	}
-	/if (${Me.AltAbilityReady[Force of Will]} && ${Me.AltAbility[Force of Will].Rank} >= 1) {
-		/alt act ${Me.AltAbility[Force of Will].ID}
+	/if (${Target.PctHP} < 35) /return
+	/if (${Me.Buff[Twincast].ID}) /return
+
+	/if (${Target.PctAggro} > 30) {
+		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
 	}
 /return
 |----------------------------------------------------------------------------

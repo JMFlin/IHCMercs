@@ -60,6 +60,7 @@ Sub WizSetup
 	/declare HarvestSpell1			string 	outer	"NULL"
 	/declare StunSpell				string 	outer	"NULL"
 	/declare JoltSpell				string 	outer	"NULL"
+	/declare RuneGuardSpell 		string  outer 	"NULL"
 |-Config Options	
 	/call LoadCommonConfig
 	/call LoadIni Combat AllowMezBreak		 	int 0
@@ -652,6 +653,10 @@ Sub SetWizSpells
 	/if (!${Me.Book[${FuseNuke}]}) {
 		/varset FuseNuke ${ColdEtherealNuke}
 	}
+
+	/if (${Me.Level}>=83 && ${Me.Book[${Spell[Nethermist Guard].RankName}]}) {
+		/varset RuneGuardSpell ${Spell[Nethermist Guard].RankName}
+	} 
 
 |-EvacSpell
 	/if (${Me.Level}>=57 && ${Me.Book[${Spell[Evacuate].RankName}]}) {

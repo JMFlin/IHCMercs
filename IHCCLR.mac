@@ -242,11 +242,24 @@ Sub group_buffs
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupBuff}].Stacks" "tmpstackcheck" "bool"
-				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${GroupBuff}]} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana} && !${Me.Casting.ID}) {
-					/echo ${Group.Member[${_count}].Name} does not have aego in tmpbuffid ${tmpbuffid} and aegoid ${tmpaegoid}
+				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid}) {
 					/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${GroupBuff}" spell ${Group.Member[${_count}].ID} FALSE
 					/varset CastCheck 1
 				}
+			}
+
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupVieBuff}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupVieBuff}].Stacks" "tmpstackcheck" "bool"
+			/if (${tmpstackcheck} && !${tmpbuffid}) {
+				/if (${validate_cast[FALSE, spell, ${GroupVieBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${GroupVieBuff}" spell ${Group.Member[${_count}].ID} FALSE
+				/varset CastCheck 1
+			}
+
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${CasterSpeedBuff}].ID" "tmpbuffid" "int"
+			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${CasterSpeedBuff}].Stacks" "tmpstackcheck" "bool"
+			/if (${tmpstackcheck} && !${tmpbuffid} && !${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+				/if (${validate_cast[FALSE, spell, ${CasterSpeedBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${CasterSpeedBuff}" spell ${Group.Member[${_count}].ID} FALSE
+				/varset CastCheck 1
 			}
 
 			/if (${Me.CurrentMana}>${Spell[${TankBuff}].Mana} && ${Group.Member[${_count}].ID}==${Group.MainTank.ID} && !${Me.Casting.ID} && ${Me.Book[${TankBuff}]}) {
@@ -284,15 +297,47 @@ Sub group_buffs
 |- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
 Sub single_target_heals
+	/declare _worstHurtId int local0
+
+	/call get_heal_target ${patchhealpoint}
+	/varset _worstHurtId ${Macro.Return}
+	/if (${_worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${patchheal}", ${_worstHurtId}]}) {
+			/call core_cast2 "${patchheal}" spell ${_worstHurtId} FALSE
+		}
+	}
 
 	/call get_heal_target 85
-	/declare _worstHurtId int local ${Macro.Return}
-
+	/varset _worstHurtId ${Macro.Return}
 	/if (${_worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${remedyheal1}", ${_worstHurtId}]}) {
 			/call core_cast2 "${remedyheal1}" spell ${_worstHurtId} FALSE
 		}
 	}
+
+	/if (${Me.XTarget}) {
+
+		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${promheal}].ID" "promisedHeal" "int"
+
+		/if (!${promisedHeal}) {
+			/if (${validate_pre_heal_target[95]}) {
+				/if (${validate_cast[FALSE, spell, "${promheal}", ${Group.MainTank.ID}]}) {
+					/call core_cast2 "${promheal}" spell ${Group.MainTank.ID} FALSE
+				}
+			}
+		}
+
+		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
+
+		/if (!${elixirHeal}) {
+			/if (${validate_pre_heal_target[95]}) {
+				/if (${validate_cast[FALSE, spell, "${SingleElixirSpell}", ${Group.MainTank.ID}]}) {
+					/call core_cast2 "${SingleElixirSpell}" spell ${Group.MainTank.ID} FALSE
+				}
+			}
+		}
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: group_heals

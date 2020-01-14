@@ -162,7 +162,7 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.PctHPs} < 90) {
+	/if (${Me.PctHPs} < 95) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 	/doevents
@@ -186,63 +186,67 @@ Sub DoDisc
 
 	/if (!${validate_combat[FALSE]}) /return
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${IchorGuardDisc}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3))) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
-				/delay 5 !${Me.ActiveDisc.ID}
-				/disc ${IchorGuardDisc}
-				/delay 5
+				/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Target.ID}]}) {
+					/call core_cast2 "${IchorGuardDisc}" disc ${Target.ID} FALSE
+				}
 			}
 		} else {
-			/disc ${IchorGuardDisc}
-			/delay 5
+			/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Target.ID}]}) {
+				/call core_cast2 "${IchorGuardDisc}" disc ${Target.ID} FALSE
+			}
 		}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${LeechcurseDisc}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3))) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
-				/delay 5 !${Me.ActiveDisc.ID}
-				/disc ${LeechcurseDisc}
-				/delay 5
+				/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Target.ID}]}) {
+					/call core_cast2 "${LeechcurseID}" disc ${Target.ID} FALSE
+				}
 			}
 		} else {
-			/disc ${LeechcurseDisc}
-			/delay 5
+			/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Target.ID}]}) {
+				/call core_cast2 "${LeechcurseID}" disc ${Target.ID} FALSE
+			}
 		}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3)) &&  ${Me.CombatAbilityReady[${UnholyAuraDisc}]}) {
+	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3))) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
-				/delay 5 !${Me.ActiveDisc.ID}
-				/disc ${UnholyAuraDisc}
-				/delay 5
+				/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Target.ID}]}) {
+					/call core_cast2 "${UnholyAuraDisc}" disc ${Target.ID} FALSE
+				}
 			}
 		} else {
-			/disc ${UnholyAuraDisc}
-			/delay 5
+			/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Target.ID}]}) {
+				/call core_cast2 "${UnholyAuraDisc}" disc ${Target.ID} FALSE
+			}
 		}
 	}
 
-	/if (${Me.PctHPs} < 30 && ${Me.CombatAbilityReady[${DeflectionDisc}]}) {
+	/if (${Me.PctHPs} < 30) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
 				/stopdisc
-				/delay 5 !${Me.ActiveDisc.ID}
-				/disc ${DeflectionDisc}
-				/delay 5
+				/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Target.ID}]}) {
+					/call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
+				}
 			}
 		} else {
-			/disc ${DeflectionDisc}
-			/delay 5
+			/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Target.ID}]}) {
+				/call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
+			}
 		}
 	}
 	

@@ -158,9 +158,6 @@ Sub VarSetup
 	/declare AutoAssistAt 		int outer 0
 	/declare AssistRange 		int outer 0
 
-|- healing
-	/declare mercsInGroup		int outer 0
-
 |- sets 
 	/declare immuneSet			 set outer
 	/declare immuneSetIterator	 setiterator outer
@@ -624,6 +621,7 @@ Sub Travel
 		/stopsong
 		/melody 3 1
 	}
+	/call misc
 /return
 |----------------------------------------------------------------------------
 |- SUB: puller_check_group_resources
@@ -1830,9 +1828,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				| set delays for casting. GTFO out of this as fast as possible
 				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
 
-				/if (${Select[${Me.Class.ShortName},WIZ]} && ${Me.SpellInCooldown}) {
-					/call global_cooldown_spells
-				}
+				/if (${Me.SpellInCooldown}) /call global_cooldown_spells
 
 				| delay for longer casts if there is any, cooldowns or open spell cast windows
 				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) {
@@ -2038,6 +2034,26 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	}
 
 /return FALSE
+
+|----------------------------------------------------------------------------
+|- SUB: global_cooldown_spells - Cast between spell casts (Weave)
+|---------------------------------------------------------------------------- 
+Sub global_cooldown_spells
+| ${Me.AltAbility[Force of Flame].Rank} >= 1
+
+	/if (${validate_cast[FALSE, alt, Force of Flame, ${Target.ID}]}) {
+		/alt act ${Me.AltAbility[Force of Flame].ID}
+		/return
+	}
+	/if (${validate_cast[FALSE, alt, Force of Ice, ${Target.ID}]}) {
+		/alt act ${Me.AltAbility[Force of Ice].ID}
+		/return
+	}
+	/if (${validate_cast[FALSE, alt, Force of Will, ${Target.ID}]}) {
+		/alt act ${Me.AltAbility[Force of Will].ID}
+		/return
+	}
+/return
 
 |***
  *	DES: process casting results from core_ cast2()
@@ -2451,7 +2467,7 @@ Sub get_heal_target(int _hpLimit)
 	/declare _worstHurtId		int local 0
 	/declare _count		     	int local 0
 	
-	/if (${mercsInGroup}) {
+	/if (${Group.MercenaryCount}) {
 
 		| Includes mercs
 		/for _count 0 to ${Group}
@@ -2475,6 +2491,30 @@ Sub get_heal_target(int _hpLimit)
 	}
 
 /return ${_worstHurtId}
+
+Sub validate_pre_heal_target(int _hpLimit)
+
+	/declare _count		     	int local 0
+	
+	/for _count 0 to ${Group}
+	
+		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+
+		/if (${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+			
+			/if (${Group.Member[${_count}].Distance} > 200) /return FALSE
+
+			/if (${Group.Member[${_count}].PctHPs} >= ${_hpLimit}) {
+				/return TRUE
+			} else {
+				/return FALSE
+			}
+		}
+
+	/next _count
+
+/return FALSE
+
 
 |***
  *	DES: check  health
