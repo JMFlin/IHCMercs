@@ -343,7 +343,7 @@ Sub BurnRoutine
 |---------------------------------------------------------------------------- 
 Sub manage_aggro
 	
-	/if (${Target.PctHP} < 35) /return
+	/if (${Target.PctHPs} < 35) /return
 	/if (${Me.Buff[Twincast].ID}) /return
 
 	/if (${Target.PctAggro} > 30) {
