@@ -297,7 +297,7 @@ Sub group_buffs
 |- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
 Sub single_target_heals
-	/declare _worstHurtId int local0
+	/declare _worstHurtId int local 0
 
 	/call get_heal_target ${patchhealpoint}
 	/varset _worstHurtId ${Macro.Return}
