@@ -732,14 +732,9 @@ Sub afk_pull
 	} else {
 		/target id ${PullTargetID}
 	}
-<<<<<<< HEAD
-	/delay 3s
-
-=======
 
 	/delay 3s !${Me.Moving}
 	
->>>>>>> 54b2fd0b30802f89b0c717c6a5e479cd82049236
 	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget}) {
 		/attack on
 		/doevents
