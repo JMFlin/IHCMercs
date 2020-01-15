@@ -32,7 +32,6 @@ Sub Main
 	/call WelcomeMsg
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
-	
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -264,6 +263,7 @@ Sub combat
 			/call core_cast2 "${JoltDisc}" disc ${Target.ID} FALSE
 		} else {
 			/return
+		}
 	}
 
 	/call use_skill_melee FALSE ${Target.ID}

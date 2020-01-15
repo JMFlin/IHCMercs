@@ -6,6 +6,16 @@
 |- Updated: 4/25/2019
 |- Modified version of the above file to maintain compatability with the automac's / kissassist
 |- Modified to fit the IHC mac's and mod's better
+
+
+|**
+IDEAS:
+
+Replace SpawnSort with NearestSpawn like in HUD?
+
+
+
+**|
 #bind Campfire       /campfire
 #bind GroupBehindMe  /rallybehind
 #bind GroupFrontFace /rallyfront
@@ -194,7 +204,7 @@ Sub setup_plugins
 	/call CheckPlugin MQ2Hud
 	/call CheckPlugin MQ2EasyFind
 	/call CheckPlugin MQ2SpawnSort
-	/call CheckPlugin MQ2Worsthurt
+	|/call CheckPlugin MQ2Worsthurt
 	/call CheckPlugin MQ2Yes
 	/call CheckPlugin MQ2sqlite
 	/call CheckPlugin MQ2Collections
@@ -2461,7 +2471,7 @@ sub check_hurt(bool _debug, string _type, int _hpLimit)
  *	DES: check  health
  *	USE: /call check_hurt [DEBUG T/F] [group|pet|xtarget|self|mypet]} || ${check_hurt[DEBUG, group|pet|xtarget|self|mypet]}
  *	NOTE: shared by PAL,DRU,CLR,SHM this returns the # of "hurt" for the group check you request as the pass/fail marker
- ***|
+
 Sub get_heal_target(int _hpLimit)
 
 	/declare _worstHurtId		int local 0
@@ -2489,6 +2499,27 @@ Sub get_heal_target(int _hpLimit)
 			/varset _worstHurtId ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
 		}
 	}
+
+/return ${_worstHurtId}
+ ***|
+
+Sub get_heal_target(int _hpLimit)
+
+	/declare _worstHurtId		int local 0
+	/declare _count		     	int local 0
+	
+	/for _count 0 to ${Group}
+	
+		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+	
+		/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
+
+		/if (${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
+			/varset _worstHurtId ${Group.Member[${_count}].ID}
+			/varset _hpLimit ${Group.Member[${_count}].PctHPs}
+		}
+
+	/next _count
 
 /return ${_worstHurtId}
 
