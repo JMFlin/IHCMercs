@@ -245,8 +245,8 @@ Sub CombatBuffs
 		/call AANow ${Me.AltAbility[Warlord's Bravery].ID}
 	}
 
-	/if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Fundament: Third Spire of the Warlord].ID} && !${Me.Buff[Fundament: Third Spire of Divinity].ID} && ${Me.AltAbilityReady[Fundament: Third Spire of the Warlord]}) {
-		/call AANow ${Me.AltAbility[Fundament: Third Spire of the Warlord].ID}
+	/if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Spire of the Warlord].ID} && ${Me.AltAbilityReady[Spire of the Warlord]}) {
+		/call AANow ${Me.AltAbility[Spire of the Warlord].ID}
 	}
 
 	|-- Defensive buffs based on health
@@ -258,6 +258,10 @@ Sub CombatBuffs
 	} 
 	/if (${Me.AltAbilityReady[Imperator's Charge]} && (${Me.PctHPs} < 45 || ${Target.Named}) && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Imperator's Charge].ID}
+		/if (${Me.AltAbilityReady[Resplendent Glory]}) {
+			/call AANow ${Me.AltAbility[Resplendent Glory].ID}
+		}
+	} else /if (${Me.PctHPs} < 45 || ${Target.Named}) {
 		/if (${Me.AltAbilityReady[Resplendent Glory]}) {
 			/call AANow ${Me.AltAbility[Resplendent Glory].ID}
 		}
@@ -337,6 +341,10 @@ Sub get_aggro
 
 	/call use_skill_melee FALSE ${Target.ID}
 
+	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
+		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
+	}
+
 	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${shout}]} && ${Target.PctHPs}>1) {
 		/call DiscNow "${shout}"
 	}
@@ -359,7 +367,7 @@ Sub get_aggro
 		/call AANow ${Me.AltAbility[Knee Strike].ID}
 	}
 
-	/if ((${Target.Named} || ${Me.PctHPs} < 51) && ${Me.PctEndurance}>30 && ${Me.CombatAbilityReady[${knuckle}]} && ${Target.PctHPs}>1) {
+	/if ((${Target.Named} || ${Me.PctHPs} < 61) && ${Me.CombatAbilityReady[${knuckle}]} && ${Target.PctHPs}>1) {
 		/call DiscNow ${knuckle}
 	}
 	/if (${Me.CombatAbilityReady[${StrikeDisc}]} && ${Target.PctHPs}>1) {
@@ -375,7 +383,7 @@ Sub get_aggro
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
-	/if (${SpawnCount[NPC radius 45 zradius 45]}<2 && ${Me.AbilityReady[Rampage]} && ${Target.PctHPs}>1) {
+	/if (${SpawnCount[NPC radius 45 zradius 45 noalert 1]}<2 && ${Me.AbilityReady[Rampage]} && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Rampage].ID}
 	}
 
@@ -402,10 +410,6 @@ Sub get_aggro
 	}
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
-
-	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
-		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
-	}
 
 	/if (${Me.CombatAbilityReady[${tongue}]} && ${Me.SecondaryPctAggro}>10) {
 		/call DiscNow "${tongue}"

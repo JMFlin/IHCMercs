@@ -422,6 +422,8 @@ Sub check_state(bool _debug)
 	| should I be in battle?
 	/if (${Me.XTarget}) /return
 
+	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+
 	| if stick is on we can turn it off
 	/if (${Stick.Status.Equal[ON]}) /stick off
 
@@ -436,8 +438,6 @@ Sub check_state(bool _debug)
 
 	| check pet
 	/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
-
-	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 
 	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
 		
@@ -546,29 +546,12 @@ Sub RemoveTravelBuffs
 Sub Engage
 
 	/if (!${validate_combat[FALSE]}) /return
-
+	/if (!${validate_target_distance[FALSE]}) /return
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
 	| engage if target is close enough
 	
-	
 	/if (${Target.ID}) /face fast
-
-	/if (!${check_target_distance[FALSE]}) /return
-
-	/if (!${Spawn[id ${Target.ID}].LineOfSight}) {
-		/if (${Stick.Active}) /stick off
-		/nav id ${Target.ID}
-	}
-
-	/while (${Navigation.Active}) {
-		/delay 5
-		/if (!${check_target_distance[FALSE]}) {
-			/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/return
-		}
-		/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight}) /nav stop
-	}
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
 		/if (!${Stick.Active}) /stick 12 moveback loose
@@ -584,7 +567,7 @@ Sub Engage
 
 /return
 
-sub check_target_distance(bool _debug)
+sub validate_target_distance(bool _debug)
 	/if (${Target.Distance} > 200) {
 		/if (${Stick.Active}) /stick off
 		/if (${Navigation.Active}) /nav stop
@@ -702,6 +685,7 @@ Sub afk_pull
 	/if (!${Navigation.MeshLoaded}) /return
 	/if (${ResourceChecker} == 0) /return
 	/if (${Me.Snared.ID}) /return
+	/if (${Me.PctHPs} < 90) /return
 
 	/if (!${PullAbility.Equal[Melee]}) {
 		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return
@@ -1408,6 +1392,11 @@ sub validate_combat(bool _debug)
 	|/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 
+	/if (!${Spawn[id ${Target.ID}].LineOfSight} && ${Navigation.PathLength[id ${Target.ID}]} < ${AssistRange}) {
+		/if (${Stick.Active}) /stick off
+		/nav id ${Target.ID}
+	}
+
 	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/if (${Target.PctHPs} > ${AutoAssistAt}) /return FALSE
 		/if (${Target.Mezzed.ID}) /return FALSE
@@ -1416,12 +1405,14 @@ sub validate_combat(bool _debug)
 			/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 			/return FALSE
 		}
-		/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 65) || ${Navigation.PathLength[id ${Target.ID}]} < ${AssistRange}) {
+	}
+
+	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 65) || ${Navigation.PathLength[id ${Target.ID}]} < ${AssistRange}) {
 			/return TRUE
 		} else {
 			/return FALSE
 		}
-	}
+
 /return TRUE
 |-------------------------------------------------------------------------------- 
 | Sub DummyMode
@@ -2574,7 +2565,7 @@ sub setup_skill_melee(bool _debug)
 	}
 
 	/if (${Select[${Me.Class.ShortName},WIZ,ENC,DRU,MAG]}) {
-		/varset AutoAssistAt 100
+		/varset AutoAssistAt 99
 		/varset AssistRange 100
 	}
 
