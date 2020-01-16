@@ -143,8 +143,8 @@ Sub LoadSpellBar
 		}
 
 
-		/if (${Me.Book[${SnareSpell}]}) {
-			/call LoadSpellGem "${SnareSpell}" 5
+		/if (${Me.Book[${SelfRune1}]}) {
+			/call LoadSpellGem "${SelfRune1}" 5
 		} else /if (${Me.Book[${RootSpell}]}) {
 			/call LoadSpellGem "${RootSpell}" 5
 		}

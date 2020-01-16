@@ -320,10 +320,18 @@ Sub single_target_heals
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${promheal}].ID" "promisedHeal" "int"
 
 		/if (!${promisedHeal}) {
-			/if (${validate_pre_heal_target[95]}) {
+			/if (${validate_pre_heal_target[55]}) {
 				/if (${validate_cast[FALSE, spell, "${promheal}", ${Group.MainTank.ID}]}) {
 					/call core_cast2 "${promheal}" spell ${Group.MainTank.ID} FALSE
 				}
+			}
+		}
+
+		/call get_heal_target 85
+		/varset _worstHurtId ${Macro.Return}
+		/if (${_worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${remedyheal1}", ${_worstHurtId}]}) {
+				/call core_cast2 "${remedyheal1}" spell ${_worstHurtId} FALSE
 			}
 		}
 

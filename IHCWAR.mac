@@ -350,7 +350,7 @@ Sub get_aggro
 	/if (${Me.AltAbilityReady[Rage of the Forsaken]} && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Rage of the Forsaken].ID}
 	}
-	/if (!${Target.Buff[Sarnak Finesse].ID} && ${Me.Endurance}>500  && ${Target.PctHPs}>1) {
+	/if (${Me.CombatAbilityReady[${shieldhit}]} && !${Target.Buff[Sarnak Finesse].ID} && ${Me.Endurance}>500  && ${Target.PctHPs}>1) {
 		/call DiscNow "${shieldhit}"
 	}
 

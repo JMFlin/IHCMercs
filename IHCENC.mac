@@ -126,7 +126,9 @@ Sub ManualRunAndGun
 Sub debuff_xtarget
 	/declare x int local 1
 
+	| Is there something to mez?
 	/if (!${Me.XTarget}) /return
+	/if (${Me.XTarget} < 2) /return
 
 	/for x 1 to ${Me.XTarget}
 
@@ -141,7 +143,7 @@ Sub debuff_xtarget
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
-		/call mez_xtarget
+		/call mezz_xtarget
 
 		/if (!${Target.Buff[${DoTSpell3}].ID} && ${Target.Named}) {
 			/if (${validate_cast[FALSE, spell, "${DoTSpell3}", ${Target.ID}]}) /call core_cast2 "${DoTSpell3}" spell ${Target.ID} FALSE
@@ -151,18 +153,18 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, alt, "Mental Contortion", ${Target.ID}]}) /call core_cast2 "Mental Contortion" alt ${Target.ID} FALSE
 		}
 
-		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID}) {
+		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
 				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-		
-		/call mez_xtarget
+
+		/call mezz_xtarget
 		| How will you handle the AA?
-		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID}) {
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
@@ -170,7 +172,7 @@ Sub debuff_xtarget
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-		/call mez_xtarget
+		/call mezz_xtarget
 
 		
 
@@ -181,7 +183,7 @@ Sub debuff_xtarget
 				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 			}
 		}
-		/call mez_xtarget
+		/call mezz_xtarget
 
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 |				/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
@@ -211,9 +213,9 @@ Sub debuff_xtarget
 	/next x
 /return
 |----------------------------------------------------------------------------
-|- SUB: mez_xtarget
+|- SUB: mezz_xtarget
 |---------------------------------------------------------------------------- 
-Sub mez_xtarget
+Sub mezz_xtarget
 	/declare x				 	int local 1
 	/declare numberOfSpawn 	 	int local 0
 	/declare closestMezzTarget 	int local 0
@@ -314,7 +316,7 @@ Sub AANDisc
 Sub combat
 
 	| Before debuffing and nuking check if we have to mezz
-	/call mez_xtarget
+	/call mezz_xtarget
 
 	| Before nuking check if we have to debuff
 	/call debuff_xtarget
@@ -336,7 +338,7 @@ Sub combat
 		}
 	}
 
-	/call mez_xtarget
+	/call mezz_xtarget
 
 	/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
@@ -346,7 +348,7 @@ Sub combat
 
 	/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
 	
-	/call mez_xtarget
+	/call mezz_xtarget
 
 	/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
 

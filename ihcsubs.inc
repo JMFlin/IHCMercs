@@ -6,10 +6,24 @@
 |- Updated: 4/25/2019
 |- Modified version of the above file to maintain compatability with the automac's / kissassist
 |- Modified to fit the IHC mac's and mod's better
+
+
+|**
+IDEAS:
+
+Replace SpawnSort with NearestSpawn like in HUD?
+
+DO THIS:
+Bring back your own old PathLength code?
+
+
+
+**|
 #bind Campfire       /campfire
 #bind GroupBehindMe  /rallybehind
 #bind GroupFrontFace /rallyfront
 #bind KillMATarget   /killtarget
+#bind ad /ad
 |----------------------------------------------------------------------------
 |- SUB: Compatibility with KissAssist Aliases Old and New
 |----------------------------------------------------------------------------
@@ -194,12 +208,13 @@ Sub setup_plugins
 	/call CheckPlugin MQ2Hud
 	/call CheckPlugin MQ2EasyFind
 	/call CheckPlugin MQ2SpawnSort
-	/call CheckPlugin MQ2Worsthurt
+	|/call CheckPlugin MQ2Worsthurt
 	/call CheckPlugin MQ2Yes
 	/call CheckPlugin MQ2sqlite
 	/call CheckPlugin MQ2Collections
 	/call CheckPlugin MQ2Chatwnd
 	/call CheckPlugin MQ2AutoClaim
+	/call CheckPlugin MQ2IniX
 	/call UnCheckPlugin MQ2Twist
 	/call UnCheckPlugin MQ2Cast
 	/call UnCheckPlugin MQ2Exchange
@@ -676,6 +691,7 @@ Sub check_add_aggro
 
 /return
 |----------------------------------------------------------------------------
+<<<<<<< HEAD
 |- SUB: AddToAlert
 |---------------------------------------------------------------------------- 
 Sub AddToAlert
@@ -692,15 +708,17 @@ Sub AddToAlert
 	/next i
 /return
 |----------------------------------------------------------------------------
+=======
+>>>>>>> f9770cb4d68caefe266c3d8ed9ff763485fc853b
 |- SUB: AFKPull
 |---------------------------------------------------------------------------- 
 Sub afk_pull
 	/declare PullTargetID 	int local 0
 
 	/if (${Me.XTarget}) /return
-	/if (!${Group.Puller.ID} == ${Me.ID}) /return
 	/if (${Me.Casting.ID}) /return
-
+	/if (!${Group.Puller.ID} == ${Me.ID}) /return
+	/if (!${Navigation.MeshLoaded}) /return
 	/if (${ResourceChecker} == 0) /return
 	/if (${Me.Snared.ID}) /return
 
@@ -712,16 +730,21 @@ Sub afk_pull
 	
 	/if (!${PullTargetID}) /return
 
-	/if (${Navigation.MeshLoaded} && (${Spawn[id ${PullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight})) {
+	/if (${Spawn[id ${PullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight}) {
 		/nav id ${PullTargetID}
 		/while (${Navigation.Active}) {
 
-			/if (${Spawn[id ${PullTargetID}].LineOfSight}) /target id ${PullTargetID}
-			/if (${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
-				/target clear
-				/nav stop
-				/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
-				/varset PullTargetID ${SpawnSort[2,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
+			/if (${Spawn[id ${PullTargetID}].LineOfSight}) {
+				/target id ${PullTargetID}
+				/delay 1s ${Target.ID} == ${PullTargetID}
+				/if (${Target.ID} == ${PullTargetID}) {
+					/if (${validate_mob[${PullTargetID}]}) {
+						/nav stop
+						/target clear
+						/varset PullTargetID ${NearestSpawn[2, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
+						/nav id ${PullTargetID}
+					}
+				}
 			}
 			
 			/if (${Navigation.Active} && ${Me.XTarget}) /nav stop
@@ -733,11 +756,11 @@ Sub afk_pull
 
 	/delay 3s !${Me.Moving}
 	
-	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget}) {
+	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 		/attack on
 		/doevents
 		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
-	} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget}) {
+	} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
 	}
 	
@@ -754,6 +777,19 @@ Sub afk_pull
 	/if (${Defined[PathLength]}) /deletevar PathLength
 	/delay 5
  /return
+
+ Sub validate_mob(int _tmpID)
+	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
+	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
+	/declare _groupCount	int local	${SpawnCount[loc ${locX} ${locY} radius 75 pc group notid ${Me.ID}]}
+	/declare _pcCount		int local 	${SpawnCount[loc ${locX} ${locY} radius 75 pc notid ${Me.ID}]}
+	
+	/varcalc _pcCount ${_pcCount} - ${_groupCount}
+
+	/if (${_pcCount} > 0) /return TRUE
+	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /return TRUE
+
+/return FALSE
 |----------------------------------------------------------------------------
 |- SUB: MoveToCamp
 |---------------------------------------------------------------------------- 
@@ -787,7 +823,7 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 		/if (${Stick.Status.Equal[ON]}) /stick off
 		/nav locxyz ${Xloc} ${Yloc} ${Zloc}
 		:movinghome
-			/if (${Mode}==0) {
+			/if (${Mode} == 0) {
 				/nav stop
 				/return
 			}
@@ -839,18 +875,16 @@ Sub pet_attack
 	/if (${petFollow}) /varset petFollow 0
 	/if (!${validate_combat[FALSE]}) /return
 
-	/if (${Target.PctHPs} < 94 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 35) || ${Navigation.PathLength[id ${Target.ID}]} < 55) {
-
-		|- Spirit call
-		/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
-			/if (!${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /alt act 177
-			/delay 2
-		}
-		/if (!${Me.Pet.Combat}) {
-			/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet attack 
-			/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet swarm
-		}
+	|- Spirit call
+	/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
+		/if (!${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /alt act 177
+		/delay 2
 	}
+	/if (!${Me.Pet.Combat}) {
+		/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet attack 
+		/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet swarm
+	}
+
 	/if (!${Spawn[${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
 	/if (${Spawn[${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
 /return
@@ -889,64 +923,6 @@ sub check_buffs_mgb(bool _debug)
 	/if (${validate_cast[FALSE, spell, "${BuffMGBname}", ${Me.ID}]}) /call core_cast2 "${BuffMGBname}" ${buffgem} ${Me.ID} FALSE
 
 /return
-
-|----------------------------------------------------------------------------  
-|- SUB: SetControlToon
-|----------------------------------------------------------------------------
-Sub SetControlToon
-	|-Set Main Assist/Tank
-	/if (${Target.ID}) {
-		/if (${Target.Type.Equal[Pet]}) {
-			/varset TnKCond .Pet.
-			/varset PetTank 1
-			/varset assistname 	${Target.Master.Name}
-		} else {
-			/varset PetTank 0
-			/varset assistname 	${Target.Name}
-		}
-		/varset assistid 	${Target.ID}
-		/varset MainAssistType ${Target.Type}
-	} else /if (${Group}) {
-		/if (${Group.MainAssist.ID}) {
-			/echo \aw No Target Selected - Switching Group Main Assist
-			/target id ${Group.MainAssist.ID}
-			/delay 1s ${Target.ID}
-			/if (${Target.Type.Equal[Pet]}) {
-				/varset TnKCond .Pet.
-				/varset PetTank 1
-				/varset assistname ${Target.Master.Name}
-			} else {
-				/varset PetTank 0
-				/varset assistname ${Target.Name}
-			}
-		} else {
-			/echo \aw No Target Selected - Switching to First Group Member
-			/squelch /keypress f2
-			/delay 1s ${Target.ID}
-			/if (${Target.Type.Equal[Pet]}) {
-				/varset TnKCond .Pet.
-				/varset PetTank 1
-				/varset assistname ${Target.Master.Name}
-			} else {
-				/varset PetTank 0
-				/varset assistname ${Target.Name}
-			}
-		}
-		/varset assistid  ${Target.ID}
-		/varset MainAssistType ${Target.Type}
-	} else /if (${Me.Class.ShortName.Equal[ENC]}) {
-		/beep
-		/echo \aw This Macro Requires a Group or Player Target at Start up
-		/echo \aw Ending Macro
-		/endmac
-	} else {
-		/echo \aw No Group or Target - Switching to Self Assist mode
-		/varset assistname		${Me.Name}
-		/varset MainAssistType 	${Me.Type}
-		/varset assistid 		${Me.ID}
-	}
-	|- /if (${Group.Member[${assistname}].ID} && ${Group.Leader.ID}==${Me.ID} && ${Group.MainAssist.ID}!=${assistid}) /grouproles set ${Group.Member[${assistname}].ID} 2 
-/return 
 |----------------------------------------------------------------------------
 |- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
 |----------------------------------------------------------------------------
@@ -2395,21 +2371,21 @@ sub check_hurt(bool _debug, string _type, int _hpLimit)
 	| check xtarget hurt
 	} else /if (${_type.Equal[xtarget]}) {
 		/for _count 1 to ${Me.XTargetSlots}
-	  	/if (!${Me.XTarget[${_count}].ID}) /continue
-	  	/if (${Me.XTarget[${_count}].Dead}) /continue
-	  	/if (${Me.XTarget[${_count}].PctHPs} > ${hurtPctHP}) /continue
-	  	/if (${Me.XTarget[${_count}].Distance} > ${setMobAgro}) /continue
-			/if (${Me.XTarget[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
-			/if (${lstNoHeal.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
-	  	/if (!${Me.XTarget[${_count}].Type.Equal[PC]} && !${ProtectNPCList.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
-			/if (${Me.XTarget[${_count}].PctHPs} > ${${Me.XTarget[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
+			/if (!${Me.XTarget[${_count}].ID}) /continue
+			/if (${Me.XTarget[${_count}].Dead}) /continue
+			/if (${Me.XTarget[${_count}].PctHPs} > ${hurtPctHP}) /continue
+			/if (${Me.XTarget[${_count}].Distance} > ${setMobAgro}) /continue
+				/if (${Me.XTarget[${_count}].DisplayName.Equal[${RampageTank}]}) /continue
+				/if (${lstNoHeal.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
+			/if (!${Me.XTarget[${_count}].Type.Equal[PC]} && !${ProtectNPCList.Find[${Me.XTarget[${_count}].DisplayName}]}) /continue
+				/if (${Me.XTarget[${_count}].PctHPs} > ${${Me.XTarget[${_count}].Class.ShortName}Point}*.${tmpHealOverride}) /continue
 
-			/varset hurtID ${Me.XTarget[${_count}].ID}
-			/varset hurtPctHP ${Me.XTarget[${_count}].PctHPs}
-			/varset hurtCLS ${Me.XTarget[${_count}].Class.ShortName}
-			/varcalc hurtCount ${hurtCount}+1
+				/varset hurtID ${Me.XTarget[${_count}].ID}
+				/varset hurtPctHP ${Me.XTarget[${_count}].PctHPs}
+				/varset hurtCLS ${Me.XTarget[${_count}].Class.ShortName}
+				/varcalc hurtCount ${hurtCount}+1
 
-	  /next _count
+		/next _count
 	  /return ${hurtCount}
 	  
 	  
@@ -2417,31 +2393,30 @@ sub check_hurt(bool _debug, string _type, int _hpLimit)
 	} else /if (${_type.Equal[pet]}) {
 		/for _count 0 to ${Group}
 			/if (!${Group.Member[${_count}].Pet.ID}) /continue
-	    /if (${Group.Member[${_count}].Pet.PctHPs} >= ${PetPoint}) /continue
-	    /if (${Group.Member[${_count}].Pet.Distance} > ${setMobAgro}) /continue
-	    /if (${Group.Member[${_count}].Pet.PctHPs} >= ${hurtPctHP}) /continue
+			/if (${Group.Member[${_count}].Pet.PctHPs} >= ${PetPoint}) /continue
+			/if (${Group.Member[${_count}].Pet.Distance} > ${setMobAgro}) /continue
+			/if (${Group.Member[${_count}].Pet.PctHPs} >= ${hurtPctHP}) /continue
 
 			/varset hurtCount 1
 			/varset hurtID ${Group.Member[${_count}].Pet.ID}
 			/varset hurtPctHP ${Group.Member[${_count}].Pet.PctHPs}
 			/varset hurtCLS Pet
-	  /next _count
+	  	/next _count
 	  /return ${hurtCount}
 	  
 
 	| self only pet hurt
 	} else /if (${_type.Equal[mypet]}) {
 		/if (!${Me.Pet.ID}) /return FALSE
-    /if (${Me.Pet.PctHPs} >= ${PetPoint}) /return FALSE
-    /if (${Me.Pet.Distance} > ${setMobAgro}) /return FALSE
+		/if (${Me.Pet.PctHPs} >= ${PetPoint}) /return FALSE
+		/if (${Me.Pet.Distance} > ${setMobAgro}) /return FALSE
 
 		/varset hurtID ${Me.Pet.ID}
 		/varset hurtPctHP ${Me.Pet.PctHPs}
 		/varset hurtCLS Pet
-	  /if (${hurtPctHP} >= ${${hurtCLS}Point}*.${tmpHealOverride}) /return FALSE
+	  	/if (${hurtPctHP} >= ${${hurtCLS}Point}*.${tmpHealOverride}) /return FALSE
 		/varset hurtCount 1
 		/return ${hurtCount}
-
 
 	| set self hurt
 	} else /if (${_type.Equal[self]}) {
@@ -2461,7 +2436,7 @@ sub check_hurt(bool _debug, string _type, int _hpLimit)
  *	DES: check  health
  *	USE: /call check_hurt [DEBUG T/F] [group|pet|xtarget|self|mypet]} || ${check_hurt[DEBUG, group|pet|xtarget|self|mypet]}
  *	NOTE: shared by PAL,DRU,CLR,SHM this returns the # of "hurt" for the group check you request as the pass/fail marker
- ***|
+
 Sub get_heal_target(int _hpLimit)
 
 	/declare _worstHurtId		int local 0
@@ -2489,6 +2464,27 @@ Sub get_heal_target(int _hpLimit)
 			/varset _worstHurtId ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
 		}
 	}
+
+/return ${_worstHurtId}
+ ***|
+
+Sub get_heal_target(int _hpLimit)
+
+	/declare _worstHurtId		int local 0
+	/declare _count		     	int local 0
+	
+	/for _count 0 to ${Group}
+	
+		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+	
+		/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
+
+		/if (${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
+			/varset _worstHurtId ${Group.Member[${_count}].ID}
+			/varset _hpLimit ${Group.Member[${_count}].PctHPs}
+		}
+
+	/next _count
 
 /return ${_worstHurtId}
 
@@ -2812,35 +2808,117 @@ Sub BegForCure
 	/if (${Defined[tmpCureSpellReady]}) /deletevar tmpCureSpellReady
 	/delay 5
 /return
-|-------------------------------------------------------------------------------------
-|- SUB: Help Common - 
-|-------------------------------------------------------------------------------------
-Sub CommonHelp
-/echo \ag===General Commands=== 
-/echo \ag/assistrange\aw - How far away the target can be to Attack
-/echo \ag/autoassistat\aw - Sets Mob HP% to start attacking at - ex: /autoassistat 98
-/echo \ag/backoff\aw - Backoff and stop combat
-/echo \ag/burn\aw - Triggered On Demand Buring
-/echo \ag/burncount\aw - Sets the number of targets to Start auto burn - ex: /burncount 3 
-/echo \ag/campexact\aw - toggles always returning to /camphere /loc x y after combat otherwise you must be outside /campradius before a return happens
-/echo \ag/campfire\aw - Sets/Unsets a fellowship campfire
-/echo \ag/camphere\aw - Sets a camp at the current /loc x y
-/echo \ag/campoff\aw - Unsets the saved x y /loc
-/echo \ag/campradius\aw - Radius around /camphere loc considered "in camp"
-/echo \ag/chase\aw - toggle follow the main assist on/off
-/echo \ag/chaseoff\aw - stop following the main assist
-/echo \ag/chaseon\aw - start following the main assist
-/echo \ag/endmedpct\aw - % Endurance to start medding at /tglmed must be On to start medding
-/echo \ag/ralleybehind\aw - All chars running IHC mac's will rally around the rear of the char that uses this command 
-/echo \ag/ralleyfront\aw - All chars running IHC mac's will rally around the front of the char that uses this command
-/echo \ag/ihchelp\aw - List of available commands
-/echo \ag/instantrelease\aw - toggle instant respawn on death
-/echo \ag/medpct\aw - % Mana to start medding at /tglmed must be On to start medding
-/echo \ag/meleeoff\aw - Turn melee combat off
-/echo \ag/meleeon\aw - Turn melee combat on
-/echo \ag/returntocamp\aw - toggle returning to /loc x y  set with /camphere if outside of camp radius OR always if /campexact is on
-/echo \ag/smartassist\aw - toggles waiting till a mob is in melee range of the MA before engaging even if below assist % on incoming
-/echo \ag/tglburn\aw - Burn all the time as spells/abilities become available
-/echo \ag/tglmed\aw - Toggle automatic medding, med % can be set in your ini file or with /medpct #
-/echo \ag/usefellowship\aw - use fellowship insignia if a campfire is set
-/return 
+
+
+|----------------------------------------------------------------------------
+|- SUB: AddToAlert
+|---------------------------------------------------------------------------- 
+Sub AddToAlert
+	/declare i int local 0
+	/squelch /alert clear 1
+
+	/docommand /dgt \aw Creating alert list for \ag ${Zone.Name} \aw from eq.db
+	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT NAME, ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
+	/if (!${sqlite.rows[ignore_list]}) /return
+	/for i 1 to ${sqlite.rows[ignore_list]}
+		/squelch /alert add 1 id ${sqlite.result[ignore_list ${i} ID]}
+		/docommand /dgt \aw Added \ag ${sqlite.result[ignore_list ${i} NAME]} \aw to ignore
+		/delay 1
+	/next i
+
+/return
+
+Sub ignore_mobs_to_pull
+	/declare i int local 0
+	/squelch /alert clear 1
+
+	| Read ini settings for your zone
+	
+	/ini "IgnoreMobs.ini" "${Zone.ShortName}" "Ignore" "NONE"
+	/varset Ignore ${Ini[IgnoreMobs.ini,${Zone.ShortName},Ignore]}
+	
+	/if (!${Ignore.Equal[NULL]}) {
+		/if (!${Ignore.Count[|]}) {
+			/squelch /alert add 1 ${Ignore}
+		} else /if (${Ignore.Count[|]}) {
+			/for i 1 to ${Math.Calc[${Ignore.Count[|]}+1]}
+				/squelch /alert add 1 ${Ignore.Arg[${i},|]}
+			/next i
+		}
+	}
+/return
+
+Sub Bind_ad(string Command)
+	
+	|		Write: /inix FileName Section Key Value
+	| 		https://www.macroquest2.com/wiki/index.php/TLO:Ini
+	|		https://www.redguides.com/community/threads/mq2inix.68308/
+	|		https://www.redguides.com/community/threads/pocketfarm-mac.67122/
+
+	/if (${Command.Equal[reload_ignore]}) {
+		/docommand /dgt \arReloading ignore list.
+		/call ignore_mobs_to_pull
+	} else /if (${Command.Equal[ignore]}) {
+		/docommand /dgt \awAdding \ar${Target.CleanName} \awto ignore and reloading ignore list.
+		| https://www.redguides.com/community/threads/ignore-mobs.70532/
+		/inix "IgnoreMobs.ini" "${Zone.ShortName}" "Ignore" "${Target.ID}|"
+		/alert add 1 "${Target.CleanName}"
+	} else /if (${Command.Equal[session_ignore]}) {
+		/docommand /dgt \awAdding \ar${Target.CleanName} \awto session ignore.
+		/alert add 1 "${Target.CleanName}"
+	}
+
+/return
+|**
+	/if (${Command.Equal[load]}) {
+		/message \arReloading INI.
+		/call IniFile
+	} else /if (${Command.Equal[clear]}) {
+		/if (${Command2.Equal[ignore]}) {
+			/squelch /alert clear 1
+			/message \arIgnore list cleared.
+		}
+		/if (${Command2.Equal[pull]}) {
+			/squelch /alert clear 10
+			/message \arPull list cleared.
+		}	
+	} else /if (${Command.Equal[list]}) {
+		/alert list 1
+		/alert list 10
+	} else /if (${Command.Equal[radius]}) {
+		/varset Radius ${Command2}
+		/if (${CampOn}) {
+			/squelch /maploc ${CampY} ${CampX} Size 20 width 5 color 0 0 255 radius ${Radius} color 0 0 255
+			/squelch /mapfilter SpellRadius 0
+		} else {
+			/squelch /mapfilter SpellRadius ${Radius}
+		}
+		/message \agSetting Radius to \at ${Radius}
+		/ini "PocketFarm.ini" "${Zone.ShortName}" "Radius" "${Radius}"
+	} else /if (${Command.Equal[zradius]}) {
+		/varset ZRadius ${Command2}
+		/message \agSetting Z-Radius to \at${ZRadius}
+		/ini "PocketFarm.ini" "${Zone.ShortName}" "ZRadius" "${ZRadius}"
+	} else /if (${Command.Equal[ignore]}) {
+		/alert add 1 "${Command2}"
+	} else /if (${Command.Equal[pull]}) {
+		/alert add 10 "${Command2}"
+	} else /if (${Command.Equal[go]}) {
+		/varset goFarming true
+		/message PocketFarm \agGO
+	} else /if (${Command.Equal[pause]}) {
+		/varset goFarming false
+		/message PocketFarm \arPause
+	} else {
+		/message \ag Commands while running:
+		/message \ag- \at/pkf go \agmakes PocketFarm start farming
+		/message \ag- \at/pkf pause \agmakes PocketFarm pause farming, but will self defend.
+		/message \ag- \at/pkf list \agShows both ignore and pull lists
+		/message \ag- \at/pkf ignore "<spawn search>" \ag- Add spawns to temp ignore list, remember to use " ". \arWill not be saved in ini.
+		/message \ag- \at/pkf pull "<spawn search>" \ag- Add spawns to temp pull list, remember to use " ". \arWill not be saved in ini.
+		/message \ag- \at/pkf clear <ignore/pull> ## \ag- Clear the ignore or pull list.
+		/message \ag- \at/pkf radius ## \ag- Change the radius around you to look for mobs in.
+		/message \ag- \at/pkf zradius ## \ag- Change the  Z radius.
+		/message \ag- \at/pkf load \ag load reload the ini.
+	}
+**|
