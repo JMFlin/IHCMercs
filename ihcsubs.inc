@@ -719,10 +719,9 @@ Sub afk_pull
 				/target id ${PullTargetID}
 				/delay 1s ${Target.ID} == ${PullTargetID}
 				/if (${Target.ID} == ${PullTargetID}) {
-					/if (!${validate_mob[${PullTargetID}]}) {
+					/if (${validate_mob[${PullTargetID}]}) {
 						/nav stop
 						/target clear
-						| THIS COULD TRAIN SOMEONE!!
 						/varset PullTargetID ${NearestSpawn[2, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 						/nav id ${PullTargetID}
 					}
@@ -768,10 +767,10 @@ Sub afk_pull
 	
 	/varcalc _pcCount ${_pcCount} - ${_groupCount}
 
-	/if (${_pcCount} > 0) /return FALSE
-	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /return FALSE
+	/if (${_pcCount} > 0) /return TRUE
+	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /return TRUE
 
-/return TRUE
+/return FALSE
 |----------------------------------------------------------------------------
 |- SUB: MoveToCamp
 |---------------------------------------------------------------------------- 
@@ -2837,14 +2836,14 @@ Sub Bind_ad(string Command)
 	|		https://www.redguides.com/community/threads/mq2inix.68308/
 	|		https://www.redguides.com/community/threads/pocketfarm-mac.67122/
 
-	/if (${Command.Equal[load]}) {
+	/if (${Command.Equal[reload_ignore]}) {
 		/docommand /dgt \arReloading ignore list.
 		/call ignore_mobs_to_pull
 	} else /if (${Command.Equal[ignore]}) {
 		/docommand /dgt \awAdding \ar${Target.CleanName} \awto ignore and reloading ignore list.
 		| https://www.redguides.com/community/threads/ignore-mobs.70532/
+		/inix "IgnoreMobs.ini" "${Zone.ShortName}" "Ignore" "${Target.ID}|"
 		/alert add 1 "${Target.CleanName}"
-		/inix "IgnoreMobs.ini" "${Zone.ShortName}" "Ignore" "|${Target.ID}"
 	} else /if (${Command.Equal[session_ignore]}) {
 		/docommand /dgt \awAdding \ar${Target.CleanName} \awto session ignore.
 		/alert add 1 "${Target.CleanName}"
