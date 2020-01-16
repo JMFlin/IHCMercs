@@ -29,7 +29,6 @@ Sub Main
 	/call VarSetup
 	/call AliasSetup
 	/call SetupSpells
-	/call SetControlToon
 	/call LoadSpellBar
 |-Cursor ID
 	/if (${Cursor.ID}) {
