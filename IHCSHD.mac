@@ -207,7 +207,9 @@ Sub DoDisc
 	}
 
 	/if (${Me.PctHPs} < 99 && ${Me.ActiveDisc.ID} != ${DeflectionID}) {
-		/disc ${Withstand}
+		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Target.ID}]}) {
+			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
+		}
 	}
 
 	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3))) {
