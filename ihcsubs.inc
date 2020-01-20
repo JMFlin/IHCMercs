@@ -1534,6 +1534,7 @@ Sub DummyMode
 			/next _count
 			/delay 1s 
 		}
+	}
 
 /return
 

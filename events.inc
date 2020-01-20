@@ -240,6 +240,7 @@ sub Event_CAST_BEGIN(string line)
 #event CAST_CANNOTCAST              "You cannot cast #1# on#*#"
 sub Event_CAST_CANNOTCAST(string line)
 	/varset castReturn CAST_CANNOTCAST
+  /doevents flush
 /return ${castReturn}
 
 | #event CAST_CANNOTSEE              "You cannot see your target#*#"
