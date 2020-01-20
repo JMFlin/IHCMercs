@@ -2844,11 +2844,7 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 	}
 
 	/if (${_event.Equal[CAST_CANNOTCAST]}) {
-<<<<<<< HEAD
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is UNPULLABLE with =>> \ag ${_spell} \ax <<=
-=======
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is \ar UNPULLABLE \ax with =>> \ag ${_spell} \ax <<=
->>>>>>> 03685bcfc4d40a6b7020b0fe3b4cef6a8309c5b1
 		/squelch /alert add 1 id ${_tmpID}
 	}
 
