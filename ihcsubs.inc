@@ -688,35 +688,10 @@ Sub puller_check_group_resources
 	/next _count
 /return
 |----------------------------------------------------------------------------
-<<<<<<< HEAD
-|- SUB: check_add_aggro
-|---------------------------------------------------------------------------- 
-Sub check_add_aggro
-
-	/if (${Balance}) /return
-	/if (!${Me.XTarget[2].ID}) /return
-	/if (${TimeForMez} != 0) /return
-
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-
-	| if any npcs on xtarget have less than 100% aggro
-	/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
-		/if (${If[${Select[${SpawnSort[1,asc,PctAggro,xtarhater].Animation},110,26,32,71,72,111]}, 0, 1]}==1) {
-			/target id ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
-			/delay 5 ${Target.ID} == ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
-			/call Engage
-			/call get_aggro
-			/delay 1s
-		}
-	}
-
-/return
-|----------------------------------------------------------------------------
 |- SUB: AFKPull /varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 |---------------------------------------------------------------------------- 
 Sub afk_pull
 	/declare _pullTargetID 	int local 0
-
 	/if (${Me.XTarget}) /return
 	/if (${Me.Casting.ID}) /return
 	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
@@ -731,6 +706,7 @@ Sub afk_pull
 
 	/call set_pull_target
 	/varset _pullTargetID ${Macro.Return}
+	/echo _pullTargetID
 	/if (!${_pullTargetID}) /return
 
 	/call puller_check_group_resources
@@ -819,13 +795,12 @@ Sub set_pull_target
 	/declare _pullTargetID 	int local 0
 
 	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
-
+	/echo ${_mobsInRadius}
 	/while (${_count} <= ${_mobsInRadius}) {
 		/if (!${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /continue
 		/if (!${Navigation.PathExists[id ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
 		/if (${validate_no_pc[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
 		/if (${validate_single_pull[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
-		
 		/varset _pullMob ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 
 		/if (${_pathLength} > ${Navigation.PathLength[id ${_pullMob}]}) {
