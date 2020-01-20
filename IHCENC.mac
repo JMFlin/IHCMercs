@@ -9,6 +9,7 @@
 |-#include IHCMercs\ihcxtenchmez.inc
 #include IHCMercs\ihcenchutil.inc
 #include IHCMercs\events.inc
+#include IHCMercs\config.inc
 #warning
 #Chat group
 #Chat tell

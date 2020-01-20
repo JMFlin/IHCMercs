@@ -13,6 +13,7 @@
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcberutil.inc
 #include IHCMercs\events.inc
+#include IHCMercs\config.inc
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
 Sub Main

@@ -13,6 +13,7 @@
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcmnkutil.inc
 #include IHCMercs\ihcevents.inc
+#include IHCMercs\config.inc
 #Event NotOnTarget	"#*#You cannot see your target#*#"
 #Event NotOnTarget	"#*#Your target is too far away#*#"
 #Event GroupChange	"#*#has left the group#*#"

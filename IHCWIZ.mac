@@ -8,6 +8,7 @@
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcwizutil.inc
 #include IHCMercs\events.inc
+#include IHCMercs\config.inc
 #warning
 #Chat group
 #Chat tell
