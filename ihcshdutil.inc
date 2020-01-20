@@ -20,6 +20,8 @@ Sub ShdSetup
 	/declare DeflectionID	int outer 0
 	/declare LeechcurseDisc	string outer NULL
 	/declare LeechcurseID	int outer 0
+	/declare Withstand 		string outer NULL
+	/declare WithstandID 	int outer 0
 |-Config Options
 	/call LoadIni Item ChestItemName	string "${Me.Inventory[17].Name}"
 
