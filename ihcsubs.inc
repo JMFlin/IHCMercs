@@ -107,8 +107,9 @@ Sub VarSetup
 	/declare rezToken 			bool outer FALSE
 	/declare rezCombat			bool outer FALSE
 |- AFK camping
-    /declare AggressiveRadius 	int outer 100
-	/declare AssistRangeZ 		int outer 100
+    /declare pullRadiusXY 		int outer 100
+	/declare pullRadiusZ 		int outer 100
+	/declare npcRadiusCheck		int outer 65
     /declare PullAbility		string outer NULL
 	/declare PullAbility3		string outer NULL
 	/declare PullAbilityAA 		int outer 0
@@ -688,7 +689,7 @@ Sub puller_check_group_resources
 	/next _count
 /return
 |----------------------------------------------------------------------------
-|- SUB: AFKPull /varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
+|- SUB: AFKPull /varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
 |---------------------------------------------------------------------------- 
 Sub afk_pull
 	/declare _pullTargetID 	int local 0
@@ -746,7 +747,7 @@ Sub afk_pull
 	} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
 		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
-		
+
 		/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
 
 	}
@@ -780,7 +781,7 @@ Sub afk_pull
 Sub validate_single_pull(int _tmpID)
 	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
 	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
-	/declare _addCount		int local	${SpawnCount[loc ${locX} ${locY} radius 1 npc targetable noalert 1]}
+	/declare _addCount		int local	${SpawnCount[loc ${locX} ${locY} radius ${npcRadiusCheck} npc targetable noalert 1]}
 	
 	/if (${_addCount} > 1) /return TRUE
 
@@ -793,13 +794,15 @@ Sub set_pull_target
 	/declare _pathLength 	int local 9999
 	/declare _pullTargetID 	int local 0
 
-	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
+	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
+
 	/while (${_count} <= ${_mobsInRadius}) {
-		/if (!${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /continue
-		/if (!${Navigation.PathExists[id ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
-		/if (${validate_no_pc[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
-		/if (${validate_single_pull[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
-		/varset _pullMob ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
+		/if (!${NearestSpawn[${_count}, npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}) /continue
+		/if (!${Navigation.PathExists[id ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}]}) /continue
+		/if (${validate_no_pc[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}]}) /continue
+		/if (${validate_single_pull[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}]}) /continue
+		
+		/varset _pullMob ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
 
 		/if (${_pathLength} > ${Navigation.PathLength[id ${_pullMob}]}) {
 			/varset _pathLength ${Navigation.PathLength[id ${_pullMob}]}
@@ -1541,8 +1544,8 @@ Sub DummyMode
 		/if (${Me.XTarget}) /return
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 	/next TimeInc
-|${AggressiveRadius}
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) /goto :waitabit 
+|${pullRadiusXY}
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]}>6)) /goto :waitabit 
 	|/afk off 
 	/delay 1s 
 
