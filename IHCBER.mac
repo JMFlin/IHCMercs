@@ -54,7 +54,6 @@ Sub ManualPullCamping
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
-		/call pre_combat_buffs FALSE "${cheapshot}" disc ${Target.ID}
 		/call get_target
 		/call check_state FALSE
 
