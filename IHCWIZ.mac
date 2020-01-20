@@ -170,7 +170,7 @@ Sub AANDisc
 |---------------------------------------------------------------------------- 
 Sub combat
 	| if mana is below the puller check limit
-	/if (${Me.PctMana} < ${Limit}) {
+	/if ((${Me.XTarget} && ${Me.PctMana} < 20) || (!${Me.XTarget} && ${Me.PctMana} < ${Limit})) {
 
 		| If my corpse is near then don't waste harvest
 		/if (!${Spawn[${Me.Name} pccorpse radius 50].ID}) {
@@ -183,12 +183,12 @@ Sub combat
 	/call get_target
 	/if (!${validate_combat[FALSE]}) /return
 
-	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
+	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
 			/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
 			/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
 		}
-	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
+	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) {
 			/call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
 			/call check_cast_events "${RootSpell}" CAST_IMMUNE ${Target.ID}

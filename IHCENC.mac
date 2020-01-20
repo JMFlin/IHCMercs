@@ -5,7 +5,7 @@
 |- Credit: Noobhax0r, Maskoi, Ctaylor, Treehuggindruid, Devstator. A lot of ideas were borrowed and modified from their macros
 #turbo 80
 #include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcenchmez.inc
+|-#include IHCMercs\ihcenchmez.inc
 |-#include IHCMercs\ihcxtenchmez.inc
 #include IHCMercs\ihcenchutil.inc
 #include IHCMercs\events.inc
@@ -128,7 +128,6 @@ Sub debuff_xtarget
 
 	| Is there something to mez?
 	/if (!${Me.XTarget}) /return
-	/if (${Me.XTarget} < 2) /return
 
 	/for x 1 to ${Me.XTarget}
 
@@ -143,7 +142,7 @@ Sub debuff_xtarget
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
-		/call mezz_xtarget
+		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
 
 		/if (!${Target.Buff[${DoTSpell3}].ID} && ${Target.Named}) {
 			/if (${validate_cast[FALSE, spell, "${DoTSpell3}", ${Target.ID}]}) /call core_cast2 "${DoTSpell3}" spell ${Target.ID} FALSE
@@ -153,16 +152,7 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, alt, "Mental Contortion", ${Target.ID}]}) /call core_cast2 "Mental Contortion" alt ${Target.ID} FALSE
 		}
 
-		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			
-			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
-				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
-				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
-			}
-		}
-
-		/call mezz_xtarget
+		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
@@ -172,8 +162,17 @@ Sub debuff_xtarget
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-		/call mezz_xtarget
 
+		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
+
+		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			
+			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
+			}
+		}
 		
 
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
@@ -183,7 +182,7 @@ Sub debuff_xtarget
 				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 			}
 		}
-		/call mezz_xtarget
+		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
 
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 |				/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
@@ -213,84 +212,6 @@ Sub debuff_xtarget
 	/next x
 /return
 |----------------------------------------------------------------------------
-|- SUB: mezz_xtarget
-|---------------------------------------------------------------------------- 
-Sub mezz_xtarget
-	/declare x				 	int local 1
-	/declare numberOfSpawn 	 	int local 0
-	/declare closestMezzTarget 	int local 0
-
-	| Is there something to mez?
-	/if (!${Me.XTarget}) /return
-	/if (${Me.XTarget} < 2) /return
-
-	| How many mobs are there?
-	/if (${SpawnCount[npc targetable radius 100 zradius 60]} > 1 && ${Me.XTarget} > 1) {
-		
-		/for x 1 to ${Me.XTarget}
-
-			| If xtarget is not mezzed, add it to count
-			/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
-				/varcalc numberOfSpawn ${numberOfSpawn}+1
-			}
-
-		/next x
-		
-		| If there are more than 1 mobs counted then aoe mez
-		/if (${numberOfSpawn} > 1) {
-			/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
-			/if (${validate_cast[FALSE, spell, "${MezAESpell}", ${closestMezzTarget}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${MezAESpell} \ax <<=
-				/call core_cast2 "${MezAESpell}" spell ${closestMezzTarget} FALSE
-			}
-		}
-	}
-
-	| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
-	/for x 1 to ${Me.XTarget}
-
-		| If target is too far away then skip
-		/if (${Me.XTarget[${x}].Distance} > 200) /continue
-
-		| If the xtarget is already mezzed then skip
-		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
-
-		| Query MA and MT on what is currently being killed
-		/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
-		/echo MA Target is ${MATargetID}
-		/call Gquery ${Group.MainTank.Name.Lower} "Target.ID" "MTTargetID" "int"
-		/echo MT Target is ${MTTargetID}
-
-		| If xtarget is being targetted by MA or MT then skip
-		/if (${Me.XTarget[${x}].ID} == ${MATargetID} || ${Me.XTarget[${x}].ID} == ${MTTargetID}) /continue
-
-		| If not then target it
-		/target id ${Me.XTarget[${x}].ID}
-		/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
-		/delay 2s !${Me.Moving}
-		/delay 2s !${Me.Casting}
-
-		| If target is not tashed then tash
-		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
-		}
-
-		| If target is not mezzed then mez
-		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && ${mezzImmuneID} != ${Target.ID}) {
-			/if (${validate_cast[FALSE, spell, "${MezSpell}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar ${Target.Name} \ax with =>> \ag ${MezSpell} \ax <<=
-				/call core_cast2 "${MezSpell}" spell ${Target.ID} FALSE
-				/call check_cast_events "${MezSpell}" CAST_IMMUNE ${Target.ID}
-			}
-		}
-
-		/delay 1s
-
-	/next x
-	/if (${Defined[MATargetID]}) /deletevar MATargetID
-	/if (${Defined[MTTargetID]}) /deletevar MTTargetID
-/return
-|----------------------------------------------------------------------------
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
 Sub AANDisc
@@ -316,7 +237,7 @@ Sub AANDisc
 Sub combat
 
 	| Before debuffing and nuking check if we have to mezz
-	/call mezz_xtarget
+	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
 
 	| Before nuking check if we have to debuff
 	/call debuff_xtarget
@@ -338,7 +259,7 @@ Sub combat
 		}
 	}
 
-	/call mezz_xtarget
+	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
 
 	/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
@@ -348,7 +269,7 @@ Sub combat
 
 	/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
 	
-	/call mezz_xtarget
+	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
 
 	/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
 
@@ -438,6 +359,13 @@ Sub self_buffs
 		}
 	} 
 
+	|/if (${validate_cast[FALSE, spell, "${UnityRune}", ${Me.ID}]}) {
+	|	/if (!${Me.Buff[${UnityRune}].ID}) {
+	|		/call core_cast2 "${UnityRune}" spell ${Me.ID} FALSE
+	|		/varset CastCheck 1
+	|	}
+	|} else {
+
 	/if (!${Me.Buff[${SelfRune1}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
 			/call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE
@@ -451,6 +379,7 @@ Sub self_buffs
 			/varset CastCheck 1
 		}
 	} 
+	|}
 	
 |				/call SpellQueue "${PetSpell}" ${Me.ID}
 |				/varset CastCheck 1

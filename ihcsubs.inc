@@ -185,6 +185,10 @@ Sub VarSetup
 	/declare verboseWIZ 		bool outer TRUE
 	/declare verboseENC 		bool outer TRUE
 	/declare verboseBRD 		bool outer TRUE
+|- classes
+	/declare casterCasting 		int outer 0
+
+	/declare Invis				bool outer FALSE
 
 /return 
 
@@ -391,6 +395,7 @@ sub misc
  	/if (${Window[GiveWnd].Open}) /notify GiveWnd GVW_Give_Button leftmouseup
  	/if (${Window[TaskTemplateSelectWnd].Open}) /notify TaskTemplateSelectWnd TaskTemplateSelectAcceptButton leftmouseup
  	/if (${Window[ProgressionTemplateSelectWnd].Open}) /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
+	/if (${Mode} != 0) /call check_campfire
 /return
 
 |----------------------------------------------------------------------------
@@ -444,13 +449,15 @@ Sub check_state(bool _debug)
 		| check aura one
 		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
 
-			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) /call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-
-			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) {
+				/call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+					/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 				
-				| reload the spell if i just memmed aura
-				/call LoadSpellBar
+					| reload the spell if i just memmed aura
+					/call LoadSpellBar
+				}
 			}
+
 		}
 	}
 
@@ -459,12 +466,13 @@ Sub check_state(bool _debug)
 		| check aura two
 		/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
 
-			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) /call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-
-			/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
-
-				| reload the spell if i just memmed aura
-				/call LoadSpellBar
+			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) {
+				/call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+					/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+				
+					| reload the spell if i just memmed aura
+					/call LoadSpellBar
+				}
 			}
 		}
 	}
@@ -615,40 +623,15 @@ Sub Travel
 		/call core_cast2 "${TravelSpell}" FIND ${Me.ID} FALSE
 	}
 
-	/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID} && !${Me.Casting.ID}) {
+	/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID} && !${Me.Casting.ID} && !${Me.Invis}) {
 		/stopsong
 		/melody 3 1
 	}
+	/if (${Select[${Me.Class.ShortName},BRD]} && !${Me.Buff[Selo's Accelerating Chorus].ID} && !${Me.Casting.ID} && !${Me.Invis}) {
+		/stopsong
+		/melody 1
+	}
 	/call misc
-/return
-|----------------------------------------------------------------------------
-|- SUB: puller_check_group_resources
-|---------------------------------------------------------------------------- 
-Sub puller_check_group_resources
-	
-	/if (${Me.XTarget[1].ID}) /return
-	/if (${Group.Puller.ID} != ${Me.ID}) /return
-
-	/declare _count	int local 0
-	/if (${Limit} == 50 && ${ResourceChecker} == 0) /varset Limit 85
-	/if (${Limit} == 85 && ${ResourceChecker} == 1) /varset Limit 50
-	/varset ResourceChecker 1
-
-	/for _count 0 to ${Group}
-		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
-			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "ResPct" "int"
-			} else /if (${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
-			}
-			|/echo ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} has ${ResPct}% resources
-			/if (${ResPct} < ${Limit}) {
-				/varset ResourceChecker 0 
-				/delay 5
-			}
-			/if (${ResourceChecker} == 0) /return
-		}
-	/next _count
 /return
 |----------------------------------------------------------------------------
 |- SUB: check_add_aggro
@@ -674,59 +657,99 @@ Sub check_add_aggro
 
 /return
 |----------------------------------------------------------------------------
-|- SUB: AFKPull
+|- SUB: puller_check_group_resources
+|---------------------------------------------------------------------------- 
+Sub puller_check_group_resources
+	
+	/declare _count	int local 0
+
+	/if (${Me.XTarget[1].ID}) /return
+	/if (${Group.Puller.ID} != ${Me.ID}) /return
+
+	/if (${Limit} == 50 && ${ResourceChecker} == 0) /varset Limit 85
+	/if (${Limit} == 85 && ${ResourceChecker} == 1) /varset Limit 50
+	/varset ResourceChecker 1
+	/varset casterCasting 0
+
+	/for _count 0 to ${Group}
+		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
+			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "ResPct" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Casting.ID" "casterCasting" "int"
+			} else /if (${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
+			}
+			/if (${ResPct} < ${Limit} || ${casterCasting}) {
+				/varset ResourceChecker 0 
+				/delay 5
+			}
+			/if (${ResourceChecker} == 0) /return
+		}
+	/next _count
+/return
+|----------------------------------------------------------------------------
+|- SUB: AFKPull /varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
 |---------------------------------------------------------------------------- 
 Sub afk_pull
-	/declare PullTargetID 	int local 0
+	/declare _pullTargetID 	int local 0
 
 	/if (${Me.XTarget}) /return
 	/if (${Me.Casting.ID}) /return
-	/if (!${Group.Puller.ID} == ${Me.ID}) /return
+	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
 	/if (!${Navigation.MeshLoaded}) /return
-	/if (${ResourceChecker} == 0) /return
 	/if (${Me.Snared.ID}) /return
 	/if (${Me.PctHPs} < 90) /return
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 
 	/if (!${PullAbility.Equal[Melee]}) {
 		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return
 	}
 
-	/varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
-	
-	/if (!${PullTargetID}) /return
+	/call set_pull_target
+	/varset _pullTargetID ${Macro.Return}
+	/if (!${_pullTargetID}) /return
 
-	/if (${Spawn[id ${PullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${PullTargetID}].LineOfSight}) {
-		/nav id ${PullTargetID}
+	/call puller_check_group_resources
+	/if (${ResourceChecker} == 0) /return
+
+	/if (${Spawn[id ${_pullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${_pullTargetID}].LineOfSight}) {
+		
+		/nav id ${_pullTargetID}
+		
 		/while (${Navigation.Active}) {
 
-			/if (${Spawn[id ${PullTargetID}].LineOfSight}) {
-				/target id ${PullTargetID}
-				/delay 1s ${Target.ID} == ${PullTargetID}
-				/if (${Target.ID} == ${PullTargetID}) {
-					/if (${validate_mob[${PullTargetID}]}) {
-						/nav stop
-						/target clear
-						/varset PullTargetID ${NearestSpawn[2, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
-						/nav id ${PullTargetID}
-					}
+			/if (${Spawn[id ${_pullTargetID}].LineOfSight}) {
+
+				/target id ${_pullTargetID}
+				/delay 1s ${Target.ID} == ${_pullTargetID}
+
+				/if (${Target.ID} == ${_pullTargetID}) {
+					/if (${validate_no_pc[${_pullTargetID}]} || ${validate_single_pull[${_pullTargetID}]}) /nav stop
 				}
+
 			}
 			
 			/if (${Navigation.Active} && ${Me.XTarget}) /nav stop
-			/if (${Navigation.Active} && ${Spawn[id ${PullTargetID}].Distance} <= ${PullDistance} && ${Spawn[id ${PullTargetID}].LineOfSight}) /nav stop
+			/if (${Navigation.Active} && ${Spawn[id ${_pullTargetID}].Distance} <= ${PullDistance} && ${Spawn[id ${_pullTargetID}].LineOfSight}) /nav stop
 		}
 	} else {
-		/target id ${PullTargetID}
+		/target id ${_pullTargetID}
 	}
 
 	/delay 3s !${Me.Moving}
-	
+	/delay 5
+
 	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
+
 		/attack on
-		/doevents
 		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
+
 	} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
-		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${PullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${PullTargetID} FALSE
+
+		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
+		
+		/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
+
 	}
 	
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
@@ -738,12 +761,11 @@ Sub afk_pull
 	
     /if (${Target.ID}) /face fast
 	/call set_timers
-	/if (${Defined[PullTargetID]}) /deletevar PullTargetID
-	/if (${Defined[PathLength]}) /deletevar PathLength
+	/if (${Defined[_pullTargetID]}) /deletevar _pullTargetID
 	/delay 5
  /return
 
- Sub validate_mob(int _tmpID)
+ Sub validate_no_pc(int _tmpID)
 	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
 	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
 	/declare _groupCount	int local	${SpawnCount[loc ${locX} ${locY} radius 75 pc group notid ${Me.ID}]}
@@ -755,6 +777,42 @@ Sub afk_pull
 	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /return TRUE
 
 /return FALSE
+
+Sub validate_single_pull(int _tmpID)
+	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
+	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
+	/declare _addCount		int local	${SpawnCount[loc ${locX} ${locY} radius 65 npc targetable noalert 1]}
+	
+	/if (${_addCount} > 1) /return TRUE
+
+/return FALSE
+
+Sub set_pull_target
+	/declare _count 		int local 1
+	/declare _pullMob 		int local 0
+	/declare _mobsInRadius 	int local 0
+	/declare _pathLength 	int local 9999
+	/declare _pullTargetID 	int local 0
+
+	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
+
+	/while (${_count} <= ${_mobsInRadius}) {
+		/if (!${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /continue
+		/if (!${Navigation.PathExists[id ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
+		/if (${validate_no_pc[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
+		/if (${validate_single_pull[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
+		
+		/varset _pullMob ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}
+
+		/if (${_pathLength} > ${Navigation.PathLength[id ${_pullMob}]}) {
+			/varset _pathLength ${Navigation.PathLength[id ${_pullMob}]}
+			/varset _pullTargetID ${_pullMob}
+		}
+		
+		/varcalc _count ${_count}+1
+		/delay 1		
+	}
+/return ${_pullTargetID}
 |----------------------------------------------------------------------------
 |- SUB: MoveToCamp
 |---------------------------------------------------------------------------- 
@@ -895,6 +953,9 @@ Sub Bind_Campfire
     /declare FellowCount int local 0
     /declare i int local
     /declare j int local
+
+	/if (${Me.Fellowship.Campfire}) /return
+
     /for i 1 to ${SpawnCount[pc radius 50]}
         /for j 1 to ${Me.Fellowship.Members}
             /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
@@ -902,21 +963,72 @@ Sub Bind_Campfire
     /next i
     /if (${FellowCount}>=3) {
         /windowstate FellowshipWnd open
-		/delay 10
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 5s ${Window[ConfirmationDialogBox].Open}
-		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
-		/delay 5s !${Me.Fellowship.Campfire}
+		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		|/delay 5s ${Window[ConfirmationDialogBox].Open}
+		|/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
+		|/delay 5s !${Me.Fellowship.Campfire}
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
 		/delay 1s        
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
 		/windowstate FellowshipWnd close
-		/if (${Me.Fellowship.Campfire}) /echo Campfire Dropped
+    }
+/return
+|----------------------------------------------------------------------------
+|- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
+|----------------------------------------------------------------------------
+Sub check_campfire
+    /declare FellowCount int local 0
+    /declare i int local
+    /declare j int local
+
+	/if (${Me.XTarget}) /return
+	/if (${Navigation.Active}) /return
+	/if (${Me.ID} != ${Group.Leader.ID}) /return
+	/if (${Zone.ID} == 202) /return
+	/if (${Zone.ID} == 345) /return
+
+
+	/if (${Zone.Name.NotEqual[${Me.Fellowship.CampfireZone}]}) {
+		/windowstate FellowshipWnd open
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
+		/delay 1s
+		/windowstate FellowshipWnd close
+	}
+	/if (${Me.Fellowship.CampfireDuration} > 600) /return
+
+    /for i 1 to ${SpawnCount[pc radius 50]}
+        /for j 1 to ${Me.Fellowship.Members}
+            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
+        /next j
+    /next i
+
+    /if (${FellowCount}>=3) {
+        /windowstate FellowshipWnd open
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/delay 5s ${Me.Fellowship.Campfire}
+		/windowstate FellowshipWnd close
     }
 /return
 |----------------------------------------------------------------------------
@@ -1423,17 +1535,18 @@ Sub DummyMode
 	/if (${Me.XTarget}) /return
 	/echo Entering Dummy Mode... 
 	/delay 1s 
-	/afk ${DummyMsg}
+	|/afk ${DummyMsg}
 
 	:waitabit 
 	/for TimeInc 1 to ${DummyTime}
 		/echo (${TimeInc}/${DummyTime})
 		/delay 1s
+		/if (${Me.XTarget}) /return
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 	/next TimeInc
 |${AggressiveRadius}
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 110]}>6)) /goto :waitabit 
-	/afk off 
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) /goto :waitabit 
+	|/afk off 
 	/delay 1s 
 
 /return
@@ -1691,7 +1804,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			/delay 1s ${Target.ID} == ${_tmpID}
 		}
 	}
-	
 	| what type is it?
 	| /if (${_type.Equal[FIND]}) {
 	/if (${Select[${_type},FIND,FORCE]} && ${Select[${Me.Class.ShortName},BRD]}) {
@@ -1734,7 +1846,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			}
 		}
 
-
 		| cast GOM if song proc?
 		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && !${Select[${Me.Class.ShortName},CLR]} && ${Spawn[${Target.ID}].Type.NotEqual[pc]}) {
 		
@@ -1772,10 +1883,11 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			
 				| can we say no MQ2Cast ???
 				/cast ${Me.Gem[${_spell}]}
-	
+
 				| set delays for casting. GTFO out of this as fast as possible
 				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
 
+				|/while (${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s || !${Me.Casting.ID})
 				/if (${Me.SpellInCooldown}) /call global_cooldown_spells
 
 				| delay for longer casts if there is any, cooldowns or open spell cast windows
@@ -1809,7 +1921,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
 		
-		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call Engage
+		|/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call Engage
 		
 		
 		| delay for aa casting
@@ -1863,7 +1975,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 
-		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call Engage
+		|/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call Engage
 
 		| is the item ready?
 		/if (${Me.ItemReady[${_spell}]}) {
@@ -1913,7 +2025,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		|DEBUG ${dep}disc,activedisc${dep}${_spell}
 		/varset _spell ${Spell[${_spell}].RankName}
 
-		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call Engage
+		|/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call Engage
 
 		|/if (${_tmpID} == 0) VDISC Disc ${sep} ${csp}${_spell}\ax
 		|/if (${_tmpID} != 0 && ${Target.ID}) VDISC Disc ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
@@ -1934,7 +2046,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/varset _spell ${Spell[${_spell}].RankName}
 		
 		/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
-		/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call Engage
+
+		/if (!${Me.Gem[${_spell}]}) /call mem_spell FALSE TRUE "${_spell}" ${_type} TRUE
 
 		| is the gem ready?
 		/if (${Me.Gem[${_spell}]}) {
@@ -1949,9 +2062,10 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 
 			| gonna try this 2 times.
 			/while (${_castLoop}) {
-			
+				
 				/cast ${Me.Gem[${_spell}]}
-				/delay 5 
+
+				/call Engage
 
 				| adjust delay for Metronome AA (fuck bards)
 				/if (${Me.AltAbility[Metronome]}) {
@@ -2738,8 +2852,13 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 		/if (!${immuneSet.Add[${_tmpID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Set Add of ${_tmpID} failed.
 		}
-	|		/varset slowImmuneID ${_tmpID}
 	}
+
+	/if (${String[${_event}].Equal[CAST_CANNOTCAST]}) {
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is UNPULLABLE with =>> \ag ${_spell} \ax <<=
+		/squelch /alert add 1 id ${_tmpID}
+	}
+
 /return
 
 
@@ -2894,3 +3013,117 @@ Sub Bind_ad(string Command)
 		/message \ag- \at/pkf load \ag load reload the ini.
 	}
 **|
+
+|----------------------------------------------------------------------------
+|- SUB: mezz_xtarget
+|---------------------------------------------------------------------------- 
+Sub mezz_xtarget(string _mezAE, string _mezSingle)
+	/declare x				 	int local 1
+	/declare numberOfSpawn 	 	int local 0
+	/declare closestMezzTarget 	int local 0
+
+	| Is there something to mez or debuff?
+	/if (!${Me.XTarget}) /return
+	/if (${Me.XTarget} < 2) /return
+
+	| How many mobs are there?
+	/if ((${SpawnCount[npc targetable radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}]} > 1 && ${Select[${Me.Class.ShortName},BRD]}) || (${SpawnCount[npc targetable radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}]} > 2 && ${Select[${Me.Class.ShortName},ENC]})) {
+		
+		/for x 1 to ${Me.XTarget}
+
+			| If xtarget is not mezzed, add it to count
+			/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
+				/varcalc numberOfSpawn ${numberOfSpawn}+1
+			}
+
+		/next x
+		
+		| If there are more than 1 mobs counted then aoe mez
+		/if (${numberOfSpawn} > 1) {
+
+			/if (${Select[${Me.Class.ShortName},ENC]}) {
+				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
+				/varset closestMezzTarget ${NearestSpawn[1, npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
+				/if (${validate_cast[FALSE, spell, "${_mezAE}", ${closestMezzTarget}]}) {
+					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
+					/call core_cast2 "${_mezAE}" spell ${closestMezzTarget} FALSE
+				}
+			} else /if (${Select[${Me.Class.ShortName},BRD]}) {
+				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 35 zradius 35].ID}
+				/varset closestMezzTarget ${NearestSpawn[1, npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
+				/if (${validate_cast[FALSE, pulse, "${_mezAE}", ${closestMezzTarget}]}) {
+					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
+					/call core_cast2 "${_mezAE}" pulse ${closestMezzTarget} FALSE
+				}
+			}
+		}
+	}
+
+	/if (!${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) /return
+
+	| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
+	/for x 1 to ${Me.XTarget}
+
+		| If target is too far away then skip
+		/if (${Me.XTarget[${x}].Distance} > 200) /continue
+
+		| If the xtarget is already mezzed then skip
+		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
+
+		| Query MA and MT on what is currently being killed
+		/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MA Target is \ar${MATargetID}
+		/call Gquery ${Group.MainTank.Name.Lower} "Target.ID" "MTTargetID" "int"
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MT Target is \ar${MTTargetID}
+
+		| If xtarget is being targetted by MA or MT then skip
+		/if (${Me.XTarget[${x}].ID} == ${MATargetID} || ${Me.XTarget[${x}].ID} == ${MTTargetID}) /continue
+
+		/if (${Me.CombatState.Equal[COMBAT]}) /attack off
+		/if (${Stick.Status.Equal[ON]}) /stick off
+		/if (${Stick.Active}) /stick off
+		/delay 2s !${Stick.Status.Equal[ON]}
+		/delay 2s !${Stick.Active}
+		/attack off
+		| If not then target it
+		/target id ${Me.XTarget[${x}].ID}
+		/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
+
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.ID}
+		/delay 1s
+
+		/if (${Select[${Me.Class.ShortName},ENC]}) {
+			| If target is not tashed then tash
+			/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
+				/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
+			}
+
+			| If target is not mezzed then mez
+			/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+				/if (${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) {
+					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
+					/call core_cast2 "${_mezSingle}" spell ${Target.ID} FALSE
+					/call check_cast_events "${_mezSingle}" CAST_IMMUNE ${Target.ID}
+				}
+			}
+		} else /if (${Select[${Me.Class.ShortName},BRD]}) {
+			
+			/call pulse_stop pulse_line_start
+			/delay 1s
+			| If target is not mezzed then mez
+			/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && !${immuneSet.Contains[${Target.ID}]} && ${Stick.Status.Equal[OFF]}) {
+				/if (${validate_cast[FALSE, pulse, "${_mezSingle}", ${Target.ID}]}) {
+					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
+					/call core_cast2 "${_mezSingle}" pulse ${Target.ID} FALSE
+					/call check_cast_events "${_mezSingle}" CAST_IMMUNE ${Target.ID}
+				}
+			}
+			/call get_target
+		}
+
+		/delay 1s
+
+	/next x
+	/if (${Defined[MATargetID]}) /deletevar MATargetID
+	/if (${Defined[MTTargetID]}) /deletevar MTTargetID
+/return

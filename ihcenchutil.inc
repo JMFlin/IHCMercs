@@ -121,7 +121,8 @@ Sub EnchSetup
 	/declare CalmSpell				string	outer	"NULL"
 	/declare FearSpell				string	outer	"NULL"
 	/declare RootSpell				string	outer	"NULL"
-	/declare HarvestSpell1 			string 	outer	"NULL" 
+	/declare HarvestSpell1 			string 	outer	"NULL"
+	/declare UnityRune 				string 	outer	 NULL
 |-Config Options	
 	/call LoadCommonConfig
 	/call LoadIni Charm UseCharmPet		 		int 0
@@ -282,34 +283,56 @@ Sub CheckOptions
 | SUB: LoadSpellBar
 |------------------------------------------------------------------------------------------ *|
 Sub LoadSpellBar
-	/if (!${BringYourOwnSpells}) {
-		/if (${Me.Standing}) /sit
-		/delay 10 ${Me.Sitting}
-		/echo \aw Loading Spell Bar
-		/call LoadSpellGem "${MezSpell}" 1
-		/call LoadSpellGem "${MezAESpell}" 2
-		/call LoadSpellGem "${TashSpell}" 3
-		/call LoadSpellGem "${SlowSpell}" 4
-		/call LoadSpellGem "${CrippleSpell1}" 5
-		/call LoadSpellGem "${Drown}" 6
+
+	/if (${Me.Standing}) /sit
+	/delay 10 ${Me.Sitting}
+	/echo \aw Loading Spell Bar
+	/call LoadSpellGem "${MezSpell}" 1
+	/call LoadSpellGem "${MezAESpell}" 2
+	/call LoadSpellGem "${TashSpell}" 3
+	/call LoadSpellGem "${SlowSpell}" 4
+	/call LoadSpellGem "${Drown}" 5
+	/call LoadSpellGem "${MindNukeSub}" 6
+	/call LoadSpellGem "${MindNukeMain}" 7
+	/call LoadSpellGem "${SingleStunSpell1}" 8
+	
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+		/call LoadSpellGem "${SingleStunSpell1}" 5
+		/if (${UseDicho} && ${Me.Level}>=101 && ${DichoSpell.NotEqual[null]}) {
+			/call LoadSpellGem "${DichoSpell}" 6
+		} else {
+			/call LoadSpellGem "${PBAEStunSpell}" 6
+		}
 		/call LoadSpellGem "${MindNukeMain}" 7
-		/call LoadSpellGem "${SingleStunSpell1}" 8
-		
-		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+		/call LoadSpellGem "${MindNukeSub}" 8
+		/if (${UseCharmPet}) {
+			/call LoadSpellGem "${CharmSpell1}" 11
+		} else /if (${UseDoTs}) {
+			/call LoadSpellGem "${DoTSpell3}" 11
+		} else {
+			/call LoadSpellGem "${MezPBAESpell}" 11
+		}
+		/if (${UseDoTs}) {
+			/call LoadSpellGem "${Drown}" 9
+			/call LoadSpellGem "${DoTSpell2}" 10
+		} else {
+			/call LoadSpellGem "${Chromatic}" 9
+			/call LoadSpellGem "${NukeSpell4}" 10
+		}
+		/call LoadSpellGem "${ProcBuff}" 12
+		/call LoadSpellGem "${RootSpell}" 13
+		/varset spellmisc 13
+		/varset miscspellremem ${RootSpell}
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
+		|- Level 100 - AA strip becomes available - AA AE Memblur becomes available? 
+		/if (${Me.Level}>=100) {
 			/call LoadSpellGem "${SingleStunSpell1}" 5
-			/if (${UseDicho} && ${Me.Level}>=101 && ${DichoSpell.NotEqual[null]}) {
-				/call LoadSpellGem "${DichoSpell}" 6
+			/if (${UseCharmPet}) {
+				/call LoadSpellGem "${CharmSpell1}" 6
+			} else /if (${UseDoTs}) {
+				/call LoadSpellGem "${DoTSpell3}" 6
 			} else {
 				/call LoadSpellGem "${PBAEStunSpell}" 6
-			}
-			/call LoadSpellGem "${MindNukeMain}" 7
-			/call LoadSpellGem "${MindNukeSub}" 8
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${CharmSpell1}" 11
-			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell3}" 11
-			} else {
-				/call LoadSpellGem "${MezPBAESpell}" 11
 			}
 			/if (${UseDoTs}) {
 				/call LoadSpellGem "${Drown}" 9
@@ -318,125 +341,77 @@ Sub LoadSpellBar
 				/call LoadSpellGem "${Chromatic}" 9
 				/call LoadSpellGem "${NukeSpell4}" 10
 			}
-			/call LoadSpellGem "${ProcBuff}" 12
-			/call LoadSpellGem "${RootSpell}" 13
-			/varset spellmisc 13
-			/varset miscspellremem ${RootSpell}
-		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
-			|- Level 100 - AA strip becomes available - AA AE Memblur becomes available? 
-			/if (${Me.Level}>=100) {
-				/call LoadSpellGem "${SingleStunSpell1}" 5
-				/if (${UseCharmPet}) {
-					/call LoadSpellGem "${CharmSpell1}" 6
-				} else /if (${UseDoTs}) {
-					/call LoadSpellGem "${DoTSpell3}" 6
-				} else {
-					/call LoadSpellGem "${PBAEStunSpell}" 6
-				}
-				/if (${UseDoTs}) {
-					/call LoadSpellGem "${Drown}" 9
-					/call LoadSpellGem "${DoTSpell2}" 10
-				} else {
-					/call LoadSpellGem "${Chromatic}" 9
-					/call LoadSpellGem "${NukeSpell4}" 10
-				}
-				/call LoadSpellGem "${MindNukeSub}" 8
-			} else /if (${Me.Level}>=96) {
-				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${MindNukeSub}" 8
-				/call LoadSpellGem "${Drown}" 9
-				/if (${UseCharmPet}) {
-					/call LoadSpellGem "${CharmSpell1}" 10
-					/call LoadSpellGem "${SingleStunSpell1}" 6
-				} else /if (${UseDoTs}) {
-					/call LoadSpellGem "${DoTSpell2}" 10
-					/call LoadSpellGem "${DoTSpell3}" 6
-				} else {
-					/call LoadSpellGem "${Chromatic}" 10
-					/call LoadSpellGem "${SingleStunSpell1}" 6
-				}
-			} else /if (${Me.Level}>=89) {
-				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${MindNukeSub}" 8
-				/call LoadSpellGem "${Drown}" 9
-				/if (${UseCharmPet}) {
-					/call LoadSpellGem "${CharmSpell1}" 10
-					/call LoadSpellGem "${SingleStunSpell1}" 6
-				} else /if (${UseDoTs}) {
-					/call LoadSpellGem "${DoTSpell3}" 6
-					/call LoadSpellGem "${DoTSpell2}" 10
-				} else {
-					/call LoadSpellGem "${SingleStunSpell1}" 6
-					/call LoadSpellGem "${Chromatic}" 10
-				}
-			} else /if (${Me.Level}>=88) {
-			|- Level 88 - Slow+Cripple in 1 spell
-				/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${MindNukeSub}" 8
+		} else /if (${Me.Level}>=96) {
+			/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${MindNukeSub}" 8
+			/call LoadSpellGem "${Drown}" 9
+			/if (${UseCharmPet}) {
+				/call LoadSpellGem "${CharmSpell1}" 10
 				/call LoadSpellGem "${SingleStunSpell1}" 6
-				/call LoadSpellGem "${MindNukeSub}" 8
-				/call LoadSpellGem "${Drown}" 9
-				/if (${UseCharmPet}) {
-					/call LoadSpellGem "${CharmSpell1}" 10
-				} else /if (${UseDoTs}) {
-					/call LoadSpellGem "${DoTSpell2}" 10
-				} else {
-					/call LoadSpellGem "${Chromatic}" 10
-				}
-			} else /if (${Me.Level}>=86) {
-			|- Level 86 - AA slow becomes available 
-				/call LoadSpellGem "${StripBuffSpell}" 5
+			} else /if (${UseDoTs}) {
+				/call LoadSpellGem "${DoTSpell2}" 10
+				/call LoadSpellGem "${DoTSpell3}" 6
+			} else {
+				/call LoadSpellGem "${Chromatic}" 10
+				/call LoadSpellGem "${SingleStunSpell1}" 6
+			}
+		} else /if (${Me.Level}>=89) {
+			/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${MindNukeSub}" 8
+			/call LoadSpellGem "${Drown}" 9
+			/if (${UseCharmPet}) {
+				/call LoadSpellGem "${CharmSpell1}" 10
+				/call LoadSpellGem "${SingleStunSpell1}" 6
+			} else /if (${UseDoTs}) {
+				/call LoadSpellGem "${DoTSpell3}" 6
+				/call LoadSpellGem "${DoTSpell2}" 10
+			} else {
+				/call LoadSpellGem "${SingleStunSpell1}" 6
+				/call LoadSpellGem "${Chromatic}" 10
+			}
+		} else /if (${Me.Level}>=88) {
+		|- Level 88 - Slow+Cripple in 1 spell
+			/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${SingleStunSpell1}" 6
+			/call LoadSpellGem "${MindNukeSub}" 8
+			/call LoadSpellGem "${Drown}" 9
+			/if (${UseCharmPet}) {
+				/call LoadSpellGem "${CharmSpell1}" 10
+			} else /if (${UseDoTs}) {
+				/call LoadSpellGem "${DoTSpell2}" 10
+			} else {
+				/call LoadSpellGem "${Chromatic}" 10
+			}
+		} else /if (${Me.Level}>=86) {
+		|- Level 86 - AA slow becomes available 
+			/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${CrippleSpell1}" 6
+			/call LoadSpellGem "${Drown}" 9
+			/call LoadSpellGem "${MindNukeSub}" 8
+			/if (${UseCharmPet}) {
+				/call LoadSpellGem "${CharmSpell1}" 10
+			} else /if (${UseDoTs}) {
+				/call LoadSpellGem "${DoTSpell2}" 10
+			} else {
+				/call LoadSpellGem "${Chromatic}" 10
+			}
+		} else /if (${Me.Level}>=81) {
+		|- Level 81 - AA Single Memblur becomes available? 
+			/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${Drown}" 9
+			/call LoadSpellGem "${MindNukeSub}" 8
+			/if (${UseCharmPet}) {
+				/call LoadSpellGem "${CharmSpell1}" 6
+				/call LoadSpellGem "${SingleStunSpell1}" 10
+			} else /if (${UseDoTs}) {
 				/call LoadSpellGem "${CrippleSpell1}" 6
-				/call LoadSpellGem "${Drown}" 9
-				/call LoadSpellGem "${MindNukeSub}" 8
-				/if (${UseCharmPet}) {
-					/call LoadSpellGem "${CharmSpell1}" 10
-				} else /if (${UseDoTs}) {
-					/call LoadSpellGem "${DoTSpell2}" 10
-				} else {
-					/call LoadSpellGem "${Chromatic}" 10
-				}
-			} else /if (${Me.Level}>=81) {
-			|- Level 81 - AA Single Memblur becomes available? 
-				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${Drown}" 9
-				/call LoadSpellGem "${MindNukeSub}" 8
-				/if (${UseCharmPet}) {
-					/call LoadSpellGem "${CharmSpell1}" 6
-					/call LoadSpellGem "${SingleStunSpell1}" 10
-				} else /if (${UseDoTs}) {
-					/call LoadSpellGem "${CrippleSpell1}" 6
-					/call LoadSpellGem "${DoTSpell2}" 10
-				} else {
-					/call LoadSpellGem "${CrippleSpell1}" 6
-					/call LoadSpellGem "${SingleStunSpell1}" 10
-				}
+				/call LoadSpellGem "${DoTSpell2}" 10
 			} else {
-				/if (${UseCharmPet}) {
-					/call LoadSpellGem "${SingleStunSpell1}" 5
-					/call LoadSpellGem "${CharmSpell1}" 6			
-				} else {
-					/call LoadSpellGem "${StripBuffSpell}" 5
-					/call LoadSpellGem "${CrippleSpell1}" 6
-				}
-				/if (${UseDoTs}) {
-					/call LoadSpellGem "${DoTSpell2}" 8
-				} else {
-					/call LoadSpellGem "${MindNukeSub}" 8
-				}
-				/call LoadSpellGem "${Drown}" 9
-				/call LoadSpellGem "${BlurSpell}" 10
+				/call LoadSpellGem "${CrippleSpell1}" 6
+				/call LoadSpellGem "${SingleStunSpell1}" 10
 			}
-			/call LoadSpellGem "${MindNukeMain}" 7
-			/call LoadSpellGem "${ProcBuff}" 11
-			/if (${UseDicho} && ${Me.Level}>=101 && ${DichoSpell.NotEqual[null]}) {
-				/call LoadSpellGem "${DichoSpell}" 12
-				/varset miscspellremem ${DichoSpell}
-			} else {
-				/call LoadSpellGem "${RootSpell}" 12
-				/varset miscspellremem ${RootSpell}
-			}
-			/varset spellmisc 12	
-		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==3) {
+		} else {
 			/if (${UseCharmPet}) {
 				/call LoadSpellGem "${SingleStunSpell1}" 5
 				/call LoadSpellGem "${CharmSpell1}" 6			
@@ -444,54 +419,80 @@ Sub LoadSpellBar
 				/call LoadSpellGem "${StripBuffSpell}" 5
 				/call LoadSpellGem "${CrippleSpell1}" 6
 			}
-			/call LoadSpellGem "${MindNukeMain}" 7
 			/if (${UseDoTs}) {
-				/call LoadSpellGem "${Drown}" 8
+				/call LoadSpellGem "${DoTSpell2}" 8
 			} else {
 				/call LoadSpellGem "${MindNukeSub}" 8
 			}
-			/call LoadSpellGem "${BlurSpell}" 9
-			/call LoadSpellGem "${ProcBuff}" 10
-			/call LoadSpellGem "${RootSpell}" 11
-			/varset spellmisc 11
-			/varset miscspellremem ${RootSpell}
-		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==2) {
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${SingleStunSpell1}" 5
-				/call LoadSpellGem "${CharmSpell1}" 6			
-			} else {
-				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${CrippleSpell1}" 6
-			}
-			/call LoadSpellGem "${MindNukeMain}" 7
-			/if (${UseDoTs}) {
-				/call LoadSpellGem "${Drown}" 8
-			} else {
-				/call LoadSpellGem "${MindNukeSub}" 8
-			}
-			/call LoadSpellGem "${ProcBuff}" 9
+			/call LoadSpellGem "${Drown}" 9
 			/call LoadSpellGem "${BlurSpell}" 10
-			/varset spellmisc 10
-			/varset miscspellremem ${BlurSpell}
-		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==1) {
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${SingleStunSpell1}" 5
-				/call LoadSpellGem "${CharmSpell1}" 6			
-			} else {
-				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${CrippleSpell1}" 6
-			}
-			/if (${UseDoTs}) {
-				/call LoadSpellGem "${Drown}" 7
-			} else {
-				/call LoadSpellGem "${MindNukeMain}" 7
-			}
-			/call LoadSpellGem "${ProcBuff}" 8
-			/call LoadSpellGem "${BlurSpell}" 9
-			/varset spellmisc 9
-			/varset miscspellremem ${BlurSpell}
-		} 
-	}
+		}
+		/call LoadSpellGem "${MindNukeMain}" 7
+		/call LoadSpellGem "${ProcBuff}" 11
+		/if (${UseDicho} && ${Me.Level}>=101 && ${DichoSpell.NotEqual[null]}) {
+			/call LoadSpellGem "${DichoSpell}" 12
+			/varset miscspellremem ${DichoSpell}
+		} else {
+			/call LoadSpellGem "${RootSpell}" 12
+			/varset miscspellremem ${RootSpell}
+		}
+		/varset spellmisc 12	
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==3) {
+		/if (${UseCharmPet}) {
+			/call LoadSpellGem "${SingleStunSpell1}" 5
+			/call LoadSpellGem "${CharmSpell1}" 6			
+		} else {
+			/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${CrippleSpell1}" 6
+		}
+		/call LoadSpellGem "${MindNukeMain}" 7
+		/if (${UseDoTs}) {
+			/call LoadSpellGem "${Drown}" 8
+		} else {
+			/call LoadSpellGem "${MindNukeSub}" 8
+		}
+		/call LoadSpellGem "${BlurSpell}" 9
+		/call LoadSpellGem "${ProcBuff}" 10
+		/call LoadSpellGem "${RootSpell}" 11
+		/varset spellmisc 11
+		/varset miscspellremem ${RootSpell}
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==2) {
+		/if (${UseCharmPet}) {
+			/call LoadSpellGem "${SingleStunSpell1}" 5
+			/call LoadSpellGem "${CharmSpell1}" 6			
+		} else {
+			/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${CrippleSpell1}" 6
+		}
+		/call LoadSpellGem "${MindNukeMain}" 7
+		/if (${UseDoTs}) {
+			/call LoadSpellGem "${Drown}" 8
+		} else {
+			/call LoadSpellGem "${MindNukeSub}" 8
+		}
+		/call LoadSpellGem "${ProcBuff}" 9
+		/call LoadSpellGem "${BlurSpell}" 10
+		/varset spellmisc 10
+		/varset miscspellremem ${BlurSpell}
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==1) {
+		/if (${UseCharmPet}) {
+			/call LoadSpellGem "${SingleStunSpell1}" 5
+			/call LoadSpellGem "${CharmSpell1}" 6			
+		} else {
+			/call LoadSpellGem "${StripBuffSpell}" 5
+			/call LoadSpellGem "${CrippleSpell1}" 6
+		}
+		/if (${UseDoTs}) {
+			/call LoadSpellGem "${Drown}" 7
+		} else {
+			/call LoadSpellGem "${MindNukeMain}" 7
+		}
+		/call LoadSpellGem "${ProcBuff}" 8
+		/call LoadSpellGem "${BlurSpell}" 9
+		/varset spellmisc 9
+		/varset miscspellremem ${BlurSpell}
+	} 
+	
 	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -684,6 +685,38 @@ Sub SetEncSpells
 		/varset SlowSpell ${Spell[Languid Pace].RankName}
 	}
 
+	|-Cripple Spell * Var Name: CrippleSpell1 string outer
+	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Constraining Helix].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Constraining Helix].RankName}
+	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Undermining Helix].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Undermining Helix].RankName}
+	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Diminishing Helix].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Diminishing Helix].RankName}
+	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Attenuating Helix].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Attenuating Helix].RankName}
+	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Curtailing Helix].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Curtailing Helix].RankName}
+	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Splintered Consciousness].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Splintered Consciousness].RankName}
+	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Fragmented Consciousness].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Fragmented Consciousness].RankName}
+	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Shattered Consciousness].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Shattered Consciousness].RankName}
+	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Fractured Consciousness].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Fractured Consciousness].RankName}
+	} else /if (${Me.Level}>=66 && ${Me.Book[${Spell[Synapsis Spasm].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Synapsis Spasm].RankName}
+	} else /if (${Me.Level}>=53 && ${Me.Book[${Spell[Cripple].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Cripple].RankName}
+	} else /if (${Me.Level}>=40 && ${Me.Book[${Spell[Incapacitate].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Incapacitate].RankName}
+	} else /if (${Me.Level}>=25 && ${Me.Book[${Spell[Listless Power].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Listless Power].RankName}
+	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Disempower].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Disempower].RankName}
+	} else /if (${Me.Level}>=4 && ${Me.Book[${Spell[Enfeeblement].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Enfeeblement].RankName}
+	}
 |	/if (${Me.AltAbilityReady[${SlowSpell}]}) /varset SlowSpell ${SlowSpell}
 
 |-Nuke 1 * Var Name: MindNukeMain string outer
@@ -1059,6 +1092,10 @@ Sub SetEncSpells
 	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Arcane Rune].RankName}]}) {
 		/varset SelfRune1 ${Spell[Arcane Rune].RankName}
 	}
+
+	/if (${Me.Level}>=90 && ${Me.Book[${Spell[Spectral Unity].RankName}]}) {
+		/varset UnityRune ${Spell[Spectral Unity].RankName}
+	} 
 	
 |-Self Rune 2 * Var Name: SelfRune2 string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Polyfluorescent Rune].RankName}]}) {
@@ -1198,38 +1235,6 @@ Sub SetEncSpells
 		/varset CharmSpell1 ${Spell[Beguile].RankName}
 	} else /if (${Me.Level}>=11 && ${Me.Book[${Spell[Charm].RankName}]}) {
 		/varset CharmSpell1 ${Spell[Charm].RankName}
-	}
-|-Cripple Spell * Var Name: CrippleSpell1 string outer
-	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Constraining Helix].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Constraining Helix].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Undermining Helix].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Undermining Helix].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Diminishing Helix].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Diminishing Helix].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Attenuating Helix].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Attenuating Helix].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Curtailing Helix].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Curtailing Helix].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Splintered Consciousness].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Splintered Consciousness].RankName}
-	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Fragmented Consciousness].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Fragmented Consciousness].RankName}
-	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Shattered Consciousness].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Shattered Consciousness].RankName}
-	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Fractured Consciousness].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Fractured Consciousness].RankName}
-	} else /if (${Me.Level}>=66 && ${Me.Book[${Spell[Synapsis Spasm].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Synapsis Spasm].RankName}
-	} else /if (${Me.Level}>=53 && ${Me.Book[${Spell[Cripple].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Cripple].RankName}
-	} else /if (${Me.Level}>=40 && ${Me.Book[${Spell[Incapacitate].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Incapacitate].RankName}
-	} else /if (${Me.Level}>=25 && ${Me.Book[${Spell[Listless Power].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Listless Power].RankName}
-	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Disempower].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Disempower].RankName}
-	} else /if (${Me.Level}>=4 && ${Me.Book[${Spell[Enfeeblement].RankName}]}) {
-		/varset CrippleSpell1 ${Spell[Enfeeblement].RankName}
 	}
 |-Strip Buff Spell * Var Name: StripBuffSpell string outer
 	/if (${Me.Level}>=100 && ${Me.AltAbilityReady[Eradicate Magic]}) {

@@ -226,7 +226,9 @@ Sub CheckSpells
 		/varset wardspell ${Spell[Ward of Certitude].RankName}
 	}
 	
-	/if (${Me.Level}>=92 && ${Me.Book[${Spell[Zealous Elixir].RankName}]})  {
+	/if (${Me.Level}>=92 && ${Me.Book[${Spell[Elixir of the Ardent].RankName}]})  {
+		/varset SingleElixirSpell ${Spell[Elixir of the Ardent].RankName}
+	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Zealous Elixir].RankName}]})  {
 		/varset SingleElixirSpell ${Spell[Zealous Elixir].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Earnest Elixir].RankName}]})  {
 		/varset SingleElixirSpell ${Spell[Earnest Elixir].RankName}

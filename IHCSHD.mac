@@ -68,7 +68,6 @@ Sub AFKRadiusCamping
 
 		/call set_timers
 
-		/call puller_check_group_resources 
 		/call afk_pull
 		/call check_state FALSE
 		/call get_target
@@ -86,7 +85,7 @@ Sub AFKRadiusCamping
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 		/call misc
-		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 110]}>6)) { 
+		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) { 
   			/echo PC nearby! 
   			/call DummyMode 
 		}
@@ -280,19 +279,21 @@ Sub aoe_aggro
 
 	/if (!${validate_combat[FALSE]}) /return
 
-	/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {
-		/if (${validate_cast[FALSE, spell, "${Denial}", ${Target.ID}]}) {
-			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Using AoE aggro with =>> \ag ${Denial} \ax <<=
-			/call core_cast2 "${Denial}" spell ${Target.ID} FALSE
+	/if (${Me.XTarget} > 1) {
+		/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {
+			/if (${validate_cast[FALSE, spell, "${Denial}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Using AoE aggro with =>> \ag ${Denial} \ax <<=
+				/call core_cast2 "${Denial}" spell ${Target.ID} FALSE
+			}
 		}
-	}
-	
-	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
-|		/if (${validate_cast[FALSE, spell, "${Bargain}", ${Target.ID}]}) /call core_cast2 "${Bargain}" spell ${Target.ID} FALSE
-	} 
+		
+		/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
+	|		/if (${validate_cast[FALSE, spell, "${Bargain}", ${Target.ID}]}) /call core_cast2 "${Bargain}" spell ${Target.ID} FALSE
+		} 
 
-	/if (${SpawnCount[npc radius 50 zradius 50]} > 1) {
-| 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
+		/if (${SpawnCount[npc radius 50 zradius 50]} > 1) {
+	| 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
+		}
 	}
 
 /return

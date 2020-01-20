@@ -165,7 +165,6 @@ Sub AFKRadiusCamping
 
 	/while (${Mode}==3) {
 
-		/call puller_check_group_resources 
 		/call afk_pull
 
 		/call check_state FALSE
@@ -183,7 +182,7 @@ Sub AFKRadiusCamping
 		/call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 110]}>6)) { 
+		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) { 
   			/echo PC nearby! 
   			/call DummyMode 
 		}
@@ -274,7 +273,7 @@ Sub DoDisc
 
 	/if (!${validate_combat[FALSE]}) /return
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
+	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -291,7 +290,7 @@ Sub DoDisc
 		/disc ${parryall}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
+	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -316,7 +315,7 @@ Sub DoDisc
 		}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30)) {
+	/if ((${Me.XTarget} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30)) {
 		/if (${Me.AltAbilityReady[Warlord's Tenacity]} && ${Target.PctHPs} > 1) {
 			/call AANow ${Me.AltAbility[Warlord's Tenacity].ID}
 		} 
@@ -338,6 +337,11 @@ Sub DoDisc
 Sub get_aggro
 
 	/if (!${validate_combat[FALSE]}) /return
+
+	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Target.MaxRangeTo}>=${Target.Distance}) {
+		/call AANow ${Me.AltAbility[Battle Leap].ID}
+		/squelch /attack on
+	}
 
 	/call use_skill_melee FALSE ${Target.ID}
 
@@ -383,7 +387,7 @@ Sub get_aggro
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
-	/if (${SpawnCount[NPC radius 45 zradius 45 noalert 1]}<2 && ${Me.AbilityReady[Rampage]} && ${Target.PctHPs}>1) {
+	/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]}<2 && ${Me.AltAbilityReady[Rampage]} && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Rampage].ID}
 	}
 
@@ -417,10 +421,6 @@ Sub get_aggro
 	/if (${Me.CombatAbilityReady[${reprisal}]} && ${Me.SecondaryPctAggro}>5) {
 		/call DiscNow "${reprisal}"
 	}
-	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Target.MaxRangeTo}>=${Target.Distance}) {
-		/call AANow ${Me.AltAbility[Battle Leap].ID}
-		/squelch /attack on
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: AoEAggro   
@@ -431,16 +431,16 @@ Sub AoEAggro
 
 	/if (!${validate_combat[FALSE]}) /return
 
-	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1) {
+	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1 && ${Me.XTarget} > 1) {
 		/if (${validate_cast[FALSE, disc, "${aeroar}", ${Target.ID}]}) /call core_cast2 "${aeroar}" disc ${Target.ID} FALSE
 	}
 	
-	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
+	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2 && ${Me.XTarget} > 2) {
 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
 	}
 
 	| How many mobs are there?
-	/if (${SpawnCount[npc radius 50 zradius 50]} > 1) {
+	/if (${SpawnCount[npc radius 50 zradius 50]} > 1 && ${Me.XTarget} > 1) {
 		
 		/for x 1 to ${Me.XTarget}
 

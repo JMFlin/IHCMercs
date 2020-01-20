@@ -170,11 +170,11 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
 	}
 
-	/if (!${Me.Song[${PetGrowl}].ID} && ${Target.PctHPs} > 30) {
-		/if (${validate_cast[FALSE, spell, "${PetGrowl}", ${Me.ID}]}) /call core_cast2 "${PetGrowl}" spell 0 FALSE
+	/if (${Target.PctHPs} > 30) {
+		/if (${validate_cast[FALSE, spell, "${SwarmPet}", ${Target.ID}]}) /call core_cast2 "${SwarmPet}" spell ${Target.ID} FALSE
 	}
 
-	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${slowImmuneID} != ${Target.ID}) {
+	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
@@ -183,12 +183,24 @@ Sub combat
 		}
 	}
 
-	/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-		/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
-			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
-			/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
-		}
+	/if (${Me.CombatAbilityReady[${Maul}]}) {
+		/if (${validate_cast[FALSE, disc, ${Maul}, ${Target.ID}]}) /call core_cast2 ${Maul} disc ${Target.ID} FALSE
 	}
+
+	/call use_skill_melee FALSE ${Target.ID}
+
+	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
+		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
+	}
+
+
+
+	|/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
+	|	/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
+	|		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+	|		/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+	|	}
+	|}
 
 	/if (!${Target.Buff[${NukeSpell4}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NukeSpell4}", ${Target.ID}]}) /call core_cast2 "${NukeSpell4}" spell ${Target.ID} FALSE
@@ -220,20 +232,20 @@ Sub debuff_xtarget
 		/if (!${Target.Type.Equal[NPC]}) /return
 		
 		| How will you handle the AA?
-		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && ${slowImmuneID} != ${Target.ID}) {
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar${Target.Name} \ax with =>> \ag${SlowSpell} \ax <<=
 				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 		
-		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
-				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
-			}
-		}
+		|/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
+		|	/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
+		|		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
+		|		/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
+		|	}
+		|}
 		/delay 2s
 	/next x
 /return

@@ -27,12 +27,8 @@ Sub Main
 	/call setup_plugins
 	/call BrdSetup
 	/call VarSetup
-	/if (${IHCVersion.NotEqual[${IHCMacVersion}]}) {
-		/call ClassAliasSetup
-	}
 	/call CheckSpells
-	/call LoadSongData
-	/call LoadSpellBar
+	/call LoadSpellBar	
 |-Cursor ID
 	/if (${Cursor.ID}) {
 		/echo Sending Item on Cursor to Bag
@@ -81,6 +77,7 @@ Sub ManualPullCamping
 
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/call misc
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/doevents
 	}
 /return
@@ -100,15 +97,12 @@ Sub pulse(bool _debug, string _melody)
         /varset _melodyArray[${_song}] ${_melody.Mid[${_song},1]}
     /next _song
 	
-	/if (${_melody} == ${BattleMelody}) /call get_target
+	/call get_target
 	
-	/call debuff
-	/call selo
-
 	/for _song 1 to ${_lnString}
 		
 		/call debuff
-		/call selo
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/doevents
 		/call get_target
 		/call Engage
@@ -120,10 +114,12 @@ Sub pulse(bool _debug, string _melody)
 			/call pulse_stop pulse_line_start
 			/return
 		}
+		
 		/if (${validate_cast[FALSE, pulse, "${Me.Gem[${_melodyArray[${_song}]}]}", ${Me.ID}]}) {
 			/call core_cast2 "${Me.Gem[${_melodyArray[${_song}]}]}" pulse 0 FALSE
 		}
 
+		/if (${_melodyArray.Size} < 3) /delay 2s
 		/if (${_melody} == ${RegenMelody}) /stopsong
 
 	/next _song
@@ -131,30 +127,22 @@ Sub pulse(bool _debug, string _melody)
 /return TRUE
 
 Sub debuff
-	/if (!${Me.XTarget}) /return
-	/if (!${Target.ID}) /return
-	/if (${Target.Distance} > 150) /return
-	/if (!${Spawn[id ${Target.ID}].LineOfSight}) /return
+	/if (!${validate_combat[FALSE]}) /return
 
-	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && ${slowImmuneID} != ${Target.ID}) {
+	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
-			/docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
 			/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
-		}
-		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${SlowSong} \ax <<=
-			/varset slowImmuneID ${Target.ID}
+			/call check_cast_events "${SlowSong}" CAST_IMMUNE ${Target.ID}
 		}
 	}
 
 /return
 
 Sub selo
-	/if (${Me.XTarget}) /return
 
-	/if (${validate_cast[FALSE, pulse, "${Me.Gem[3]}", ${Me.ID}]}) {
-		/call core_cast2 "${Me.Gem[3]}" pulse 0 FALSE
+	/if (${validate_cast[FALSE, pulse, "${AccelerandoSong}", ${Me.ID}]}) {
+		/call core_cast2 "${AccelerandoSong}" pulse 0 FALSE
 	}
 
 /return
