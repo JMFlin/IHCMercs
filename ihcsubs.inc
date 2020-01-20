@@ -571,7 +571,7 @@ Sub Engage
 	/if (!${Me.Combat} && ${Select[${Me.Class.ShortName},BER,ROG]}) {
 		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
 	}
-	/if (${Target.ID}) /squelch /attack on
+	/if (${Target.ID} && ${Target.Distance3D} < 50) /squelch /attack on
 	/call pet_attack
 
 /return
@@ -991,6 +991,8 @@ Sub check_campfire
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
+		/delay 1s
+		/nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
 		/delay 1s
 		/windowstate FellowshipWnd close
 	}

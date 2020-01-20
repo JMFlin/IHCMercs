@@ -106,6 +106,11 @@ Sub AANDisc
 	/call get_target
 
 	/if (!${validate_combat[FALSE]}) /return
+	/if (${Target.Distance3D} > 50) /return
+
+	/if (!${Me.Combat}) {
+		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
+	}
 
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
 		/alt act ${Me.AltAbility[Communion of Blood].ID}
@@ -256,15 +261,15 @@ Sub AANDisc
 Sub combat
 
 	/call get_target
+	/if (!${validate_combat[FALSE]}) /return
+	/if (${Target.Distance3D} > 50) /return
 
-	/if (!${validate_combat[FALSE]}) {
-		/if (${validate_cast[FALSE, disc, "${JoltDisc}", ${Target.ID}]}) {
-			/call core_cast2 "${JoltDisc}" disc ${Target.ID} FALSE
-		} else {
-			/return
-		}
+	/if (${validate_cast[FALSE, disc, "${JoltDisc}", ${Target.ID}]}) {
+		/call core_cast2 "${JoltDisc}" disc ${Target.ID} FALSE
+	} else {
+		/return
 	}
-
+	
 	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && ${snareImmuneID} != ${Target.ID}) {
