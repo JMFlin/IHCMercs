@@ -706,7 +706,6 @@ Sub afk_pull
 
 	/call set_pull_target
 	/varset _pullTargetID ${Macro.Return}
-	/echo _pullTargetID
 	/if (!${_pullTargetID}) /return
 
 	/call puller_check_group_resources
@@ -781,7 +780,7 @@ Sub afk_pull
 Sub validate_single_pull(int _tmpID)
 	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
 	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
-	/declare _addCount		int local	${SpawnCount[loc ${locX} ${locY} radius 65 npc targetable noalert 1]}
+	/declare _addCount		int local	${SpawnCount[loc ${locX} ${locY} radius 1 npc targetable noalert 1]}
 	
 	/if (${_addCount} > 1) /return TRUE
 
@@ -795,7 +794,6 @@ Sub set_pull_target
 	/declare _pullTargetID 	int local 0
 
 	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}]}
-	/echo ${_mobsInRadius}
 	/while (${_count} <= ${_mobsInRadius}) {
 		/if (!${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}) /continue
 		/if (!${Navigation.PathExists[id ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${AggressiveRadius} zradius ${AssistRangeZ}].ID}]}) /continue
