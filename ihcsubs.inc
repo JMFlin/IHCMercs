@@ -738,7 +738,7 @@ Sub afk_pull
 	}
 
 	/delay 3s !${Me.Moving}
-	/delay 5
+	/delay 2s
 
 	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
@@ -1519,9 +1519,9 @@ Sub DummyMode
 	/declare _count int local
 
 	/if (${Me.XTarget}) /return
-	
+
 	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]}>6)) { 
-		/echo Entering Dummy Mode... 
+		/echo Entering Dummy Mode...
 		/delay 1s 
 		/echo PC nearby! 
 		
