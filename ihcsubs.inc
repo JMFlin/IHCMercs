@@ -559,10 +559,6 @@ Sub Engage
 	
 	/if (${Target.ID}) /face fast
 
-	/if (!${Me.Combat} && ${Select[${Me.Class.ShortName},BER,ROG]}) {
-		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
-	}
-
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
 		/if (!${Stick.Active}) /stick 12 moveback loose
 		/delay 10 ${Stick.Active}
@@ -571,6 +567,9 @@ Sub Engage
 	/if (${Me.ID} != ${Group.MainTank.ID}) {
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
+	}
+	/if (!${Me.Combat} && ${Select[${Me.Class.ShortName},BER,ROG]}) {
+		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
 	}
 	/if (${Target.ID}) /squelch /attack on
 	/call pet_attack

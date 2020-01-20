@@ -259,7 +259,9 @@ Sub SetupSpells
 	}
 
 	| Shrouds
-	/if (${Me.Level}>=77 && ${Me.Book[${Spell[Shroud of the Gloomborn].RankName}]}) {
+	/if (${Me.Level}>=82 && ${Me.Book[${Spell[Shroud of the Blightborn].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Blightborn].RankName}
+	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Shroud of the Gloomborn].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of the Gloomborn].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Shroud of the Nightborn].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of the Nightborn].RankName}
@@ -277,6 +279,8 @@ Sub SetupSpells
 
 	/if (${Me.Level}>=96 && ${Me.Book[${Spell[Mental Terror].RankName}]}) {
 		/varset MPShroud ${Spell[Mental Terror].RankName}
+	} else /if (${Me.Level}>81 && ${Me.Book[${Spell[Mindshear Horror].RankName}]}) {
+		/varset MPShroud ${Spell[Mindshear Horror].RankName}
 	} else /if (${Me.Level}>65 && ${Me.Book[${Spell[Mental Horror].RankName}]}) {
 		/varset MPShroud ${Spell[Mental Horror].RankName}
 	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Mental Corruption].RankName}]}) {
