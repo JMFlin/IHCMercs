@@ -1516,26 +1516,27 @@ sub validate_combat(bool _debug)
 | Sub DummyMode
 |--------------------------------------------------------------------------------
 Sub DummyMode 
+	/declare _count int local
 
-	/declare TimeInc int local
 	/if (${Me.XTarget}) /return
-	/echo Entering Dummy Mode... 
-	/delay 1s 
-	|/afk ${DummyMsg}
-
-	:waitabit 
-	/for TimeInc 1 to ${DummyTime}
-		/echo (${TimeInc}/${DummyTime})
-		/delay 1s
-		/if (${Me.XTarget}) /return
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-	/next TimeInc
-|${pullRadiusXY}
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]}>6)) /goto :waitabit 
-	|/afk off 
-	/delay 1s 
+	
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]}>6)) { 
+		/echo Entering Dummy Mode... 
+		/delay 1s 
+		/echo PC nearby! 
+		
+		/while (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]}>6)) { 
+			/for _count 1 to ${DummyTime}
+				/echo (${_count}/${DummyTime})
+				/delay 1s
+				/if (${Me.XTarget}) /return
+				/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/next _count
+			/delay 1s 
+		}
 
 /return
+
 |***
  *	DES: validates casting of "things on a target
  *	USE: /call ${validate_cast[[TRUE|FALSE], [spell|alt|disc|item|pulse|FIND], name, targetID, ForceTarget]
@@ -2832,7 +2833,7 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 
 	/if (!${Select[${castReturn},${_event}]}) /return
 
-	/if (${String[${_event}].Equal[CAST_IMMUNE]}) {
+	/if (${_event.Equal[CAST_IMMUNE]}) {
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${_spell} \ax <<=
 			
 		/if (!${immuneSet.Add[${_tmpID}]}) {
@@ -2840,8 +2841,8 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 		}
 	}
 
-	/if (${String[${_event}].Equal[CAST_CANNOTCAST]}) {
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is UNPULLABLE with =>> \ag ${_spell} \ax <<=
+	/if (${_event.Equal[CAST_CANNOTCAST]}) {
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is \ar UNPULLABLE \ax with =>> \ag ${_spell} \ax <<=
 		/squelch /alert add 1 id ${_tmpID}
 	}
 
