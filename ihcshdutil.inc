@@ -295,7 +295,10 @@ Sub SetupSpells
 	}
 
 	| Discs
-	/if (${Me.Level}>=78 && ${Me.CombatAbility[${Spell[Umbral Carapace].RankName}]}) {
+	/if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Malarian Mantle].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Malarian Mantle].RankName}
+		/varset IchorGuardID ${Spell[Malarian Mantle].ID}
+	} else /if (${Me.Level}>=78 && ${Me.CombatAbility[${Spell[Umbral Carapace].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Umbral Carapace].RankName}
 		/varset IchorGuardID ${Spell[Umbral Carapace].ID}
 	} else /if (${Me.Level}>=73 && ${Me.CombatAbility[${Spell[Soul Shield].RankName}]}) {
@@ -321,6 +324,11 @@ Sub SetupSpells
 	/if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Leechcurse Discipline].RankName}]}) {
 		/varset LeechcurseDisc ${Spell[Leechcurse Discipline].RankName}
 		/varset LeechcurseID ${Spell[Leechcurse Discipline].ID}
+	}
+
+	/if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Withstand].RankName}]}) {
+		/varset Withstand ${Spell[Withstand].RankName}
+		/varset WithstandID ${Spell[Withstand].ID}
 	}
 
 	| Pull ability

@@ -189,6 +189,27 @@ Sub DoDisc
 
 	/if (!${validate_combat[FALSE]}) /return
 
+
+	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.PctHPs} < 30) {
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Target.ID}]}) {
+					/call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
+				}
+			}
+		} else {
+			/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Target.ID}]}) {
+				/call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
+			}
+		}
+	}
+
+	/if (${Me.PctHPs} < 55 && ${Me.ActiveDisc.ID} != ${DeflectionID}) {
+		/disc ${Withstand}
+	}
+
 	/if ((${SpawnCount[npc radius 60 zradius 50]} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3))) {
 
 		/if (${Me.ActiveDisc.ID}) {
@@ -233,22 +254,6 @@ Sub DoDisc
 		} else {
 			/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Target.ID}]}) {
 				/call core_cast2 "${UnholyAuraDisc}" disc ${Target.ID} FALSE
-			}
-		}
-	}
-
-	/if (${Me.PctHPs} < 30) {
-
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
-				/stopdisc
-				/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Target.ID}]}) {
-					/call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
-				}
-			}
-		} else {
-			/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Target.ID}]}) {
-				/call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
 			}
 		}
 	}
