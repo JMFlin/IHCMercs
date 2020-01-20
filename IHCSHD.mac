@@ -125,7 +125,7 @@ Sub downtime_buffs
 			/call core_cast2 "${HPShroud}" spell ${Me.ID} FALSE
 			/varset CastCheck 1
 		}
-	}´
+	}
 
 	/if (${Me.XTarget}) /return
 	/if (!${Me.Buff[${MPShroud}].ID}) {
@@ -206,7 +206,7 @@ Sub DoDisc
 		}
 	}
 
-	/if (${Me.PctHPs} < 55 && ${Me.ActiveDisc.ID} != ${DeflectionID}) {
+	/if (${Me.PctHPs} < 99 && ${Me.ActiveDisc.ID} != ${DeflectionID}) {
 		/disc ${Withstand}
 	}
 
