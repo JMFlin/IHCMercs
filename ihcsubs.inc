@@ -1520,12 +1520,12 @@ Sub DummyMode
 
 	/if (${Me.XTarget}) /return
 
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]}>6)) { 
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]} > 6)) { 
 		/echo Entering Dummy Mode...
 		/delay 1s 
 		/echo PC nearby! 
 		
-		/while (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]}>6)) { 
+		/while (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]} > 6)) { 
 			/for _count 1 to ${DummyTime}
 				/echo (${_count}/${DummyTime})
 				/delay 1s
