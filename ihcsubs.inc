@@ -2831,7 +2831,7 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 
 	/if (!${Select[${castReturn},${_event}]}) /return
 
-	/if (${String[${_event}].Equal[CAST_IMMUNE]}) {
+	/if (${_event.Equal[CAST_IMMUNE]}) {
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${_spell} \ax <<=
 			
 		/if (!${immuneSet.Add[${_tmpID}]}) {
@@ -2839,7 +2839,7 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 		}
 	}
 
-	/if (${String[${_event}].Equal[CAST_CANNOTCAST]}) {
+	/if (${_event.Equal[CAST_CANNOTCAST]}) {
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is UNPULLABLE with =>> \ag ${_spell} \ax <<=
 		/squelch /alert add 1 id ${_tmpID}
 	}
