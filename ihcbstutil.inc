@@ -51,6 +51,7 @@ Sub BstSetup
 	/declare HHEFuryDisc		string outer NULL
 	/declare DmgModDisc			string outer NULL
 	/declare EndRegenProcDisc	string outer NULL
+	
 |-Declare spell variables
 	/declare spellmisc 			int outer 8
 	/declare miscspellremem		string outer NULL
@@ -112,7 +113,7 @@ Sub LoadSpellBar
 	
 	/call LoadSpellGem "${CrippleSpell1}" 6
 	/call LoadSpellGem "${SlowSpell}" 7
-	/call LoadSpellGem "${PetGrowl}" 8	
+	/call LoadSpellGem "${SwarmPet}" 8	
 	
 	/if (${Me.Level}>105 && ${spellmisc}>=13) {
 		/call LoadSpellGem "${SwarmPet}" 6
@@ -202,7 +203,6 @@ Sub LoadSpellBar
 |- SUB: CheckSpells
 |---------------------------------------------------------------------------- 
 Sub CheckSpells
-
 
 	/if (${Me.Level}>=${Spell[Incapacitate].Level} && ${Me.Book[${Spell[Incapacitate].RankName}]}) {
 		/varset CrippleSpell1 ${Spell[Incapacitate].RankName}

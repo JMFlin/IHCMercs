@@ -165,7 +165,6 @@ Sub AFKRadiusCamping
 
 	/while (${Mode}==3) {
 
-		/call puller_check_group_resources 
 		/call afk_pull
 
 		/call check_state FALSE
@@ -183,7 +182,7 @@ Sub AFKRadiusCamping
 		/call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius 110]}>6)) { 
+		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) { 
   			/echo PC nearby! 
   			/call DummyMode 
 		}
@@ -245,8 +244,8 @@ Sub CombatBuffs
 		/call AANow ${Me.AltAbility[Warlord's Bravery].ID}
 	}
 
-	/if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Fundament: Third Spire of the Warlord].ID} && !${Me.Buff[Fundament: Third Spire of Divinity].ID} && ${Me.AltAbilityReady[Fundament: Third Spire of the Warlord]}) {
-		/call AANow ${Me.AltAbility[Fundament: Third Spire of the Warlord].ID}
+	/if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Spire of the Warlord].ID} && ${Me.AltAbilityReady[Spire of the Warlord]}) {
+		/call AANow ${Me.AltAbility[Spire of the Warlord].ID}
 	}
 
 	|-- Defensive buffs based on health
@@ -261,6 +260,10 @@ Sub CombatBuffs
 		/if (${Me.AltAbilityReady[Resplendent Glory]}) {
 			/call AANow ${Me.AltAbility[Resplendent Glory].ID}
 		}
+	} else /if (${Me.PctHPs} < 45 || ${Target.Named}) {
+		/if (${Me.AltAbilityReady[Resplendent Glory]}) {
+			/call AANow ${Me.AltAbility[Resplendent Glory].ID}
+		}
 	}
 /return
 |----------------------------------------------------------------------------
@@ -270,7 +273,7 @@ Sub DoDisc
 
 	/if (!${validate_combat[FALSE]}) /return
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
+	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -287,7 +290,7 @@ Sub DoDisc
 		/disc ${parryall}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
+	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
@@ -312,7 +315,7 @@ Sub DoDisc
 		}
 	}
 
-	/if ((${SpawnCount[npc radius 60 zradius 50]}>3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30)) {
+	/if ((${Me.XTarget} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30)) {
 		/if (${Me.AltAbilityReady[Warlord's Tenacity]} && ${Target.PctHPs} > 1) {
 			/call AANow ${Me.AltAbility[Warlord's Tenacity].ID}
 		} 
@@ -335,7 +338,16 @@ Sub get_aggro
 
 	/if (!${validate_combat[FALSE]}) /return
 
+	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Target.MaxRangeTo}>=${Target.Distance}) {
+		/call AANow ${Me.AltAbility[Battle Leap].ID}
+		/squelch /attack on
+	}
+
 	/call use_skill_melee FALSE ${Target.ID}
+
+	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
+		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
+	}
 
 	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${shout}]} && ${Target.PctHPs}>1) {
 		/call DiscNow "${shout}"
@@ -359,7 +371,7 @@ Sub get_aggro
 		/call AANow ${Me.AltAbility[Knee Strike].ID}
 	}
 
-	/if ((${Target.Named} || ${Me.PctHPs} < 51) && ${Me.PctEndurance}>30 && ${Me.CombatAbilityReady[${knuckle}]} && ${Target.PctHPs}>1) {
+	/if ((${Target.Named} || ${Me.PctHPs} < 61) && ${Me.CombatAbilityReady[${knuckle}]} && ${Target.PctHPs}>1) {
 		/call DiscNow ${knuckle}
 	}
 	/if (${Me.CombatAbilityReady[${StrikeDisc}]} && ${Target.PctHPs}>1) {
@@ -375,7 +387,7 @@ Sub get_aggro
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
-	/if (${SpawnCount[NPC radius 45 zradius 45]}<2 && ${Me.AbilityReady[Rampage]} && ${Target.PctHPs}>1) {
+	/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]}<2 && ${Me.AltAbilityReady[Rampage]} && ${Target.PctHPs}>1) {
 		/call AANow ${Me.AltAbility[Rampage].ID}
 	}
 
@@ -403,19 +415,11 @@ Sub get_aggro
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
-	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
-		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
-	}
-
 	/if (${Me.CombatAbilityReady[${tongue}]} && ${Me.SecondaryPctAggro}>10) {
 		/call DiscNow "${tongue}"
 	}
 	/if (${Me.CombatAbilityReady[${reprisal}]} && ${Me.SecondaryPctAggro}>5) {
 		/call DiscNow "${reprisal}"
-	}
-	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Target.MaxRangeTo}>=${Target.Distance}) {
-		/call AANow ${Me.AltAbility[Battle Leap].ID}
-		/squelch /attack on
 	}
 /return
 |----------------------------------------------------------------------------
@@ -427,16 +431,16 @@ Sub AoEAggro
 
 	/if (!${validate_combat[FALSE]}) /return
 
-	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1) {
+	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1 && ${Me.XTarget} > 1) {
 		/if (${validate_cast[FALSE, disc, "${aeroar}", ${Target.ID}]}) /call core_cast2 "${aeroar}" disc ${Target.ID} FALSE
 	}
 	
-	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
+	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2 && ${Me.XTarget} > 2) {
 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
 	}
 
 	| How many mobs are there?
-	/if (${SpawnCount[npc radius 50 zradius 50]} > 1) {
+	/if (${SpawnCount[npc radius 50 zradius 50]} > 1 && ${Me.XTarget} > 1) {
 		
 		/for x 1 to ${Me.XTarget}
 

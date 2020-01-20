@@ -69,7 +69,7 @@ Sub Event_NotOnTargetDistance(string line)
 		/alt act ${Me.AltAbility[Drawn to Blood].ID}
 	}
 
-	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,CLR,ENC,SHM]} && ${Spawn[id ${Target.ID}].Distance} > 190) {
+	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,CLR,ENC,SHM]} && ${Spawn[id ${Target.ID}].Distance} > 50 && ${Target.PctHPs} < 98) {
 		/if (${Navigation.MeshLoaded}) /nav id ${Target.ID}
 		/while (${Navigation.Active}) {
 			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight} && (${Spawn[id ${Target.ID}].Distance} < 150 || ${Spawn[id ${Target.ID}].Distance} > 400)) /nav stop
@@ -235,6 +235,10 @@ sub Event_CAST_BEGIN(string line)
 	/varset castReturn CAST_SUCCESS
 /return ${castReturn}
 
+#event CAST_CANNOTCAST              "You cannot cast #1# on#*#"
+sub Event_CAST_CANNOTCAST(string line)
+	/varset castReturn CAST_CANNOTCAST
+/return ${castReturn}
 
 | #event CAST_CANNOTSEE              "You cannot see your target#*#"
 sub Event_CAST_CANNOTSEE(string line)
