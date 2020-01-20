@@ -40,7 +40,7 @@ sub events_speakline(string _target, string _verbage)
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 |***
-#Event NotOnTargetLoS	"#*#You cannot see your target#*#"
+| #Event NotOnTargetLoS	"#*#You cannot see your target#*#"
 Sub Event_NotOnTargetLoS(string line)
 	/if (!${Target.ID}) /return
 	/if (!${Target.Type.Equal[Corpse]}) /return
@@ -59,7 +59,7 @@ Sub Event_NotOnTargetLoS(string line)
 
 /return
 
-#Event NotOnTargetDistance	"#*#Your target is too far away#*#"
+| #Event NotOnTargetDistance	"#*#Your target is too far away#*#"
 Sub Event_NotOnTargetDistance(string line)
 	/if (!${Target.ID}) /return
 	/if (!${Target.Type.Equal[Corpse]}) /return
