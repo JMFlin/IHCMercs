@@ -58,7 +58,6 @@ Sub Event_NotOnTargetLoS(string line)
   /doevents flush NotOnTargetLoS
 
 /return
-***|
 
 #Event NotOnTargetDistance	"#*#Your target is too far away#*#"
 Sub Event_NotOnTargetDistance(string line)
@@ -80,6 +79,9 @@ Sub Event_NotOnTargetDistance(string line)
   /doevents flush NotOnTargetDistance
 
 /return
+
+
+***|
 
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in group
