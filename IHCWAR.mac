@@ -81,7 +81,7 @@ Sub ManualPullCamping
 			} else /if (${Target.Distance}<(${AssistRange}+15) && ${Target.ID}!=${Me.ID}) {
 				/varset State 2
 			}
-			/if (!${Target.ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
+			/if (!${Target.ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${pullRadiusZ}].ID}
 		}
 
 		/if (${State}==2) {
@@ -94,7 +94,7 @@ Sub ManualPullCamping
 			/if (${Balance} && ${Me.XTarget[2].ID} && ${Me.ID}==${Group.MainAssist.ID}) /call BalanceHP
 			/if (!${Balance} && ${Me.XTarget[1].ID} && (!${Target.ID} || ${Target.ID}==${Me.ID} || ${Target.PctHPs}<=3 || ${Target.Type.Equal[Corpse]})) /call CheckXTargetDistance
 			/if (!${Balance} && ${Me.XTarget[2].ID} && ${TimeForMez}==0) /call check_add_aggro
-			/if (!${Target.Type.Equal[NPC]} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
+			/if (!${Target.Type.Equal[NPC]} && ${NearestSpawn[los npc radius ${AssistRange} zradius ${pullRadiusZ}].ID}) /target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${pullRadiusZ}].ID}
 
 			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AutoCampRadius} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
 			/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange}) /call DoMashRangeAggro
@@ -182,7 +182,7 @@ Sub AFKRadiusCamping
 		/call CombatBuffs
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) { 
+		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]}>6)) { 
   			/echo PC nearby! 
   			/call DummyMode 
 		}
