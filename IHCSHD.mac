@@ -84,11 +84,8 @@ Sub AFKRadiusCamping
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
-		/call misc
-		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${AggressiveRadius}]}>6)) { 
-  			/echo PC nearby! 
-  			/call DummyMode 
-		}
+		/call misc 
+  		/call DummyMode
 		/doevents
 	}
 /return
