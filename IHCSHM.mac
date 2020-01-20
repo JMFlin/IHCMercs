@@ -10,6 +10,7 @@
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcshmutil.inc
 #include IHCMercs\events.inc
+#include IHCMercs\config.inc
 #warning
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
