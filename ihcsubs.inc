@@ -404,18 +404,6 @@ sub misc
 |---------------------------------------------------------------------------- 
 Sub check_state(bool _debug)
 
-	| am I moving?
-	/if (${Me.Moving}) /return
-	
-	| am I casting?
-	/if (${Me.Casting.ID} && !${Me.Class.ShortName.Find[BRD]}) /return
-
-	| is my spell in cooldown?
-	/if (${Me.SpellInCooldown} && !${Me.Class.ShortName.Find[BRD]}) /return
-	
-	| am I navigating?
-	/if (${Navigation.Active}) /return
-
 	| am I dead?
 	/if (${Me.Hovering}) /call DeathSub
 	
@@ -428,13 +416,23 @@ Sub check_state(bool _debug)
 	| should I be in battle?
 	/if (${Me.XTarget}) /return
 
-	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
-
+	| am I moving?
+	/if (${Me.Moving}) /return
+	
 	| if stick is on we can turn it off
 	/if (${Stick.Status.Equal[ON]}) /stick off
 
 	| turn autoattack off
 	/if (${Me.CombatState.Equal[COMBAT]}) /attack off
+
+	| am I casting?
+	/if (${Me.Casting.ID} && !${Me.Class.ShortName.Find[BRD]}) /return
+
+
+	| am I navigating?
+	/if (${Navigation.Active}) /return
+
+	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 
 	| clear target
 	/if (${Target.ID}) /target clear
@@ -558,9 +556,12 @@ Sub Engage
 	/if (!${validate_target_distance[FALSE]}) /return
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
-	| engage if target is close enough
 	
 	/if (${Target.ID}) /face fast
+
+	/if (!${Me.Combat} && ${Select[${Me.Class.ShortName},BER,ROG]}) {
+		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
+	}
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
 		/if (!${Stick.Active}) /stick 12 moveback loose
@@ -827,21 +828,6 @@ Sub MoveToCamp(int Xloc, int Yloc, int Zloc, int Distance)
 	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
 
 	/if (${Navigation.Active}) /return
-
-	| if I have a target then the distance to move to camp is larger to allow for a larger assist range
-	|/if (${Me.XTarget}) {
-	|	/if (${Distance}>80) {
-	|		/varcalc Distance ${Distance}*1.1
-	|	} else /if (${Distance}>50) {
-	|		/varcalc Distance ${Distance}*1.7
-	|	} else /if (${Distance}>25) {
-	|		/varcalc Distance ${Distance}*2
-	|	} else /if (${Distance}>10) {
-	|		/varcalc Distance ${Distance}*2.5
-	|	} else /if (${Distance}>0) {
-	|		/varcalc Distance ${Distance}*4
-	|	}
-	|}
 	
 	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${Distance}) {
 		/if (${Stick.Status.Equal[ON]}) /stick off
@@ -3028,7 +3014,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/if (${Me.XTarget} < 2) /return
 
 	| How many mobs are there?
-	/if ((${SpawnCount[npc targetable radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}]} > 1 && ${Select[${Me.Class.ShortName},BRD]}) || (${SpawnCount[npc targetable radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}]} > 2 && ${Select[${Me.Class.ShortName},ENC]})) {
+	/if (${SpawnCount[npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}]} > 1) {
 		
 		/for x 1 to ${Me.XTarget}
 
@@ -3059,8 +3045,9 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			}
 		}
 	}
-
+	
 	/if (!${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) /return
+	/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 
 	| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
 	/for x 1 to ${Me.XTarget}

@@ -29,7 +29,7 @@ Sub BerSetup
 	/declare Daxeof					string outer NULL
 	/declare Phantom				string outer NULL
 	/declare Alliance				string outer NULL
-	/declare cheapshot				string outer NULL
+	/declare PreCombatDisc				string outer NULL
 	/declare AESlice				string outer NULL
 	/declare AEVicious				string outer NULL
 	/declare FrenzyBoost			string outer NULL
@@ -354,21 +354,21 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Festering Rage].RankName}]}) {
 		/varset RageStrike ${Spell[Festering Rage].RankName}
 	}
-|---Cheapshot ability EX: Kick in the shins - Updated for RoS
+|---PreCombatDisc ability EX: Kick in the shins - Updated for RoS
 	/if (${Me.Level}>=107 && ${Me.CombatAbility[${Spell[Sucker Punch].RankName}]}) {
-		/varset cheapshot ${Spell[Sucker Punch].RankName}
+		/varset PreCombatDisc ${Spell[Sucker Punch].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Kick in the Shins].RankName}]}) {
-		/varset cheapshot ${Spell[Kick in the Shins].RankName}
+		/varset PreCombatDisc ${Spell[Kick in the Shins].RankName}
 	} else /if (${Me.Level}>=97 && ${Me.CombatAbility[${Spell[Punch in the Throat].RankName}]}) {
-		/varset cheapshot ${Spell[Punch in the Throat].RankName}
+		/varset PreCombatDisc ${Spell[Punch in the Throat].RankName}
 	} else /if (${Me.Level}>=92 && ${Me.CombatAbility[${Spell[Kick in the Teeth].RankName}]}) {
-		/varset cheapshot ${Spell[Kick in the Teeth].RankName}
+		/varset PreCombatDisc ${Spell[Kick in the Teeth].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.CombatAbility[${Spell[Slap in the Face].RankName}]}) {
-		/varset cheapshot ${Spell[Slap in the Face].RankName}
+		/varset PreCombatDisc ${Spell[Slap in the Face].RankName}
 	} else /if (${Me.Level}>=5 && ${Me.CombatAbility[${Spell[Elbow Strike].RankName}]}) {
-		/varset cheapshot ${Spell[Elbow Strike].RankName}
+		/varset PreCombatDisc ${Spell[Elbow Strike].RankName}
 	} else /if (${Me.Level}>=1 && ${Me.CombatAbility[${Spell[Throw Stone].RankName}]}) {
-		/varset cheapshot ${Spell[Throw Stone].RankName}
+		/varset PreCombatDisc ${Spell[Throw Stone].RankName}
 	}
 |-Dicho Spell*
 	/if (${Me.Level}>=${Spell[Dissident Rage].Level} && ${Me.CombatAbility[${Spell[Dissident Rage].RankName}]}) {
@@ -642,7 +642,7 @@ Sub Bind_CmdList
 /echo \ag/tglintim\aw - Use Intimidation skill?
 /echo \ag/tglloot\aw - Turn auto looting on/off
 /echo \ag/tglmezbreak\aw - Allow attacking mez'd mobs if below assistat % - Ignores waiting for MA
-/echo \ag/tglopener\aw - Toggle ${cheapshot} ability ON/OFF
+/echo \ag/tglopener\aw - Toggle ${PreCombatDisc} ability ON/OFF
 /echo \ag/tglpet\aw - Pet toggle...cause sometimes they arent allowed
 /echo \ag/tglpoison\aw - Turn on/off the use of poison buffs
 /return 
