@@ -43,13 +43,6 @@ Sub ShdSetup
 	/declare Cloak 			string outer NULL
 	/declare HPShroud 		string outer NULL
 	/declare MPShroud 		string outer NULL
-	
-	/declare PullAbility string outer NULL
-	/declare PullDistance int outer 0
-
-|- Tank logic
-	/declare TimeForMez					timer outer	0
-	/declare TimeForMezVariable			int outer 0
 
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 /return 
