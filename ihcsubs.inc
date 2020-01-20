@@ -219,7 +219,8 @@ Sub setup_plugins
 	/call CheckPlugin MQ2Collections
 	/call CheckPlugin MQ2Chatwnd
 	/call CheckPlugin MQ2AutoClaim
-	/call CheckPlugin MQ2IniX
+	|/call CheckPlugin MQ2IniX
+	/call CheckPlugin MQ2Posse
 	/call UnCheckPlugin MQ2Twist
 	/call UnCheckPlugin MQ2Cast
 	/call UnCheckPlugin MQ2Exchange
@@ -229,6 +230,7 @@ Sub setup_plugins
 	/squelch /rez accept on
     /squelch /rez loot off
 	/squelch /rez pct 20
+	/posse on
 	/aaspend order 3521
 	/aaspend brute on
 	/aaspend bonus on
@@ -289,6 +291,13 @@ Sub setup_plugins
 	/autoaccept add Aaldiven
 	/autoaccept add Brald
 	/autoaccept save
+
+	/loadhud Player
+	/loadhud Posse
+	/loadhud Target
+	/loadhud Nearest
+	/loadhud XTarget
+	/loadhud General
 
 /return
 |----------------------------------------------------------------------------
@@ -3081,6 +3090,15 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.ID}
 		/delay 1s
+		
+		/if (!${immuneSet.Contains[${Target.ID}]}) /continue
+
+		/if (${Spawn[id ${Target.ID}].Body.Name.Equal[Giant]}) {
+			/if (!${immuneSet.Add[${_tmpID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Set Add of ${_tmpID} failed.
+			}
+			/continue
+		}
 
 		/if (${Select[${Me.Class.ShortName},ENC]}) {
 			| If target is not tashed then tash
@@ -3089,7 +3107,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			}
 
 			| If target is not mezzed then mez
-			/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID}) {
 				/if (${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
 					/call core_cast2 "${_mezSingle}" spell ${Target.ID} FALSE
@@ -3101,7 +3119,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			/call pulse_stop pulse_line_start
 			/delay 1s
 			| If target is not mezzed then mez
-			/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && !${immuneSet.Contains[${Target.ID}]} && ${Stick.Status.Equal[OFF]}) {
+			/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && ${Stick.Status.Equal[OFF]}) {
 				/if (${validate_cast[FALSE, pulse, "${_mezSingle}", ${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
 					/call core_cast2 "${_mezSingle}" pulse ${Target.ID} FALSE

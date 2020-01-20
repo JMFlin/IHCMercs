@@ -1,0 +1,521 @@
+|- IHCMNK.mac - By Addict
+|- Automatic Monk bot - 
+|- Version 2.0
+|- Updated: 4/25/2019
+|- Contributions by kaen01 and toots
+|- Code/Idea's borrowed from noobhax0r and his automac's. Maskoi,ctaylor,treehuggindruid and their team's kisassist
+|- Thanks to Bayne, shadowfall, scotsbiker, and aspire2008 for bug reporting, testing, requests, suggestions and feedback!
+#Chat group
+#Chat tell
+#Chat raid
+#warning
+#turbo 80
+#include IHCMercs\ihcsubs.inc
+#include IHCMercs\ihcmnkutil.inc
+#include IHCMercs\ihcevents.inc
+#bind SetVarInt	/setvarint
+#bind CmdList        /ihchelp
+#Event NotOnTarget	"#*#You cannot see your target#*#"
+#Event NotOnTarget	"#*#Your target is too far away#*#"
+#Event GroupChange	"#*#has left the group#*#"
+#Event GroupChange	"#*#has joined the group#*#"
+Sub Main
+|-	/delay ${Math.Rand[2]}
+	/doevents flush
+	/declare MacroName       		string outer IHCMNK
+	/declare MacroPath       		string outer IHCMercs\IHCMNK
+	/declare IHCVersion       		string outer 2.0
+	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
+
+	/call MnkSetup
+	/call VarSetup
+	/call AliasSetup
+	/call SetupDiscs
+	/call SetControlToon
+	/if (${UseAlliance}) {
+		/call AllianceCheck
+	}
+	/call WelcomeMsg
+	/if (${assistid}==${Me.ID}) {
+		/echo \aw I am Main Assist
+	} else {
+		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
+	}
+	/if (${UseZoneLogic}) {
+		/call ZoneEventChk
+	}
+	/delay 2s
+	/call PullAbilitySetup
+	/delay 2s
+	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
+	
+:mainloop
+	/call ModeSet
+    /if (${Mode}==0) /call Travel
+    /if (${Mode}==1) /call ManualPullCamping
+    /if (${Mode}==2) /call ManualRunAndGun
+    /if (${Mode}==3) /call AFKRadiusCamping
+    /if (${Mode}==4) /call AFKRunAndGun
+    /if (${Mode}==5) /call DoEvent
+    /if (${Mode}==6) /call Raid
+/goto :mainloop
+/return
+|----------------------------------------------------------------------------
+|- SUB: Raid
+|---------------------------------------------------------------------------- 
+Sub Raid
+	/call UnCheckPlugin MQ2MoveUtils
+	/call UnCheckPlugin MQ2Autoloot
+    /while (${Mode}==6) {
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /attack on
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${UseItems}) /call CombatdpsItems
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && (${Me.ActiveDisc.ID}==${Spell[${Heel}].ID} || ${Me.ActiveDisc.ID}==${Spell[${Speed}].ID} || ${Me.ActiveDisc.ID}==${Spell[${Palm}].ID}) && ${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Firewalker's Covenant Trigger].ID} && !${Target.Buff[Doomwalker's Alliance Trigger].ID}) /Disc ${Alliance}
+		/if (${Me.PctHPs}<45) /call Defense
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+		/while (${Navigation.Active}) {
+			/delay 5 ${Target.Distance}<=${RangeToTarget}
+			/if (${Navigation.Active} && ${Target.Distance}<=${RangeToTarget}) /nav stop
+		}
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualPullCamping
+|---------------------------------------------------------------------------- 
+Sub ManualPullCamping
+	/call MakeCamp
+    /call RemoveTravelBuffs  
+
+    /while (${Mode}==1) {
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.ID}!=${Group.Puller.ID} && ${Me.State.Equal[FEIGN]}) /stand
+
+		
+		/if (${State}==0) {
+			/if (${Me.ID}!=${Group.Puller.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+			/if (${Me.ID}!=${Group.Puller.ID} && ${DoMed}) /call AutoMed
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
+			/if (${Me.PctHPs}<45) /call Defense
+			/if (${Me.XTarget[1].ID}) /varset State 1
+		}
+
+		/if (${State}==1) {
+			/if (${Me.ID}==${Group.Puller.ID}) {
+				/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /assist ${Group.MainAssist.Name}
+				/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}-10) && ${Me.XTarget[1].ID}) /varset State 2
+			} else {
+				/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+				/if (${Target.Distance}<50 && ${Target.Type.Equal[NPC]}) {
+					/call CombatdpsItems
+				}
+				/if (${Target.Distance}<40 && ${Target.ID}!=${Me.ID}) {
+					/varset State 2
+				}
+			}
+		}
+
+		/if (${State}==2) {
+			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
+
+			/if (${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Target.Type.Equal[NPC]} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID}) /call CombatdpsItems
+
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
+
+			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsDiscs
+
+			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
+
+			/if (${Me.PctEndurance}>=5 && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<98 && (${Target.Named} || ${Me.XTarget[1].Named})) /call DoNamed
+
+			/if (${Me.PctHPs}<45) /call Defense
+
+			/if (${Me.XTarget[1].ID} || ${Me.ID}!=${Group.Puller.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AssistRange}
+
+			/if (${Target.PctAggro}>85) /doability "Feign Death"
+			/if (${Me.State.Equal[FEIGN]}) /stand
+
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call Engage
+			
+			/if (${Target.Type.Equal[Corpse]}) /target clear
+			/if (!${Me.XTarget[1].ID}) /call PostCombat
+		}
+
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: ManualRunAndGun
+|----------------------------------------------------------------------------
+Sub ManualRunAndGun
+	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+
+	/while (${Mode}==2) {
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+
+		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
+
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
+
+		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /assist ${Group.MainAssist.Name}
+		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40 && ${Target.ID}) /attack on
+		/if (${Me.XTarget[1].ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange} && ${Group.Leader.ID}!=${Me.ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call Engage
+		/if (${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Target.Type.Equal[NPC]} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID}) /call CombatdpsItems
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsDiscs
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
+		/if (${Me.PctEndurance}>=5 && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<98 && (${Target.Named} || ${Me.XTarget[1].Named})) /call DoNamed
+		
+		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
+
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: AFKRadiusCamping 
+|---------------------------------------------------------------------------- 
+Sub AFKRadiusCamping
+	/call MakeCamp
+    /call RemoveTravelBuffs
+	/target clear  
+
+	/while (${Mode}==3) {
+		/if (${AdvPath.Following}) /afollow off
+		/if (${Me.Hovering}) /call DeathSub
+		/if (${Me.State.Equal[FEIGN]}) /stand
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting}) /sit
+		/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${PCRadiusCheck}]}>6) && !${Me.XTarget}) /call DummyMode
+
+		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
+		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
+
+		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID}) /call PullerCheckGroupManaEnd 
+		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20 && (${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[Distant Strike]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /call AFKPull
+
+		/if (${Me.XTarget[1].ID} && ${Me.ID}!=${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
+
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatdpsItems
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<=${AutoCampRadius} && ${Target.PctAggro}<100) /call Engage
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100) /call CombatdpsDiscs
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100) /call CombatdpsMash
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100 && (${Target.Named} || ${Me.XTarget[1].Named})) /call DoNamed
+
+		/if (${Target.Type.Equal[Corpse]}) /target clear
+		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/if (!${Me.XTarget[1].ID} && !${Target.ID}) /call PostCombat
+
+		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Defense
+|---------------------------------------------------------------------------- 
+Sub Defense
+	/if (${Me.AbilityReady[Mend]} && ${Me.PctHPs}<45) {
+		/doability Mend
+		/delay 1
+	} else /if (!${Me.AbilityReady[Mend]} && ${Me.CombatAbilityReady[${EarthForce}]} && ${Me.PctHPs}<45) {
+		/Disc ${EarthForce}
+		/delay 1
+	} else /if (!${Me.AbilityReady[Mend]} && !${Me.CombatAbilityReady[${EarthForce}]} && ${Me.CombatAbilityReady[${RejectDeath}]} && ${Me.PctHPs}<45) {
+		/Disc ${RejectDeath}
+		/delay 1
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Combatdps Discs
+|---------------------------------------------------------------------------- 
+Sub CombatdpsDiscs
+	/if (${Me.AltAbilityReady[Vehement Rage]} && ${Target.PctHPs}>10 && !${Me.Song[Infusion of Thunder].ID}) {
+		/alt act 800
+		/delay 2
+	}
+	/if (${Me.AltAbilityReady[Five Point Palm]} && ${Me.Song[Prophet's Gift of the Ruchu].ID} && !${Target.Buff[Sarnak Finesse].ID} && ${Target.PctHPs}>50 && ${Target.PctHPs}<95) {
+		/if (!${Me.ActiveDisc.ID} && !${Target.Named} && ${Me.CombatAbilityReady[${Iron}]}) {
+			/if (${Me.AltAbilityReady[Swift Tails' Chant]} && ${Me.PctEndurance}<80) {
+				/call AANow ${Me.AltAbility[Swift Tails' Chant].ID}
+				/delay 2
+			}
+			/Disc ${Iron}
+			/delay 5
+			/doability "${DichoSpell}"
+			/delay 8
+			/Disc ${Crane}
+			/delay 6
+			/alt act 1012
+		} else /if (!${Me.ActiveDisc.ID} && !${Target.Named} && ${Me.CombatAbilityReady[${Palm}]} && ${Me.AltAbilityReady[Five Point Palm]}) {
+			/if (${Me.AltAbilityReady[Focused Destructive Force]}) {
+				/call AANow ${Me.AltAbility[Focused Destructive Force].ID}
+				/delay 2
+			}
+			/if (${Me.CombatAbilityReady[${Poise}]}) {
+				/Disc ${Poise}
+				/delay 3
+			}
+			/if (${Me.AltAbilityReady[Swift Tails' Chant]} && ${Me.PctEndurance}<80) {
+				/call AANow ${Me.AltAbility[Swift Tails' Chant].ID}
+				/delay 2
+			}
+			/Disc ${Palm}
+			/delay 5
+			/doability "${DichoSpell}"
+			/delay 8
+			/Disc ${Crane}
+			/delay 6
+			/alt act 1012
+		} else {
+			/doability "${DichoSpell}"
+			/delay 8
+			/Disc ${Crane}
+			/delay 6
+			/alt act 1012
+		}
+	}
+	/if (!${Me.ActiveDisc.ID} && ${Target.PctHPs}>5 && !${Target.Named}) {
+		/Disc ${Storm}
+		/delay 2
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Combatdps Items
+|---------------------------------------------------------------------------- 
+Sub CombatdpsItems
+	/if (${FindItem[${ChestItemName}].Timer.TotalSeconds}==0 && ${Target.PctHPs}<98 && ${Target.PctHPs}>5 && !${Me.Casting.ID} && !${Me.Moving}) {
+		/useitem "${ChestItemName}"
+		/delay 5	
+	}
+	/if (${FindItem[Transcended Fistwraps of Immortality].Timer.TotalSeconds}==0 && ${Target.PctHPs}>10 && !${Me.Casting.ID} && !${Me.Moving} && !${Me.ActiveDisc.ID}) { 
+		/useitem "Transcended Fistwraps of Immortality"
+		/delay 5
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Combatdps Mash
+|---------------------------------------------------------------------------- 
+Sub CombatdpsMash
+	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Firewalker's Covenant Trigger].ID} && !${Target.Buff[Doomwalker's Alliance Trigger].ID} && ${UseAlliance} && (${MonkCount}>=3 || ${ForceAlliance})) {
+		/Disc ${Alliance}
+		/delay 3
+	}
+	/if (${Me.AltAbilityReady[Zan Fi's Whistle]} && ${Target.PctHPs}>1) {
+		/alt act 7001
+		/delay 3
+	}	
+	/if (${Me.AltAbilityReady[Two-Finger Wasp Touch]} && (${Target.PctHPs}>50 || ${Target.Named} || ${Target.Level}>(${Me.Level}+3))) {
+		/alt act 1235
+		/delay 3
+	}	
+	/if (${Me.CombatAbilityReady[${Drunken}]} && ${Me.PctEndurance}>=20 && ${Target.PctHPs}>10) {
+		/Disc ${Drunken}
+		/delay 3
+	}	
+	/if (${Me.CombatAbilityReady[${Curse}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>5) {
+		/Disc ${Curse}
+		/delay 3
+	}
+	/if (${Me.CombatAbilityReady[${Synergy}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
+		/Disc ${Synergy}
+		/delay 3
+	}	
+	/if (${Me.CombatAbilityReady[${Fang}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
+		/Disc ${Fang}
+		/delay 3
+	}
+	/if (${Me.CombatAbilityReady[${Fists}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
+		/Disc ${Fists}
+		/delay 3
+	}
+	/if (${Me.CombatAbilityReady[${Precision}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
+		/Disc ${Precision}
+		/delay 3
+	}
+	/if (${Me.CombatAbilityReady[${Shuriken}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
+		/Disc ${Shuriken}
+		/delay 3
+	}
+	/if (${Me.AbilityReady[Intimidation]}) {
+		/doability Intimidation
+		/delay 3
+	}
+	/if (${Me.CombatAbilityReady[${Synergy}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
+		/Disc ${Synergy}
+		/delay 3
+	}	
+ /return
+|----------------------------------------------------------------------------
+|- SUB: DoNamed
+|---------------------------------------------------------------------------- 
+Sub DoNamed
+
+	/if (${Me.AltAbilityReady[Silent Strikes]}) {
+		/call AANow ${Me.AltAbility[Silent Strikes].ID}
+		/delay 1
+	}
+	/if (${Me.AltAbilityReady[Swift Tails' Chant]}) {
+		/call AANow ${Me.AltAbility[Swift Tails' Chant].ID}
+		/delay 1
+	}
+
+	/if (${Me.CombatAbilityReady[${Alliance}]}) {
+		/Disc ${Alliance}
+		/delay 5
+	}
+
+	/if (${Me.CombatAbilityReady[${Heel}]} && !${Me.ActiveDisc.ID}) {
+		/if (${Me.AltAbilityReady[Infusion of Thunder]}) {
+			/call AANow ${Me.AltAbility[Infusion of Thunder].ID}
+			/delay 2
+		}
+		/if (${Me.AltAbilityReady[Fundament: Second Spire of the Sensei]}) {
+			/call AANow ${Me.AltAbility[Fundament: Second Spire of the Sensei].ID}
+			/delay 3
+		}
+		/if (${Me.CombatAbilityReady[${DichoSpell}]}) {
+			/doability "${DichoSpell}"
+			/delay 8
+		}
+		/if (${Me.CombatAbilityReady[${Crane}]}) {
+			/Disc ${Crane}
+			/delay 6
+		}
+		/if (${Me.AltAbilityReady[Five Point Palm]}) {
+			/alt act 1012
+			/delay 5
+		}
+		/delay 2
+		/Disc ${Heel}
+		/delay 5
+	} else /if (!${Me.CombatAbilityReady[${Heel}]} && ${Me.CombatAbilityReady[${Palm}]} && !${Me.ActiveDisc.ID}) {
+		/if (${Me.AltAbilityReady[Focused Destructive Force]}) {
+			/call AANow ${Me.AltAbility[Focused Destructive Force].ID}
+			/delay 2
+		}
+		/if (${Me.CombatAbilityReady[${Poise}]}) {
+			/Disc ${Poise}
+			/delay 3
+		}
+		/if (${Me.CombatAbilityReady[${DichoSpell}]}) {
+			/doability "${DichoSpell}"
+			/delay 8
+		}
+		/if (${Me.CombatAbilityReady[${Crane}]}) {
+			/Disc ${Crane}
+			/delay 2
+		}
+		/if (${Me.AltAbilityReady[Five Point Palm]}) {
+			/alt act 1012
+			/delay 2
+		}
+		/Disc ${Palm}
+		/delay 5
+	} else /if (!${Me.CombatAbilityReady[${Heel}]} && !${Me.CombatAbilityReady[${Palm}]} && ${Me.CombatAbilityReady[${Speed}]} && !${Me.ActiveDisc.ID}) {
+		/if (${Me.AltAbilityReady[Infusion of Thunder]}) {
+			/call AANow ${Me.AltAbility[Infusion of Thunder].ID}
+			/delay 2
+		}
+		/if (${Me.AltAbilityReady[Fundament: Second Spire of the Sensei]}) {
+			/call AANow ${Me.AltAbility[Fundament: Second Spire of the Sensei].ID}
+			/delay 3
+		}
+		/if (${Me.AltAbilityReady[Ton Po's Stance]}) {
+			/call AANow ${Me.AltAbility[Ton Po's Stance].ID}
+			/delay 3
+		}
+		/if (${Me.CombatAbilityReady[${DichoSpell}]}) {
+			/doability "${DichoSpell}"
+			/delay 8
+		}
+		/if (${Me.CombatAbilityReady[${Crane}]}) {
+			/Disc ${Crane}
+			/delay 2
+		}
+		/if (${Me.AltAbilityReady[Five Point Palm]}) {
+			/alt act 1012
+			/delay 2
+		}
+		/Disc ${Speed}
+		/delay 5
+	} else /if (!${Me.ActiveDisc.ID}) {
+		/if (${Me.AltAbilityReady[Focused Destructive Force]}) {
+			/call AANow ${Me.AltAbility[Focused Destructive Force].ID}
+			/delay 2
+		}
+		/if (${Me.CombatAbilityReady[${Poise}]}) {
+			/Disc ${Poise}
+			/delay 3
+		}
+		/if (${Me.AltAbilityReady[Infusion of Thunder]}) {
+			/call AANow ${Me.AltAbility[Infusion of Thunder].ID}
+			/delay 2
+		}
+		/if (${Me.AltAbilityReady[Fundament: Second Spire of the Sensei]}) {
+			/call AANow ${Me.AltAbility[Fundament: Second Spire of the Sensei].ID}
+			/delay 3
+		}
+		/Disc ${Storm}
+		/delay 5
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: DowntimeDiscs
+|---------------------------------------------------------------------------- 
+Sub DowntimeDiscs
+	/if (${Me.PctEndurance}<15 && ${Me.Endurance}>313 && ${Me.CombatAbilityReady[${endregen}]} && !${Me.CombatState.Equal[combat]} && !${Me.Invis}) {
+		/disc ${endregen}
+		/delay 5
+	}
+	/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Moving} && !${Me.Invis} && ${Me.State.NotEqual[FEIGN]} && ${Me.CombatAbility[${Spell[${mnkaura}].RankName}]} && ${Me.PctEndurance}>10 && ${DoBuffs}) {
+		/disc ${mnkaura}
+		/delay 8s
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
+|----------------------------------------------------------------------------
+|Sub Event_NotOnTarget
+|	/if (${DoAutoEngage}) {
+|		/call Engage
+||	}
+|	/doevents flush NotOnTarget
+|/return
+|----------------------------------------------------------------------------
+|- SUB: AllianceCheck - check for other monks in group
+|---------------------------------------------------------------------------- 
+Sub AllianceCheck
+	/if (${UseAlliance}) {
+		/echo \aw Alliance Use is \ag on \aw, checking for other Monks!
+		/declare Gsize int local 0
+		/declare i int local
+		/varcalc Gsize ${Group.GroupSize}-1
+		/varset MonkCount 1
+		/for i 1 to ${Gsize}
+			/if (${Group.Member[${i}].Class.ShortName.Equal[MNK]}) {
+				/varcalc MonkCount ${MonkCount}+1
+			}
+		/next i
+		/if (${MonkCount}>=3) {
+			/echo \aw Woot! \ag ${MonkCount} \aw Monks found
+			/echo \aw Shits about to blow up!
+		} else /if (${MonkCount}<3) {
+			/echo \aw Sorry only \ag ${MonkCount} \aw Monk(s) found :(
+			/echo \aw No Alliance for thee!
+		}
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: Event GroupChange
+|----------------------------------------------------------------------------
+Sub Event_GroupChange
+	/if (${UseAlliance}) {
+		/call AllianceCheck
+	}
+/return 
