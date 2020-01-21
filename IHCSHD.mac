@@ -80,7 +80,7 @@ Sub AFKRadiusCamping
 		/call aoe_aggro
 		/call DoDisc
 		/call get_aggro
-		/call downtime_buffs
+		/call self_buffs
 		/call combat
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
@@ -91,9 +91,9 @@ Sub AFKRadiusCamping
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: downtime_buffs 
+|- SUB: self_buffs 
 |---------------------------------------------------------------------------- 
-Sub downtime_buffs
+Sub self_buffs
 	/declare CastCheck			int local 0
 
 	/if (${Me.XTarget}) /return
@@ -274,13 +274,11 @@ Sub get_aggro
 	/call use_skill_melee ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attempting to grab aggro on \ar ${Target.Name} \ax with =>> \ag ${Terror1} \ax <<=
 		/call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
 	}	
 	/doevents
 	
 	/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) {
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attempting to grab aggro on \ar ${Target.Name} \ax with =>> \ag ${Terror2} \ax <<=
 		/call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 	}
 
