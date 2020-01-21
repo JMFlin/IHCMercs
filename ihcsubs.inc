@@ -186,6 +186,7 @@ Sub VarSetup
 	/declare verboseWIZ 		bool outer TRUE
 	/declare verboseENC 		bool outer TRUE
 	/declare verboseBRD 		bool outer TRUE
+	/declare verboseCLR 		bool outer TRUE
 |- classes
 	/declare casterCasting 		int outer 0
 
@@ -336,11 +337,13 @@ Sub check_state(bool _debug)
 	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 
 	| clear target
-	/if (${Target.Type.Equal[Corpse]}) {
-		/target clear
-		/delay 1s
+	/if (${Target.ID}) {
+		/if (${Target.Type.Equal[Corpse]} || ${Target.PctHPs} <= 0) {
+			/target clear
+			/delay 1s
+		}
 	}
-	
+
 	| clear sets
 	/if (${immuneSet.Count} > 0) ${immuneSet.Clear}
 
@@ -636,13 +639,14 @@ Sub afk_pull
 			
 			/if (${Navigation.Active} && ${Me.XTarget}) /nav stop
 			/if (${Navigation.Active} && ${Spawn[id ${_pullTargetID}].Distance} <= ${PullDistance} && ${Spawn[id ${_pullTargetID}].LineOfSight}) /nav stop
+			/delay 5
 		}
 	} else {
 		/target id ${_pullTargetID}
 	}
 
 	/delay 3s !${Me.Moving}
-	/delay 2s
+	/delay 1s
 
 	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
@@ -887,6 +891,7 @@ Sub check_campfire
 	/if (${Navigation.Active}) /return
 	/if (${Me.ID} != ${Group.Leader.ID}) /return
 	/if (${Zone.ID} == 202) /return
+	/if (${Zone.ID} == 344) /return
 	/if (${Zone.ID} == 345) /return
 	/if (${Me.Fellowship.CampfireDuration} > 600) /return
 
@@ -1348,12 +1353,14 @@ Sub get_target
 	| if there is only one target on xtarget then target that
 	/if (!${Me.XTarget[2].ID}) {
 		/target id ${Me.XTarget[1].ID}
+		/delay 7
 		/return
 	}
 
 	| if I am not the main tank or ma assist then assist the MA
 	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
 		/assist ${Group.MainAssist.Name}
+		/delay 7
 		/return
 	}
 
@@ -1384,11 +1391,13 @@ Sub get_target
 				| if mob is not mezzed then target it and get aggro
 				/target id ${npcIDontHaveAggroOnID}
 				/delay 5 ${Target.ID} == ${npcIDontHaveAggroOnID}
+				/delay 7
 				/call Engage
 				/call get_aggro
 			}
 		} else {
 			/assist ${Group.MainAssist.Name}
+			/delay 7
 		}
 	}
 
@@ -2270,7 +2279,7 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 	|}
 		
 	| get the corpse close to us
-	/if (${Spawn[pccorpse ${_tmpID}].Distance} <= ${setMaxRezRange}) {
+	/if (${Spawn[pccorpse ${_tmpID}].Distance} <= 50) {
 		/squelch /corpse
 	}
 	
@@ -2588,7 +2597,7 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	}
 
 	| taunt /onoff agro
-	/if (${Me.ID} == ${Group.MainTank.ID} && ${Me.AbilityReady[Taunt]} && ${Spawn[id ${_tmpID}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
+	/if (${Me.ID} == ${Group.MainTank.ID} && ${Me.AbilityReady[Taunt]} && ${Spawn[id ${_tmpID}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]} && !${Select[${Me.Class.ShortName},BST]}) {
 		/if (${Target.ID}) /doability Taunt
 	}
 	
@@ -2965,12 +2974,13 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 
 		| Query MA and MT on what is currently being killed
 		/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MA Target is \ar${MATargetID}
 		/call Gquery ${Group.MainTank.Name.Lower} "Target.ID" "MTTargetID" "int"
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MT Target is \ar${MTTargetID}
 
 		| If xtarget is being targetted by MA or MT then skip
 		/if (${Me.XTarget[${x}].ID} == ${MATargetID} || ${Me.XTarget[${x}].ID} == ${MTTargetID}) /continue
+
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MA Target is \ar${MATargetID}
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MT Target is \ar${MTTargetID}
 
 		/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 		/if (${Stick.Status.Equal[ON]}) /stick off

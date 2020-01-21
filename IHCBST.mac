@@ -158,11 +158,6 @@ Sub combat
 	/call get_target
 	/call Engage
 	/call pet_attack
-	/doevents
-|	/call debuff_xtarget
-	
-	/call get_target
-	/call Engage
 	/squelch /attack on
 
 	/call use_skill_melee ${Target.ID} FALSE
@@ -187,8 +182,6 @@ Sub combat
 	/if (${Me.CombatAbilityReady[${Maul}]}) {
 		/if (${validate_cast[FALSE, disc, ${Maul}, ${Target.ID}]}) /call core_cast2 ${Maul} disc ${Target.ID} FALSE
 	}
-
-	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
 		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
