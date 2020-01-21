@@ -1412,7 +1412,8 @@ sub validate_combat(bool _debug)
 	|/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 
-	/if (!${Spawn[id ${Target.ID}].LineOfSight} && ${Navigation.PathLength[id ${Target.ID}]} < ${AssistRange}) {
+
+	/if (!${Spawn[id ${Target.ID}].LineOfSight} && ${Navigation.PathLength[id ${Target.ID}]} < ${AssistRange} && ${Select[${Me.Class.ShortName},BER,ROG,BRD,MNK]}) {
 		/if (${Stick.Active}) /stick off
 		/nav id ${Target.ID}
 	}
