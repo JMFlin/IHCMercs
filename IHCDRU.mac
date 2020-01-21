@@ -323,7 +323,7 @@ Sub group_buffs
 Sub single_target_heals
 	/declare _worstHurtId int local 0
 
-	/call get_heal_target 85
+	/call get_heal_target 55
 	/varset _worstHurtId ${Macro.Return}
 	
 	/if (${_worstHurtId} > 0) {
@@ -332,7 +332,7 @@ Sub single_target_heals
 		}
 	}
 
-	/call get_heal_target 95
+	/call get_heal_target 90
 	/varset _worstHurtId ${Macro.Return}
 	
 	/if (${_worstHurtId} > 0) {
