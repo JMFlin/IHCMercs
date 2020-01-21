@@ -1,3 +1,4 @@
 *.ini
 examples/
 Manuals/Details.txt
+config.inc

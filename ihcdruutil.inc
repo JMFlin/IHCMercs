@@ -32,6 +32,7 @@ Sub DruSetup
 	/declare Reptile 			string outer NULL
 	/declare NBW				string outer NULL
 	/declare Survival 			string outer NULL
+	/declare Mask 				string outer NULL
 /return 
 |----------------------------------------------------------------------------
 |- SUB: INIChanges
@@ -52,10 +53,10 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${Reptile}" 3
 
 	/call LoadSpellGem "${ColdAtkDebuff}" 4
-	/call LoadSpellGem "${FireAtkDebuff}" 5
+	/call LoadSpellGem "${HealSpell2}" 5
 	/call LoadSpellGem "${NBW}" 6
 	/call LoadSpellGem "${NukeSpell1}" 7
-	/call LoadSpellGem "${SnareSpell}" 8
+	/call LoadSpellGem "${GroupHealSpell1}" 8
 	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -67,8 +68,6 @@ Sub SetupSpells
 
 	/if (${Me.Level}>=${Spell[Puravida].Level} && ${Me.Book[${Spell[Puravida].RankName}]}) {
 		/varset HealSpell1 ${Spell[Puravida].RankName}
-	} else /if (${Me.Level}>=${Spell[Adrenaline Surge].Level} && ${Me.Book[${Spell[Adrenaline Surge].RankName}]}) {
-		/varset HealSpell1 ${Spell[Adrenaline Surge].RankName}
 	} else /if (${Me.Level}>=${Spell[Ancient Chlorobon].Level} && ${Me.Book[${Spell[Ancient Chlorobon].RankName}]}) {
 		/varset HealSpell1 ${Spell[Ancient Chlorobon].RankName}
 	} else /if (${Me.Level}>=${Spell[Chlorotrope].Level} && ${Me.Book[${Spell[Chlorotrope].RankName}]}) {
@@ -93,6 +92,16 @@ Sub SetupSpells
 		/varset HealSpell1 ${Spell[Light Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
 		/varset HealSpell1 ${Spell[Minor Healing].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Adrenaline Swell].Level} && ${Me.Book[${Spell[Adrenaline Swell].RankName}]}) {
+		/varset HealSpell2 ${Spell[Adrenaline Swell].RankName}
+	} else /if (${Me.Level}>=${Spell[Adrenaline Surge].Level} && ${Me.Book[${Spell[Adrenaline Surge].RankName}]}) {
+		/varset HealSpell2 ${Spell[Adrenaline Surge].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Crescentbloom].Level} && ${Me.Book[${Spell[Crescentbloom].RankName}]}) {
+		/varset GroupHealSpell1 ${Spell[Crescentbloom].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Equinox Brand].Level} && ${Me.Book[${Spell[Equinox Brand].RankName}]}) {
@@ -167,7 +176,9 @@ Sub SetupSpells
 
 	
 	
-	/if (${Me.Level}>=${Spell[Blessing of the Direwild].Level} && ${Me.Book[${Spell[Blessing of Direwild].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Blessing of the Ironwood].Level} && ${Me.Book[${Spell[Blessing of Ironwood].RankName}]}) {
+		/varset GroupSkin ${Spell[Blessing of Ironwood].RankName}
+	} else /if (${Me.Level}>=${Spell[Blessing of the Direwild].Level} && ${Me.Book[${Spell[Blessing of Direwild].RankName}]}) {
 		/varset GroupSkin ${Spell[Blessing of Direwild].RankName}
 	} else /if (${Me.Level}>=${Spell[Blessing of Steeloak].Level} && ${Me.Book[${Spell[Blessing of Steeloak].RankName}]}) {
 		/varset GroupSkin ${Spell[Blessing of Steeloak].RankName}
@@ -202,7 +213,9 @@ Sub SetupSpells
 	}
 		
 
-	/if (${Me.Level}>=${Spell[Legacy of Viridiflora].Level} && ${Me.Book[${Spell[Legacy of Viridiflora].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Legacy of Viridithorns].Level} && ${Me.Book[${Spell[Legacy of Viridithorns].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Viridithorns].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Viridiflora].Level} && ${Me.Book[${Spell[Legacy of Viridiflora].RankName}]}) {
 		/varset DamageShield ${Spell[Legacy of Viridiflora].RankName}
 	} else /if (${Me.Level}>=${Spell[Ancient Legacy of Blades].Level} && ${Me.Book[${Spell[Ancient Legacy of Blades].RankName}]}) {
 		/varset DamageShield ${Spell[Ancient Legacy of Blades].RankName}
@@ -262,8 +275,14 @@ Sub SetupSpells
 		/varset Reptile ${Spell[Skin of the Reptile].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Nature's Blazing Wrath].Level} && ${Me.Book[${Spell[Nature's Blazing Wrath].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Nature's Burning Wrath].Level} && ${Me.Book[${Spell[Nature's Burning Wrath].RankName}]}) {
+		/varset NBW ${Spell[Nature's Burning Wrath].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Blazing Wrath].Level} && ${Me.Book[${Spell[Nature's Blazing Wrath].RankName}]}) {
 		/varset NBW ${Spell[Nature's Blazing Wrath].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Mask of the Shadowcat].Level} && ${Me.Book[${Spell[Mask of the Shadowcat].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Shadowcat].RankName}
 	}
 
 /return

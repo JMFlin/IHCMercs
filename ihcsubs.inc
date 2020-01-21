@@ -103,7 +103,7 @@ Sub VarSetup
 	/declare illusionItem 		string outer "Bone Mask of Horror"
 |- Rezzing
 	/declare setCombatRadius	int outer 50
-	/declare setMaxRezRange 	int outer 90
+	/declare setMaxRezRange 	int outer 150
 	/declare rezToken 			bool outer FALSE
 	/declare rezCombat			bool outer FALSE
 |- AFK camping
@@ -336,7 +336,10 @@ Sub check_state(bool _debug)
 	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 
 	| clear target
-	/if (${Target.ID}) /target clear
+	/if (${Target.Type.Equal[Corpse]}) {
+		/target clear
+		/delay 1s
+	}
 	
 	| clear sets
 	/if (${immuneSet.Count} > 0) ${immuneSet.Clear}
@@ -574,6 +577,7 @@ Sub puller_check_group_resources
 	/varset casterCasting 0
 
 	/for _count 0 to ${Group}
+		/if (!${Group.Member[${_count}].Type.Equal[PC]}) /continue
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
 			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "ResPct" "int"
@@ -848,6 +852,9 @@ Sub Bind_Campfire
             /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
         /next j
     /next i
+
+	/return
+	|**
     /if (${FellowCount}>=3) {
         /windowstate FellowshipWnd open
 		/delay 1s
@@ -867,7 +874,8 @@ Sub Bind_Campfire
 		/delay 5s ${Me.Fellowship.Campfire}
 		/windowstate FellowshipWnd close
     }
-/return
+
+**|
 |----------------------------------------------------------------------------
 |- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
 |----------------------------------------------------------------------------
@@ -881,12 +889,13 @@ Sub check_campfire
 	/if (${Me.ID} != ${Group.Leader.ID}) /return
 	/if (${Zone.ID} == 202) /return
 	/if (${Zone.ID} == 345) /return
-
+	/if (${Me.Fellowship.CampfireDuration} > 600) /return
 
 	/if (${Zone.Name.NotEqual[${Me.Fellowship.CampfireZone}]}) {
 		/windowstate FellowshipWnd open
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
@@ -895,10 +904,11 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
 		/delay 1s
+		/nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
+		/delay 1s
 		/windowstate FellowshipWnd close
 	}
-	/if (${Me.Fellowship.CampfireDuration} > 600) /return
-
+	
     /for i 1 to ${SpawnCount[pc radius 50]}
         /for j 1 to ${Me.Fellowship.Members}
             /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
@@ -909,6 +919,7 @@ Sub check_campfire
         /windowstate FellowshipWnd open
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
@@ -1687,7 +1698,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	/if (${Me.Invis}) /return FALSE
 
 	|CLOSEBOOK
-		
+	
 	| make sure we have our target 
 	/if (${Bool[${_tmpID}]}) {
 		/if (${Target.ID} != ${_tmpID}) {
@@ -2128,6 +2139,9 @@ sub check_for_corpse(bool _debug)
 	| no combat rez
 	/if (!${rezCombat} && ${SpawnCount[npc radius ${setCombatRadius} playerstate 4]}) /return FALSE
 
+	| no rez spell in book
+	/if (!${Me.Book[${RezSpell}]}) /return FALSE
+
 	| not enough manna for AA rez
 	/if (${Me.PctMana} < 2 && !${rezToken}) /return FALSE
 
@@ -2158,13 +2172,9 @@ sub check_for_corpse(bool _debug)
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} 
+			
+			/call cast_rez ${_tmpID} "${RezSpell}"		
+			
 			|else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 			|	/call cast_rez ${_tmpID} "Resurrection"		
 			|}| else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
@@ -2180,13 +2190,9 @@ sub check_for_corpse(bool _debug)
 				|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 				|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 				|} else 
-				/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-					/call cast_rez ${_tmpID} "${RezSpell}"		
-				} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-					/call cast_rez ${_tmpID} "${RezSpell}"		
-				} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-					/call cast_rez ${_tmpID} "${RezSpell}"		
-				} 
+				
+				/call cast_rez ${_tmpID} "${RezSpell}"		
+				
 				|else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
 				|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 				|} 
@@ -2202,13 +2208,9 @@ sub check_for_corpse(bool _debug)
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} 
+			
+			/call cast_rez ${_tmpID} "${RezSpell}"		
+			
 			| else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 			|	/call cast_rez ${_tmpID} "Resurrection"		
 			|} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
@@ -2225,13 +2227,9 @@ sub check_for_corpse(bool _debug)
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} 
+	
+			/call cast_rez ${_tmpID} "${RezSpell}"		
+			
 			|else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 			|	/call cast_rez ${_tmpID} "Resurrection"		
 			|} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
@@ -2245,13 +2243,9 @@ sub check_for_corpse(bool _debug)
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
 			|} else 
-			/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[${RezSpell}]}) {
-				/call cast_rez ${_tmpID} "${RezSpell}"		
-			} 
+			
+			/call cast_rez ${_tmpID} "${RezSpell}"		
+			
 			| else /if (${Select[${Me.Class.ShortName},CLR]} && ${Me.Book[Resurrection]}) {
 			|	/call cast_rez ${_tmpID} "Resurrection"		
 			|} |else /if (${Select[${Me.Class.ShortName},CLR,DRU,PAL,SHM,NEC]} && ${Me.AltAbilityReady[${_rez${Me.Class.ShortName}}]}) {
@@ -2277,7 +2271,7 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 	|}
 		
 	| get the corpse close to us
-	/if (${Spawn[pccorpse ${_tmpID}].Distance} > ${AssistRange} && ${Spawn[pccorpse ${_tmpID}].Distance} <= ${setMaxRezRange}) {
+	/if (${Spawn[pccorpse ${_tmpID}].Distance} <= ${setMaxRezRange}) {
 		/squelch /corpse
 	}
 	
@@ -2595,7 +2589,7 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	
 	| disarm
 	/if (!${Skill[Disarm].Auto}) {
-		/if (${Me.AbilityReady[Disarm]} && ${Spawn[id ${_tmpID}].Distance} <= 15) {
+		/if (${Me.AbilityReady[Disarm]} && ${Spawn[id ${_tmpID}].Distance} <= 15 && !${Select[${Me.Class.ShortName},BST]}) {
 			/if (${Target.ID}) /doability Disarm
 		}
 	}
@@ -2981,7 +2975,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
 
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.ID}
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.Name} - ${Target.ID}
 		/delay 1s
 		
 		/if (!${immuneSet.Contains[${Target.ID}]}) /continue
