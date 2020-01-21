@@ -2286,14 +2286,20 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 			/delay 5s !${Me.Casting.ID}
 			/squelch /target ID ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
-			/if (${validate_cast[FALSE, FIND, "${_rez}", ${_tmpID}]}) /call core_cast2 "${_rez}" FIND ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, FIND, "${_rez}", ${_tmpID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Rezzing with ${_rez}
+				/call core_cast2 "${_rez}" FIND ${_tmpID} FALSE
+			}
 
 		| token rez
 		} else /if (${rezToken}) {
 			/delay 5s !${Me.Casting.ID}
 			/squelch /target ID ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
-			/if (${validate_cast[FALSE, item, "Token of Resurrection", ${Me.ID}]}) /call core_cast2 "Token of Resurrection" item ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, item, "Token of Resurrection", ${Me.ID}]}) {	
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Rezzing with Token of Resurrection
+				/call core_cast2 "Token of Resurrection" item ${_tmpID} FALSE
+			}
 		}
 	
 		| if cast was good, set the timers.
