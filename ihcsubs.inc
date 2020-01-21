@@ -338,7 +338,7 @@ Sub check_state(bool _debug)
 
 	| clear target
 	/if (${Target.ID}) {
-		/if (${Target.Type.Equal[Corpse]} || ${Target.PctHPs} <= 0) {
+		/if (${Target.Type.Equal[Corpse]} || ${Target.PctHPs} <= 0 || ${Target.ID} == ${Me.Pet.ID}) {
 			/target clear
 			/delay 1s
 		}
