@@ -66,9 +66,21 @@ Sub ManualPullCamping
 		/call group_buffs
 		/call self_buffs
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-
+		/call combat_tank_buffs
 		/call misc
 		/doevents
+	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: combat_tank_buffs
+|---------------------------------------------------------------------------- 
+Sub combat_tank_buffs
+	/if (${Group.MainTank.ID} != ${Target.ID}) /target ${Group.MainTank}
+	/delay 8
+	/if (!${Target.Buff[${Reptile}].ID}) {
+		/if (${validate_cast[FALSE, spell, ${Reptile}, ${Group.MainTank.ID}]}) {
+			/call core_cast2 "${Reptile}" spell ${Group.MainTank.ID} FALSE
+		}
 	}
 /return
 |----------------------------------------------------------------------------

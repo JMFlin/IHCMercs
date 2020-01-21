@@ -47,13 +47,7 @@ Sub Event_NotOnTargetLoS(string line)
 	
 	/if ((${Me.Rooted.ID} || ${Me.ActiveDisc.ID}==30436) && ${Me.AltAbilityReady[Drawn to Blood]} && ${Me.Combat}) {
 		/alt act ${Me.AltAbility[Drawn to Blood].ID}
-	} else {
-		/if (${Navigation.MeshLoaded} && !${Spawn[id ${Target.ID}].LineOfSight} && ${Navigation.PathLength[id ${Target.ID}]} < 55) /nav id ${Target.ID}
-		/while (${Navigation.Active}) {
-			/if (${Navigation.Active} && (${Spawn[id ${Target.ID}].LineOfSight} || ${Spawn[id ${Target.ID}].Distance} > 400)) /nav stop
-			/delay 5
-		}
-	}
+	} 
 
   /doevents flush NotOnTargetLoS
 
@@ -68,13 +62,6 @@ Sub Event_NotOnTargetDistance(string line)
 		/alt act ${Me.AltAbility[Drawn to Blood].ID}
 	}
 
-	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,CLR,ENC,SHM]} && ${Spawn[id ${Target.ID}].Distance} > 50 && ${Target.PctHPs} < 98) {
-		/if (${Navigation.MeshLoaded}) /nav id ${Target.ID}
-		/while (${Navigation.Active}) {
-			/if (${Navigation.Active} && ${Spawn[id ${Target.ID}].LineOfSight} && (${Spawn[id ${Target.ID}].Distance} < 150 || ${Spawn[id ${Target.ID}].Distance} > 400)) /nav stop
-			/delay 5
-		}
-	}
 
   /doevents flush NotOnTargetDistance
 
