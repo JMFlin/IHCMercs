@@ -206,7 +206,7 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${remedyheal2}" 4
 	/call LoadSpellGem "${patchheal}" 5
 	/call LoadSpellGem "${GroupHealSpell1}" 6
-	/call LoadSpellGem "${GroupSymbolBuff}" 7
+	/call LoadSpellGem "${DivineBuff}" 7
 	/call LoadSpellGem "${wardspell}" 8
 	
 	/delay 2s
