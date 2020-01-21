@@ -2930,16 +2930,18 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		
 		| If there are more than 1 mobs counted then aoe mez
 		/if (${numberOfSpawn} > 1) {
-
+			/if (${Me.CombatState.Equal[COMBAT]}) /attack off
+			/delay 1s
+			
 			/if (${Select[${Me.Class.ShortName},ENC]}) {
-				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 100 zradius 60].ID}
+				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,xtarhater radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
 				/varset closestMezzTarget ${NearestSpawn[1, npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
 				/if (${validate_cast[FALSE, spell, "${_mezAE}", ${closestMezzTarget}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
 					/call core_cast2 "${_mezAE}" spell ${closestMezzTarget} FALSE
 				}
 			} else /if (${Select[${Me.Class.ShortName},BRD]}) {
-				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,npc targetable radius 35 zradius 35].ID}
+				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,xtarhater radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
 				/varset closestMezzTarget ${NearestSpawn[1, npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
 				/if (${validate_cast[FALSE, pulse, "${_mezAE}", ${closestMezzTarget}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
