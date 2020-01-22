@@ -33,6 +33,8 @@ Sub Main
 	/call WelcomeMsg
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
+	/call ${Me.Class.ShortName.Lower}_set_rotations
+
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -263,23 +265,18 @@ Sub combat
 
 	/call get_target
 	/if (!${validate_combat[FALSE]}) /return
-	/if (${Target.Distance3D} > 50) /return
 
-	/if (${validate_cast[FALSE, disc, "${JoltDisc}", ${Target.ID}]}) {
-		/call core_cast2 "${JoltDisc}" disc ${Target.ID} FALSE
-	} else {
-		/return
+	/if (${Target.PctAggro} > 85) {
+		/if (${validate_cast[FALSE, disc, "${JoltDisc}", ${Target.ID}]}) {
+			/call core_cast2 "${JoltDisc}" disc ${Target.ID} FALSE
+		}
 	}
 	
 	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && ${snareImmuneID} != ${Target.ID}) {
 		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
-		/doevents CAST_IMMUNE
-		/if (${Select[${castReturn},CAST_IMMUNE]}) {
-			/docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${Snare} \ax <<=
-			/varset snareImmuneID ${Target.ID}
-		}
+		/call check_cast_events "${Snare}" CAST_IMMUNE ${Target.ID}
 	}
 	
 |	/if (${Me.CombatAbilityReady[${JoltDisc}]} && ${Target.PctAggro}>50) {

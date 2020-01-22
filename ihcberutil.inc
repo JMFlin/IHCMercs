@@ -20,8 +20,8 @@ Sub BerSetup
 	/squelch /alias /tglpoison		/setvarint Toggle UsePoisons	
 |-Declare AA's and Discs
 	/declare endregen				string outer NULL
-	/declare Aura1				string outer NULL
-	/declare Aura2				string outer NULL
+	/declare Aura1					string outer NULL
+	/declare Aura2					string outer NULL
 	/declare DichoSpell				string outer NULL
 	/declare Dfrenzy				string outer NULL
 	/declare Dvolley				string outer NULL
@@ -29,7 +29,7 @@ Sub BerSetup
 	/declare Daxeof					string outer NULL
 	/declare Phantom				string outer NULL
 	/declare Alliance				string outer NULL
-	/declare PreCombatDisc				string outer NULL
+	/declare PreCombatDisc			string outer NULL
 	/declare AESlice				string outer NULL
 	/declare AEVicious				string outer NULL
 	/declare FrenzyBoost			string outer NULL
@@ -50,6 +50,7 @@ Sub BerSetup
 	/declare HHEBuff				string outer NULL
 	/declare CryHavoc 				string outer NULL
 	/declare Snare 					string outer NULL
+	/declare Stun 					string outer NULL
 	/declare JoltDisc 				string outer NULL
 	/declare BloodDisc 				string outer NULL
 	/declare SappingStrike 			string outer NULL
@@ -59,7 +60,13 @@ Sub BerSetup
 	/declare VolleyAxeComponent		string outer NULL
 	/declare SnareAxeComponent		string outer NULL
 	/declare ThrowAxeComponent		string outer NULL
+	/declare JoltAxeComponent		string outer NULL
+	/declare JoltAxeName			string outer NULL
+	/declare StunAxeName			string outer NULL
+	/declare StunAxeComponent		string outer NULL
+	
 |-Config Options
+	|**
 	/call LoadCommonConfig
 	/call LoadIni Combat AllowMezBreak		 	int 0
 	/call LoadIni Combat DoBattleLeap			int 1
@@ -86,6 +93,7 @@ Sub BerSetup
 	/call LoadIni Options AutoAxe2Min			int 60
 	/call LoadIni Options AutoAxe2Name			string NULL
 	/call LoadIni Options AutoAxe2Components	string NULL
+	**|
 	/varset ChestItemName		"${Me.Inventory[17].Name}"
 	/declare ZerkerCount			int outer 1
 	/declare epicaxe				string outer NULL
@@ -148,6 +156,61 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=68 && ${Me.CombatAbility[Cry Havoc]}) {
 		/varset CryHavoc Cry Havoc
 	}
+|---Stun
+	/if (${Me.Level}>=113 && ${Me.CombatAbility[Temple Crack]}) {
+		/varset Stun Temple Crack
+		/varset StunAxeName Axe of the Vindicator
+		/varset StunAxeComponent Masterwork Axe Components
+	} else /if (${Me.Level}>=108 && ${Me.CombatAbility[Temple Slam]}) {
+		/varset Stun Temple Slam
+		/varset StunAxeName Axe of the Mangler
+		/varset StunAxeComponent Masterwork Axe Components
+	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[Temple Demolish]}) {
+		/varset Stun Temple Demolish
+		/varset StunAxeName Axe of the Demolisher
+		/varset StunAxeComponent Masterwork Axe Components
+	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[Temple Crush]}) {
+		/varset Stun Temple Crush
+		/varset StunAxeName Axe of the Brute
+		/varset StunAxeComponent Axe of the Brute
+	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[Temple Smash]}) {
+		/varset Stun Temple Smash
+		/varset StunAxeName Axe of the Sunderer
+		/varset StunAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[Temple Chop]}) {
+		/varset Stun Temple Chop
+		/varset StunAxeName Axe of the Savage
+		/varset StunAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[Temple Bash]}) {
+		/varset Stun Temple Bash
+		/varset StunAxeName Axe of the Eradicator
+		/varset StunAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=78 && ${Me.CombatAbility[Temple Strike]}) {
+		/varset Stun Temple Strike
+		/varset StunAxeName Axe of the Decimitor
+		/varset StunAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=73 && ${Me.CombatAbility[Temple Blow]}) {
+		/varset Stun Temple Blow
+		/varset StunAxeName Axe of the Annihilator
+		/varset StunAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=68 && ${Me.CombatAbility[Mind Strike]}) {
+		/varset Stun Mind Strike
+		/varset StunAxeName Axe of the Destroyer
+		/varset StunAxeComponent Balanced Axe Components
+	} else /if (${Me.Level}>=60 && ${Me.CombatAbility[Head Crush]}) {
+		/varset Stun Head Crush
+		/varset StunAxeName Rage Axe
+		/varset StunAxeComponent Axe Component
+	} else /if (${Me.Level}>=40 && ${Me.CombatAbility[Head Pummel]}) {
+		/varset Stun Head Pummel
+		/varset StunAxeName Bonesplicer Axe
+		/varset StunAxeComponent Axe Component
+	} else /if (${Me.Level}>=16 && ${Me.CombatAbility[Head Strike]}) {
+		/varset Stun Head Strike
+		/varset StunAxeName Blunt Axe
+		/varset StunAxeComponent Axe Component
+	}
+	
 |---Snare
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[Tendon Rip]}) {
 		/varset Snare Tendon Rip
@@ -164,15 +227,15 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=96 && ${Me.CombatAbility[Tendon Gash]}) {
 		/varset Snare Tendon Gash
 		/varset SnareAxeName Axe of the Brute
-		/varset SnareAxeComponent NULL
+		/varset SnareAxeComponent Crafted Axe Component
 	} else /if (${Me.Level}>=91 && ${Me.CombatAbility[Tendon Slash]}) {
 		/varset Snare Tendon Slash
 		/varset SnareAxeName Axe of the Sunderer
-		/varset SnareAxeComponent NULL
+		/varset SnareAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=86 && ${Me.CombatAbility[Tendon Lacerate]}) {
 		/varset Snare Tendon Lacerate
 		/varset SnareAxeName Axe of the Savage
-		/varset SnareAxeComponent NULL
+		/varset SnareAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=81 && ${Me.CombatAbility[Tendon Shear]}) {
 		/varset Snare Tendon Shear
 		/varset SnareAxeName Axe of the Eradicator
@@ -202,58 +265,27 @@ Sub SetupDiscs
 		/varset SnareAxeName Blunt Axe
 		/varset SnareAxeComponent Axe Component
 	}
-|- Blood Axe TIMER 1
-|- NEED BUFF EFFECT NAME ON MOB TO CHECK IN COMBATDPS
-	/if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Blood Brand].RankName}]}) {
-		/varset BloodDisc ${Spell[Blood Brand].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Blood Blade].RankName}]}) {
-		/varset BloodDisc ${Spell[Blood Blade].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Blood Axe].RankName}]}) {
-		/varset BloodDisc ${Spell[Blood Axe].RankName}
-	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Blood Hatchet].RankName}]}) {
-		/varset BloodDisc ${Spell[Blood Hatchet].RankName}
-	} 
-
-|---Battle Cry - HHE Buff
-	/if (${Me.Level}>=65 && ${Me.CombatAbility[Ancient Cry of Chaos]}) {
-		/varset HHEBuff Ancient Cry of Chaos
-	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[Battle Cry of the Mastruq]}) {
-		/varset HHEBuff Battle Cry of the Mastruq
-	} else /if (${Me.Level}>=64 && ${Me.CombatAbility[War Cry of Dravel]}) {
-		/varset HHEBuff War Cry of Dravel
-	} else /if (${Me.Level}>=57 && ${Me.CombatAbility[Battle Cry of Dravel]}) {
-		/varset HHEBuff Battle Cry of Dravel
-	} else /if (${Me.Level}>=50 && ${Me.CombatAbility[War Cry]}) {
-		/varset HHEBuff War Cry
-	} else /if (${Me.Level}>=30 && ${Me.CombatAbility[Battle Cry]}) {
-		/varset HHEBuff Battle Cry
-	}
-|---Primary Burn Disc Setup - Expanded for lower level use
-|- TIMER 4
-	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Brutal Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Brutal Discipline].RankName}
-	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Sundering Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Sundering Discipline].RankName}
-	} else /if (${Me.Level}>=75 && ${Me.CombatAbility[${Spell[Berserking Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Berserking Discipline].RankName}
-	} else /if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Burning Rage Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Burning Rage Discipline].RankName}
-	} else /if (${Me.Level}>=58 && ${Me.CombatAbility[${Spell[Blind Rage Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Blind Rage Discipline].RankName}
-	} else /if (${Me.Level}>=54 && ${Me.CombatAbility[${Spell[Cleaving Rage Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Cleaving Rage Discipline].RankName}
-	} 
 
 	/if (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Jarring Jolt].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Jolt].RankName}
+		/varset JoltAxeName Axe of the Mangler
+		/varset JoltAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Jarring Smite].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Smite].RankName}
+		/varset JoltAxeName Axe of the Demolisher
+		/varset JoltAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Jarring Crush].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Crush].RankName}
+		/varset JoltAxeName Axe of the Brute
+		/varset JoltAxeComponent Crafted Axe Component
 	} else /if (${Me.Level}>=94 && ${Me.CombatAbility[${Spell[Jarring Blow].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Blow].RankName}
+		/varset JoltAxeName Axe of the Sunderer
+		/varset JoltAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=89 && ${Me.CombatAbility[${Spell[Jarring Slam].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Slam].RankName}
+		/varset JoltAxeName Axe of the Savage
+		/varset JoltAxeComponent Balanced Axe Components
 	} else /if (${Me.Level}>=84 && ${Me.CombatAbility[${Spell[Jarring Clash].RankName}]}) {
 		/varset JoltDisc ${Spell[Jarring Clash].RankName}
 	} else /if (${Me.Level}>=79 && ${Me.CombatAbility[${Spell[Jarring Smash].RankName}]}) {
@@ -392,6 +424,48 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=81 && ${Me.CombatAbility[${Spell[Overpowering Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Overpowering Frenzy].RankName}
 	}
+
+	|- Blood Axe TIMER 1
+|- NEED BUFF EFFECT NAME ON MOB TO CHECK IN COMBATDPS
+	/if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Blood Brand].RankName}]}) {
+		/varset BloodDisc ${Spell[Blood Brand].RankName}
+	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Blood Blade].RankName}]}) {
+		/varset BloodDisc ${Spell[Blood Blade].RankName}
+	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Blood Axe].RankName}]}) {
+		/varset BloodDisc ${Spell[Blood Axe].RankName}
+	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Blood Hatchet].RankName}]}) {
+		/varset BloodDisc ${Spell[Blood Hatchet].RankName}
+	} 
+
+|---Battle Cry - HHE Buff
+	/if (${Me.Level}>=65 && ${Me.CombatAbility[Ancient Cry of Chaos]}) {
+		/varset HHEBuff Ancient Cry of Chaos
+	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[Battle Cry of the Mastruq]}) {
+		/varset HHEBuff Battle Cry of the Mastruq
+	} else /if (${Me.Level}>=64 && ${Me.CombatAbility[War Cry of Dravel]}) {
+		/varset HHEBuff War Cry of Dravel
+	} else /if (${Me.Level}>=57 && ${Me.CombatAbility[Battle Cry of Dravel]}) {
+		/varset HHEBuff Battle Cry of Dravel
+	} else /if (${Me.Level}>=50 && ${Me.CombatAbility[War Cry]}) {
+		/varset HHEBuff War Cry
+	} else /if (${Me.Level}>=30 && ${Me.CombatAbility[Battle Cry]}) {
+		/varset HHEBuff Battle Cry
+	}
+|---Primary Burn Disc Setup - Expanded for lower level use
+|- TIMER 4
+	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Brutal Discipline].RankName}]}) {
+		/varset PrimaryBurnDisc ${Spell[Brutal Discipline].RankName}
+	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Sundering Discipline].RankName}]}) {
+		/varset PrimaryBurnDisc ${Spell[Sundering Discipline].RankName}
+	} else /if (${Me.Level}>=75 && ${Me.CombatAbility[${Spell[Berserking Discipline].RankName}]}) {
+		/varset PrimaryBurnDisc ${Spell[Berserking Discipline].RankName}
+	} else /if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Burning Rage Discipline].RankName}]}) {
+		/varset PrimaryBurnDisc ${Spell[Burning Rage Discipline].RankName}
+	} else /if (${Me.Level}>=58 && ${Me.CombatAbility[${Spell[Blind Rage Discipline].RankName}]}) {
+		/varset PrimaryBurnDisc ${Spell[Blind Rage Discipline].RankName}
+	} else /if (${Me.Level}>=54 && ${Me.CombatAbility[${Spell[Cleaving Rage Discipline].RankName}]}) {
+		/varset PrimaryBurnDisc ${Spell[Cleaving Rage Discipline].RankName}
+	} 
 |---Volley - Updated for RoS
 	/if (${Me.Level}>=114 && ${Me.CombatAbility[${Spell[Vindicating Volley].RankName}]}) {
 		/varset Dvolley ${Spell[Vindicating Volley].RankName}
@@ -434,28 +508,28 @@ Sub SetupDiscs
 |---Axe Throw - Updated for RoS
 	/if (${Me.Level}>=108 && ${Me.CombatAbility[${Spell[Mangling Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Mangling Axe Throw].RankName}
-		/varset ThrowAxeName Axe of the Mangler
-		/varset ThrowAxeComponent Masterwork Axe Components
+		|/varset ThrowAxeName Axe of the Mangler
+		|/varset ThrowAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Demolishing Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Demolishing Axe Throw].RankName}
-		/varset ThrowAxeName Axe of the Demolisher
-		/varset ThrowAxeComponent Masterwork Axe Components
+		|/varset ThrowAxeName Axe of the Demolisher
+		|/varset ThrowAxeComponent Masterwork Axe Components
 	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[${Spell[Brutal Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Brutal Axe Throw].RankName}
-		/varset ThrowAxeName Axe of the Brute
-		/varset ThrowAxeComponent NULL
+		|/varset ThrowAxeName Axe of the Brute
+		|/varset ThrowAxeComponent NULL
 	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[${Spell[Spirited Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Spirited Axe Throw].RankName}
-		/varset ThrowAxeName Axe of the Sunderer
-		/varset ThrowAxeComponent NULL
+		|/varset ThrowAxeName Axe of the Sunderer
+		|/varset ThrowAxeComponent NULL
 	} else /if (${Me.Level}>=88 && ${Me.CombatAbility[${Spell[Energetic Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Energetic Axe Throw].RankName}
-		/varset ThrowAxeName Axe of the Savage
-		/varset ThrowAxeComponent NULL
+		|/varset ThrowAxeName Axe of the Savage
+		|/varset ThrowAxeComponent NULL
 	} else /if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Vigorous Axe Throw].RankName}]}) {
 		/varset Daxethrow ${Spell[Vigorous Axe Throw].RankName}
-		/varset ThrowAxeName Axe of the Eradicator
-		/varset ThrowAxeComponent Balanced Axe Components
+		|/varset ThrowAxeName Axe of the Eradicator
+		|/varset ThrowAxeComponent Balanced Axe Components
 	}
 |- Sapping strike
 	/if (${Me.Level}>=103 && ${Me.CombatAbility[${Spell[Sapping Strikes].RankName}]}) {
