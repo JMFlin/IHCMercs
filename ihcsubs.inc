@@ -621,6 +621,29 @@ Sub afk_pull
 	/call puller_check_group_resources
 	/if (${ResourceChecker} == 0) /return
 
+	| /if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Spawn[group shaman].Name.Lower}]})
+	| /if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Spawn[group druid].Name.Lower}]})
+	/if (${Group.MainTank.ID} == ${Me.ID} && ${DanNet.Peers.Find[${Group.Cleric.Name.Lower}]}) {
+		/call Gquery ${Group.Cleric.Name.Lower} "Me.SpellReady[Promised Recuperation]" "promisedSpell" "bool"
+		/call Gquery ${Group.Cleric.Name.Lower} "Me.SpellReady[Devout Elixir]" "elixirSpell" "bool"
+		/call Gquery ${Group.Cleric.Name.Lower} "Math.Calc[${Spell[Devout Elixir].MyCastTime.Float}]" "elixirCastTime" "int"
+
+		|/dquery ${Group.Cleric.Name.Lower} -q "Math.Calc[${Spell[Devout Elixir].MyCastTime.Float}]"
+		|/delay 2s ${DanNet[${Group.Cleric.Name.Lower}].Query["Math.Calc[${Spell[Devout Elixir].MyCastTime.Float}]"].Received}
+		/if (${elixirSpell}) { 
+			/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
+			/delay 1s
+			/squelch /dex ${Group.Cleric.Name.Lower} /cast "Devout Elixir"
+			/delay ${elixirCastTime}s
+		}
+		/if (${promisedSpell}) { 
+			/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
+			/delay 1s
+			/squelch /dex ${Group.Cleric.Name.Lower} /cast "Promised Recuperation"
+			/delay 2s
+		}
+	}
+
 	/if (${Spawn[id ${_pullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${_pullTargetID}].LineOfSight}) {
 		
 		/nav id ${_pullTargetID}
@@ -672,6 +695,7 @@ Sub afk_pull
     /if (${Target.ID}) /face fast
 	/call set_timers
 	/if (${Defined[_pullTargetID]}) /deletevar _pullTargetID
+	/call combat_buffs
 	/delay 5
  /return
 
@@ -1403,6 +1427,19 @@ Sub get_target
 	}
 
 /return
+
+|-------------------------------------------------------------------------------- 
+| Sub validate_combat_buffs
+|--------------------------------------------------------------------------------
+sub validate_combat_buffs(bool _debug)
+
+	/if (!${Me.XTarget}) /return FALSE
+	/if (!${Target.ID}) /return FALSE
+	/if (${Target.Type.Equal[Corpse]}) /return FALSE
+	/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}+60) /return FALSE
+
+/return TRUE
+
 |-------------------------------------------------------------------------------- 
 | Sub validate_combat
 |--------------------------------------------------------------------------------
@@ -1430,10 +1467,10 @@ sub validate_combat(bool _debug)
 	}
 
 	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 65) || ${Navigation.PathLength[id ${Target.ID}]} < ${AssistRange}) {
-			/return TRUE
-		} else {
-			/return FALSE
-		}
+		/return TRUE
+	} else {
+		/return FALSE
+	}
 
 /return TRUE
 |-------------------------------------------------------------------------------- 
