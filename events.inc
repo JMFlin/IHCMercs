@@ -2263,3 +2263,33 @@ Sub Event_DuckOff
   /if (${Me.State.NotEqual[STAND]}) /stand
   /doevents flush DuckOff
 /return
+
+
+
+|********************************************************************************************
+ ** Rotations
+ **|
+#event BerStunRotation "#*#${Target.CleanName} suffers a blow to the head.#*#"
+Sub Event_BerStunRotation
+  
+  /declare mi         mapiterator
+  /declare stunTimer	timer outer	0
+
+  /vardata mi berStunRotationMap.First
+
+  /while (!${mi.IsEnd}) {
+
+    /if (${mi.Key} == ${berStunRotationCounter}) {
+      /varset berStunRotationStunner ${mi.Value}
+      /docommand /dgt ${berStunRotationStunner} turn to stun!
+      /break
+    }
+    
+    /if (${mi.Advance}) {
+    }
+
+  }
+
+  /varcalc berStunRotationCounter ${berStunRotationCounter} + 1
+  
+/return

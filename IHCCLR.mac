@@ -370,12 +370,12 @@ Sub single_target_heals
 
 	/if (${Me.XTarget}) {
 
-		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${promheal}].ID" "promisedHeal" "int"
+		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${PromisedHeal}].ID" "promisedHeal" "int"
 
 		/if (!${promisedHeal}) {
 			/if (${validate_pre_heal_target[55]}) {
-				/if (${validate_cast[FALSE, spell, "${promheal}", ${Group.MainTank.ID}]}) {
-					/call core_cast2 "${promheal}" spell ${Group.MainTank.ID} FALSE
+				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
+					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
 				}
 			}
 		}

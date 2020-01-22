@@ -156,7 +156,7 @@ Sub combat
 	/if (!${validate_combat[FALSE]}) /return
 
 	/declare BurningNow int local 0
-	/if (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) {
+	/if (${Me.XTarget}>=${BurnMobCount} || ${Target.Named}) {
 		/if (${Me.CombatAbilityReady[Thousand Blades]}) {
 				/disc Thousand Blades
 				/delay 5

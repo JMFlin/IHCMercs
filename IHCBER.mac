@@ -23,6 +23,7 @@ Sub Main
 	/declare MacroPath       		string outer IHCMercs\IHCBER
 	/declare IHCVersion       		string outer 2.0
 	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
+	/declare AutoCampRadius 		int outer 10
 
 	/call BerSetup
 	/call setup_plugins
@@ -33,8 +34,8 @@ Sub Main
 	/call WelcomeMsg
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
-	/call ${Me.Class.ShortName.Lower}_set_rotations
-
+	/call ${Me.Class.ShortName.Lower}_rotations
+	
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -115,11 +116,13 @@ Sub AANDisc
 		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
 	}
 
+	
+
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
 		/alt act ${Me.AltAbility[Communion of Blood].ID}
 		/delay 5
 	}
-	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap Warcry].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Me.Combat} && ${DoBattleLeap}) {
+	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap Warcry].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Me.Combat}) {
 		/alt act ${Me.AltAbility[Battle Leap].ID}
 	}
 	/if (${Me.AltAbilityReady[Desperation]} && !${Me.Buff[Desperation].ID} && ${Me.Haste}<224) {
@@ -162,12 +165,12 @@ Sub AANDisc
 			/alt act ${Me.AltAbility[Uncanny Resilience].ID}
 			/delay 5
 	}
-	/if (${Me.AltAbilityReady[Savage Spirit]} && ${Me.Combat} && ${Target.PctHPs}<99 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow})) {
+	/if (${Me.AltAbilityReady[Savage Spirit]} && ${Me.Combat} && ${Target.PctHPs}<99 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
 		/alt act ${Me.AltAbility[Savage Spirit].ID}
 		/delay 5
 	}
 	| ${Me.Buff[Savage Spirit].ID}
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow})) {
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
 		/if (${Me.ActiveDisc.ID}) /stopdisc
 		/delay 5
 		/disc ${PrimaryBurnDisc}
@@ -189,16 +192,17 @@ Sub AANDisc
 		/alt act ${Me.AltAbility[Silent Strikes].ID}
 		/delay 5
 	}	
-	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Focused Furious Rampage]} && !${UseAoE}) {
+	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Focused Furious Rampage]}) {
 		/alt act ${Me.AltAbility[Focused Furious Rampage].ID}
 		/delay 5
 	}
-	/if (${Me.AltAbilityReady[Furious Rampage]} && ${UseAoE} && ${Me.XTarget}>1) {
-		/alt act ${Me.AltAbility[Furious Rampage].ID}
-		/delay 5
-	}	
 
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow})) {
+	|/if (${Me.AltAbilityReady[Furious Rampage]} && ${Me.XTarget}>1) {
+	|	/alt act ${Me.AltAbility[Furious Rampage].ID}
+	|	/delay 5
+	|}	
+
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID} != ${FlurryDiscID}) {
@@ -215,7 +219,7 @@ Sub AANDisc
 		/delay 5
 	}
 
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${Spell[${FlurryDisc}].RankName}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && !${Me.CombatAbilityReady[${CleavingDisc}]} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow})) {
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${Spell[${FlurryDisc}].RankName}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && !${Me.CombatAbilityReady[${CleavingDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
 		
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID} != ${CleavingDiscID}) {
@@ -245,7 +249,7 @@ Sub AANDisc
 		/disc ${DisconDisc}
 		/delay 10
 	}
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${ResolveDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.ActiveDisc.ID} && ${BurnAlways}) {
+	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${ResolveDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.ActiveDisc.ID}) {
 		/if (${Me.PctHPs}>80) {
 			/alt act ${Me.AltAbility[Bloodfury].ID}
 			/delay 5
@@ -274,15 +278,17 @@ Sub combat
 	
 	/call use_skill_melee FALSE ${Target.ID}
 
-	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && ${snareImmuneID} != ${Target.ID}) {
+	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
 		/call check_cast_events "${Snare}" CAST_IMMUNE ${Target.ID}
 	}
 	
-|	/if (${Me.CombatAbilityReady[${JoltDisc}]} && ${Target.PctAggro}>50) {
-|		/Disc ${JoltDisc}
-|		/delay 5
-|	}
+	/if (${berStunRotationStunner.Equal[${Me.DisplayName}]} && !${Target.Stunned}) {
+		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
+			/call core_cast2 "${Stun}" disc ${Target.ID} FALSE
+		}
+	}
+
 	/if (${Me.CombatAbilityReady[${BloodDisc}]} && !${Target.Buff[${BloodDisc}].ID}) {
 		/Disc ${BloodDisc}
 		/delay 5
@@ -292,16 +298,16 @@ Sub combat
 		/Disc ${Alliance}
 		/delay 5
 	}
-	/if (${FindItem[${ChestItemName}].ID} && !${FindItem[${ChestCombatCast}].TimerReady}) {
-		/useitem "${ChestItemName}"
-		/delay 10	
-	}
-	/if (${UseAoE}) {
-		/if (${Me.AltAbilityReady[Rampage]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
-			/alt act ${Me.AltAbility[Rampage].ID}
-			/delay 5
-		}
-	}
+	|/if (${FindItem[${ChestItemName}].ID} && !${FindItem[${ChestCombatCast}].TimerReady}) {
+	|	/useitem "${ChestItemName}"
+	|	/delay 10	
+	|}
+
+	|/if (${Me.AltAbilityReady[Furious Rampage]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
+	|	/alt act ${Me.AltAbility[Furious Rampage].ID}
+	|	/delay 5
+	|}
+	
 	/if (${SpawnCount[npc radius 40 zradius 15 targetable playerstate 4]} < 2) {
 		/if (${validate_cast[FALSE, disc, "${AESlice}", ${Target.ID}]}) /call core_cast2 "${AESlice}" disc ${Target.ID} FALSE
 		/delay 5
@@ -340,7 +346,7 @@ Sub combat
 		/Disc ${Daxeof}
 		/delay 5
 	}
-	/if (${Me.CombatAbilityReady[${Phantom}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>50 && ${Me.Combat} && ${UsePet}) {
+	/if (${Me.CombatAbilityReady[${Phantom}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>50 && ${Me.Combat}) {
 		/Disc ${Phantom}
 		/delay 5
 	}
