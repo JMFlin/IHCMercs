@@ -613,13 +613,15 @@ Sub pre_pull_group_healer_spells
 	| /if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Spawn[group shaman].Name.Lower}]})
 	| /if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Spawn[group druid].Name.Lower}]})
 
-	/call Gquery ${Group.Cleric.Name.Lower} "PromisedHeal" "promisedSpellName" "string"
-	/call Gquery ${Group.Cleric.Name.Lower} "SingleElixirSpell" "elixirSpellName" "string"
-	/call Gquery ${Group.Cleric.Name.Lower} "Math.Calc[${Spell[${elixirSpellName}].MyCastTime.Float}]" "elixirCast" "int"
+	/if (${Group.Cleric.ID}) {
+		/call Gquery ${Group.Cleric.Name.Lower} "PromisedHeal" "promisedSpellName" "string"
+		/call Gquery ${Group.Cleric.Name.Lower} "SingleElixirSpell" "elixirSpellName" "string"
+		/call Gquery ${Group.Cleric.Name.Lower} "Math.Calc[${Spell[${elixirSpellName}].MyCastTime.Float}]" "elixirCast" "int"
 
-	/varset promisedSpell ${promisedSpellName}
-	/varset elixirSpell ${elixirSpellName}
-	/varset elixirCastTime ${elixirCast}
+		/varset promisedSpell ${promisedSpellName}
+		/varset elixirSpell ${elixirSpellName}
+		/varset elixirCastTime ${elixirCast}
+	}
 /return
 
 Sub afk_pull
@@ -643,7 +645,7 @@ Sub afk_pull
 	/call puller_check_group_resources
 	/if (${ResourceChecker} == 0) /return
 
-	/if (${Group.MainTank.ID} == ${Me.ID} && ${DanNet.Peers.Find[${Group.Cleric.Name.Lower}]}) {
+	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 
 		/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
 		/delay 1s
