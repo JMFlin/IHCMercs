@@ -2961,7 +2961,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/declare closestMezzTarget 	int local 0
 
 	| Is there something to mez or debuff?
-	/if (!${Me.XTarget}) /return
+	/if (!${validate_combat[FALSE]}) /return
 	/if (${Me.XTarget} < 2) /return
 
 	| How many mobs are there?
@@ -2982,18 +2982,18 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			/delay 1s
 
 			/if (${Select[${Me.Class.ShortName},ENC]}) {
-				/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,xtarhater radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
+				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,xtarhater radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
 				| /varset closestMezzTarget ${NearestSpawn[1, npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
-				/if (${validate_cast[FALSE, spell, "${_mezAE}", ${closestMezzTarget}]}) {
+				/if (${validate_cast[FALSE, spell, "${_mezAE}", ${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
-					/call core_cast2 "${_mezAE}" spell ${closestMezzTarget} FALSE
+					/call core_cast2 "${_mezAE}" spell ${Target.ID} FALSE
 				}
 			} else /if (${Select[${Me.Class.ShortName},BRD]}) {
-				/varset closestMezzTarget ${SpawnSort[1,asc,PathLength,xtarhater radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
+				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,xtarhater radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
 				| /varset closestMezzTarget ${NearestSpawn[1, npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
-				/if (${validate_cast[FALSE, pulse, "${_mezAE}", ${closestMezzTarget}]}) {
+				/if (${validate_cast[FALSE, pulse, "${_mezAE}", ${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
-					/call core_cast2 "${_mezAE}" pulse ${closestMezzTarget} FALSE
+					/call core_cast2 "${_mezAE}" pulse ${Target.ID} FALSE
 				}
 			}
 		}
