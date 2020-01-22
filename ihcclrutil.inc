@@ -33,7 +33,7 @@ Sub ClrSetup
 	/declare groupfastheal	        string          outer NULL
 	/declare GroupHealSpell1		string          outer NULL
 	/declare grouphealnocure        string          outer NULL
-	/declare promheal		        string          outer NULL
+	/declare PromisedHeal		    string          outer NULL
 	/declare bigheal1		        string          outer NULL
 	/declare bigheal2		        string          outer NULL
 	/declare yaulpspell		        string          outer NULL
@@ -176,7 +176,7 @@ Sub INIChanges
 	}
 	/call SetIni Combat qmtarget		 		int ${qmtarget}
 	/call SetIni Combat UseMelee		 		int ${UseMelee}
-	/call SetIni Combat UseHealNukes				int ${UseHealNukes}
+	/call SetIni Combat UseHealNukes			int ${UseHealNukes}
 	/call SetIni Combat UseReverseDS			int ${UseReverseDS}
 	/call SetIni Healing CureOther				int ${CureOther}
 	/call SetIni Healing DynamicHealing			int ${DynamicHealing}
@@ -201,7 +201,7 @@ Sub LoadSpellBar
 	/echo \aw Loading Spell Bar
 	
 	/call LoadSpellGem "${SingleElixirSpell}" 1
-	/call LoadSpellGem "${promheal}" 2
+	/call LoadSpellGem "${PromisedHeal}" 2
 	/call LoadSpellGem "${remedyheal1}" 3
 	/call LoadSpellGem "${remedyheal2}" 4
 	/call LoadSpellGem "${patchheal}" 5
@@ -522,21 +522,21 @@ Sub CheckSpells
 	} 
 |---Promised Heals
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Promised Remedy].RankName}]})  {
-		/varset promheal ${Spell[Promised Remedy].RankName}
+		/varset PromisedHeal ${Spell[Promised Remedy].RankName}
 	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Promised Rehabilitation].RankName}]})  {
-		/varset promheal ${Spell[Promised Rehabilitation].RankName}
+		/varset PromisedHeal ${Spell[Promised Rehabilitation].RankName}
 	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Promised Reformation].RankName}]})  {
-		/varset promheal ${Spell[Promised Reformation].RankName}
+		/varset PromisedHeal ${Spell[Promised Reformation].RankName}
 	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Promised Restitution].RankName}]})  {
-		/varset promheal ${Spell[Promised Restitution].RankName}
+		/varset PromisedHeal ${Spell[Promised Restitution].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Promised Resurgence].RankName}]})  {
-		/varset promheal ${Spell[Promised Resurgence].RankName}
+		/varset PromisedHeal ${Spell[Promised Resurgence].RankName}
 	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Promised Recuperation].RankName}]})  {
-		/varset promheal ${Spell[Promised Recuperation].RankName}
+		/varset PromisedHeal ${Spell[Promised Recuperation].RankName}
 	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Promised Restoration].RankName}]})  {
-		/varset promheal ${Spell[Promised Restoration].RankName}
+		/varset PromisedHeal ${Spell[Promised Restoration].RankName}
 	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Promised Renewal].RankName}]})  {
-		/varset promheal ${Spell[Promised Renewal].RankName}
+		/varset PromisedHeal ${Spell[Promised Renewal].RankName}
 	}
 	/if (${DivineBuffOn}==1) {
 		/varcalc promgem ${spellslots}-1

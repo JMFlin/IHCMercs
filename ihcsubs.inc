@@ -74,7 +74,7 @@ Sub VarSetup
 	/declare MainAssistType 	string outer
 	/declare Ok2Assist			int outer 1
 	/declare UseSpellInterrupt	int outer 0
-	/declare burnnow			int outer 0
+	/declare BurnMobCount		int outer 3
 	/declare BackOffFlag		int outer 0
 	/declare BeforeCombat		string outer NULL
 	/declare GroupPauseFlag		int outer 0
@@ -345,7 +345,10 @@ Sub check_state(bool _debug)
 	}
 
 	| clear sets
-	/if (${immuneSet.Count} > 0) ${immuneSet.Clear}
+	/declare _count int local ${immuneSet.Count}
+	/if (${_count} > 0) {
+		/echo 'Immune Set Clear: ${immuneSet.Clear}.'
+	}
 
 	| check pet
 	/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
@@ -397,11 +400,14 @@ Sub check_state(bool _debug)
 |- SUB: set_timers
 |---------------------------------------------------------------------------- 
 Sub set_timers
-	/if (${TimeForMezVariable} == 1 && !${Me.XTarget}) /varset TimeForMezVariable 0
-		
-	/if (${Me.XTarget} && ${TimeForMezVariable} == 0) {
-		/varset TimeForMez 6s
-		/varset TimeForMezVariable 1
+	/if (${Group.MainTank.ID} == ${Me.ID}) {
+
+		/if (${TimeForMezVariable} == 1 && !${Me.XTarget}) /varset TimeForMezVariable 0
+			
+		/if (${Me.XTarget} && ${TimeForMezVariable} == 0) {
+			/varset TimeForMez 6s
+			/varset TimeForMezVariable 1
+		}
 	}
 
 /return
@@ -599,6 +605,23 @@ Sub puller_check_group_resources
 |----------------------------------------------------------------------------
 |- SUB: AFKPull /varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
 |---------------------------------------------------------------------------- 
+Sub pre_pull_group_healer_spells
+	/declare promisedSpell string outer NULL
+	/declare elixirSpell string outer NULL
+	/declare elixirCastTime string outer NULL
+
+	| /if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Spawn[group shaman].Name.Lower}]})
+	| /if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Spawn[group druid].Name.Lower}]})
+
+	/call Gquery ${Group.Cleric.Name.Lower} "PromisedHeal" "promisedSpellName" "string"
+	/call Gquery ${Group.Cleric.Name.Lower} "SingleElixirSpell" "elixirSpellName" "string"
+	/call Gquery ${Group.Cleric.Name.Lower} "Math.Calc[${Spell[${elixirSpellName}].MyCastTime.Float}]" "elixirCast" "int"
+
+	/varset promisedSpell ${promisedSpellName}
+	/varset elixirSpell ${elixirSpellName}
+	/varset elixirCastTime ${elixirCast}
+/return
+
 Sub afk_pull
 	/declare _pullTargetID 	int local 0
 
@@ -621,27 +644,18 @@ Sub afk_pull
 	/call puller_check_group_resources
 	/if (${ResourceChecker} == 0) /return
 
-	| /if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Spawn[group shaman].Name.Lower}]})
-	| /if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Spawn[group druid].Name.Lower}]})
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${DanNet.Peers.Find[${Group.Cleric.Name.Lower}]}) {
-		/call Gquery ${Group.Cleric.Name.Lower} "Me.SpellReady[Promised Recuperation]" "promisedSpell" "bool"
-		/call Gquery ${Group.Cleric.Name.Lower} "Me.SpellReady[Devout Elixir]" "elixirSpell" "bool"
-		/call Gquery ${Group.Cleric.Name.Lower} "Math.Calc[${Spell[Devout Elixir].MyCastTime.Float}]" "elixirCastTime" "int"
 
-		|/dquery ${Group.Cleric.Name.Lower} -q "Math.Calc[${Spell[Devout Elixir].MyCastTime.Float}]"
-		|/delay 2s ${DanNet[${Group.Cleric.Name.Lower}].Query["Math.Calc[${Spell[Devout Elixir].MyCastTime.Float}]"].Received}
-		/if (${elixirSpell}) { 
-			/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
-			/delay 1s
-			/squelch /dex ${Group.Cleric.Name.Lower} /cast "Devout Elixir"
-			/delay ${elixirCastTime}s
-		}
-		/if (${promisedSpell}) { 
-			/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
-			/delay 1s
-			/squelch /dex ${Group.Cleric.Name.Lower} /cast "Promised Recuperation"
-			/delay 2s
-		}
+		/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
+		/delay 1s
+		/squelch /dex ${Group.Cleric.Name.Lower} /cast "${elixirSpell}"
+		/delay ${elixirCastTime}s
+ 
+		/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
+		/delay 1s
+		/squelch /dex ${Group.Cleric.Name.Lower} /cast "${promisedSpell}"
+		/delay 2s
+		
 	}
 
 	/if (${Spawn[id ${_pullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${_pullTargetID}].LineOfSight}) {
@@ -702,8 +716,9 @@ Sub afk_pull
  Sub validate_no_pc(int _tmpID)
 	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
 	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
-	/declare _groupCount	int local	${SpawnCount[loc ${locX} ${locY} radius 75 pc group notid ${Me.ID}]}
-	/declare _pcCount		int local 	${SpawnCount[loc ${locX} ${locY} radius 75 pc notid ${Me.ID}]}
+	/declare locZ			int	local	${Spawn[id ${_tmpID}].Z}
+	/declare _groupCount	int local	${SpawnCount[loc ${locX} ${locY} radius 75 zradius 20 pc group notid ${Me.ID}]}
+	/declare _pcCount		int local 	${SpawnCount[loc ${locX} ${locY} radius 75 zradius 20 pc notid ${Me.ID}]}
 	
 	/varcalc _pcCount ${_pcCount} - ${_groupCount}
 
@@ -715,7 +730,7 @@ Sub afk_pull
 Sub validate_single_pull(int _tmpID)
 	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
 	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
-	/declare _addCount		int local	${SpawnCount[loc ${locX} ${locY} radius ${npcRadiusCheck} npc targetable noalert 1]}
+	/declare _addCount		int local	${SpawnCount[loc ${locX} ${locY} radius ${npcRadiusCheck} zradius 20 npc targetable noalert 1]}
 	
 	/if (${_addCount} > 1) /return TRUE
 
@@ -932,8 +947,6 @@ Sub check_campfire
 		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
 		/delay 1s
 		/nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
-		/delay 1s
-		/nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
 		/delay 1s
 		/windowstate FellowshipWnd close
 	}

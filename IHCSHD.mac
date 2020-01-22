@@ -167,13 +167,25 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 	}
 
+	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
+		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Target.ID}]}) {
+			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
+		}
+	}
+	
 	/if (${Me.PctHPs} < 95) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 	/doevents
 
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) /call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
-	/doevents
+	
+	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
+		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Target.ID}]}) {
+			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
+		}
+	}
+
 	/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) /call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 
 /return
