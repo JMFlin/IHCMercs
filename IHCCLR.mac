@@ -84,7 +84,7 @@ Sub ManualPullCamping
 
 |		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && (!${Me.Invis}) && !${MoveTo.Moving}) /call BuffCheck
 		/call group_buffs
-
+		/call combat_tank_buffs
 |		/call cures
 
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
@@ -300,7 +300,7 @@ Sub group_buffs
 			}
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				/if (${Me.CurrentMana}>${Spell[${TankBuff}].Mana} && ${Group.Member[${_count}].ID}==${Group.MainTank.ID} && !${Me.Casting.ID} && ${Me.Book[${TankBuff}]}) {
+				/if (${Group.Member[${_count}].ID}==${Group.MainTank.ID}) {
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${TankBuffMatch}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${TankBuff}].Stacks" "tmpstackcheck" "bool"
 					/if (!${tmpbuffid} && !${tmpstackcheck}) {
@@ -347,6 +347,18 @@ Sub group_buffs
 	
 /return
 |----------------------------------------------------------------------------
+|- SUB: combat_tank_buffs
+|---------------------------------------------------------------------------- 
+Sub combat_tank_buffs
+	/if (${Group.MainTank.ID} != ${Target.ID}) /target ${Group.MainTank}
+	/delay 8
+	/if (!${Target.Buff[${TankBuff}].ID} && ${Target.PctHPs} > 90) {
+		/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Group.MainTank.ID}]}) {
+			/call core_cast2 "${TankBuff}" spell ${Group.MainTank.ID} FALSE
+		}
+	}
+/return
+|----------------------------------------------------------------------------
 |- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
 Sub single_target_heals
@@ -373,7 +385,7 @@ Sub single_target_heals
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${PromisedHeal}].ID" "promisedHeal" "int"
 
 		/if (!${promisedHeal}) {
-			/if (${validate_pre_heal_target[55]}) {
+			/if (${validate_pre_heal_target[60]}) {
 				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
 					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
 				}

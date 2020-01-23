@@ -338,6 +338,7 @@ Sub check_state(bool _debug)
 
 	| clear target
 	/if (${Target.ID}) {
+		/delay 1s
 		/if (${Target.Type.Equal[Corpse]} || ${Target.PctHPs} <= 0 || ${Target.ID} == ${Me.Pet.ID}) {
 			/target clear
 			/delay 1s
@@ -387,9 +388,9 @@ Sub check_state(bool _debug)
 	}
 
 	/if (${Select[${Me.Class.ShortName},BER]}) {
-		|/call make_axes ${VolleyAxeName} ${VolleyAxeComponent}
+		/call make_axes ${JoltAxeName} ${JoltAxeComponent}
 		/call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
-		|/call make_axes ${ThrowAxeName} ${ThrowAxeComponent}
+		/call make_axes ${StunAxeName} ${StunAxeComponent}
 	}
 
 |		/call check_illusion FALSE ${illusionItem}
@@ -652,7 +653,8 @@ Sub afk_pull
 		/delay 1s
 		/squelch /dex ${Group.Cleric.Name.Lower} /cast "${elixirSpell}"
 		/delay ${elixirCastTime}s
- 
+		/delay 1s
+
 		/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
 		/delay 1s
 		/squelch /dex ${Group.Cleric.Name.Lower} /cast "${promisedSpell}"
@@ -672,7 +674,12 @@ Sub afk_pull
 				/delay 1s ${Target.ID} == ${_pullTargetID}
 
 				/if (${Target.ID} == ${_pullTargetID}) {
-					/if (${validate_no_pc[${_pullTargetID}]} || ${validate_single_pull[${_pullTargetID}]}) /nav stop
+					/if (${validate_no_pc[${_pullTargetID}]} || ${validate_single_pull[${_pullTargetID}]}) {
+						/if (${Navigation.Active}) /nav stop
+						/call set_pull_target
+						/varset _pullTargetID ${Macro.Return}
+						/nav id ${_pullTargetID}
+					}
 				}
 
 			}
@@ -690,15 +697,15 @@ Sub afk_pull
 
 	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
-		/attack on
-		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
+			/attack on
+			/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 
 	} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
-		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
-
-		/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
-
+		/if (!${validate_no_pc[${_pullTargetID}]} && !${validate_single_pull[${_pullTargetID}]}) { 
+			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
+			/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
+		}
 	}
 	
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
@@ -708,10 +715,11 @@ Sub afk_pull
 		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} < 10 && ${Navigation.Active}) /nav stop
 	}
 	
-    /if (${Target.ID}) /face fast
-	/call set_timers
+	/if (!${Me.XTarget}) /target clear
+    /if (${Target.ID} && ${Me.XTarget}) /face fast
+	/if (${Me.XTarget}) /call set_timers
 	/if (${Defined[_pullTargetID]}) /deletevar _pullTargetID
-	/call combat_buffs
+	/if (${Me.XTarget}) /call combat_buffs
 	/delay 5
  /return
 
@@ -1074,16 +1082,19 @@ Sub CheckPlugin(string pluginname)
 |- SUB: Death Sub
 |----------------------------------------------------------------------------
 Sub DeathSub
-	/echo You are sleeping with the fishes
-    :DeathSubwait
+    /while (${Me.Hovering}) {
+	|**
 	/if (${Window[RespawnWnd].Open} && ${UseFellowship}==1 && ${InstantRelease}==1) {
 		/nomodkey /notify RespawnWnd RW_OptionsList listselect 1 
 		/delay 1s
 		/nomodkey /notify RespawnWnd RW_SelectButton leftmouseup
 		/delay 5s ${Me.Zoning}
 	}
-    /if (${Me.Hovering}) /goto :DeathSubwait
+	**|
+		/delay 2s
+	}
 	/delay 1m !${Me.Zoning}
+	|**
 	/if (${UseFellowship}==1 && ${FindItem["Fellowship Registration Insignia"].Timer}==0) {
 		/delay 30s ${Me.CombatState.Equal[ACTIVE]}
 		/useitem "Fellowship Registration Insignia"
@@ -1093,6 +1104,7 @@ Sub DeathSub
 	} else {
 		/echo \aw Waiting on someone that knows how to heal to \ar rez me
 	}
+	**|
 /return
 |----------------------------------------------------------------------------
 |- SUB: UnCheck Plugin

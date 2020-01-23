@@ -2275,6 +2275,11 @@ Sub Event_BerStunRotation
   /declare mi         mapiterator
   /declare stunTimer	timer outer	0
 
+  /if (${Select[${Me.Class.ShortName},BER]}) {
+    /doevents flush BerStunRotation
+    /return
+  }
+
   /vardata mi berStunRotationMap.First
 
   /while (!${mi.IsEnd}) {
