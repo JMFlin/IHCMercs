@@ -674,6 +674,7 @@ Sub afk_pull
 
 		/if (!${Me.Song[${elixirSpell}].ID}) {
 			
+			DEBUG
 			DEBUG Begging for ${elixirSpell}
 			
 			/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
@@ -824,9 +825,7 @@ Sub set_pull_target
 
 	/if (${_mobsInRadius} == 0) /return 0
 
-	/while (${_count} <= ${_mobsInRadius}) {
-
-		DEBUG 
+	/while (${_count} <= ${_mobsInRadius}) { 
 
 		/if (${Me.XTarget}) /return ${Me.XTarget[1].ID}
 
@@ -855,7 +854,9 @@ Sub set_pull_target
 		/if (${_pathLength} > ${Navigation.PathLength[id ${_pullMob}]}) {
 			/varset _pathLength ${Navigation.PathLength[id ${_pullMob}]}
 			/varset _pullTargetID ${_pullMob}
-			DEBUG Set target: ${Spawn[id ${_pullTargetID}].DisplayName}
+			DEBUG Set temporary target: ${Spawn[id ${_pullTargetID}].DisplayName}
+
+			/if (${_count} < ${_mobsInRadius}) DEBUG Testing ${Math.Calc[${_mobsInRadius} - ${_count}]} more mobs
 		}
 		
 		/varcalc _count ${_count}+1

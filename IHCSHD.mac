@@ -73,7 +73,6 @@ Sub AFKRadiusCamping
 
 		/call afk_pull
 		/call check_state FALSE
-		/call get_target
 
 		/call balance_hp
 
@@ -204,6 +203,7 @@ Sub combat
 
 Sub combat_buffs
 	
+	/call get_target
 	/if (!${validate_combat_buffs[FALSE]}) /return
 
 	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
@@ -231,6 +231,7 @@ Sub combat_buffs
 |---------------------------------------------------------------------------- 
 Sub DoDisc
 
+	/call get_target
 	/if (!${validate_combat[FALSE]}) /return
 
 
