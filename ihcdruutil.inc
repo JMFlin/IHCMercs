@@ -68,7 +68,7 @@ Sub SetupSpells
 
 	/if (${Me.Level}>=${Spell[Puravida].Level} && ${Me.Book[${Spell[Puravida].RankName}]}) {
 		/varset HealSpell1 ${Spell[Puravida].RankName}
-	} /if (${Me.Level}>=${Spell[Pure Life].Level} && ${Me.Book[${Spell[Pure Life].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Pure Life].Level} && ${Me.Book[${Spell[Pure Life].RankName}]}) {
 		/varset HealSpell1 ${Spell[Pure Life].RankName}
 	} else /if (${Me.Level}>=${Spell[Ancient Chlorobon].Level} && ${Me.Book[${Spell[Ancient Chlorobon].RankName}]}) {
 		/varset HealSpell1 ${Spell[Ancient Chlorobon].RankName}
