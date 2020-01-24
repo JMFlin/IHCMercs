@@ -139,6 +139,14 @@ Sub self_buffs
 		}
 	}
 
+	/if (${Me.XTarget}) /return
+	/if (!${Me.Buff[${Stance}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) {
+			/call core_cast2 "${Stance}" spell ${Target.ID} FALSE
+			/varset CastCheck 1
+		}
+	}
+
 	/if (${CastCheck}) {
 		/call LoadSpellBar
 		/docommand /dgt \aw Done Buffing
@@ -180,6 +188,10 @@ Sub combat
 	}
 	/doevents
 
+	/if (${Me.PctHPs} < 55) {
+		/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
+	}
+
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) /call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
 	
 	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
@@ -212,6 +224,10 @@ Sub combat_buffs
 
 	/if (${Me.PctHPs} < 95) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
+	}
+
+	/if (!${Me.Buff[${Stance}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
 	}
 
 /return
