@@ -17,13 +17,13 @@
 #bind SetVarInt	/setvarint
 #bind CmdList        /ihchelp
 Sub Main
-	/delay ${Math.Rand[5]}
+	/delay ${Math.Rand[100]}
 	/doevents flush
 	/declare MacroName       		string outer IHCBER
 	/declare MacroPath       		string outer IHCMercs\IHCBER
 	/declare IHCVersion       		string outer 2.0
 	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-	/declare AutoCampRadius 		int outer 10
+	/declare AutoCampRadius 		int outer 20
 
 	/call BerSetup
 	/call setup_plugins
@@ -111,7 +111,8 @@ Sub AANDisc
 
 	/if (!${validate_combat[FALSE]}) /return
 	/if (${Target.Distance3D} > 50) /return
-
+	/doevents
+	
 	/if (!${Me.Combat}) {
 		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
 	}
@@ -157,7 +158,7 @@ Sub AANDisc
 		/Disc ${FrenzyBoost}
 		/delay 5
 	}
-	/doevents
+	
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
 	/if (${Target.AggroHolder.ID}==${Me.ID} && ${Me.PctAggro}>90 && (${Target.PctHPs}>20 || ${Target.Named}) && ${Target.Level}>=105 && ${Me.AltAbilityReady[Uncanny Resilience]}) {
@@ -230,7 +231,7 @@ Sub AANDisc
 			/disc ${FlurryDisc}
 		}
 	}
-	/doevents
+
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
 	/if ((${Me.XTarget}>1 || ${Me.ActiveDisc.ID}==${FlurryDiscID}) && ${Me.AltAbilityReady[Vehement Rage]} && ${Me.Combat} && ${Target.PctHPs}>20 && ${Target.PctHPs}<99) {
@@ -270,6 +271,8 @@ Sub combat
 	/call get_target
 	/if (!${validate_combat[FALSE]}) /return
 
+	/doevents BerStunRotation
+
 	/if (${Target.PctAggro} > 85) {
 		/if (${validate_cast[FALSE, disc, "${JoltDisc}", ${Target.ID}]}) {
 			/call core_cast2 "${JoltDisc}" disc ${Target.ID} FALSE
@@ -277,22 +280,15 @@ Sub combat
 	}
 	
 	/call use_skill_melee FALSE ${Target.ID}
+	|/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && !${immuneSet.Contains[${Target.ID}]}) {
+	|	/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
+	|	/call check_cast_events "${Snare}" CAST_IMMUNE ${Target.ID}
+	|}
 
-	/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && !${immuneSet.Contains[${Target.ID}]}) {
-		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
-		/call check_cast_events "${Snare}" CAST_IMMUNE ${Target.ID}
-	}
-	
-	/if (${berStunRotationStunner.Equal[${Me.DisplayName}]} && !${Target.Stunned}) {
-		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
-			/call core_cast2 "${Stun}" disc ${Target.ID} FALSE
-		}
-	}
-
-	/if (${Me.CombatAbilityReady[${BloodDisc}]} && !${Target.Buff[${BloodDisc}].ID}) {
-		/Disc ${BloodDisc}
-		/delay 5
-	}
+	|/if (${Me.CombatAbilityReady[${BloodDisc}]} && !${Target.Buff[${BloodDisc}].ID}) {
+	|	/Disc ${BloodDisc}
+	|	/delay 5
+	|}
 	
 	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Demolisher's Alliance Trigger].ID} && ${UseAlliance}) {
 		/Disc ${Alliance}
@@ -331,16 +327,24 @@ Sub combat
 
 	/if (${validate_cast[FALSE, disc, "${Dfrenzy}", ${Target.ID}]}) /call core_cast2 "${Dfrenzy}" disc ${Target.ID} FALSE
 
-	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
 	/if (${Me.CombatAbilityReady[${Dvolley}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
 		/Disc ${Dvolley}
 		/delay 5
 	}
-	/if (${Me.CombatAbilityReady[${Daxethrow}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
-		/Disc ${Daxethrow}
-		/delay 5
+	
+	/if (${berStunRotationStunner.Equal[${Me.DisplayName}]} && !${Target.Stunned}) {
+		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
+			/call core_cast2 "${Stun}" disc ${Target.ID} FALSE
+			/delay 5
+			/docommand /gsay I hit my stun! Next stunner.
+		}
+	} else /if (!${berStunRotationStunner.Equal[${Me.DisplayName}]}) {
+		/if (${Me.CombatAbilityReady[${Daxethrow}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
+			/Disc ${Daxethrow}
+			/delay 5
+		}
 	}
 	/if (${Me.CombatAbilityReady[${Daxeof}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
 		/Disc ${Daxeof}

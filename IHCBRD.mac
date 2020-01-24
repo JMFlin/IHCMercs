@@ -61,16 +61,12 @@ Sub ManualPullCamping
 
 		/call check_state FALSE
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/call get_target
-		/call Engage
 		/if (${Me.XTarget}) {
 			/call pulse FALSE ${BattleMelody}
 		}
 		/if (!${Me.XTarget}) {
 			/call pulse FALSE ${RegenMelody}
 		}
-		/call combat
-		/call selo
 |		/if (${Me.XTarget}>=${MezStartCount} && ${MezOn} && ${Me.GemTimer[${AEMezSong}]}==0) /call DoMezStuff
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 |		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) 
@@ -98,15 +94,19 @@ Sub pulse(bool _debug, string _melody)
         /varset _melodyArray[${_song}] ${_melody.Mid[${_song},1]}
     /next _song
 	
-	/call get_target
-	
 	/for _song 1 to ${_lnString}
-		
-		/call debuff
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
-		/doevents
 		/call get_target
+		/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
+				/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
+				/call check_cast_events "${SlowSong}" CAST_IMMUNE ${Target.ID}
+			}
+		}
+
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/call Engage
+		/call combat
 		
 		/if (!${Me.XTarget} && ${_melody} == ${BattleMelody}) {
 			/call pulse_stop pulse_line_start
@@ -126,62 +126,37 @@ Sub pulse(bool _debug, string _melody)
 	/next _song
 	
 /return TRUE
-
-Sub debuff
-	/if (!${validate_combat[FALSE]}) /return
-
-	/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
-		/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
-			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
-			/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
-			/call check_cast_events "${SlowSong}" CAST_IMMUNE ${Target.ID}
-		}
-	}
-
-/return
-
-Sub selo
-
-	/if (${validate_cast[FALSE, pulse, "${AccelerandoSong}", ${Me.ID}]}) {
-		/call core_cast2 "${AccelerandoSong}" pulse 0 FALSE
-	}
-
-/return
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
 Sub combat
-	/doevents
-
 	/if (!${validate_combat[FALSE]}) /return
 
-	/declare BurningNow int local 0
 	/if (${Me.XTarget}>=${BurnMobCount} || ${Target.Named}) {
 		/if (${Me.CombatAbilityReady[Thousand Blades]}) {
-				/disc Thousand Blades
-				/delay 5
+			/disc Thousand Blades
+			/delay 5
 		}
 		/if (${Me.AltAbilityReady[Dance of Blades]}) {
-				/alt act ${Me.AltAbility[Dance of Blades].ID}
-				/delay 5
+			/alt act ${Me.AltAbility[Dance of Blades].ID}
+			/delay 5
 		}
 		/if (${Me.AltAbilityReady[Flurry of Notes]}) {
-				/alt act ${Me.AltAbility[Flurry of Notes].ID}
-				/delay 5
+			/alt act ${Me.AltAbility[Flurry of Notes].ID}
+			/delay 5
 		}
 		/if (${Me.AltAbilityReady[Song of Stone]} && ${UseSwarmpet}) {
-				/alt act ${Me.AltAbility[Song of Stone].ID}
-				/delay 5
+			/alt act ${Me.AltAbility[Song of Stone].ID}
+			/delay 5
 		}
 		/if (${Me.AltAbilityReady[Frenzied Kicks]}) {
-				/alt act ${Me.AltAbility[Frenzied Kicks].ID}
-				/delay 5
+			/alt act ${Me.AltAbility[Frenzied Kicks].ID}
+			/delay 5
 		}
 		/if (${Me.AltAbilityReady[Funeral Dirge]}) {
-				/alt act ${Me.AltAbility[Funeral Dirge].ID}
-				/delay 5
+			/alt act ${Me.AltAbility[Funeral Dirge].ID}
+			/delay 5
 		}
-		/varset BurningNow 1
 	}
 
 
@@ -208,15 +183,6 @@ Sub combat
 		/alt act ${Me.AltAbility[Bladed Song].ID}
 		/delay 5
 	}
-	/if (${Me.AbilityReady[Kick]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${UseMelee}) {
-		/doability Kick
-		/delay 5
-	} 
-	/if (${Me.AbilityReady[Intimidation]} && ${Target.Distance}<=${Target.MaxRangeTo} && ${Me.Combat} && ${Me.Level} > 100) {
-		/doability Intimidation
-		/delay 5
-	}
-	/varset BurningNow 0
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANDisc

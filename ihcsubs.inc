@@ -177,16 +177,16 @@ Sub VarSetup
 	/declare immuneSet			 set outer
 	/declare immuneSetIterator	 setiterator outer
 |- verbose
-	/declare verboseSHD 		bool outer TRUE
-	/declare verboseWAR 		bool outer TRUE
-	/declare verboseBST 		bool outer TRUE
-	/declare verboseDRU 		bool outer TRUE
+	/declare verboseSHD 		bool outer FALSE
+	/declare verboseWAR 		bool outer FALSE
+	/declare verboseBST 		bool outer FALSE
+	/declare verboseDRU 		bool outer FALSE
 	/declare verboseSHM 		bool outer TRUE
 	/declare verboseBER 		bool outer TRUE
-	/declare verboseWIZ 		bool outer TRUE
+	/declare verboseWIZ 		bool outer FALSE
 	/declare verboseENC 		bool outer TRUE
 	/declare verboseBRD 		bool outer TRUE
-	/declare verboseCLR 		bool outer TRUE
+	/declare verboseCLR 		bool outer FALSE
 |- classes
 	/declare casterCasting 		int outer 0
 
@@ -388,9 +388,9 @@ Sub check_state(bool _debug)
 	}
 
 	/if (${Select[${Me.Class.ShortName},BER]}) {
-		/call make_axes ${JoltAxeName} ${JoltAxeComponent}
+		/call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
 		/call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
-		/call make_axes ${StunAxeName} ${StunAxeComponent}
+		/call make_axes "${StunAxeName}" "${StunAxeComponent}"
 	}
 
 |		/call check_illusion FALSE ${illusionItem}
@@ -646,54 +646,27 @@ Sub afk_pull
 
 	/call puller_check_group_resources
 	/if (${ResourceChecker} == 0) /return
-
+/echo buff me
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 
-		/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
-		/delay 1s
-		/squelch /dex ${Group.Cleric.Name.Lower} /cast "${elixirSpell}"
-		/delay ${elixirCastTime}s
-		/delay 1s
-
-		/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
-		/delay 1s
-		/squelch /dex ${Group.Cleric.Name.Lower} /cast "${promisedSpell}"
-		/delay 2s
-		
-	}
-
-	/if (${Spawn[id ${_pullTargetID}].Distance} > ${PullDistance} || !${Spawn[id ${_pullTargetID}].LineOfSight}) {
-		
-		/nav id ${_pullTargetID}
-		
-		/while (${Navigation.Active}) {
-
-			/if (${Spawn[id ${_pullTargetID}].LineOfSight}) {
-
-				/target id ${_pullTargetID}
-				/delay 1s ${Target.ID} == ${_pullTargetID}
-
-				/if (${Target.ID} == ${_pullTargetID}) {
-					/if (${validate_no_pc[${_pullTargetID}]} || ${validate_single_pull[${_pullTargetID}]}) {
-						/if (${Navigation.Active}) /nav stop
-						/call set_pull_target
-						/varset _pullTargetID ${Macro.Return}
-						/nav id ${_pullTargetID}
-					}
-				}
-
-			}
-			
-			/if (${Navigation.Active} && ${Me.XTarget}) /nav stop
-			/if (${Navigation.Active} && ${Spawn[id ${_pullTargetID}].Distance} <= ${PullDistance} && ${Spawn[id ${_pullTargetID}].LineOfSight}) /nav stop
-			/delay 5
+		/if (!${Me.Song[${elixirSpell}].ID}) {
+			/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
+			/delay 1s
+			/squelch /dex ${Group.Cleric.Name.Lower} /cast "${elixirSpell}"
+			/delay ${elixirCastTime}s
+			/delay 1s
 		}
-	} else {
-		/target id ${_pullTargetID}
-	}
 
-	/delay 3s !${Me.Moving}
-	/delay 1s
+		/if (!${Me.Buff[${promisedSpell}].ID}) {
+			/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
+			/delay 1s
+			/squelch /dex ${Group.Cleric.Name.Lower} /cast "${promisedSpell}"
+			/delay 2s
+		}
+	}
+	/echo pulling1!
+	/call get_pull_target ${_pullTargetID}
+	/if (!${Spawn[id ${_pullTargetID}].LineOfSight} || !${Target.ID}) /call get_pull_target ${_pullTargetID}
 
 	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
@@ -703,8 +676,10 @@ Sub afk_pull
 	} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
 		/if (!${validate_no_pc[${_pullTargetID}]} && !${validate_single_pull[${_pullTargetID}]}) { 
-			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) /call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
-			/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
+			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) {
+				/call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
+				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
+			}
 		}
 	}
 	
@@ -723,7 +698,45 @@ Sub afk_pull
 	/delay 5
  /return
 
- Sub validate_no_pc(int _tmpID)
+Sub get_pull_target(int _tmpID)
+/echo pulling!
+	/if (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight}) {
+		
+		/nav id ${_tmpID}
+
+		/while (${Navigation.Active}) {
+
+			/if (${Spawn[id ${_tmpID}].LineOfSight}) {
+
+				/if (${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 50)) {
+					/target id ${_tmpID}
+					/delay 1s ${Target.ID} == ${_tmpID}
+				}
+
+				/if (${Target.ID} == ${_tmpID}) {
+					/if (${validate_no_pc[${_tmpID}]} || ${validate_single_pull[${_tmpID}]}) {
+						/if (${Navigation.Active}) /nav stop
+						/call set_pull_target
+						/varset _tmpID ${Macro.Return}
+						/nav id ${_tmpID}
+					}
+				}
+
+			}
+			
+			/if (${Navigation.Active} && ${Me.XTarget}) /nav stop
+			/if (${Navigation.Active} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
+			/delay 1
+			/if (!${Navigation.Active} && !${Spawn[id ${_tmpID}].LineOfSight}) /nav id ${_tmpID}
+		}
+	} else {
+		/target id ${_tmpID}
+	}
+	/delay 3s !${Me.Moving}
+	/if (!${Me.XTarget}) /delay 1s
+/return
+
+Sub validate_no_pc(int _tmpID)
 	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
 	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
 	/declare locZ			int	local	${Spawn[id ${_tmpID}].Z}
@@ -1227,7 +1240,6 @@ Sub LoadSpellGem(string SpellToMem,int memgem)
                 /delay 20 ${Int[${Me.Gem[${SpellToMem}]}]}==0
             }
             /if (!${Int[${Me.Gem[${memgem}].Name.Length}]} || ${Me.Gem[${memgem}].Name.NotEqual[${SpellToMem}]}) {
-                /echo \ag Meming \aw ${SpellToMem} in \ag slot ${memgem}
                 /memspell ${memgem} "${SpellToMem}"
                 /delay 90 ${Me.Gem[${memgem}].Name.Equal[${SpellToMem}]}
             }
@@ -1405,14 +1417,14 @@ Sub get_target
 	| if there is only one target on xtarget then target that
 	/if (!${Me.XTarget[2].ID}) {
 		/target id ${Me.XTarget[1].ID}
-		/delay 7
+		/delay 5
 		/return
 	}
 
 	| if I am not the main tank or ma assist then assist the MA
 	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
 		/assist ${Group.MainAssist.Name}
-		/delay 7
+		/delay 5
 		/return
 	}
 
@@ -1443,13 +1455,13 @@ Sub get_target
 				| if mob is not mezzed then target it and get aggro
 				/target id ${npcIDontHaveAggroOnID}
 				/delay 5 ${Target.ID} == ${npcIDontHaveAggroOnID}
-				/delay 7
+				/delay 5
 				/call Engage
 				/call get_aggro
 			}
 		} else {
 			/assist ${Group.MainAssist.Name}
-			/delay 7
+			/delay 5
 		}
 	}
 
@@ -2345,7 +2357,9 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 	|}
 		
 	| get the corpse close to us
-	/if (${Spawn[pccorpse ${_tmpID}].Distance} <= 50) {
+	/if (${Spawn[pccorpse ${_tmpID}].Distance} <= 100) {
+		/squelch /target ID ${_tmpID}
+		/delay 1s ${Target.ID} == ${_tmpID}
 		/squelch /corpse
 	}
 	
@@ -2986,13 +3000,20 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/declare x				 	int local 1
 	/declare numberOfSpawn 	 	int local 0
 	/declare closestMezzTarget 	int local 0
+	/declare _mezAERange		int local 0
 
 	| Is there something to mez or debuff?
 	/if (!${validate_combat[FALSE]}) /return
 	/if (${Me.XTarget} < 2) /return
 
+	/if (${Select[${Me.Class.ShortName},ENC]}) {
+		/varset _mezAERange ${Spell[${_mezAE}].AERange}
+	} else /if (${Select[${Me.Class.ShortName},BRD]}) {
+		/varset _mezAERange ${Spell[${_mezAE}].AERange}
+		/varcalc _mezAERange ${_mezAERange} + 20
+	}
 	| How many mobs are there?
-	/if (${SpawnCount[npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}]} > 1) {
+	/if (${SpawnCount[npc targetable noalert 1 radius ${_mezAERange} zradius ${_mezAERange}]} > 1) {
 		
 		/for x 1 to ${Me.XTarget}
 
