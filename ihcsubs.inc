@@ -2830,7 +2830,7 @@ sub set_observers(bool _debug, string _observer, string _action, bool _silent)
 Sub check_cast_events(string _spell, string _event, int _tmpID)
 	
 	/doevents ${_event}
-
+	
 	/if (!${Select[${castReturn},${_event}]}) /return
 
 	/if (${_event.Equal[CAST_IMMUNE]}) {
@@ -2844,6 +2844,7 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 	/if (${_event.Equal[CAST_CANNOTCAST]}) {
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is \ar UNPULLABLE \ax with =>> \ag ${_spell} \ax <<=
 		/squelch /alert add 1 id ${_tmpID}
+		
 	}
 
 /return
