@@ -71,7 +71,7 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${DireTestemony}" 3
 	/call LoadSpellGem "${Terror1}" 4
 	/call LoadSpellGem "${Terror2}" 5
-	/call LoadSpellGem "${Denial}" 6
+	/call LoadSpellGem "${Bond}" 6
 	/call LoadSpellGem "${Stance}" 7
 	/call LoadSpellGem "${Skin}" 8
 
