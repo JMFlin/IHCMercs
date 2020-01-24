@@ -150,12 +150,8 @@ Sub group_buffs
 	/if (${Me.Casting.ID}) /return
 
 	/if (${Me.XTarget}) /return
-	/if (!${Group.Member[${Group.MainTank}].OtherZone}) {
-		/target ${Group.MainTank}
-	} else {
-		/return
-	}
-	/if (${groupbufftimer}==0) /varset groupbufftimer 10s
+	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+
 	/for _count 1 to ${Group}
 
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
@@ -292,7 +288,9 @@ Sub group_buffs
 |- SUB: combat_tank_buffs
 |---------------------------------------------------------------------------- 
 Sub combat_tank_buffs
-	/if (${Group.MainTank.ID} != ${Target.ID}) /target ${Group.MainTank}
+
+	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+	
 	/delay 8
 	/if (!${Target.Buff[${TankBuff}].ID} && ${Target.PctHPs} > 90) {
 		/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Group.MainTank.ID}]}) {

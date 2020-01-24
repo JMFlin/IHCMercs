@@ -3,17 +3,19 @@
 |- Version 2.0
 |- Updated: 4/25/2019
 |- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
-#Chat group
-#Chat tell
-#Chat raid
 #turbo 80
+#warning
+
+#define DEBUG /echo
+
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcbstutil.inc
 #include IHCMercs\events.inc
 #include IHCMercs\config.inc
-#warning
-#bind SetVarInt	/setvarint
-#bind CmdList        /ihchelp
+
+#Chat group
+#Chat tell
+#Chat raid
 
 Sub Main
 	/delay ${Math.Rand[10]}

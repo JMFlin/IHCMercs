@@ -451,11 +451,8 @@ Sub group_buffs
 	/declare CastCheck			int local 0
 
 	/if (${Me.XTarget}) /return
-	/if (!${Group.Member[${Group.MainTank}].OtherZone}) {
-		/target ${Group.MainTank}
-	} else {
-		/return
-	}
+	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+	
 	/for _count 0 to ${Group}
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone} && (!${Me.Casting.ID})) {
 			
