@@ -43,7 +43,7 @@ Sub Main
 	/call setup_skill_melee FALSE
 
 	/delay 2s
-	/call  pre_pull_group_healer_spells
+	/call pre_pull_group_healer_spells
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
