@@ -309,6 +309,11 @@ Sub check_state(bool _debug)
 	| am I dead?
 	/if (${Me.Hovering}) /call DeathSub
 	
+	| clear target
+	/if (${Target.Type.Equal[Corpse]} || ${Target.PctHPs} <= 0 || ${Target.ID} == ${Me.Pet.ID}) {
+		/target clear
+		/delay 1s
+	}
 	| mod rod on cursor?
 	|/if (${Cursor.ID}) /call BagModRods
 	
@@ -335,15 +340,6 @@ Sub check_state(bool _debug)
 	/if (${Navigation.Active}) /return
 
 	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
-
-	| clear target
-	/if (${Target.ID}) {
-		/delay 1s
-		/if (${Target.Type.Equal[Corpse]} || ${Target.PctHPs} <= 0 || ${Target.ID} == ${Me.Pet.ID}) {
-			/target clear
-			/delay 1s
-		}
-	}
 
 	| clear sets
 	/declare _count int local ${immuneSet.Count}
