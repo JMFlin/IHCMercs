@@ -5,19 +5,21 @@
 |- Contributions by kaen01 and toots
 |- Code/Idea's borrowed from noobhax0r and his automac's. Maskoi,ctaylor,treehuggindruid and their team's kisassist
 |- Thanks to Bayne, shadowfall, scotsbiker, and aspire2008 for bug reporting, testing, requests, suggestions and feedback!
-#Chat group
-#Chat tell
-#Chat raid
-#warning
 #turbo 80
+#warning
+
+#define DEBUG /echo
+
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\ihcberutil.inc
 #include IHCMercs\events.inc
 #include IHCMercs\config.inc
-#bind SetVarInt	/setvarint
-#bind CmdList        /ihchelp
+
+#Chat group
+#Chat tell
+#Chat raid
 Sub Main
-	/delay ${Math.Rand[100]}
+	/delay ${Math.Rand[10]}
 	/doevents flush
 	/declare MacroName       		string outer IHCBER
 	/declare MacroPath       		string outer IHCMercs\IHCBER
@@ -56,9 +58,9 @@ Sub ManualPullCamping
 
 	/while (${Mode}==1 || ${Mode}==3) {
 
+		DEBUG Should I return to camp: ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius}
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
-		/call get_target
 		/call check_state FALSE
 
 		/call Engage
@@ -69,37 +71,7 @@ Sub ManualPullCamping
 |		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/call misc
 		/doevents
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: ManualRunAndGun
-|----------------------------------------------------------------------------
-Sub ManualRunAndGun
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	
-	/while (${Mode}==2) {
-		/if (${Me.Hovering}) /call DeathSub
-		/if (${Me.State.Equal[FEIGN]}) /stand
-
-		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
-
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
-		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID} && ${RunAndGunMedTimer}==0) /call DowntimeDiscs
-
-		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /assist ${Group.MainAssist.Name}
-		
-		/if (${Target.Distance}<55 && ${Target.Type.Equal[NPC]}) /call PreCombatBuffs
-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call Engage
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
-
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
-
-		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
-
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-
-		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/doevents
+		/delay 1s
 	}
 /return
 |----------------------------------------------------------------------------
@@ -365,8 +337,9 @@ Sub make_axes(string AxeName, string AxeComponents)
 	/if (${Me.XTarget}) /return
 	/if (${Me.Moving}) /return
 	/if (${Navigation.Active}) /return
+	/if (${FindItemCount[${AxeComponents}]} < 1) /return
 	
-	/while (${FindItemCount[${AxeName}]} < 200 && ${FindItemCount[${AxeComponents}]} > 0) {
+	/while (${FindItemCount[${AxeName}]} < 200 && ${FindItemCount[${AxeComponents}]} > 1) {
 		/if (${Cursor.ID}) /autoinventory
 		/if (${Me.XTarget}) /return
 		/if (${Mode} == 0) /return
@@ -374,6 +347,7 @@ Sub make_axes(string AxeName, string AxeComponents)
 			/if (${validate_cast[FALSE, disc, "${AxeName}", ${Me.ID}]}) /call core_cast2 "${AxeName}" disc 0 FALSE
 			/if (${Cursor.ID}) /autoinventory
 		}
+		/if (${Cursor.ID}) /autoinventory
 		/if (${FindItemCount[${AxeName}]} > 200) /break
 		/if (${Cursor.ID}) /autoinventory
 	}
