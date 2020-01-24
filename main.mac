@@ -4,6 +4,7 @@
 #turbo 80
 #include IHCMercs\ihcsubs.inc
 #include IHCMercs\events.inc
+#include IHCMercs\config.inc
 #warning
 
 Sub Main
@@ -22,8 +23,12 @@ Sub Main
 
 	/call WelcomeMsg
 
+	
+
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
+	/delay 2s
+	/if (${Group.Puller.ID} == ${Me.ID}) /call pre_pull_group_healer_spells
 
  :mainloop
 	/call ModeSet
@@ -49,7 +54,6 @@ Sub AFKRadiusCamping
 
 		/call puller_check_group_resources 
 		/call afk_pull
-		/doevents
 		
 		/call check_state FALSE
 		/call get_target
@@ -57,8 +61,8 @@ Sub AFKRadiusCamping
 		/call check_add_aggro
 		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
-		/call main_${Me.Class.ShortName}
-
+		/call sub_${Me.Class.ShortName}
+		/call misc
 		/doevents
 	}
 /return

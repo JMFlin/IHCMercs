@@ -525,6 +525,8 @@ Sub Travel
 		/pet follow
 		/varset petFollow 1
 	}
+
+|!${Group.Member[${_count}].OtherZone}
 	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID} != ${Me.ID}) {
 		/if (!${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} > 50) /nav id ${Group.Leader.ID}
 		/if (${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} < 20) /nav stop
@@ -661,24 +663,26 @@ Sub afk_pull
 		}
 	}
 	/echo pulling1!
-	/call get_pull_target ${_pullTargetID}
-	/if (!${Spawn[id ${_pullTargetID}].LineOfSight} || !${Target.ID}) /call get_pull_target ${_pullTargetID}
+	/while (!${Me.XTarget}) {
+		/call get_pull_target ${_pullTargetID}
+		/if (!${Spawn[id ${_pullTargetID}].LineOfSight} || !${Target.ID}) /call get_pull_target ${_pullTargetID}
+	
 
-	/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
+		/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
-			/attack on
-			/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
+				/attack on
+				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 
-	} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
+		} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
-		/if (!${validate_no_pc[${_pullTargetID}]} && !${validate_single_pull[${_pullTargetID}]}) { 
-			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) {
-				/call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
-				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
+			/if (!${validate_no_pc[${_pullTargetID}]} && !${validate_single_pull[${_pullTargetID}]}) { 
+				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) {
+					/call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
+					/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
+				}
 			}
 		}
 	}
-	
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 	
 	/while (${Navigation.Active}) {
@@ -720,7 +724,11 @@ Sub get_pull_target(int _tmpID)
 
 			}
 			
-			/if (${Navigation.Active} && ${Me.XTarget}) /nav stop
+			/if (${Navigation.Active} && ${Me.XTarget}) {
+				/if (${Target.ID} != ${Me.XTarget[1].ID}) /target id ${Me.XTarget[1].ID}
+				/nav stop
+				/return
+			}
 			/if (${Navigation.Active} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
 			/delay 1
 			/if (!${Navigation.Active} && !${Spawn[id ${_tmpID}].LineOfSight}) /nav id ${_tmpID}
@@ -761,6 +769,11 @@ Sub set_pull_target
 	/declare _mobsInRadius 	int local 0
 	/declare _pathLength 	int local 9999
 	/declare _pullTargetID 	int local 0
+
+	/if (${Me.XTarget[1].ID}) {
+		/varset _pullTargetID ${Me.XTarget[1].ID}
+		/return ${_pullTargetID}
+	}
 
 	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
 
@@ -1593,7 +1606,7 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		| are we moving?
 		/if (${Me.Moving}) /return FALSE
 		
-		/if (${Stick.Status.Equal[ON]}) /stick off
+		| /if (${Stick.Status.Equal[ON]}) /stick off
 
 		/if (${Navigation.Active}) /return FALSE
 		/if (${AdvPath.Following}) /return FALSE
@@ -3001,6 +3014,8 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	| Is there something to mez or debuff?
 	/if (!${validate_combat[FALSE]}) /return
 	/if (${Me.XTarget} < 2) /return
+	
+	/call get_target
 
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
 		/varset _mezAERange ${Spell[${_mezAE}].AERange}
