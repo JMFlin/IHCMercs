@@ -640,7 +640,7 @@ Sub afk_pull
 
 	/call puller_check_group_resources
 	/if (${ResourceChecker} == 0) /return
-/echo buff me
+	/echo buff me
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 
 		/if (!${Me.Song[${elixirSpell}].ID}) {
@@ -2357,6 +2357,7 @@ sub check_for_corpse(bool _debug)
  |-------------------------------------------------------------------------------------
 sub cast_rez(int _tmpID, string _rez, bool _debug)
 	/if (${Me.Dead}) /return FALSE
+	/declare _count int local 0
 
 	| ignore the people we dont like
 	|/if (${lstNoRez.Find[${Spawn[pccorpse ${_tmpID}].DisplayName}]}) {
@@ -2365,10 +2366,28 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 	|}
 		
 	| get the corpse close to us
-	/if (${Spawn[pccorpse ${_tmpID}].Distance} <= 100) {
-		/squelch /target ID ${_tmpID}
-		/delay 1s ${Target.ID} == ${_tmpID}
-		/squelch /corpse
+
+	/if (${_rez.Equal[${MassRezSpell}]}) {
+		/declare _corpsessInRadius 		int local 0
+		/declare _corpseID				int local 0
+		/varset _corpsessInRadius ${SpawnCount[pccorpse radius ${setMaxRezRange}]}
+		
+		/while (${_count} <= ${_corpsessInRadius}) {
+			
+			/varset _corpseID ${NearestSpawn[${_count}, pccorpse radius ${setMaxRezRange}].ID}
+			/squelch /target ID ${_corpseID}
+			/delay 1s ${Target.ID} == ${_corpseID}
+			/squelch /corpse
+		
+			/varcalc _count ${_count}+1
+			/delay 1		
+		}
+	} else {
+		/if (${Spawn[pccorpse ${_tmpID}].Distance} <= 100) {
+			/squelch /target ID ${_tmpID}
+			/delay 1s ${Target.ID} == ${_tmpID}
+			/squelch /corpse
+		}
 	}
 	
 	/if (!${Me.Gem[${_rez}]}) /call mem_spell FALSE TRUE "${_rez}" 8 TRUE
@@ -2416,6 +2435,38 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 	}
 
 /return
+
+Sub get_corpses
+	/declare _count 				int local 1
+	/declare _corpse 				int local 0
+	/declare _corpsessInRadius 		int local 0
+	/declare _radius 				int local 9999
+	/declare _corpseTargetID 		int local 0
+
+
+	/if (${Me.XTarget[1].ID}) {
+		/varset _corpseTargetID ${Me.XTarget[1].ID}
+		/return ${_corpseTargetID}
+	}
+	
+	|${Spawn[pccorpse radius ${setMaxRezRange}]}
+
+	/varset _corpsessInRadius ${SpawnCount[pccorpse radius ${setMaxRezRange}]}
+
+	/while (${_count} <= ${_corpsessInRadius}) {
+		/if (!${NearestSpawn[${_count}, pccorpse radius ${setMaxRezRange}].ID}) /continue
+		
+		/varset _corpse ${NearestSpawn[${_count}, pccorpse radius ${setMaxRezRange}].ID}
+
+		/if (${_radius} > ${Navigation.PathLength[id ${_corpse}]}) {
+			/varset _radius ${Navigation.PathLength[id ${_corpse}]}
+			/varset _corpseTargetID ${_corpse}
+		}
+		
+		/varcalc _count ${_count}+1
+		/delay 1		
+	}
+/return ${_corpseTargetID}
 |***
  *	DES: check  health
  *	USE: /call check_hurt [DEBUG T/F] [group|pet|xtarget|self|mypet]} || ${check_hurt[DEBUG, group|pet|xtarget|self|mypet]}
@@ -2432,6 +2483,7 @@ sub check_hurt(bool _debug, string _type, int _hpLimit)
 		/for _count 0 to ${Group}
 		
 			/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+			/if (${Group.Member.OtherZone}) /continue
 			
 			/if (${Group.Member[${_count}].Distance} <= 200 && ${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
 				/varcalc hurtCount ${hurtCount}+1
@@ -2549,6 +2601,7 @@ Sub get_heal_target(int _hpLimit)
 	/for _count 0 to ${Group}
 	
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+		/if (${Group.Member.OtherZone}) /continue
 	
 		/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
 
@@ -2568,6 +2621,7 @@ Sub validate_pre_heal_target(int _hpLimit)
 	/for _count 0 to ${Group}
 	
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+		/if (${Group.Member.OtherZone}) /continue
 
 		/if (${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
 			

@@ -75,7 +75,11 @@ Sub ManualPullCamping
 |- SUB: combat_tank_buffs
 |---------------------------------------------------------------------------- 
 Sub combat_tank_buffs
-	/if (${Group.MainTank.ID} != ${Target.ID}) /target ${Group.MainTank}
+	/if (${Group.MainTank.ID} != ${Target.ID} && !${Group.Member[${Group.MainTank}].OtherZone}) {
+		/target ${Group.MainTank}
+	} else {
+		/return
+	}
 	/delay 8
 	/if (!${Target.Buff[${Reptile}].ID} && ${Target.PctHPs} > 70) {
 		/if (${validate_cast[FALSE, spell, ${Reptile}, ${Group.MainTank.ID}]}) {
@@ -187,6 +191,12 @@ Sub group_buffs
 
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
+
+	/if (!${Group.Member[${Group.MainTank}].OtherZone}) {
+		/target ${Group.MainTank}
+	} else {
+		/return
+	}
 
 	/for _count 0 to ${Group}
 
