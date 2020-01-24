@@ -2269,27 +2269,39 @@ Sub Event_DuckOff
 |********************************************************************************************
  ** Rotations
  **|
-#event BerStunRotation "#*#${Target.CleanName} suffers a blow to the head.#*#"
+#event BerStunRotation "#*#I hit my stun! Next stunner.#*#"
 Sub Event_BerStunRotation
+
+  /if (!${Select[${Me.Class.ShortName},BER]}) {
+    /doevents flush BerStunRotation
+    /return
+  }
+
+  /declare _counter   int local 1
+  /declare si setiterator local
+  /vardata si berStunRotationSet.First
+
+ 
+  /varcalc berStunRotationCounter ${berStunRotationCounter} + 1
+  /if (${berStunRotationCounter} > ${berTotal}) /varset berStunRotationCounter 1
   
-  /declare mi         mapiterator
-  /declare stunTimer	timer outer	0
+  |/if (${berStunRotationStunner.Equal[${Me.DisplayName}]}) /docommand /gsay **CURRENT** Name: ${berStunRotationStunner}  Counter: ${berStunRotationCounter}
+  /while (!${si.IsEnd}) {
 
-  /vardata mi berStunRotationMap.First
-
-  /while (!${mi.IsEnd}) {
-
-    /if (${mi.Key} == ${berStunRotationCounter}) {
-      /varset berStunRotationStunner ${mi.Value}
-      /docommand /dgt ${berStunRotationStunner} turn to stun!
+    /if (${_counter} == ${berStunRotationCounter}) {
+      /varset berStunRotationStunner ${si.Value}
+      /if (${berStunRotationStunner.Equal[${Me.DisplayName}]}) /docommand /gsay **Me NEXT** Name: ${berStunRotationStunner}  Counter: ${berStunRotationCounter}
       /break
     }
     
-    /if (${mi.Advance}) {
+    /varcalc _counter ${_counter} + 1
+    
+    /if (${si.Advance}) {
+    } else {
+        /echo 'Iterator not advanced. IsEnd: ${si.IsEnd}.'
+        /endmacro
     }
 
   }
 
-  /varcalc berStunRotationCounter ${berStunRotationCounter} + 1
-  
 /return

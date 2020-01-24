@@ -89,39 +89,6 @@ Sub ManualPullCamping
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: ManualRunAndGun
-|----------------------------------------------------------------------------
-Sub ManualRunAndGun
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	/call RemoveTravelBuffs
-	
-	/while (${Mode}==2) {
-		/if (${Me.Hovering}) /call DeathSub
-		/if (${Me.State.Equal[FEIGN]}) /stand
-
-		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
-		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffCheck
-		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
-		
-		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
-
-		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-		/if (${Me.XTarget[1].ID} && (${DoTash} || ${DoSlow} || ${StripBuffs} || ${DoCripple} || ${DoBlurr}) && ${Target.Distance}<${AssistRange} && (!${MezWait}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${DoDPS} && !${MezWait}) /call Combatdps
-		/call CheckMana
-		/if (${UseModRods}) /call ClickModRoD
-		/call PetAttack
-		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
-
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-
-		/doevents
-	}
-/return
-|----------------------------------------------------------------------------
 |- SUB: debuff_xtarget
 |---------------------------------------------------------------------------- 
 Sub debuff_xtarget
@@ -129,11 +96,14 @@ Sub debuff_xtarget
 
 	| Is there something to mez?
 	/if (!${Me.XTarget}) /return
+	/if (${Me.XTarget} < 2) /return
 
 	/for x 1 to ${Me.XTarget}
 
-		/target id ${Me.XTarget[${x}].ID}
-		/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		}
 		
 		/delay 1s
 
@@ -144,6 +114,10 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
 		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
+		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		}
 
 		/if (!${Target.Buff[${DoTSpell3}].ID} && ${Target.Named}) {
 			/if (${validate_cast[FALSE, spell, "${DoTSpell3}", ${Target.ID}]}) /call core_cast2 "${DoTSpell3}" spell ${Target.ID} FALSE
@@ -154,6 +128,10 @@ Sub debuff_xtarget
 		}
 
 		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
+		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		}
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
@@ -165,7 +143,10 @@ Sub debuff_xtarget
 		}
 
 		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-
+		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		}
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
@@ -184,7 +165,10 @@ Sub debuff_xtarget
 			}
 		}
 		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-
+		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		}
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 |				/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
 |					/alt act ${Me.AltAbility[${StripBuffSpell}].ID}
@@ -212,6 +196,7 @@ Sub debuff_xtarget
 		/delay 1s
 	/next x
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
@@ -252,6 +237,21 @@ Sub combat
 	| Start dpsing
 	/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 
+	/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
+	}
+	
+	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
+	/if (${Me.XTarget} > 1) /call get_target
+
+	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
+		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+			/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+			/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
+		}
+	}
+
 	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
@@ -261,6 +261,8 @@ Sub combat
 	}
 
 	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
+	/call debuff_xtarget
+	/if (${Me.XTarget} > 1) /call get_target
 
 	/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
@@ -271,7 +273,16 @@ Sub combat
 	/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
 	
 	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
+	/if (${Me.XTarget} > 1) /call get_target
 
+	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
+			/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
+			/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
+		}
+	}
+	
 	/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
 
 /return

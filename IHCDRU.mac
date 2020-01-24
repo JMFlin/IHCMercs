@@ -77,7 +77,7 @@ Sub ManualPullCamping
 Sub combat_tank_buffs
 	/if (${Group.MainTank.ID} != ${Target.ID}) /target ${Group.MainTank}
 	/delay 8
-	/if (!${Target.Buff[${Reptile}].ID}) {
+	/if (!${Target.Buff[${Reptile}].ID} && ${Target.PctHPs} > 70) {
 		/if (${validate_cast[FALSE, spell, ${Reptile}, ${Group.MainTank.ID}]}) {
 			/call core_cast2 "${Reptile}" spell ${Group.MainTank.ID} FALSE
 		}

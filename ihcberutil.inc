@@ -172,7 +172,7 @@ Sub SetupDiscs
 	} else /if (${Me.Level}>=98 && ${Me.CombatAbility[Temple Crush]}) {
 		/varset Stun Temple Crush
 		/varset StunAxeName Axe of the Brute
-		/varset StunAxeComponent Axe of the Brute
+		/varset StunAxeComponent Crafted Axe Component
 	} else /if (${Me.Level}>=93 && ${Me.CombatAbility[Temple Smash]}) {
 		/varset Stun Temple Smash
 		/varset StunAxeName Axe of the Sunderer
