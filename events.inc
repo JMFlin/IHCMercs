@@ -127,7 +127,7 @@ Sub hybrid_healer_limit(bool _debug)
 /return
 
 Sub Event_HybridHealerLimit(string line)
-  /if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 40 
+  /if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 80 
 /return ${HybridManaLimit}
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in raid
