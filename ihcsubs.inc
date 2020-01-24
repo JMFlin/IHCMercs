@@ -637,10 +637,6 @@ Sub afk_pull
 		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return
 	}
 
-	/call set_pull_target
-	/varset _pullTargetID ${Macro.Return}
-	/if (!${_pullTargetID}) /return
-
 	/call puller_check_group_resources
 	/if (${ResourceChecker} == 0) /return
 /echo buff me
@@ -663,6 +659,9 @@ Sub afk_pull
 	}
 	/echo pulling1!
 	/while (!${Me.XTarget}) {
+		/call set_pull_target
+		/varset _pullTargetID ${Macro.Return}
+		/if (!${_pullTargetID}) /return
 		/call get_pull_target ${_pullTargetID}
 		/if (!${Spawn[id ${_pullTargetID}].LineOfSight} || !${Target.ID}) /call get_pull_target ${_pullTargetID}
 	
