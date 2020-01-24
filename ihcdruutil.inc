@@ -68,6 +68,8 @@ Sub SetupSpells
 
 	/if (${Me.Level}>=${Spell[Puravida].Level} && ${Me.Book[${Spell[Puravida].RankName}]}) {
 		/varset HealSpell1 ${Spell[Puravida].RankName}
+	} /if (${Me.Level}>=${Spell[Pure Life].Level} && ${Me.Book[${Spell[Pure Life].RankName}]}) {
+		/varset HealSpell1 ${Spell[Pure Life].RankName}
 	} else /if (${Me.Level}>=${Spell[Ancient Chlorobon].Level} && ${Me.Book[${Spell[Ancient Chlorobon].RankName}]}) {
 		/varset HealSpell1 ${Spell[Ancient Chlorobon].RankName}
 	} else /if (${Me.Level}>=${Spell[Chlorotrope].Level} && ${Me.Book[${Spell[Chlorotrope].RankName}]}) {
@@ -102,10 +104,14 @@ Sub SetupSpells
 
 	/if (${Me.Level}>=${Spell[Crescentbloom].Level} && ${Me.Book[${Spell[Crescentbloom].RankName}]}) {
 		/varset GroupHealSpell1 ${Spell[Crescentbloom].RankName}
+	} else /if (${Me.Level}>=${Spell[Lunarlight].Level} && ${Me.Book[${Spell[Lunarlight].RankName}]}) {
+		/varset GroupHealSpell1 ${Spell[Lunarlight].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Equinox Brand].Level} && ${Me.Book[${Spell[Equinox Brand].RankName}]}) {
 		/varset NukeSpell1 ${Spell[Equinox Brand].RankName}
+	} else /if (${Me.Level}>=${Spell[Equinox Burn].Level} && ${Me.Book[${Spell[Equinox Burn].RankName}]}) {
+		/varset NukeSpell1 ${Spell[Equinox Burn].RankName}
 	} else /if (${Me.Level}>=${Spell[Solstice Strike].Level} && ${Me.Book[${Spell[Solstice Strike].RankName}]}) {
 		/varset NukeSpell1 ${Spell[Solstice Strike].RankName}
 	} else /if (${Me.Level}>=${Spell[Ancient Starfire of Ro].Level} && ${Me.Book[${Spell[Ancient Starfire of Ro].RankName}]}) {
@@ -259,6 +265,8 @@ Sub SetupSpells
 		/varset ColdAtkDebuff ${Spell[Chillvapor Breath].RankName}
 	} else /if (${Me.Level}>=${Spell[Gelid Frost].Level} && ${Me.Book[${Spell[Gelid Frost].RankName}]}) {
 		/varset ColdAtkDebuff ${Spell[Gelid Frost].RankName}
+	} else /if (${Me.Level}>=${Spell[Icefall Breath].Level} && ${Me.Book[${Spell[Icefall Breath].RankName}]}) {
+		/varset ColdAtkDebuff ${Spell[Icefall Breath].RankName}
 	}
 	
 	/if (${Me.Level}>=${Spell[Feral Pack].Level} && ${Me.Book[${Spell[Feral Pack].RankName}]}) {
