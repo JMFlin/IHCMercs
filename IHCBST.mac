@@ -70,10 +70,7 @@ Sub ManualPullCamping
 
 		/call check_state FALSE
 		/call self_buff_check FALSE
-		/call set_timers
-		/call puller_check_group_resources 
 		/call afk_pull
-		/call get_target
 		/call combat
 		/call Engage
 
