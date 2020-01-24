@@ -44,6 +44,8 @@ Sub ShdSetup
 	/declare HPShroud 		string outer NULL
 	/declare MPShroud 		string outer NULL
 
+	/declare Recourse 		string outer NULL 
+	
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 /return 
 |----------------------------------------------------------------------------
@@ -67,8 +69,8 @@ Sub LoadSpellBar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 	/call LoadSpellGem "${Touch1}" 1
-	/call LoadSpellGem "${Touch2}" 2
-	/call LoadSpellGem "${DireTestemony}" 3
+	/call LoadSpellGem "${DireTestemony}" 2
+	/call LoadSpellGem "${Touch3}" 3
 	/call LoadSpellGem "${Terror1}" 4
 	/call LoadSpellGem "${Terror2}" 5
 	/call LoadSpellGem "${Bond}" 6
@@ -113,8 +115,6 @@ Sub SetupSpells
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
-	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Touch of Lanys].RankName}]}) {
-		/varset Touch2 ${Spell[Touch of Lanys].RankName}
 	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Touch of Severan].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Severan].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Touch of the Devourer].RankName}]}) {
@@ -131,6 +131,9 @@ Sub SetupSpells
 		/varset Touch3 ${Spell[Touch of Falsin].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Falsin].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Falsin].RankName}
+	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Touch of Lanys].RankName}]}) {
+		/varset Touch2 ${Spell[Touch of Lanys].RankName}
+		/varset Recourse Gift of Lanys
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Touch of the Soulbleeder].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of the Soulbleeder].RankName}
 	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Touch of Volatis].RankName}]}) {

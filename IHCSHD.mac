@@ -100,52 +100,46 @@ Sub self_buffs
 	/declare CastCheck			int local 0
 
 	/if (${Me.XTarget}) /return
-	/if (!${Me.Buff[${Skin}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) {
-			/call core_cast2 "${Skin}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
+	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) {
+		/call core_cast2 "${Skin}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
-	/if (!${Me.Buff[${Stance}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) {
-			/call core_cast2 "${Stance}" spell ${Me.ID} FALSE¨
-			/varset CastCheck 1
-		}
+	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) {
+		/call core_cast2 "${Stance}" spell ${Me.ID} FALSE¨
+		/varset CastCheck 1
+	}
+	
+
+	/if (${Me.XTarget}) /return
+	/if (${validate_cast[FALSE, spell, "${Cloak}", ${Me.ID}]}) {
+		/call core_cast2 "${Cloak}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
+	
+
+	/if (${Me.XTarget}) /return
+	/if (${validate_cast[FALSE, spell, "${HPShroud}", ${Me.ID}]}) {
+		/call core_cast2 "${HPShroud}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
-	/if (!${Me.Buff[${Cloak}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${Cloak}", ${Me.ID}]}) {
-			/call core_cast2 "${Cloak}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
+
+	/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
+		/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
 	}
+	
 
 	/if (${Me.XTarget}) /return
-	/if (!${Me.Buff[${HPShroud}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${HPShroud}", ${Me.ID}]}) {
-			/call core_cast2 "${HPShroud}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
+	
+	/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) {
+		/call core_cast2 "${Stance}" spell ${Target.ID} FALSE
+		/varset CastCheck 1
 	}
-
-	/if (${Me.XTarget}) /return
-	/if (!${Me.Buff[${MPShroud}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
-			/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
-	}
-
-	/if (${Me.XTarget}) /return
-	/if (!${Me.Buff[${Stance}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) {
-			/call core_cast2 "${Stance}" spell ${Target.ID} FALSE
-			/varset CastCheck 1
-		}
-	}
+	
 
 	/if (${CastCheck}) {
 		/call LoadSpellBar
@@ -183,12 +177,12 @@ Sub combat
 		}
 	}
 	
-	/if (${Me.PctHPs} < 95) {
+	/if (!${Me.Buff[${Recourse}]}) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 	/doevents
 
-	/if (${Me.PctHPs} < 55) {
+	/if (${Me.PctHPs} < 65) {
 		/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
 	}
 
@@ -218,9 +212,8 @@ Sub combat_buffs
 		}
 	}
 
-	/if (!${Me.Buff[${Skin}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${Skin}", ${Target.ID}]}) /call core_cast2 "${Skin}" spell ${Target.ID} FALSE
-	}
+	/if (${validate_cast[FALSE, spell, "${Skin}", ${Target.ID}]}) /call core_cast2 "${Skin}" spell ${Target.ID} FALSE
+	
 
 	/if (!${Target.Buff[${Bond}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
@@ -230,9 +223,7 @@ Sub combat_buffs
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 
-	/if (!${Me.Buff[${Stance}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
-	}
+	/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
 
 /return
 |----------------------------------------------------------------------------

@@ -150,7 +150,11 @@ Sub group_buffs
 	/if (${Me.Casting.ID}) /return
 
 	/if (${Me.XTarget}) /return
-
+	/if (!${Group.Member[${Group.MainTank}].OtherZone}) {
+		/target ${Group.MainTank}
+	} else {
+		/return
+	}
 	/if (${groupbufftimer}==0) /varset groupbufftimer 10s
 	/for _count 1 to ${Group}
 
