@@ -192,6 +192,10 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
 	}
 
+	/if (!${Target.Buff[${Bond}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
+	}
+
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) /call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
 	
 	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
@@ -218,7 +222,7 @@ Sub combat_buffs
 		/if (${validate_cast[FALSE, spell, "${Skin}", ${Target.ID}]}) /call core_cast2 "${Skin}" spell ${Target.ID} FALSE
 	}
 
-	/if (${Me.PctMana} > 60) {
+	/if (!${Target.Buff[${Bond}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
 	}
 
