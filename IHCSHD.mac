@@ -45,6 +45,8 @@ Sub Main
 
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
+	/delay 2s
+	/call pre_pull_group_healer_spells
 
  :mainloop
 	/call ModeSet
