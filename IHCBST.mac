@@ -47,7 +47,7 @@ Sub Main
 
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
-	
+
  :mainloop
 	/call ModeSet
 	/if (${Mode}==0) /call Travel
@@ -63,7 +63,8 @@ Sub Main
 |---------------------------------------------------------------------------- 
 Sub ManualPullCamping
 	/call MakeCamp
-    /call RemoveTravelBuffs  
+    /call RemoveTravelBuffs
+	/call ignore_mobs_to_pull
 	/if (${Me.Pet.ID}) /pet guard
 
 	/while (${Mode}==1 || ${Mode}==3) {
@@ -131,9 +132,16 @@ Sub self_buff_check(bool _debug)
 		/varset CastCheck 1
 	}
 
-	/if (${validate_cast[FALSE, spell, "${Haste}", ${Me.ID}]}) {
-		/call core_cast2 "${Haste}" spell ${Me.ID} FALSE
-		/varset CastCheck 1
+	/if (!${Me.Buff[${PetHasteRecourse}].ID} && ${PetHasteRecourse.NotEqual[NULL]}) {
+		/if (${validate_cast[FALSE, spell, "${PetHaste}", ${Me.Pet.ID}]}) {
+			/call core_cast2 "${PetHaste}" spell ${Me.Pet.ID} FALSE
+			/varset CastCheck 1
+		}
+	} else /if (${PetHasteRecourse.Equal[NULL]}) {
+		/if (${validate_cast[FALSE, spell, "${Haste}", ${Me.ID}]}) {
+			/call core_cast2 "${Haste}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
 	}
 
 	/if (${validate_cast[FALSE, spell, "${AtkBuff}", ${Me.ID}]}) {

@@ -194,7 +194,8 @@ Sub VarSetup
 	/declare casterCasting 		int outer 0
 
 	/declare Invis				bool outer FALSE
-
+|- mercs
+	/declare useMerc 			int outer 0
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion
@@ -302,6 +303,18 @@ sub misc
  	/if (${Window[TaskTemplateSelectWnd].Open}) /notify TaskTemplateSelectWnd TaskTemplateSelectAcceptButton leftmouseup
  	/if (${Window[ProgressionTemplateSelectWnd].Open}) /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
 	/if (${Mode} != 0) /call check_campfire
+
+	/if (${useMerc} && ${Me.CombatState.NotEqual[COMBAT]}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) {
+			/if (!${Window[MMGW_ManageWnd].Open}) /windowstate MMGW_ManageWnd open
+			/delay 1s
+			/if (${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Revive]} || ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Unsuspend]}) {
+				/notify MMGW_ManageWnd MMGW_SuspendButton leftmouseup
+				/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Unsuspend]}
+				/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Revive]}
+			}
+		}
+	}
 /return
 
 |----------------------------------------------------------------------------
@@ -821,7 +834,7 @@ Sub set_pull_target
 	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
 	
 	DEBUG
-	DEBUG Mobs in radius: ${_mobsInRadius}
+	DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
 
 	/if (${_mobsInRadius} == 0) /return 0
 
@@ -3016,39 +3029,32 @@ Sub BegForCure
 
 
 |----------------------------------------------------------------------------
-|- SUB: AddToAlert
+|- SUB: ignore_mobs_to_pull
 |---------------------------------------------------------------------------- 
-Sub AddToAlert
-	/declare i int local 0
-	/squelch /alert clear 1
-
-	/docommand /dgt \aw Creating alert list for \ag ${Zone.Name} \aw from eq.db
-	/sqlite C:\Users\janne\Desktop\Release\Macros\IHCMercs\DB\eq.db ignore_list SELECT DISTINCT NAME, ID FROM ignore_pulling WHERE ZONE_ID = ${Zone.ID};
-	/if (!${sqlite.rows[ignore_list]}) /return
-	/for i 1 to ${sqlite.rows[ignore_list]}
-		/squelch /alert add 1 id ${sqlite.result[ignore_list ${i} ID]}
-		/docommand /dgt \aw Added \ag ${sqlite.result[ignore_list ${i} NAME]} \aw to ignore
-		/delay 1
-	/next i
-
-/return
-
 Sub ignore_mobs_to_pull
-	/declare i int local 0
+	/declare _count 	int local 0
+	/declare ignoreList string local NULL
+	/declare Ignore 	string local NULL
+	/declare fileLoc 	string local IHCMercs\IgnoreMobs.ini 
+
 	/squelch /alert clear 1
 
-	| Read ini settings for your zone
-	
-	/ini "IgnoreMobs.ini" "${Zone.ShortName}" "Ignore" "NONE"
-	/varset Ignore ${Ini[IgnoreMobs.ini,${Zone.ShortName},Ignore]}
-	
+	/varset Ignore ${Ini[${fileLoc},${Zone.ShortName},Ignore]}
+
+	/if (${Ignore.Equal[NULL]}) {
+		/ini "${fileLoc}" "${Zone.ShortName}" "Ignore" "NONE"
+		/varset Ignore NONE
+	}
+
 	/if (!${Ignore.Equal[NULL]}) {
 		/if (!${Ignore.Count[|]}) {
+			DEBUG Adding ${Ignore} to ignore
 			/squelch /alert add 1 ${Ignore}
 		} else /if (${Ignore.Count[|]}) {
-			/for i 1 to ${Math.Calc[${Ignore.Count[|]}+1]}
-				/squelch /alert add 1 ${Ignore.Arg[${i},|]}
-			/next i
+			/for _count 1 to ${Math.Calc[${Ignore.Count[|]}+1]}
+				DEBUG Adding ${Ignore.Arg[${_count},|]} to ignore
+				/squelch /alert add 1 ${Ignore.Arg[${_count},|]}
+			/next _count
 		}
 	}
 /return
