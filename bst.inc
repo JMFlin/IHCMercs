@@ -1,89 +1,17 @@
-|- IHCBST.mac - By IHC385
-|- Automatic Beastlord bot - 
-|- Version 2.0
-|- Updated: 4/25/2019
-|- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
-#turbo 80
-#warning
-
-#define DEBUG /echo
-
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcbstutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-
-#Chat group
-#Chat tell
-#Chat raid
-
-Sub Main
-	/delay ${Math.Rand[10]}
-	/doevents flush
-	/declare MacroName       	string outer IHCWAR
-	/declare MacroPath       	string outer IHCMercs\IHCWAR
-	/declare IHCVersion       	string outer 2.0 
-	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-
-	/call setup_plugins
-	/call BstSetup
-	/call VarSetup
-	/call AliasSetup
-	/call SetupDiscs
-	/call CheckSpells
-	/call LoadSpellBar
-	/pet hold on
-|-Cursor ID
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/call WelcomeMsg
-
-	/declare AutoCampRadius int outer 0
-	/varset AutoCampRadius 10
-	/varset AutoAssistAt 100
-	/varset AssistRange 10
-
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/call setup_skill_melee FALSE
-
- :mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call ManualPullCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
- /goto :mainloop
-/return
 |----------------------------------------------------------------------------
-|- SUB: ManualPullCamping
+|- SUB: bst_main
 |---------------------------------------------------------------------------- 
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs
-	/if (${Group.Puller.ID} == ${Me.ID})/call ignore_mobs_to_pull
-	/if (${Me.Pet.ID}) /pet guard
+Sub bst_main
 
-	/while (${Mode}==1 || ${Mode}==3) {
+	/call engage
+	/call bst_self_buff_check
+	/call bst_combat
 
-		/call check_state FALSE
-		/call self_buff_check FALSE
-		/call afk_pull
-		/call combat
-		/call Engage
-
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		
-		/call misc
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: self_buff_check
 |---------------------------------------------------------------------------- 
-Sub self_buff_check(bool _debug)
+Sub bst_self_buff_check
 	/declare CastCheck			int local 0
 	
 	/if (${Me.XTarget}) /return
@@ -150,23 +78,23 @@ Sub self_buff_check(bool _debug)
 	}
 
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
 /return
-Sub combat_buffs
+Sub bst_combat_buffs
 
 /return
 |----------------------------------------------------------------------------
 |- SUB: combat 
 |---------------------------------------------------------------------------- 
-Sub combat
+Sub bst_combat
 
 	/if (!${validate_combat[FALSE]}) /return
 
 	/call get_target
-	/call Engage
+	/call engage
 	/call pet_attack
 	/squelch /attack on
 
@@ -218,7 +146,7 @@ Sub combat
 |----------------------------------------------------------------------------
 |- SUB: debuff_xtarget
 |---------------------------------------------------------------------------- 
-Sub debuff_xtarget
+Sub bst_debuff_xtarget
 	/declare x int local 1
 
 	/if (!${Me.XTarget}) /return
@@ -256,13 +184,13 @@ Sub debuff_xtarget
 |----------------------------------------------------------------------------
 |- SUB: get_aggro 
 |---------------------------------------------------------------------------- 
-Sub get_aggro
+Sub bst_get_aggro
 
 /return
 |----------------------------------------------------------------------------
 |- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
-Sub single_target_heals
+Sub bst_single_target_heals
 	/declare worsthurtid 		int local 0
 
 	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 50) {
@@ -278,17 +206,17 @@ Sub single_target_heals
 |----------------------------------------------------------------------------
 |- SUB: BuffGroup
 |---------------------------------------------------------------------------- 
-Sub BuffGroup
+Sub bst_buff_group
 	/declare _count			int local 0
 	/declare CastCheck			int local 0
 	
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${AutoCampRadius}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${AutoCampRadius}) /call move_to_camp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
 
 	/for _count 0 to ${Group}
 
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 		/if (${Me.XTarget}) {
-			/call LoadSpellBar
+			/call ${Me.Class.ShortName.Lower}_load_spellbar
 			/return
 		}
 		/if (${Mode} !=3 ) /return
@@ -341,7 +269,7 @@ Sub BuffGroup
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
 
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 	
@@ -349,7 +277,7 @@ Sub BuffGroup
 |----------------------------------------------------------------------------
 |- SUB: CombatDiscs
 |---------------------------------------------------------------------------- 
-Sub CombatDiscs
+Sub bst_disc
 	/doevents
 |---- Combat Buffs
 	/if (${DoFerocity} && ${Cast.Status.Equal[I]} && (${Me.SpellReady[${AtkBuff}]}) && (!${Me.Buff[${AtkBuff}].ID})) {

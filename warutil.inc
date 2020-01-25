@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub WarSetup
+Sub war_setup
 |-Declare Discs
 	/declare meleemit		string outer NULL
 	/declare missall		string outer NULL
@@ -43,13 +43,11 @@ Sub WarSetup
 	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
 	/declare CastResult             	string outer
 
-	/if (${FindItem[Gladiator's Plate Chestguard of War].ID}) /varset ItemOoWBP Gladiator's Plate Chestguard of War
-	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 /return 
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs
 |---------------------------------------------------------------------------- 
-Sub SetupDiscs
+Sub war_abilities
 
 
 	|--One off discs
@@ -310,6 +308,9 @@ Sub SetupDiscs
 		/alt act 2001
 		/delay 2s
 	}
+
+	/if (${FindItem[Gladiator's Plate Chestguard of War].ID}) /varset ItemOoWBP Gladiator's Plate Chestguard of War
+	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 
 	/if (${Me.CombatAbility[${insult}]}) {
 		/varset PullAbility ${insult}

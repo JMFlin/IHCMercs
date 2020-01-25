@@ -1,91 +1,21 @@
-|- IHCCLR.mac - By IHC385
-|- Automatic Cleric bot -
-|- Modded Version of AutoCleric (Auto_Clr) with expanded features 
-|- Version 2.0
-|- Updated: 4/25/2019
-|- Credit: Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
-#Chat group
-#Chat tell
-#Chat raid
-#turbo 80
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcclrutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-#warning
-#bind SetVarInt	/setvarint
-#bind CmdList   /ihchelp
-#bind CureOff	/cureoff
-#bind BNDGroupCure	/curegroup
-#Event Buff 			"Your #1# spell has worn off of #*#."
-#Event GoMana			"You have been granted a gift of#*#"
-#Event GoMoff			"Your gift of#*#mana fades."
-#Event ReactCure		"#*#strangled by a suffocating breeze#*#"
-
-Sub Main
-	/delay ${Math.Rand[3]}
-	/doevents flush
-	/declare MacroName       	string outer IHCCLR
-	/declare MacroPath       	string outer IHCMercs\IHCCLR
-	/declare IHCVersion       	string outer 2.0 
-	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-
-	/call setup_plugins
-	/call VarSetup
-	/call ClrSetup
-	/call AliasSetup
-	/call CheckSpells
-	/call LoadSpellBar
-
-	/squelch /alert clear 3
-	/squelch /alert clear 4
-|-Cursor ID
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/call WelcomeMsg
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-
-|	/call set_observers FALSE Cure add FALSE
-
- :mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call ManualPullCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
-/return
 |----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs 
+Sub clr_main
+
+	/call clr_single_target_heals
+	/call clr_group_heals
+	/if (!${Me.XTarget}) /call check_for_corpse FALSE
+	/call clr_group_buffs
+	/call clr_combat_tank_buffs
+|	/call cures
+	/doevents
 	
-	/while (${Mode}==1 || ${Mode}==3) {
-
-		/call check_state FALSE
-		/call single_target_heals
-		/call group_heals
-		/if (!${Me.XTarget}) /call check_for_corpse FALSE
-		/call group_buffs
-		/call combat_tank_buffs
-|		/call cures
-
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-
-		/call misc
-		/doevents
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: ConfigHeal
 |---------------------------------------------------------------------------- 
-Sub ConfigHeal
+Sub clr_config_heal
 	/if (${Select[${Zone.ID},795,796]}==0 && !${Raid.Members}) {
 		/if (${Me.XTarget}>4 || ${Me.XTarget[1].Named}) {
 			/if (${tankhealpoint}!=95) {
@@ -125,7 +55,7 @@ Sub ConfigHeal
 	}
 /return
 
-Sub cures
+Sub clr_cures
 	/declare _count			int local 0
 	/for _count 1 to ${Group}
 		/if (!${${Group.Member[1].Name.Lower}_TotalCounters}) /continue
@@ -141,7 +71,7 @@ Sub cures
 |----------------------------------------------------------------------------
 |- SUB: group_buffs
 |---------------------------------------------------------------------------- 
-Sub group_buffs
+Sub clr_group_buffs
 	/declare _count			int local 0
 	/declare CastCheck			int local 0
 
@@ -156,7 +86,7 @@ Sub group_buffs
 
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 		/if (${Me.XTarget}) {
-			/call LoadSpellBar
+			/call ${Me.Class.ShortName.Lower}_load_spellbar
 			/return
 		}
 		/if (${Mode} !=3 ) /return
@@ -279,7 +209,7 @@ Sub group_buffs
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
 
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/docommand /dgt \aw Done Buffing
 	}
 	
@@ -287,9 +217,11 @@ Sub group_buffs
 |----------------------------------------------------------------------------
 |- SUB: combat_tank_buffs
 |---------------------------------------------------------------------------- 
-Sub combat_tank_buffs
+Sub clr_combat_tank_buffs
 
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 	
 	/delay 8
 	/if (!${Target.Buff[${TankBuff}].ID} && ${Target.PctHPs} > 90) {
@@ -301,7 +233,7 @@ Sub combat_tank_buffs
 |----------------------------------------------------------------------------
 |- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
-Sub single_target_heals
+Sub clr_single_target_heals
 	/declare _worstHurtId int local 0
 
 	/call get_heal_target ${patchhealpoint}
@@ -355,7 +287,7 @@ Sub single_target_heals
 |----------------------------------------------------------------------------
 |- SUB: group_heals
 |---------------------------------------------------------------------------- 
-Sub group_heals
+Sub clr_group_heals
 
 	/if (${check_hurt[FALSE, group, 85]} >= 3) {
 		/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
@@ -532,75 +464,3 @@ Sub Event_Buff(string line, string Mybuff)
 Sub Event_ReactCure
 	/call GroupCure
 /return
-|----------------------------------------------------------------------------
-|- SUB: TankChangeCheck
-|---------------------------------------------------------------------------- 
-Sub TankChangeCheck
-	/if (${PetTank} && ${Group.Member[${assistname}].Pet.ID}) {
-		/docommand /varset tempid ${Group.Member[${assistname}].Pet.ID}
-		/if (${tempid}!=${assistid}) {
-			/echo Tank ID Mismatch - Fixing it
-			/varset assistid ${tempid}
-		}
-	} else /if (!${PetTank} && ${Group.Member[${assistname}].ID}) {
-		/docommand /varset tempid ${Group.Member[${assistname}].ID}
-		/if (${tempid}!=${assistid}) {
-			/echo Tank ID Mismatch - Fixing it
-			/varset assistid ${tempid}
-		}
-	}
-	/if (!${Spawn[${assistid}].PctHPs}>=1) {
-		/if (!${Bool[${oldtank}]}) /varset oldtank ${assistname}
-		/if (!${Bool[${oldtankid}]}) /varset oldtankid ${assistid}
-		/if (${Spawn[group notid ${Me.ID} radius 150].ID}) {
-			/echo Tank Gone - Switching to Nearest Group Member Alive
-			/varset assistname ${Spawn[group notid ${Me.ID} radius 150]}
-			/varset assistid ${Spawn[group notid ${Me.ID} radius 150].ID}
-			/if (${Spawn[${assistid}].Type.Equal[Pet]}) {
-				/varset TnKCond .Pet.
-			} else {
-				/varset TnKCond .
-			}
-		} else {
-			/echo Tank and Group Gone - Switching to Self Heal mode
-			/varset assistname ${Me.Name}
-			/varset assistid ${Me.ID}
-			/varset TnKCond .
-		}
-	}
-	/if (${Group.Member[${oldtank}].ID}) {
-		/if (!${PetTank}) {
-			/varset assistname ${oldtank}
-			/varset assistid ${Group.Member[${oldtank}].ID}
-			/echo Tank is Back - Switching him back to maintank
-			/varset oldtank NULL
-			/varset oldtankid NULL
-		} else /if (${PetTank} && ${Group.Member[${oldtank}].Pet.ID}) {
-			/varset assistname ${oldtank}
-			/varset assistid ${Group.Member[${oldtank}].Pet.ID}
-			/echo Tank is Back - Switching him back to maintank
-			/varset oldtank NULL
-			/varset oldtankid NULL
-		}
-		/if (${Spawn[${assistid}].Type.Equal[Pet]}) {
-			/varset TnKCond .Pet.
-		} else {
-			/varset TnKCond .
-		}
-	}
-	/if (${newtank}==1) {
-		/docommand /varset assistid ${Target.ID}
-		/varset newtank 0
-		/if (${Spawn[${assistid}].Type.Equal[Pet]}) {
-			/docommand /varset assistname ${Target.Master.Name}
-			/echo Main Tank set to ${Target.Name}
-			/varset TnKCond .Pet.
-			/varset PetTank 1
-		} else {
-			/docommand /varset assistname ${Target.Name}
-			/echo Main Tank set to ${assistname}
-			/varset TnKCond .
-			/varset PetTank 0
-		}
-	}
-/return 

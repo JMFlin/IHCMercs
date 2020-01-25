@@ -1,82 +1,20 @@
-|- IHCBRD.mac - By IHC385
-|- Automatic Bard bot - 
-|- Version 1.0
-|- Updated: 6/1/2019
-|- Credit: Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
-|- Credit: winnower - IHCTwist logic is an attempt at a macro version of the MQ2Medley plugin.
-#Chat group
-#Chat tell
-#Chat raid
-#turbo 80
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcbrdutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-#warning
-#bind SetVarInt	/setvarint
-#bind CmdList        /ihchelp
-
-Sub Main
-	/delay ${Math.Rand[10]}
-	/doevents flush
-	/declare MacroName       	string outer IHCBRD**BETA**
-	/declare MacroPath       	string outer IHCMercs\IHCBRD
-	/declare IHCVersion       	string outer 1.3 
-	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-	/declare SongFileName     	string outer ${MacroPath}_Songs_${EverQuest.Server}_${Me.CleanName}.ini
-
-	/call setup_plugins
-	/call BrdSetup
-	/call VarSetup
-	/call CheckSpells
-	/call LoadSpellBar	
-|-Cursor ID
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/call WelcomeMsg
-
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/call setup_skill_melee FALSE
-
- :mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call ManualPullCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
-/return
 |----------------------------------------------------------------------------
-|- SUB: ManualPullCamping
+|- SUB: brd_main
 |---------------------------------------------------------------------------- 
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs
+Sub brd_main
 
-	/while (${Mode}==1 || ${Mode}==3) {
-
-		/call check_state FALSE
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/if (${Me.XTarget}) {
-			/call pulse FALSE ${BattleMelody}
-		}
-		/if (!${Me.XTarget}) {
-			/call pulse FALSE ${RegenMelody}
-		}
-|		/if (${Me.XTarget}>=${MezStartCount} && ${MezOn} && ${Me.GemTimer[${AEMezSong}]}==0) /call DoMezStuff
-|		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
-|		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) 
-
-
-|		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/call misc
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
-		/doevents
+	/if (${Me.XTarget}) {
+		/call brd_pulse FALSE ${BattleMelody}
 	}
+	/if (!${Me.XTarget}) {
+		/call brd_pulse FALSE ${RegenMelody}
+	}
+
+|	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
+|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+	
+	/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+	/doevents
 /return
 
 |***
@@ -84,7 +22,7 @@ Sub ManualPullCamping
  *	USE: /call pulse [gem##] [type] 
  *  NOTE:
  ***|
-Sub pulse(bool _debug, string _melody)
+Sub brd_pulse(bool _debug, string _melody)
 
 	/declare _song 							int local 0
 	/declare _lnString               		int local ${_melody.Length}
@@ -105,8 +43,8 @@ Sub pulse(bool _debug, string _melody)
 		}
 
 		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
-		/call Engage
-		/call combat
+		/call engage
+		/call brd_combat
 		
 		/if (!${Me.XTarget} && ${_melody} == ${BattleMelody}) {
 			/call pulse_stop pulse_line_start
@@ -116,6 +54,7 @@ Sub pulse(bool _debug, string _melody)
 			/return
 		}
 		
+		/echo ${Me.Gem[${_melodyArray[${_song}]}]}: ${validate_cast[FALSE, pulse, "${Me.Gem[${_melodyArray[${_song}]}]}", ${Me.ID}]}
 		/if (${validate_cast[FALSE, pulse, "${Me.Gem[${_melodyArray[${_song}]}]}", ${Me.ID}]}) {
 			/call core_cast2 "${Me.Gem[${_melodyArray[${_song}]}]}" pulse 0 FALSE
 		}
@@ -129,7 +68,7 @@ Sub pulse(bool _debug, string _melody)
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
-Sub combat
+Sub brd_combat
 	/if (!${validate_combat[FALSE]}) /return
 
 	/if (${Me.XTarget}>=${BurnMobCount} || ${Target.Named}) {
@@ -145,7 +84,7 @@ Sub combat
 			/alt act ${Me.AltAbility[Flurry of Notes].ID}
 			/delay 5
 		}
-		/if (${Me.AltAbilityReady[Song of Stone]} && ${UseSwarmpet}) {
+		/if (${Me.AltAbilityReady[Song of Stone]}) {
 			/alt act ${Me.AltAbility[Song of Stone].ID}
 			/delay 5
 		}
@@ -166,14 +105,14 @@ Sub combat
 	} else /if (${Me.AltAbilityReady[Fundament: Third Spire of the Minstrels]}) {
 		/alt act ${Me.AltAbility[Fundament: Third Spire of the Minstrels].ID}
 		/delay 5
-	} else /if (${FindItem[${ChestItemName}].ID} && ${ChestCombatCast} && ${Me.ItemReady[${ChestItemName}]} && !${Me.Buff[Third Spire of the Minstrels].ID} && !${Me.Buff[Second Spire of the Minstrels].ID}) {
+	} else /if (${FindItem[${ChestItemName}].ID} && ${Me.ItemReady[${ChestItemName}]} && !${Me.Buff[Third Spire of the Minstrels].ID} && !${Me.Buff[Second Spire of the Minstrels].ID}) {
 		/useitem "${ChestItemName}"
 		/delay 10	
 	}
 	/if (${Me.AltAbilityReady[Boastful Bellow]} && !${Target.Buff[Boastful Bellow].ID} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
 		/alt act ${Me.AltAbility[Boastful Bellow].ID}
 		/delay 5
-	} else /if (${Me.AltAbilityReady[Lyrical Prankster]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20 && ${UseSwarmpet}) {
+	} else /if (${Me.AltAbilityReady[Lyrical Prankster]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
 		/alt act ${Me.AltAbility[Lyrical Prankster].ID}
 		/delay 5
 	} else /if (${Me.AltAbilityReady[Cacophony]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
@@ -187,7 +126,7 @@ Sub combat
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
-Sub AANDisc
+Sub brd_aa_and_disc
 	/doevents
 
 	/if (!${validate_combat[FALSE]}) /return

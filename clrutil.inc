@@ -92,9 +92,9 @@ Sub clr_setup
 	/declare spellslots				int outer 8
 /return 
 |----------------------------------------------------------
-|- SUB: LoadSpellBar
+|- SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |------------------------------------------------------------------------------------------
-Sub load_spell_bar
+Sub clr_load_spellbar
 	
 	
 	/if (${Me.Standing}) /sit
@@ -127,9 +127,7 @@ Sub clr_abilities
 		/varset wardspell ${Spell[Ward of Certitude].RankName}
 	}
 	
-	/if (${Me.Level}>=92 && ${Me.Book[${Spell[Elixir of the Ardent].RankName}]})  {
-		/varset SingleElixirSpell ${Spell[Elixir of the Ardent].RankName}
-	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Zealous Elixir].RankName}]})  {
+	/if (${Me.Level}>=92 && ${Me.Book[${Spell[Zealous Elixir].RankName}]})  {
 		/varset SingleElixirSpell ${Spell[Zealous Elixir].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Earnest Elixir].RankName}]})  {
 		/varset SingleElixirSpell ${Spell[Earnest Elixir].RankName}
@@ -439,11 +437,13 @@ Sub clr_abilities
 	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Promised Renewal].RankName}]})  {
 		/varset PromisedHeal ${Spell[Promised Renewal].RankName}
 	}
+	|**
 	/if (${DivineBuffOn}==1) {
 		/varcalc promgem ${spellslots}-1
 	} else {
 		/varset promgem ${spellslots}
 	}
+	**|
 
 |--Group Buff All Levels starts at 45
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Unified Hand of Assurance].RankName}]})  {
@@ -700,11 +700,13 @@ Sub clr_abilities
 		/varset AllianceBuff ${Spell[Divine Alliance].RankName}
 	}
 |-Setup Group Buff
+	|**
 	/if (${usedruid}==1) {
 		/varset GroupBuff ${GroupSymbolBuff}
 	} else {
 		/varset GroupBuff ${GroupHPBuff}
 	}
+	**|
 
 
 	/if (${Me.Level}>=56 && ${Me.Book[${Spell[Reviviscence].RankName}]})  {
@@ -730,6 +732,8 @@ Sub clr_abilities
 		/delay 5
 	}
 
+	/call clr_load_spellbar
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: BIND BNDGroupCure - 
@@ -745,6 +749,6 @@ Sub Bind_BNDGroupCure(int RequestorID)
 Sub Bind_CureOff
 	/varset NoCures 1
 	/varset CureOther 0
-	/call LoadSpellBar
+	/call ${Me.Class.ShortName.Lower}_load_spellbar
 	/echo WILL NOT CAST ANY CURES
 /return 

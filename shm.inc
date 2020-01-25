@@ -1,173 +1,13 @@
-|- IHCSHM.mac - By IHC385
-|- Automatic Shaman bot -
-|- Version 0.1
-|- Updated: 5/24/2019
-|- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
-#Chat group
-#Chat tell
-#Chat raid
-#turbo 80
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcshmutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-#warning
-#bind SetVarInt	/setvarint
-#bind CmdList        /ihchelp
-#bind BNDSingleCure	/curesingle
-
-Sub Main
-	/delay ${Math.Rand[6]}
-	/doevents flush
-	/declare MacroName       	string outer IHCSHM**ALPHA**
-	/declare MacroPath       	string outer IHCMercs\IHCSHM
-	/declare IHCVersion       	string outer 1.2 
-	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-
-	/call ShmSetup
-	/call VarSetup
-	/if (${IHCVersion.NotEqual[${IHCMacVersion}]}) {
-		/call ClassAliasSetup
-	}
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/call CheckSpells
-	/call SetControlToon
-	/call LoadSpellBar
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/if (${UseMelee}) /djoin ihcdps
-	/pet hold on
-|-Cursor ID
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/call WelcomeMsg
-	/if (${assistid}==${Me.ID}) {
-		/echo \aw I am Main Assist
-	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
-	}
+|----------------------------------------------------------------------------
+|- SUB: shm_main
+|----------------------------------------------------------------------------
+Sub shm_main
 	
-	/if (${UseZoneLogic}) {
-		/call ZoneEventChk
-	}
-
- :mainloop
- 	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call ManualPullCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
-/return
-|----------------------------------------------------------------------------
-|- SUB: ManualPullCamping
-|----------------------------------------------------------------------------
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs 
-
-	/while (${Mode}==1 || ${Mode}==3) {
-		/if (${AdvPath.Following}) /afollow off
-		/if (${Me.Hovering}) /call DeathSub
-		/if (${Me.State.Equal[FEIGN]}) /stand
-
-		/if (${State}==0) {
-			/if (!${Me.Buff[Communion of the Cheetah].ID} && !${Me.XTarget[1].ID} && ${Me.AltAbilityReady[Communion of the Cheetah]}) /call AANow ${Me.AltAbility[Communion of the Cheetah].ID} ${Me.ID}
-			/if (${Target.Type.Equal[Corpse]}) /target clear
-			/if (!${Me.XTarget[1].ID} && !${KillTargetID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
-			/if (${DoMed}) /call AutoMed
-			/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffGroup
-			/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && !${KillTargetID}) /call BuffSelf
-			/call TankChangeCheck
-			/if (${Me.XTarget[1].ID}) /varset State 1
-		}
-
-		/if (${State}==1) {
-			/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
-			/if (!${Me.Casting.ID} && ${Me.Song[${GroupRenewalHoT}].ID} && ${Me.PctMana}>=20) /call BuffGroupMember "${GroupRenewalHoT}" ${Group.Member[0].ID}
-			/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
-			/if (${Me.XTarget[1].Distance}<40 && ${Target.ID}!=${Me.ID}) {
-				/varset State 2
-			}
-		}
-
-		/if (${State}==2) {
-			/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
-			/call PetAttack
-			/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
-			/if (${Me.XTarget[1].ID}) /call AANDisc
-			/if (!${Me.Casting.ID} && !${Me.Moving} && (${Me.XTarget[1].ID} || !${Me.Invis}) && ((${DoAACanni} && ${Me.PctMana}<${AACanniManaPct}) || (${DoSpellCanni} && ${Me.PctMana}<${CanniManaPct}))) /call HealthToMana
-			/if (${AutoRez} && !${Me.Moving}) /call RezCheck
-			/if (${DynamicHealing}) /call ConfigHeal
-			/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
-			/if (${UseModRods}) /call ClickModRoD
-			/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
-
-			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
-			/if (${Target.Type.Equal[Corpse]}) /target clear
-			/if (!${Me.Casting.ID}) /call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-			/if (!${Me.XTarget[1].ID}) /call PostCombat
-		}
-		/doevents
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: ManualRunAndGun
-|----------------------------------------------------------------------------
-Sub ManualRunAndGun
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-	/call RemoveTravelBuffs
-	
-	/while (${Mode}==2) {
-		/if (${Me.Hovering}) /call DeathSub
-		/if (${Me.State.Equal[FEIGN]}) /stand
-
-		/if (!${Me.XTarget[1].ID} && !${Me.Moving}) /varset RunAndGunMedTimer 7s
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID} && ${RunAndGunMedTimer}==0) /call IllusionCheck
-		/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Target.ID} && !${Me.Sitting} && ${RunAndGunMedTimer}==0) /sit
-		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffGroup
-		/if (${Me.PctMana}>=30 && !${Me.Casting.ID} && !${Me.XTarget[1].ID} && !${Me.Moving} && ${RunAndGunMedTimer}==0) /call BuffSelf
-
-		/call TankChangeCheck
-
-		/if (${DoCC} && ${Me.XTarget[2].ID}) /call CC
-		/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${Me.Casting.ID}) /call DebuffMobs
-
-		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call CastersEngage
-		
-		/if (${Me.XTarget[1].ID}) /call AANDisc
-
-		/if (!${Me.Casting.ID} && !${Me.Moving} && (${Me.XTarget[1].ID} || !${Me.Invis}) && ((${DoAACanni} && ${Me.PctMana}<${AACanniManaPct}) || (${DoSpellCanni} && ${Me.PctMana}<${CanniManaPct}))) /call HealthToMana
-
-		/if (${AutoRez} && !${Me.Moving}) /call RezCheck
-
-		/if (${DynamicHealing}) /call ConfigHeal
-
-		/if (!${Me.Casting.ID} && (${Me.XTarget[1].ID} || !${Me.Invis})) /call HealGroup
-
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call Combatdps
-
-		/if (${UseModRods}) /call ClickModRoD
-		/call PetAttack
-
-		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
-
-		/if (${Target.Type.Equal[Corpse]}) /target clear
-
-		/doevents
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: HealthToMana
 |---------------------------------------------------------------------------- 
-Sub HealthToMana
+Sub shm_health_to_mana
 	/if (${Me.PctHPs}>=${AACanniMinHP} && ${Me.AltAbilityReady[Cannibalization]}) {
 		/call AANow ${Me.AltAbility[Cannibalization].ID} ${Me.ID}
 		/delay 20 !${Me.Casting.ID}
@@ -179,7 +19,7 @@ Sub HealthToMana
 |----------------------------------------------------------------------------
 |- SUB: DoNamed
 |---------------------------------------------------------------------------- 
-Sub DoNamed
+Sub shm_do_named
 |-Shaman AAs for nameds on tank
 	/if (${Me.AltAbilityReady[Ancestral Aid]}) {
 		/call AANow ${Me.AltAbility[Ancestral Aid].ID} ${assistid}
@@ -225,7 +65,7 @@ Sub DoNamed
 |----------------------------------------------------------------------------
 |- SUB: HealGroup
 |---------------------------------------------------------------------------- 
-Sub HealGroup
+Sub shm_heal_group
 	/declare WaitOnHeals int local 0
 	/if (${DoHeals}) {
 		/declare petworsthurtid		int local 0
@@ -323,7 +163,7 @@ Sub HealGroup
 	/if (!${WaitOnHeals}) {
 |-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && !${BackOffFlag}) /call CC
 		/if ((${Me.XTarget[1].ID} || (${Group.MainAssist.ID} && ${Group.MainAssist.ID}!=${Me.ID} && ${Target.ID}!=${${assisttargetid}}) || ${SpawnCount[npc radius ${AssistRange} zradius 15 targetable playerstate 4]} || ${FollowMarkTarget}) && !${BackOffFlag} && ${DoAutoTarget}) /call FindTarget
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag} && ${DoAutoEngage}) /call EngageTarget
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag} && ${DoAutoengage}) /call engageTarget
 		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && !${Me.Invis} && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${DoBuffs}) /call BuffGroup
 		/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${BackOffFlag} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt} && ${Ok2Assist}) /call DebuffMobs
 		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag}) /call AANDisc
@@ -335,7 +175,7 @@ Sub HealGroup
 |----------------------------------------------------------------------------
 |- SUB: SingleCure
 |----------------------------------------------------------------------------
-Sub SingleCure(int cureid)
+Sub shm_single_cure(int cureid)
 	/varset CureTimer 10s
 	/if (${Me.AltAbilityReady[Radiant Cure]}) {
 		/call AANow ${Me.AltAbility[Radiant Cure].ID} ${cureid}
@@ -348,7 +188,7 @@ Sub SingleCure(int cureid)
 |----------------------------------------------------------------------------
 |- SUB: GroupCure
 |----------------------------------------------------------------------------
-Sub GroupCure(int cureid)
+Sub shm_group_cure(int cureid)
 	/varset CureTimer 10s
 	/if (${Me.AltAbilityReady[Purified Spirits]} && ${Me.ID}==${cureid}) {
 		/call AANow ${Me.AltAbility[Purified Spirits].ID} ${cureid}
@@ -454,7 +294,7 @@ Sub CC
 |----------------------------------------------------------------------------
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 
-Sub DebuffMobs
+Sub shm_debuff
 	/declare x int local 0
 
 	/if (!${Me.Casting.ID} && !${Me.Moving} && ${SpawnCount[npc radius ${AssistRange} zradius ${AssistRangeZ}]}>2 && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) {
@@ -498,12 +338,12 @@ Sub DebuffMobs
 |----------------------------------------------------------------------------
 |- SUB: AANDisc 
 |---------------------------------------------------------------------------- 
-Sub AANDisc
-	/if (!${FindItem[=${EpicSpiritStaff}].TimerReady} && !${Me.Casting.ID} && ${Me.XTarget[1].Distance}<=75) {
-		/useitem "${EpicSpiritStaff}"
-		/delay 5
-	}
-	/if (!${Me.Buff[Roar of the Lion].ID} && !${Me.Buff[Dissident Roar].ID} && ${Me.CurrentMana}>${Spell[${DichoSpell}].Mana} && !${Me.Casting.ID} && ${Me.SpellReady[${DichoSpell}]} && ${UseRoar} && ${Me.XTarget[1].Distance}<=75) {
+Sub shm_aa_and_disc
+	|/if (!${FindItem[=${EpicSpiritStaff}].TimerReady} && !${Me.Casting.ID} && ${Me.XTarget[1].Distance}<=75) {
+	|	/useitem "${EpicSpiritStaff}"
+	|	/delay 5
+	|}
+	/if (!${Me.Buff[Roar of the Lion].ID} && !${Me.Buff[Dissident Roar].ID} && ${Me.CurrentMana}>${Spell[${DichoSpell}].Mana} && !${Me.Casting.ID} && ${Me.SpellReady[${DichoSpell}]} && ${Me.XTarget[1].Distance}<=75) {
 		/call SpellQueue "${DichoSpell}" ${Me.ID}
 		/delay 5
 	}
@@ -516,7 +356,7 @@ Sub AANDisc
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
-Sub Combatdps
+Sub shm_combat
 
 	/if (${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<=${AssistRange} && ${Target.Type.Equal[NPC]}) {
 		/if (${Me.AltAbilityReady[Focus of Arcanum]}) {
@@ -546,80 +386,153 @@ Sub Combatdps
 |----------------------------------------------------------------------------
 |- SUB: BuffGroup 
 |---------------------------------------------------------------------------- 
-Sub BuffGroup
-	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
-	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
+Sub shm_group_buffs
 	/declare _count			int local 0
 	/declare CastCheck			int local 0
+
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
+	/if (${Me.Casting.ID}) /return
+
+	/if (${Me.XTarget}) /return
+	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+
 	/for _count 1 to ${Group}
 
-		/if (${Group.Member[${_count}].Distance}<100 && !${Group.Member[${_count}].OtherZone} && (!${Me.Casting.ID})) {
+		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+		/if (${Me.XTarget}) {
+			/call ${Me.Class.ShortName.Lower}_load_spellbar
+			/return
+		}
+		/if (${Mode} !=3 ) /return
+		/if (${Group.Member[${_count}].Distance}<100 && !${Group.Member[${_count}].OtherZone}) {
 
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.Book[${FocusSpell}]} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && (!${Me.Casting.ID})) {
-				/call BuffGroupMember "${FocusSpell}" ${Group.Member[${_count}].ID}
-				/varset CastCheck 1
-			}
-			/if (${Me.XTarget[1].ID}) /return
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
 
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
-			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck} && ${Me.CurrentMana}>${Spell[${RunSpeedBuff}].Mana} && ${UseRunSpeed} && (!${Me.Casting.ID})) {
-				/if (${Me.AltAbilityReady[Lupine Spirit]} && ${Me.AltAbility[Lupine Spirit].Rank}>=4) {
-					/alt act ${Me.AltAbility[Lupine Spirit].ID}
-					/delay 70
-				} else /if (${Me.Book[${RunSpeedBuff}]}) {
-					/call BuffGroupMember "${RunSpeedBuff}" ${Group.Member[${_count}].ID}
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${FocusSpell}]} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && !${Me.Casting.ID}) {
+					/if (${validate_cast[FALSE, spell, ${FocusSpell}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${FocusSpell}" spell ${Group.Member[${_count}].ID} FALSE
 					/varset CastCheck 1
-				}					
+				}
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${FocusSpell}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${FocusSpell}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${FocusSpell}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
 			}
-			/if (${Me.XTarget[1].ID}) /return
-			|-- Main Tank Buffs
-			/if (${Group.Member[${_count}].ID}==${assistid} && !${Me.Casting.ID}) {
-				/if (${Me.CurrentMana}>${Spell[${GrowthBuff}].Mana} && ${UseGrowthBuff}) {
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpbuffid}) {
+					/if (${validate_cast[FALSE, spell, ${RunSpeedBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${RunSpeedBuff}" spell ${Group.Member[${_count}].ID} FALSE
+					/varset CastCheck 1
+				}
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${RunSpeedBuff}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${RunSpeedBuff}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${RunSpeedBuff}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+			}
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${CasterSpeedBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${CasterSpeedBuff}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpbuffid} && !${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
+					/if (${validate_cast[FALSE, spell, ${CasterSpeedBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${CasterSpeedBuff}" spell ${Group.Member[${_count}].ID} FALSE
+					/varset CastCheck 1
+				}
+			}
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				/if (${Group.Member[${_count}].ID}==${Group.MainTank.ID}) {
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GrowthBuff}].Stacks" "tmpstackcheck" "bool"
-					/if (!${tmpbuffid} && ${tmpstackcheck}) {
-						/call BuffGroupMember "${GrowthBuff}" ${Group.Member[${_count}].ID}
+					/if (!${tmpbuffid} && !${tmpstackcheck}) {
+						/if (${validate_cast[FALSE, spell, ${GrowthBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${GrowthBuff}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
 				}
-				/if (${Me.XTarget[1].ID}) /return
-				/if (${Me.CurrentMana}>${Spell[${AllianceBuff}].Mana} && ${UseAllianceBuff}) {
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
-					/if (!${tmpbuffid} && ${tmpstackcheck}) {
-						/call BuffGroupMember "${AllianceBuff}" ${Group.Member[${_count}].ID}
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${GrowthBuff}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${GrowthBuff}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${GrowthBuff}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
 				}
-				/if (${Me.XTarget[1].ID}) /return
-				/if (${Me.CurrentMana}>${Spell[${SlowProcBuff}].Mana}) {
+			}
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				/if (${Group.Member[${_count}].ID}==${Group.MainTank.ID}) {
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SlowProcBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SlowProcBuff}].Stacks" "tmpstackcheck" "bool"
-					/if (!${tmpbuffid} && ${tmpstackcheck}) {
-						/call BuffGroupMember "${SlowProcBuff}" ${Group.Member[${_count}].ID}
+					/if (!${tmpbuffid} && !${tmpstackcheck}) {
+						/if (${validate_cast[FALSE, spell, ${SlowProcBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${SlowProcBuff}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
 				}
-				/if (${Me.XTarget[1].ID}) /return
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${SlowProcBuff}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${SlowProcBuff}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${SlowProcBuff}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
 			}
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				/if (${Group.Member[${_count}].ID}==${Group.MainTank.ID}) {
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
+					/if (!${tmpbuffid} && !${tmpstackcheck}) {
+						/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${AllianceBuff}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+			}
+
 		}
 	/next _count
-
 	|- Delete variable's
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
+	/if (${Defined[tmpskinid]}) /deletevar tmpskinid
+	/if (${Defined[tmpsymbolid]}) /deletevar tmpsymbolid
+	/if (${Defined[tmpaegoid]}) /deletevar tmpaegoid
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
+
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/docommand /dgt \aw Done Buffing
 	}
+	
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: BuffSelf
 |---------------------------------------------------------------------------- 
-Sub BuffSelf
+Sub shm_self_buffs
 	/declare CastCheck int local 0
 	/if (!${Spell[${Me.Aura[1]}].ID} && ${Me.AltAbilityReady[${ShamanAura}]}) {
 		/alt act ${Me.AltAbility[${ShamanAura}].ID}
@@ -641,12 +554,12 @@ Sub BuffSelf
 |-		/alt act ${Me.AltAbility[Visionary's Unity].ID}
 |-		/delay 15
 |-	}
-	/if (${CastCheck}) /call LoadSpellBar
+	/if (${CastCheck}) /call ${Me.Class.ShortName.Lower}_load_spellbar
 /return
 |----------------------------------------------------------------------------
 |- SUB: ConfigHeal
 |---------------------------------------------------------------------------- 
-Sub ConfigHeal
+Sub shm_config_heal
 	/if (${Me.XTarget}>2 || ${Me.XTarget[1].Named}) {
 		/if (${TankHealPoint}!=95) {
 			/varset TankHealPoint 95
@@ -673,78 +586,6 @@ Sub ConfigHeal
 		}
 	}
 	
-/return
-|----------------------------------------------------------------------------
-|- SUB: TankChangeCheck
-|---------------------------------------------------------------------------- 
-Sub TankChangeCheck
-	/if (${PetTank} && ${Group.Member[${assistname}].Pet.ID}) {
-		/docommand /varset tempid ${Group.Member[${assistname}].Pet.ID}
-		/if (${tempid}!=${assistid}) {
-			/echo Tank ID Mismatch - Fixing it
-			/varset assistid ${tempid}
-		}
-	} else /if (!${PetTank} && ${Group.Member[${assistname}].ID}) {
-		/docommand /varset tempid ${Group.Member[${assistname}].ID}
-		/if (${tempid}!=${assistid}) {
-			/echo Tank ID Mismatch - Fixing it
-			/varset assistid ${tempid}
-		}
-	}
-	/if (!${Spawn[${assistid}].PctHPs}>=1) {
-		/if (!${Bool[${oldtank}]}) /varset oldtank ${assistname}
-		/if (!${Bool[${oldtankid}]}) /varset oldtankid ${assistid}
-		/if (${Spawn[group notid ${Me.ID} radius 150].ID}) {
-			/echo Tank Gone - Switching to Nearest Group Member Alive
-			/varset assistname ${Spawn[group notid ${Me.ID} radius 150]}
-			/varset assistid ${Spawn[group notid ${Me.ID} radius 150].ID}
-			/if (${Spawn[${assistid}].Type.Equal[Pet]}) {
-				/varset TnKCond .Pet.
-			} else {
-				/varset TnKCond .
-			}
-		} else {
-			/echo Tank and Group Gone - Switching to Self Heal mode
-			/varset assistname ${Me.Name}
-			/varset assistid ${Me.ID}
-			/varset TnKCond .
-		}
-	}
-	/if (${Group.Member[${oldtank}].ID}) {
-		/if (!${PetTank}) {
-			/varset assistname ${oldtank}
-			/varset assistid ${Group.Member[${oldtank}].ID}
-			/echo Tank is Back - Switching him back to maintank
-			/varset oldtank NULL
-			/varset oldtankid NULL
-		} else /if (${PetTank} && ${Group.Member[${oldtank}].Pet.ID}) {
-			/varset assistname ${oldtank}
-			/varset assistid ${Group.Member[${oldtank}].Pet.ID}
-			/echo Tank is Back - Switching him back to maintank
-			/varset oldtank NULL
-			/varset oldtankid NULL
-		}
-		/if (${Spawn[${assistid}].Type.Equal[Pet]}) {
-			/varset TnKCond .Pet.
-		} else {
-			/varset TnKCond .
-		}
-	}
-	/if (${newtank}==1) {
-		/docommand /varset assistid ${Target.ID}
-		/varset newtank 0
-		/if (${Spawn[${assistid}].Type.Equal[Pet]}) {
-			/docommand /varset assistname ${Target.Master.Name}
-			/echo Main Tank set to ${Target.Name}
-			/varset TnKCond .Pet.
-			/varset PetTank 1
-		} else {
-			/docommand /varset assistname ${Target.Name}
-			/echo Main Tank set to ${assistname}
-			/varset TnKCond .
-			/varset PetTank 0
-		}
-	}
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: Rez Check

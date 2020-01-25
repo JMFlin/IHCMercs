@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub ShdSetup
+Sub shd_setup
 |-Create Alias
 	|-- Toggles
 |-Declare Discs
@@ -23,7 +23,7 @@ Sub ShdSetup
 	/declare Withstand 		string outer NULL
 	/declare WithstandID 	int outer 0
 |-Config Options
-	/call LoadIni Item ChestItemName	string "${Me.Inventory[17].Name}"
+	/declare ChestItemName string outer "${Me.Inventory[17].Name}"
 
 |- Spells
 	/declare DichotomicFang	string outer NULL
@@ -49,21 +49,9 @@ Sub ShdSetup
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 /return 
 |----------------------------------------------------------------------------
-|- SUB: CheckOptions
+|- SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |---------------------------------------------------------------------------- 
-Sub CheckOptions
-
-/return
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-
-/return 
-|----------------------------------------------------------------------------
-|- SUB: LoadSpellBar
-|---------------------------------------------------------------------------- 
-Sub LoadSpellBar
+Sub shd_load_spellbar
 	
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
@@ -84,7 +72,7 @@ Sub LoadSpellBar
 |----------------------------------------------------------------------------
 |- SUB: SetupSpells
 |---------------------------------------------------------------------------- 
-Sub SetupSpells
+Sub shd_setup
 	| Spells
 
 	| Dicho
@@ -357,5 +345,7 @@ Sub SetupSpells
 		/varset PullAbility Melee
 		/varset PullDistance 5
 	}
+
+	/call shd_load_spellbar
 
 /return

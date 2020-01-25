@@ -52,7 +52,7 @@ Sub ber_setup
 	/declare StunAxeName			string outer NULL
 	/declare StunAxeComponent		string outer NULL
 	
-	/varset ChestItemName		"${Me.Inventory[17].Name}"
+	/declare ChestItemName		string outer "${Me.Inventory[17].Name}"
 	/declare ZerkerCount			int outer 1
 	/declare epicaxe				string outer NULL
 	/declare UseEpic				int outer 0

@@ -35,9 +35,9 @@ Sub dru_setup
 	/declare Mask 				string outer NULL
 /return 
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar
+| SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |------------------------------------------------------------------------------------------ *|
-Sub load_spell_bar
+Sub dru_load_spellbar
 /if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
@@ -58,7 +58,7 @@ Sub load_spell_bar
 |----------------------------------------------------------------------------
 |- SUB: SetupSpells
 |---------------------------------------------------------------------------- 
-Sub SetupSpells
+Sub dru_abilities
 
 	/if (${Me.Level}>=${Spell[Puravida].Level} && ${Me.Book[${Spell[Puravida].RankName}]}) {
 		/varset HealSpell1 ${Spell[Puravida].RankName}
@@ -286,5 +286,7 @@ Sub SetupSpells
 	/if (${Me.Level}>=${Spell[Mask of the Shadowcat].Level} && ${Me.Book[${Spell[Mask of the Shadowcat].RankName}]}) {
 		/varset Mask ${Spell[Mask of the Shadowcat].RankName}
 	}
+
+	/call dru_load_spellbar
 
 /return

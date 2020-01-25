@@ -59,9 +59,9 @@ Sub bst_setup
 	/declare CastResult         string outer
 /return 
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar
+| SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |------------------------------------------------------------------------------------------ *|
-Sub LoadSpellBar
+Sub bst_load_spellbar
 	
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
@@ -852,5 +852,7 @@ Sub bst_abilities
 		/alt act 8300
 		/delay 5
 	}
+
+	/call bst_load_spellbar
 	
 /return

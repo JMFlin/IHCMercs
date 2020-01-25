@@ -127,7 +127,7 @@ Sub hybrid_healer_limit(bool _debug)
 /return
 
 Sub Event_HybridHealerLimit(string line)
-  /if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 80 
+  /if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 80
 /return ${HybridManaLimit}
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in raid
@@ -2269,7 +2269,7 @@ Sub Event_DuckOff
 |********************************************************************************************
  ** Rotations
  **|
-#event BerStunRotation "#*#I hit my stun! Next stunner.#*#"
+| #event BerStunRotation "#*#I hit my stun! Next stunner.#*#"
 Sub Event_BerStunRotation
 
   /if (!${Select[${Me.Class.ShortName},BER]}) {

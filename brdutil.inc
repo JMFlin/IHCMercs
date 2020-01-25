@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub brd_seteup
+Sub brd_setup
 |-Spells
 	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
@@ -67,11 +67,12 @@ Sub brd_seteup
 	/declare spellrememtimer	timer outer 0
 	/declare groupbufftimer		timer outer 0
 	/declare ReadyToCast	  	timer outer 0
+	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
 /return 
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar /echo ${SpellGem1}
+| SUB: ${Me.Class.ShortName.Lower}_load_spellbar /echo ${SpellGem1}
 |------------------------------------------------------------------------------------------ *|
-Sub load_spell_bar
+Sub brd_load_spellbar
 	
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
@@ -450,6 +451,6 @@ Sub brd_abilities
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
 
-	/call load_spell_bar
+	/call brd_load_spellbar
 
 /return

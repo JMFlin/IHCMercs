@@ -1,75 +1,25 @@
-|- IHCBER.mac - By IHC385
-|- Automatic berserker bot - 
-|- Version 2.0
-|- Updated: 4/25/2019
-|- Contributions by kaen01 and toots
-|- Code/Idea's borrowed from noobhax0r and his automac's. Maskoi,ctaylor,treehuggindruid and their team's kisassist
-|- Thanks to Bayne, shadowfall, scotsbiker, and aspire2008 for bug reporting, testing, requests, suggestions and feedback!
-#turbo 80
-#warning
 
-#define DEBUG /echo
-
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcberutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-
-#Chat group
-#Chat tell
-#Chat raid
-Sub Main
-	/declare MacroName       		string outer IHCBER
-	/declare MacroPath       		string outer IHCMercs\IHCBER
-	/declare IHCVersion       		string outer 2.0
-	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-	/declare AutoCampRadius 		int outer 20
-
-	/call BerSetup
-	/call SetupDiscs
-
-	/call ${Me.Class.ShortName.Lower}_rotations
-	
- :mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call ManualPullCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
-/return
 |----------------------------------------------------------------------------
-|- SUB: ManualPullCamping
+|- SUB: ber_main
 |---------------------------------------------------------------------------- 
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs 
-	/target clear 
+Sub ber_main
 
-	/while (${Mode}==1 || ${Mode}==3) {
+	/call engage
+	/call ber_aa_and_disc
+	/call ber_combat
+	
+	/call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
+	/call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
+	/call make_axes "${StunAxeName}" "${StunAxeComponent}"
 
-		DEBUG Should I return to camp: ${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius}
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-
-		/call check_state FALSE
-
-		/call Engage
-		/call AANDisc
-
-		/call combat
-
-|		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/call misc
-		/doevents
-		/delay 1s
-	}
+|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+	/doevents
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
-Sub AANDisc
+Sub ber_aa_and_disc
 
 	/call get_target
 
@@ -230,12 +180,12 @@ Sub AANDisc
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
-Sub combat
+Sub ber_combat
 
 	/call get_target
 	/if (!${validate_combat[FALSE]}) /return
 
-	/doevents BerStunRotation
+|	/doevents BerStunRotation
 
 	/if (${Target.PctAggro} > 85) {
 		/if (${validate_cast[FALSE, disc, "${JoltDisc}", ${Target.ID}]}) {
@@ -297,12 +247,18 @@ Sub combat
 		/Disc ${Dvolley}
 		/delay 5
 	}
-	
-	/if (${berStunRotationStunner.Equal[${Me.DisplayName}]} && !${Target.Stunned}) {
+	| ${berStunRotationStunner.Equal[${Me.DisplayName}]} && 
+	/docommand /dgt My stunTurn is ${stunTurn}
+	/if (${stunTurn}) {
 		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
 			/call core_cast2 "${Stun}" disc ${Target.ID} FALSE
 			/delay 5
-			/docommand /gsay I hit my stun! Next stunner.
+			/call get_next_in_rotation
+			/varset berStunRotationStunner ${Macro.Return}
+			/docommand /dgt ******** NEXT SHOULD BE ${berStunRotationStunner} *********
+			/squelch /dex ${berStunRotationStunner} /varset stunTurn 1
+			/squelch /dex ${berStunRotationStunner} /varset berStunRotationCounter ${berStunRotationCounter} 
+			/varset stunTurn 0
 		}
 	} else /if (!${berStunRotationStunner.Equal[${Me.DisplayName}]}) {
 		/if (${Me.CombatAbilityReady[${Daxethrow}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
@@ -329,9 +285,11 @@ Sub make_axes(string AxeName, string AxeComponents)
 	/if (${Me.XTarget}) /return
 	/if (${Me.Moving}) /return
 	/if (${Navigation.Active}) /return
-	/if (${FindItemCount[${AxeComponents}]} < 1) /return
-	
+	/if (${FindItemCount[${AxeComponents}]} <= 1) /return
+	/if (${Me.CombatAbilityReady[${AxeName}]}) /return 
+
 	/while (${FindItemCount[${AxeName}]} < 200 && ${FindItemCount[${AxeComponents}]} > 1) {
+		DEBUG Making ${AxeName} with ${AxeComponents}
 		/if (${Cursor.ID}) /autoinventory
 		/if (${Me.XTarget}) /return
 		/if (${Mode} == 0) /return
@@ -345,3 +303,31 @@ Sub make_axes(string AxeName, string AxeComponents)
 	}
 	
 /return
+
+
+sub get_next_in_rotation
+
+  	/declare _counter   int local 1
+  	/declare si setiterator local
+  	/vardata si berStunRotationSet.First
+
+	/varcalc berStunRotationCounter ${berStunRotationCounter} + 1
+  	/if (${berStunRotationCounter} > ${berTotal}) /varset berStunRotationCounter 1
+  
+  	/while (!${si.IsEnd}) {
+
+		/if (${_counter} == ${berStunRotationCounter}) {
+			/varset berStunRotationStunner ${si.Value}
+			/break
+		}
+		
+		/varcalc _counter ${_counter} + 1
+		
+		/if (${si.Advance}) {
+		} else {
+			/echo 'Iterator not advanced. IsEnd: ${si.IsEnd}.'
+			/endmacro
+		}
+	}
+
+/return ${berStunRotationStunner}

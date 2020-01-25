@@ -1,2 +1,0 @@
-# IHCMercs
-Automated eq
