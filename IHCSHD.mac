@@ -41,8 +41,6 @@ Sub Main
 	/declare AssistRange int outer 10
 	/declare AutoCampRadius int outer 10
 
-	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call AddToAlert
-
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/call setup_skill_melee FALSE
 	/delay 2s
@@ -65,7 +63,7 @@ Sub AFKRadiusCamping
     /call MakeCamp
     /call RemoveTravelBuffs
 	/target clear
-	/if (${Group.Leader.ID} == ${Me.ID}) /docommand /campfire
+	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call ignore_mobs_to_pull
 
 	/while (${Mode}==3) {
 

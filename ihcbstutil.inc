@@ -42,6 +42,7 @@ Sub BstSetup
 	/declare AtkHPBuffName		string outer NULL
 	/declare CrippleSpell1 		string outer NULL
 	/declare Haste 				string outer NULL
+	/declare PetHasteRecourse 	string outer NULL
 |-discs
 	/declare EndRegenDisc		string outer NULL
 	/declare Maul				string outer NULL
@@ -111,7 +112,7 @@ Sub LoadSpellBar
 	/call LoadSpellGem "${NukeSpell4}" 4
 	/call LoadSpellGem "${DoTSpell1}" 5
 	
-	/call LoadSpellGem "${CrippleSpell1}" 6
+	/call LoadSpellGem "${PetHaste}" 6
 	/call LoadSpellGem "${SlowSpell}" 7
 	/call LoadSpellGem "${SwarmPet}" 8	
 	
@@ -700,16 +701,22 @@ Sub CheckSpells
  |-Pet Haste*
 	/if (${Me.Level}>=${Spell[Tremendous Velocity].Level} && ${Me.Book[${Spell[Tremendous Velocity].RankName}]}) {
 		/varset PetHaste ${Spell[Tremendous Velocity].RankName}
+		/varset PetHasteRecourse ${Spell[Tremendous Velocity].RankName}
 	} else /if (${Me.Level}>=${Spell[Extraordinary Velocity].Level} && ${Me.Book[${Spell[Extraordinary Velocity].RankName}]}) {
 		/varset PetHaste ${Spell[Extraordinary Velocity].RankName}
+		/varset PetHasteRecourse ${Spell[Extraordinary Velocity].RankName}
 	} else /if (${Me.Level}>=${Spell[Exceptional Velocity].Level} && ${Me.Book[${Spell[Exceptional Velocity].RankName}]}) {
 		/varset PetHaste ${Spell[Exceptional Velocity].RankName}
+		/varset PetHasteRecourse ${Spell[Exceptional Velocity].RankName}
 	} else /if (${Me.Level}>=${Spell[Incomparable Velocity].Level} && ${Me.Book[${Spell[Incomparable Velocity].RankName}]}) {
 		/varset PetHaste ${Spell[Incomparable Velocity].RankName}
+		/varset PetHasteRecourse ${Spell[Incomparable Velocity].RankName}
 	} else /if (${Me.Level}>=${Spell[Unrivaled Rapidity].Level} && ${Me.Book[${Spell[Unrivaled Rapidity].RankName}]}) {
 		/varset PetHaste ${Spell[Unrivaled Rapidity].RankName}
+		/varset PetHasteRecourse ${Spell[Unrivaled Rapidity].RankName}
 	} else /if (${Me.Level}>=${Spell[Peerless Penchant].Level} && ${Me.Book[${Spell[Peerless Penchant].RankName}]}) {
 		/varset PetHaste ${Spell[Peerless Penchant].RankName}
+		/varset PetHasteRecourse ${Spell[Peerless Penchant].RankName}
 	} else /if (${Me.Level}>=${Spell[Unparalleled Voracity].Level} && ${Me.Book[${Spell[Unparalleled Voracity].RankName}]}) {
 		/varset PetHaste ${Spell[Unparalleled Voracity].RankName}
 	} else /if (${Me.Level}>=${Spell[Growl of the Beast].Level} && ${Me.Book[${Spell[Growl of the Beast].RankName}]}) {

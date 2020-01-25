@@ -40,8 +40,6 @@ Sub Main
 	}
 	/call WelcomeMsg
 
-	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
-
 	/call setup_skill_melee FALSE
 
 	/delay 2s
@@ -62,7 +60,8 @@ Sub Main
 Sub AFKRadiusCamping
     /call MakeCamp
     /call RemoveTravelBuffs
-	/target clear   
+	/target clear
+	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call ignore_mobs_to_pull
 
 	/while (${Mode}==3) {
 
