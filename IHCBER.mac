@@ -19,8 +19,6 @@
 #Chat tell
 #Chat raid
 Sub Main
-	/delay ${Math.Rand[10]}
-	/doevents flush
 	/declare MacroName       		string outer IHCBER
 	/declare MacroPath       		string outer IHCMercs\IHCBER
 	/declare IHCVersion       		string outer 2.0
@@ -28,14 +26,8 @@ Sub Main
 	/declare AutoCampRadius 		int outer 20
 
 	/call BerSetup
-	/call setup_plugins
-	/call VarSetup
-	/call AliasSetup
 	/call SetupDiscs
 
-	/call WelcomeMsg
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/call setup_skill_melee FALSE
 	/call ${Me.Class.ShortName.Lower}_rotations
 	
  :mainloop

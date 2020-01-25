@@ -4,20 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub BerSetup
-|-Create Alias's
-	|-Toggles
-	/squelch /alias /tglalliance 	/setvarint Toggle UseAlliance
-	/squelch /alias /tglaoe			/setvarint Toggle UseAoE
-	/squelch /alias /tglautoaxe		/setvarint Toggle AutoAxe
-	/squelch /alias /tglautoaxe2	/setvarint Toggle AutoAxe2
-	/squelch /alias /tglbp			/setvarint Toggle ChestCombatCast
-	/squelch /alias /tglforce		/setvarint Toggle ForceAlliance
-	/squelch /alias /tglintim		/setvarint Toggle UseIntimidate
-	/squelch /alias /tglmezbreak	/setvarint Toggle AllowMezBreak
-	/squelch /alias /tglopener		/setvarint Toggle UseOpener
-	/squelch /alias /tglpet			/setvarint Toggle UsePet
-	/squelch /alias /tglpoison		/setvarint Toggle UsePoisons	
+Sub ber_setup
 |-Declare AA's and Discs
 	/declare endregen				string outer NULL
 	/declare Aura1					string outer NULL
@@ -65,35 +52,6 @@ Sub BerSetup
 	/declare StunAxeName			string outer NULL
 	/declare StunAxeComponent		string outer NULL
 	
-|-Config Options
-	|**
-	/call LoadCommonConfig
-	/call LoadIni Combat AllowMezBreak		 	int 0
-	/call LoadIni Combat DoBattleLeap			int 1
-	/call LoadIni Combat ForceAlliance		 	int 0
-	/call LoadIni Combat StickHow				string behind
-	/call LoadIni Combat UseAlliance		 	int 1
-	/call LoadIni Combat UseAoE			 		int 0
-	/call LoadIni Combat UseIntimidate		 	int 1
-	/call LoadIni Combat UseMelee		 		int 1
-	/call LoadIni Combat UseOpener			 	int 1
-	/call LoadIni Combat UsePet		 			int 1
-	/call LoadIni Item ChestItemName			string "${Me.Inventory[17].Name}"
-	/call LoadIni Item ChestCombatCast			int 0
-	/call LoadIni Item PoisonName				string NULL
-	/call LoadIni Item PoisonBuffName			string NULL
-	/call LoadIni Item UsePoisons		 		int 0
-	/call LoadIni Options AutoAxe				int 0
-	/call LoadIni Options AutoAxeCount			int 300
-	/call LoadIni Options AutoAxeMin			int 60
-	/call LoadIni Options AutoAxeName			string "Axe of the Mangler"
-	/call LoadIni Options AutoAxeComponents		string "Masterwork Axe Components"
-	/call LoadIni Options AutoAxe2				int 0
-	/call LoadIni Options AutoAxe2Count			int 300
-	/call LoadIni Options AutoAxe2Min			int 60
-	/call LoadIni Options AutoAxe2Name			string NULL
-	/call LoadIni Options AutoAxe2Components	string NULL
-	**|
 	/varset ChestItemName		"${Me.Inventory[17].Name}"
 	/declare ZerkerCount			int outer 1
 	/declare epicaxe				string outer NULL
@@ -113,29 +71,9 @@ Sub BerSetup
 	}
 /return 
 |----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Combat AllowMezBreak		int ${AllowMezBreak}
-	/call SetIni Combat DoBattleLeap		int ${DoBattleLeap}
-	/call SetIni Combat ForceAlliance		int ${ForceAlliance}
-	/call SetIni Combat UseAlliance		 	int ${UseAlliance}
-	/call SetIni Combat UseAoE			 	int ${UseAoE}
-	/call SetIni Combat UseIntimidate		int ${UseIntimidate}
-	/call SetIni Combat UseMelee		 	int ${UseMelee}
-	/call SetIni Combat UseOpener			int ${UseOpener}
-	/call SetIni Combat UsePet		 		int ${UsePet}
-	/call SetIni Item ChestCombatCast		int ${ChestCombatCast}
-	/call SetIni Item UsePoisons		 	int ${UsePoisons}
-	/call SetIni Options AutoAxe			int ${AutoAxe}
-	/call SetIni Options AutoAxe2			int ${AutoAxe2}
-/return 
-|----------------------------------------------------------------------------
 |- SUB: SetupDiscs
 |----------------------------------------------------------------------------
-Sub SetupDiscs
+Sub ber_abilities
 
 |-	Axe Components
 |-	Balanced Axe Components
@@ -701,22 +639,3 @@ Sub Bind_SetVarInt(string ISection, string IName, int IVar)
 		}
 	}
 /return
-|----------------------------------------------------------------------------
-|-SUB: BIND CmdList - 
-|----------------------------------------------------------------------------
-Sub Bind_CmdList
-/call CommonHelp
-/echo \ag===${MacroName} Commands=== 
-/echo \ag/tglalliance\aw - Use ber alliance? there still needs to be >=3 zerkers for it to fire
-/echo \ag/tglaoe\aw - Turn the use of AE abilities on/off
-/echo \ag/tglautoaxe\aw - Turn the Auto Axe summoning feature on/off
-/echo \ag/tglautoaxe2\aw - Turn the Auto Axe 2 summoning feature on/off
-/echo \ag/tglbp\aw - Turn on/off the use of a Chest piece defined in the ini
-/echo \ag/tglforce\aw - Force Alliance Use. Use when other Zerkers are present but not in the same group 
-/echo \ag/tglintim\aw - Use Intimidation skill?
-/echo \ag/tglloot\aw - Turn auto looting on/off
-/echo \ag/tglmezbreak\aw - Allow attacking mez'd mobs if below assistat % - Ignores waiting for MA
-/echo \ag/tglopener\aw - Toggle ${PreCombatDisc} ability ON/OFF
-/echo \ag/tglpet\aw - Pet toggle...cause sometimes they arent allowed
-/echo \ag/tglpoison\aw - Turn on/off the use of poison buffs
-/return 

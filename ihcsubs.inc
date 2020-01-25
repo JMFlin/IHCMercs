@@ -516,25 +516,6 @@ sub validate_target_distance(bool _debug)
 		/return FALSE
 	}
 /return TRUE
-
-|----------------------------------------------------------------------------
-|- SUB: CastersEngage
-|---------------------------------------------------------------------------- 
-Sub CastersEngage
-	/if (${Me.Class.ShortName.Find[CLR]}) /target id ${Group.MainTank.ID}
-	/if (!${Me.Class.ShortName.Find[CLR]}) /assist ${Group.MainAssist.Name}
-	/if (${Target.ID}) /face fast
-/return
-|----------------------------------------------------------------------------
-|- SUB: PostCombat
-|---------------------------------------------------------------------------- 
-Sub PostCombat(bool _debug)
-	/if (${Me.XTarget}) /return
-	/if (${Stick.Status.Equal[ON]}) /stick off
-	/attack off
-	/if (${Target.ID}) /target clear
-	/if (${Me.Pet.Following}) /pet back off
-/return
 |----------------------------------------------------------------------------
 |- SUB: Travel
 |----------------------------------------------------------------------------
@@ -1592,10 +1573,12 @@ sub validate_combat(bool _debug)
 	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/if (${Target.PctHPs} > ${AutoAssistAt}) /return FALSE
 		/if (${Target.Mezzed.ID}) /return FALSE
-		/if (${Spawn[id ${Group.MainTank.ID} pc radius 60].ID} && ${Me.PctAggro} >= 90) {
-			/if (${Stick.Active}) /stick off
-			/if (${Me.CombatState.Equal[COMBAT]}) /attack off
-			/return FALSE
+		/if (${Group.MainTank.ID} && ${Group.MainTank.ID} != ${Me.ID}) {
+			/if (${Spawn[id ${Group.MainTank.ID} pc radius 60].ID} && ${Me.PctAggro} >= 90) {
+				/if (${Stick.Active}) /stick off
+				/if (${Me.CombatState.Equal[COMBAT]}) /attack off
+				/return FALSE
+			}
 		}
 	}
 

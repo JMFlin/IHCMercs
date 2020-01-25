@@ -4,24 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub ClrSetup
-	|-Alias setup for Ini
-	/noparse /alias /divinebuff /multiline ; /docommand ${If[${DivineBuffOn}==1,/varset DivineBuffOn 0,/varset DivineBuffOn 1]} ; /docommand ${If[${Me.Gem[${promheal}]}==${spellslots},/varcalc divinegem ${spellslots}-1,/varset divinegem ${spellslots}]} ; /varset changetoini 1 ; /echo Toggling ${DivineBuff} to ${If[${DivineBuffOn}==0,OFF,ON]}
-	/noparse /alias /promised /multiline ; /docommand ${If[${usepromheals}==1,/varset usepromheals 0,/varset usepromheals 1]} ; /docommand ${If[${Me.Gem[${DivineBuff}]}==${spellslots},/varcalc promgem ${spellslots}-1,/varset promgem ${spellslots}]} ; /varset changetoini 1 ; /echo Toggling Promised Heals to ${If[${usepromheals}==0,OFF,ON]}
-	/noparse /alias /autorez /multiline ; /docommand ${If[${AutoRez}==1,/varset AutoRez 0,/varset AutoRez 1]} ; /varset changetoini 1 ; /echo Setting AutoRez to ${If[${AutoRez}==0,OFF,ON]}
-	/noparse /alias /usedruid /multiline ; /docommand ${If[${usedruid}==1,/varset usedruid 0,/varset usedruid 1]} ; /varset changetoini 1 ; /echo Setting Use Druid Buffs to ${If[${usedruid}==0,OFF,ON]}
-	/noparse /alias /manatonuke /multiline ; /varset changetoini 1 ; /docommand /varset Manatonuke 
-	/noparse /alias /pethealpoint /multiline ; /varset changetoini 1 ; /docommand /varset pethealpoint 
-	/noparse /alias /tbmhealpoint /multiline ; /varset changetoini 1 ; /docommand /varset tbmhealpoint 
-	/noparse /alias /raidhealpoint /multiline ; /varset changetoini 1 ; /docommand /varset raidhealpoint 
-	/noparse /alias /mountitem /multiline ; /varset changetoini 1 ; /docommand /varset mountitem 
-	/noparse /alias /newtank /docommand /varset newtank 1
-	/noparse /alias /qmtarget /multiline ; /varset changetoini 1 ; /docommand ${If[${Spawn[id ${Target.ID} group].ID},/varset qmtarget ${Target.ID},/varset qmtarget 0]} ; /echo Toggling Quiet Miracle on Cast on ${If[${qmtarget}==0,Noone,${Spawn[id ${qmtarget}].CleanName}]}
-	/noparse /alias /byos /multiline ; /varset changetoini 1 ; /docommand ${If[${BringYourOwnSpells}==1,/varset BringYourOwnSpells 0,/varset BringYourOwnSpells 1]} ; /echo Toggling Bring Your Own Spells to ${If[${BringYourOwnSpells}==0,OFF,ON]}
-	/noparse /alias /nocures 	/cureoff
-	/noparse /alias /othercures /multiline ; /docommand ${If[${CureOther}==1,/varset CureOther 0,/varset CureOther 1]} ; /varset changetoini 1 ; /echo Setting Advanced Curing to ${If[${CureOther}==0,OFF,ON]}
-	/squelch /alias /tglhealnuke		/setvarint Toggle UseHealNukes
-	/squelch /alias /tgldynamic			/setvarint Toggle DynamicHealing
+Sub clr_setup
 |-Declare spell variables
 	/declare promgem				int             outer 0
 	/declare divinegem				int             outer 0
@@ -99,50 +82,7 @@ Sub ClrSetup
 	/declare RezSpell	 			string 			outer NULL
 	/declare CasterSpeedBuff 		string 			outer NULL
 	/declare SingleElixirSpell 		string 			outer NULL
-|-Grab Options from INI
-	/call LoadIni Mount mountitem				string "Bracelet of the Severed Hand"
-	/call LoadCommonConfig
-	/call LoadIni Combat Manatonuke				int 40
-	/call LoadIni Combat qmtarget		 		int 0
-	/call LoadIni Combat StickHow				string NULL
-	/call LoadIni Combat UseMelee		 		int 0
-	/call LoadIni Combat UseHealNukes			int 1
-	/call LoadIni Combat UseReverseDS			int 0
-	/call LoadIni Healing CureOther				int 1
-	/call LoadIni Healing DynamicHealing		int 1
-	/call LoadIni Healing bighealpoint			int 80
-|-	/call LoadIni Healing grouphealpoint		int 85
-	/call LoadIni Healing grouphealcount		int 2
-|-	/call LoadIni Healing healpoint				int 95
-	/call LoadIni Healing pethealpoint			int 50 
-	/call LoadIni Healing raidhealpoint			int 65
-	/call LoadIni Healing tankhealpoint			int 95
-	/call LoadIni Healing tbmhealpoint			int 65
-	/call LoadIni Healing usepromheals			int 1
-	/call LoadIni Healing NoCures				int 0
-	/call LoadIni Options AutoRez 				int 1
-	/call LoadIni Options RetryRezDelay 		int 30
-	/call LoadIni Options BringYourOwnSpells	int 0
-	/call LoadIni Options DivineBuffOn			int 0
-	/call LoadIni Options usedruid				int 0
-	/call LoadIni Options UseAllianceBuff		int 0
-	/call LoadIni Item ChestItemName			string "${Me.Inventory[17].Name}"
-|-Set Variables for Character
-	/if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==1) /varset DurationMod 1.15
-    /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==2) /varset DurationMod 1.3
-    /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==3) /varset DurationMod 1.5
-    /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==4) /varset DurationMod 1.7
-    /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==5) /varset DurationMod 1.9
-	/if (${FindItem[Harmony of the Soul].ID}) {
-		/varset epicshield Harmony of the Soul
-	} else /if (${FindItem[Aegis of Superior Divinity].ID}) {
-		/varset epicshield Aegis of Superior Divinity
-	}
-	/if (${FindItem[Water Sprinkler of Nem Ankh].ID}) /varset epicwand Water Sprinkler of Nem Ankh
-	/varset Emeralds ${FindItem[=Emerald].StackCount}
-	/varset Pearls ${FindItem[=Pearl].StackCount}
-	/if (!${FindItem[${mountitem}].ID}) /echo No mount detected will sit and stand only
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	
 	/declare spellmisc 				int outer 8
 	/declare spellgem				int outer 1	
 	/declare CastResult             string outer
@@ -150,50 +90,11 @@ Sub ClrSetup
 	/declare tempid					string outer NULL
 	/declare spellrememtimer		timer outer 0
 	/declare spellslots				int outer 8
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellslots 13
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellslots 12
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellslots 11
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellslots 10
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellslots 9
-|-	/call CheckPlugin MQ2WorstHurt
-	/if (${Me.AltAbility[252].Name.Find[disabled]} && ${Me.AltAbilityReady[252]}) {
-		/alt act 252
-		/delay 5
-	}
 /return 
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Mount  mountitem		 string "${mountitem}"
-	/if (${Manatonuke}<20) {
-		/echo Invalid Manatonuke value must be above 20 - Setting 100 to disable
-		/varset Manatonuke 100
-	} else {
-		/call SetIni Combat Manatonuke		int ${Manatonuke}
-	}
-	/call SetIni Combat qmtarget		 		int ${qmtarget}
-	/call SetIni Combat UseMelee		 		int ${UseMelee}
-	/call SetIni Combat UseHealNukes			int ${UseHealNukes}
-	/call SetIni Combat UseReverseDS			int ${UseReverseDS}
-	/call SetIni Healing CureOther				int ${CureOther}
-	/call SetIni Healing DynamicHealing			int ${DynamicHealing}
-	/call SetIni Healing pethealpoint			int ${pethealpoint}
-	/call SetIni Healing raidhealpoint			int ${raidhealpoint}
-	/call SetIni Healing tbmhealpoint			int ${tbmhealpoint}
-	/call SetIni Healing usepromheals			int ${usepromheals}
-	/call SetIni Healing NoCures				int ${NoCures}
-	/call SetIni Options AutoRez 				int ${AutoRez}
-	/call SetIni Options BringYourOwnSpells		int ${BringYourOwnSpells}
-	/call SetIni Options DivineBuffOn			int ${DivineBuffOn}
-	/call SetIni Options usedruid				int ${usedruid}
-/return
-|------------------------------------------------------------------------------------------
+|----------------------------------------------------------
 |- SUB: LoadSpellBar
 |------------------------------------------------------------------------------------------
-Sub LoadSpellBar
+Sub load_spell_bar
 	
 	
 	/if (${Me.Standing}) /sit
@@ -216,7 +117,7 @@ Sub LoadSpellBar
 |----------------------------------------------------------------------------
 |- SUB: CheckSpells
 |---------------------------------------------------------------------------- 
-Sub CheckSpells
+Sub clr_abilities
 	|---Ward Spell Slot 1 or Heal over time for low level
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Ward of Assurance].RankName}]})  {
 		/varset wardspell ${Spell[Ward of Assurance].RankName}
@@ -818,53 +719,17 @@ Sub CheckSpells
 		/varset MassRezSpell ${Spell[Greater Reviviscence].RankName}
 	} 
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: Bind Change Var Int resets various interger settings from ini file
-|----------------------------------------------------------------------------
-Sub Bind_SetVarInt(string ISection, string IName, int IVar)
-    /docommand /varset changetoini 1
- |-Toggles
-	/if (${ISection.Equal[Toggle]}) {
-  |--Pet
-		/if (${IName.Equal[DynamicHealing]}) {
-			/if (!${DynamicHealing}) {
-				/echo \aw Setting DynamicHealing to \ag ON
-				/varset DynamicHealing 1
-			} else {
-				/echo \aw Resetting DynamicHealing to \ar OFF
-				/varset DynamicHealing 0
-			}
-		} else /if (${IName.Equal[UseHealNukes]}) {
-			/if (!${UseHealNukes}) {
-				/echo \aw Setting UseHealNukes to \ag ON
-				/varset UseHealNukes 1
-				/call LoadSpellBar
-			} else {
-				/echo \aw Resetting UseHealNukes to \ar OFF
-				/varset UseHealNukes 0
-				/call LoadSpellBar
-			}
-		}
-	} else /if (${ISection.Equal[Set]}) {
-				/if (${IName.Equal[healpoint]}) {
-			/if (${IVar}>=20 && ${IVar}<=99) {
-				/varset healpoint ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 20-99
-			}
-		} else /if (${IName.Equal[grouphealpoint]}) {
-			/if (${IVar}>=20 && ${IVar}<=99) {
-		|		/varset grouphealpoint ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 20-99
-			}
-		}
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellslots 13
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellslots 12
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellslots 11
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellslots 10
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellslots 9
+|-	/call CheckPlugin MQ2WorstHurt
+	/if (${Me.AltAbility[252].Name.Find[disabled]} && ${Me.AltAbilityReady[252]}) {
+		/alt act 252
+		/delay 5
 	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: BIND BNDGroupCure - 
@@ -882,12 +747,4 @@ Sub Bind_CureOff
 	/varset CureOther 0
 	/call LoadSpellBar
 	/echo WILL NOT CAST ANY CURES
-/return 
-|----------------------------------------------------------------------------
-|- SUB: BIND CmdList - 
-|----------------------------------------------------------------------------
-Sub Bind_CmdList
-/call CommonHelp
-/echo \ag===${MacroName} Commands=== 
-
 /return 

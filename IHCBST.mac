@@ -64,7 +64,7 @@ Sub Main
 Sub ManualPullCamping
 	/call MakeCamp
     /call RemoveTravelBuffs
-	/call ignore_mobs_to_pull
+	/if (${Group.Puller.ID} == ${Me.ID})/call ignore_mobs_to_pull
 	/if (${Me.Pet.ID}) /pet guard
 
 	/while (${Mode}==1 || ${Mode}==3) {

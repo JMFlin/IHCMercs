@@ -25,10 +25,7 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
-	/call setup_plugins
-	/call ShdSetup	
-	/call VarSetup
-	/call AliasSetup
+	/call ShdSetup
 	/call SetupSpells
 	/call LoadSpellBar
 |-Cursor ID
@@ -63,7 +60,7 @@ Sub AFKRadiusCamping
     /call MakeCamp
     /call RemoveTravelBuffs
 	/target clear
-	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call ignore_mobs_to_pull
+	/if (${Group.Puller.ID} == ${Me.ID}) /call ignore_mobs_to_pull
 
 	/while (${Mode}==3) {
 

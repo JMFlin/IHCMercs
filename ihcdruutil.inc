@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub DruSetup
+Sub dru_setup
 |-Create Alias
 	/declare Aura1			string outer NULL
 	/declare Aura2			string outer NULL
@@ -34,16 +34,10 @@ Sub DruSetup
 	/declare Survival 			string outer NULL
 	/declare Mask 				string outer NULL
 /return 
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-
-/return
 |* ------------------------------------------------------------------------------------------
 | SUB: LoadSpellBar
 |------------------------------------------------------------------------------------------ *|
-Sub LoadSpellBar
+Sub load_spell_bar
 /if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar

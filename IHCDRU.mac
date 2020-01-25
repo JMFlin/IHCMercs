@@ -116,6 +116,8 @@ Sub combat
 		/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
 	}
 
+	/if (${Me.PctMana} < ${HybridManaLimit}) /return
+	
 	/call single_target_heals
 	/call get_target
 	/if (${validate_cast[FALSE, spell, "${NukeSpell1}", ${Target.ID}]}) /call core_cast2 "${NukeSpell1}" spell ${Target.ID} FALSE

@@ -28,10 +28,7 @@ Sub Main
 	/declare IHCVersion       	string outer 2.0 
 	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
 
-	/call setup_plugins
-	/call WarSetup	
-	/call VarSetup
-	/call AliasSetup
+	/call WarSetup
 	/call SetupDiscs
 |-Cursor ID
 	/if (${Cursor.ID}) {
@@ -61,7 +58,7 @@ Sub AFKRadiusCamping
     /call MakeCamp
     /call RemoveTravelBuffs
 	/target clear
-	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call ignore_mobs_to_pull
+	/if (${Group.Puller.ID} == ${Me.ID}) /call ignore_mobs_to_pull
 
 	/while (${Mode}==3) {
 

@@ -5,24 +5,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub WizSetup
-|-Create Alias
-	|-- Toggles
-	/squelch /alias /byos			/setvarint Toggle BringYourOwnSpells
-	/squelch /alias /tglalliance	/setvarint Toggle UseAlliance
-	/squelch /alias /tglaoe			/setvarint Toggle UseAoE
-	/squelch /alias /tglbp			/setvarint Toggle ChestCombatCast
-	/squelch /alias /tgldicho		/setvarint Toggle UseDicho
-	/squelch /alias /tglmanaburn	/setvarint Toggle UseManaBurn
-	/squelch /alias /tgldps			/setvarint Toggle DoDPS
-	/squelch /alias /tglevac		/setvarint Toggle EmergencyEvac
-	/squelch /alias /tglmezbreak	/setvarint Toggle AllowMezBreak
-	/squelch /alias /tglpet			/setvarint Toggle UsePet
-	/squelch /alias /tglstrip		/setvarint Toggle StripBuffs
-	/squelch /alias /tglweave		/setvarint Toggle WeaveAANukes
-	|-- Sets
-	/squelch /alias /autodebuffat	/setvarint Set AutoDebuffAt
-	/squelch /alias /harvestat 		/setvarint Set HarvestManaPct
+Sub wiz_setup
 |-Declare AA and Spell variables
   |-Buffs
 	/declare SelfHPBuff				string	outer	"NULL"
@@ -61,24 +44,6 @@ Sub WizSetup
 	/declare StunSpell				string 	outer	"NULL"
 	/declare JoltSpell				string 	outer	"NULL"
 	/declare RuneGuardSpell 		string  outer 	"NULL"
-|-Config Options	
-	/call LoadCommonConfig
-	/call LoadIni Combat AllowMezBreak		 	int 0
-	/call LoadIni Combat DoDPS					int 1
-	/call LoadIni Combat UseAlliance			int 0
-	/call LoadIni Combat UseDicho				int 0
-	/call LoadIni Combat UseManaBurn			int 1
-	/call LoadIni Combat UseMelee		 		int 0
-	/call LoadIni Combat UsePet		 			int 1
-	/call LoadIni Combat WeaveAANukes			int 0
-	/call LoadIni Debuff AutoDebuffAt			int 99
-	/call LoadIni Debuff StripBuffs				int 1
-	/call LoadIni Item ChestItemName			string NULL
-	/call LoadIni Item ChestCombatCast			int 0
-	/call LoadIni Options BringYourOwnSpells	int 0
-	/call LoadIni Options EmergencyEvac			int 0
-	/call LoadIni Options HarvestManaPct		int 75
-	/call LoadIni Options StickHow				string NULL
 	
 	/declare AANukeRecasttimer		timer outer 0
 	/declare SpellSet				string outer auto
@@ -87,47 +52,11 @@ Sub WizSetup
 	/declare CastResult             string outer
 	/declare miscspellremem			string outer NULL
 	/declare spellrememtimer		timer outer 0
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
-	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
-		/alt act 25
-		/delay 5
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Combat AllowMezBreak		int ${AllowMezBreak}
-	/call SetIni Combat DoDPS				int ${DoDPS}
-	/call SetIni Combat UseAlliance			int ${UseAlliance}
-	/call SetIni Combat UseDicho			int ${UseDicho}
-	/call SetIni Combat UseManaBurn			int ${UseManaBurn}
-	/call SetIni Combat UseMelee			int ${UseMelee}
-	/call SetIni Combat UsePet				int ${UsePet}
-	/call SetIni Combat WeaveAANukes		int ${WeaveAANukes}
-	/call SetIni Debuff AutoDebuffAt		int ${AutoDebuffAt}
-	/call SetIni Debuff StripBuffs			int ${StripBuffs}
-	/call SetIni Item ChestCombatCast		int ${ChestCombatCast}
-	/call SetIni Options BringYourOwnSpells	int ${BringYourOwnSpells}
-	/call SetIni Options EmergencyEvac		int ${EmergencyEvac}
-	/call SetIni Options HarvestManaPct		int ${HarvestManaPct}
-/return
-|----------------------------------------------------------------------------
-|- SUB: CheckOptions - Used to sort conflicting options at startup and set basic values if needed
-|---------------------------------------------------------------------------- 
-Sub CheckOptions
-	/if (${AutoCampHold}) /moveto dist 2
 /return
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar
+| SUB: load_spellbar
 |------------------------------------------------------------------------------------------ *|
-Sub LoadSpellBar
+Sub load_spellbar
 	/if (!${BringYourOwnSpells}) {
 		/if (${Me.Standing}) /sit
 		/delay 10 ${Me.Sitting}
@@ -236,7 +165,7 @@ Sub LoadSpellBar
 |* ------------------------------------------------------------------------------------------
 | SUB: SetWizSpells
 |------------------------------------------------------------------------------------------ *|
-Sub SetWizSpells
+Sub wiz_abilities
 	/if (!${SpellSet.Equal[auto]} && !${SpellSet.Equal[fire]} && !${SpellSet.Equal[cold]} && !${SpellSet.Equal[magic]}) /varset SpellSet auto
 |-Arco/Cryo/Pyromancy
 	/if (${SpellSet.Equal[auto]} || ${SpellSet.Equal[fire]}) {
@@ -731,69 +660,17 @@ Sub SetWizSpells
 		/varset GeneralNuke1 ${Spell[Sothgar's Flame].RankName}
 	}
 
-/return 
-|----------------------------------------------------------------------------
-|- SUB: Bind Set Var Int resets various interger settings from ini file
-|----------------------------------------------------------------------------
-Sub Bind_SetVarInt(string ISection, string IName, int IVar)
-    /docommand /varset changetoini 1
- |-Toggles
-	/if (${ISection.Equal[Toggle]}) {
-		/if (${IName.Equal[UseManaBurn]}) {
-			/if (!${UseManaBurn}) {
-				/echo \aw Setting  UseManaBurn to \ag ON
-				/varset UseManaBurn 1
-			} else {
-				/echo \aw Resetting  UseManaBurn to \ar OFF
-				/varset UseManaBurn 0
-			}
-		} else /if (${IName.Equal[]}) {
-			/if (!${}) {
-				/echo \aw Setting  to \ag ON
-				/varset  1
-			} else {
-				/echo \aw Resetting  to \ar OFF
-				/varset  0
-			}
-		}
- |-Set's
-	} else /if (${ISection.Equal[Set]}) {
-		/if (${IName.Equal[]}) {
-			/if (${IVar}>=2 && ${IVar}<=100) {
-				/varset  ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 2-100 mobs
-			}
-		} else /if (${IName.Equal[]}) {
-			/if (${IVar}>=3 && ${IVar}<=100) {
-				/varset  ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 3-100 mobs
-			}
-		}
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
+	
+	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
+		/alt act 25
+		/delay 5
 	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: BIND CmdList - 
-|----------------------------------------------------------------------------
-Sub Bind_CmdList
-/call CommonHelp
-/echo \ag===${MacroName} Commands=== 
-/echo \ag/autodebuffat\aw - HP % to start debuffing at
-/echo \ag/byos\aw - 
-/echo \ag/harvestat\aw - 
-/echo \ag/tglalliance\aw - 
-/echo \ag/tglaoe\aw - 
-/echo \ag/tglbp\aw - 
-/echo \ag/tgldicho\aw - Toggle use of Dicho spell
-/echo \ag/tgldps\aw - Turns ALL DPS On/Off
-/echo \ag/tglevac\aw - 
-/echo \ag/tglmezbreak\aw - 
-/echo \ag/tglpet\aw - Pet toggle...cause sometimes they arent allowed
-/echo \ag/tglstrip\aw - Turns Enemy Buff stripping On/Off
-/echo \ag/tglweave\aw - 
+	
+	/call load_spellbar
+
 /return 

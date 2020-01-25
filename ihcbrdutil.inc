@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub BrdSetup
+Sub brd_seteup
 |-Spells
 	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
@@ -59,40 +59,6 @@ Sub BrdSetup
 	/declare TuneStuckActive		int outer 0
 	/declare PlaySongs				int outer 0
 	/declare DoBurn					int outer 0
-|-Config Options
-	/call LoadCommonConfig
-	/call LoadIni Combat AllowMezBreak		 	int 0
-	/call LoadIni Combat DoSlow					int 0
-	/call LoadIni Combat StickHow				string behind
-	/call LoadIni Combat UseMelee		 		int 1
-	/call LoadIni Combat UseIntimidate		 	int 1
-	/call LoadIni Combat MelodyType				String ${MelodyType}
-	/call LoadIni Combat UseCustomMelody		int 0
-	/call LoadIni Combat CustomMelody			String NULL
-	/call LoadIni Combat UseRaidMelodies		int 1
-	/call LoadIni Item ChestItemName			string "${Me.Inventory[17].Name}"
-	/call LoadIni Item ChestCombatCast			int 0
-	/call LoadIni Item UsePoisons		 		int 0
-	/call LoadIni Item PoisonName				string NULL
-	/call LoadIni Item PoisonBuffName			string NULL
-	/call LoadIni Mez MezOn                 	int 1
-	/call LoadIni Mez MezAnnounce               int 1	
-	/call LoadIni Mez MezStartCount             int 2
-	/call LoadIni Options BringYourOwnSpells	int 0
-	/call LoadIni Options OOCManaSong			int 1
-	/call LoadIni Options UseAura				int 1
-	/call LoadIni Options UseRegenAura			int 0
-	/call LoadIni Options UseAASelo				int 1
-	/call LoadIni Options UseIniSongs			int 1
-	/call LoadIni Pet UseSwarmpet		 		int 1
-|- Check for epic
-	/if (${FindItem[=Prismatic Dragon Blade].ID}) {
-		/varset Epicsword	Prismatic Dragon Blade	
-		/varset UseEpic 1
-	} else /if (${FindItem[=Blade of Vesagran].ID}) {
-		/varset Epicsword	Blade of Vesagran
-		/varset UseEpic 1
-	}
 |-Declare spell variables
 	/declare spellmisc 			int outer 8
 	/declare GroupBuffRecast 	int outer 0
@@ -101,56 +67,11 @@ Sub BrdSetup
 	/declare spellrememtimer	timer outer 0
 	/declare groupbufftimer		timer outer 0
 	/declare ReadyToCast	  	timer outer 0
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
-|-	/if (${Me.AltAbility[8300].Name.Find[disabled]} && ${Me.AltAbilityReady[8300]}) {
-|-		/alt act 8300
-|-		/delay 5
-|-	}
-
 /return 
-Sub ClassAliasSetup
-|-Create Alias
-	|-- Toggles
-	/squelch /alias /byos			/togglevariable BringYourOwnSpells
-	/squelch /alias /tglaoe			/togglevariable UseAoE
-	/squelch /alias /tglbp			/togglevariable ChestCombatCast
-	/squelch /alias /tglpet			/togglevariable UsePet
-	/squelch /alias /tglpoison		/togglevariable UsePoisons
-	/squelch /alias /tgldots		/togglevariable DoDot
-	/squelch /alias /tglmezbreak	/togglevariable AllowMezBreak
-	/squelch /alias /tglslow		/togglevariable DoSlow
-	/squelch /alias /tglselo		/togglevariable UseAASelo
-	/squelch /alias /tglmanasong	/togglevariable OOCManaSong
-	/squelch /alias /tglaura		/togglevariable UseAura
-	/squelch /alias /tglpet			/togglevariable UseSwarmpet
-	/call AliasSetup
-	/call SetIni General IHCMacVersion			string ${IHCVersion}
-/return
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Combat AllowMezBreak		 	int ${AllowMezBreak}
-	/call SetIni Combat DoSlow					int ${DoSlow}
-	/call SetIni Combat UseMelee		 		int ${UseMelee}
-	/call SetIni Item ChestCombatCast			int ${ChestCombatCast}
-	/call SetIni Item UsePoisons		 		int ${UsePoisons}
-	/call SetIni Options BringYourOwnSpells		int ${BringYourOwnSpells}
-	/call SetIni Options UseAASelo				int ${UseAASelo}
-	/call SetIni Options UseAura				int ${UseAura}
-	/call SetIni Options OOCManaSong			int ${OOCManaSong}
-	/call SetIni Pet UseSwarmpet		 		int ${UseSwarmpet}
-/return
 |* ------------------------------------------------------------------------------------------
 | SUB: LoadSpellBar /echo ${SpellGem1}
 |------------------------------------------------------------------------------------------ *|
-Sub LoadSpellBar
+Sub load_spell_bar
 	
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
@@ -191,7 +112,7 @@ Sub LoadSpellBar
 |----------------------------------------------------------------------------
 |- SUB: CheckSpells
 |---------------------------------------------------------------------------- 
-Sub CheckSpells
+Sub brd_abilities
 |- BardDPSAura
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Aura of Begalru].RankName}]})  {
 		/varset Aura1 ${Spell[Aura of Begalru].RankName}
@@ -522,5 +443,13 @@ Sub CheckSpells
 	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Garadell's Fatesong].RankName}]})  {
 		/varset FateSong ${Spell[Garadell's Fatesong].RankName}
 	}
+
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
+
+	/call load_spell_bar
 
 /return
