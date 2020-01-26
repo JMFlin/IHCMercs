@@ -36,7 +36,7 @@ Sub dru_combat_tank_buffs
 Sub dru_combat
 	/call get_target
 	
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 	
 	/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {

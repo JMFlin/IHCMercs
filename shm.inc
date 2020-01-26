@@ -3,6 +3,8 @@
 |----------------------------------------------------------------------------
 Sub shm_main
 	/call shm_single_target_heals
+	|/call shm_group_buffs
+	/call shm_combat
 /return
 |----------------------------------------------------------------------------
 |- SUB: Single Heal
@@ -125,11 +127,11 @@ Sub CC
 |---------------------------------------------------------------------------- 
 Sub shm_debuff
 	/declare x int local 0
-
-	/if (!${Me.Casting.ID} && !${Me.Moving} && ${SpawnCount[npc radius ${AssistRange} zradius ${AssistRangeZ}]}>2 && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) {
+|**
+	/if (${SpawnCount[npc radius ${AssistRange} zradius ${AssistRangeZ}]}>2 && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) {
 
 		/target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
-		/delay 40 ${Target.ID}==${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
+		/delay 1s ${Target.ID}==${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
 
 		/if (${Me.AltAbilityReady[Wind of Malaise]} && !${Target.Buff[${Malo}].ID} && !${Target.Maloed.ID}) {
 			/alt act ${Me.AltAbility[Wind of Malaise].ID}
@@ -143,25 +145,23 @@ Sub shm_debuff
 			/delay 5s !${Me.AltAbilityReady[Turgur's Virulent Swarm]}
 		}
 	}
-
+**|
 	/for x 1 to ${Me.XTarget}
 
 		/target id ${Me.XTarget[${x}].ID}
 		/delay 5 ${Target.ID}==${Me.XTarget[${x}].ID}
-		/if (!${Me.Casting.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.Distance}<200 && ${Target.LineOfSight}) {
-			/if (${Me.AltAbilityReady[Malaise]} && !${Target.Buff[Malosinata].ID} && !${Target.Buff[${Malo}].ID} && !${Target.Maloed.ID}) {
-				/alt act ${Me.AltAbility[Malaise].ID}
-				/delay 5s !${Me.Casting.ID}
-				/delay 5s !${Me.AltAbilityReady[Malaise]}
-			}
-			/delay 1
-			/if (${Me.AltAbilityReady[Turgur's Swarm]} && !${Target.Buff[Turgur's Insects].ID} && ${Target.Distance}<120) {
-				/alt act ${Me.AltAbility[Turgur's Swarm].ID}
-				/delay 5s !${Me.Casting.ID}
-				/delay 5s !${Me.AltAbilityReady[Turgur's Swarm]}
-			}
-			/delay 1
+		/if (${Me.AltAbilityReady[Malaise]} && !${Target.Buff[Malosinata].ID} && !${Target.Buff[${Malo}].ID} && !${Target.Maloed.ID}) {
+			/alt act ${Me.AltAbility[Malaise].ID}
+			/delay 5s !${Me.Casting.ID}
+			/delay 5s !${Me.AltAbilityReady[Malaise]}
 		}
+		/delay 1
+		/if (${Me.AltAbilityReady[Turgur's Swarm]} && !${Target.Buff[Turgur's Insects].ID} && ${Target.Distance}<120) {
+			/alt act ${Me.AltAbility[Turgur's Swarm].ID}
+			/delay 5s !${Me.Casting.ID}
+			/delay 5s !${Me.AltAbilityReady[Turgur's Swarm]}
+		}
+		/delay 1
 	/next x
 /return
 |----------------------------------------------------------------------------
@@ -187,28 +187,20 @@ Sub shm_aa_and_disc
 |---------------------------------------------------------------------------- 
 Sub shm_combat
 
-	/if (${Target.PctHPs}<=${AutoAssistAt} && ${Target.Distance}<=${AssistRange} && ${Target.Type.Equal[NPC]}) {
-		/if (${Me.AltAbilityReady[Focus of Arcanum]}) {
-			/call AANow ${Me.AltAbility[Focus of Arcanum].ID} ${Me.ID}
-		}
-		|- DPS
-		/if (${Me.PctMana}>=${Manatonuke}) {
-			/if (${DoDot} && ${Me.SpellReady[${CurseDoT1}]} && !${Target.Buff[${CurseDoT1}].ID} && (${Target.PctHPs}>=10 || ${Target.Named})) {
-				/call SpellQueue "${CurseDoT1}" ${Target.ID}
-				/delay 5
-			}
-|-			/if (${DoDot} && ${Me.SpellReady[${CurseDoT1}]} && !${Target.Buff[${CurseDoT2}].ID} && (${Target.PctHPs}>=10 || ${Target.Named})) {
-|-				/call SpellQueue "${CurseDoT2}" ${Target.ID}
-|-				/delay 5
-|-			}
-			/if (${DoDot} && ${Me.SpellReady[${ChaoticPoisonDoT}]} && !${Target.Buff[${ChaoticPoisonDoT}].ID} && ${Target.PctHPs}>=5 && ${Target.Named}) {
-				/call SpellQueue "${ChaoticPoisonDoT}" ${Target.ID}
-				/delay 5
-			}
-			/if (${DoDot} && ${Me.SpellReady[${FastDiseaseDoT}]} && !${Target.Buff[${FastDiseaseDoT}].ID} && (${Target.PctHPs}>=10) || ${Target.Named}) {
-				/call SpellQueue "${FastDiseaseDoT}" ${Target.ID}
-				/delay 5
-			}
+	/call get_target
+	/if (!${validate_combat[${Target.ID}]} ) /return
+
+	/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
+		/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
+	}
+
+	| DEBUG Target.Slowed.ID: ${Target.Slowed.ID} Target.Buff[SlowSpell.ID]: ${Target.Buff[${SlowSpell}].ID} immuneSet.Contains: ${immuneSet.Contains[${Target.ID}]}
+	
+	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
+		/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+			/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
+			/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 		}
 	}
 /return
@@ -221,10 +213,12 @@ Sub shm_group_buffs
 
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
-	/if (${Me.Casting.ID}) /return
-
-	/if (${Me.XTarget}) /return
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+	/if (${Me.XTarget}) /return
+	/if (${useMerc}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
+	}
+	
 
 	/for _count 1 to ${Group}
 
@@ -234,16 +228,17 @@ Sub shm_group_buffs
 			/return
 		}
 		/if (${Mode} !=3 ) /return
-		/if (${Group.Member[${_count}].Distance}<100 && !${Group.Member[${_count}].OtherZone}) {
 
+		/if (${Group.Member[${_count}].OtherZone}) /continue
 
-
-			/if (!${Me.Book[${FocusSpell}]}) {
+		/if (!${Me.Book[${FocusSpell}]}) {
 			
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpfocusid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SingleFocusSpell}]" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SingleFocusSpell}].Stacks" "tmpstackcheck" "bool"
-				/if (${tmpstackcheck} && !${tmpbuffid}) {
+				/echo FOCUS: ${tmpstackcheck} && !${tmpbuffid}
+				/if (${tmpstackcheck} && !${tmpbuffid} && !${tmpfocusid}) {
 					/if (${validate_cast[FALSE, spell, ${SingleFocusSpell}, ${Group.Member[${_count}].ID}]}) {
 						/call core_cast2 "${SingleFocusSpell}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
@@ -307,16 +302,39 @@ Sub shm_group_buffs
 				}
 			}
 
+			/if (${Group.Member[${_count}].ID} != ${Group.MainTank.ID}) /continue
+			
+
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				/if (${Group.Member[${_count}].ID}==${Group.MainTank.ID}) {
+				
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${LowLevelTalisman}].ID" "tmpbuffid" "int"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${LowLevelTalisman}].Stacks" "tmpstackcheck" "bool"
+					/if (!${tmpbuffid} && !${tmpstackcheck}) {
+						/if (${validate_cast[FALSE, spell, ${LowLevelTalisman}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${LowLevelTalisman}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${LowLevelTalisman}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${LowLevelTalisman}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${LowLevelTalisman}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+			}
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GrowthBuff}].Stacks" "tmpstackcheck" "bool"
 					/if (!${tmpbuffid} && !${tmpstackcheck}) {
 						/if (${validate_cast[FALSE, spell, ${GrowthBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${GrowthBuff}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
-				}
-			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
 				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 				/delay 1s
 				/if (!${Target.Buff[${GrowthBuff}].ID}) {
@@ -328,15 +346,15 @@ Sub shm_group_buffs
 			}
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				/if (${Group.Member[${_count}].ID}==${Group.MainTank.ID}) {
+				
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SlowProcBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SlowProcBuff}].Stacks" "tmpstackcheck" "bool"
 					/if (!${tmpbuffid} && !${tmpstackcheck}) {
 						/if (${validate_cast[FALSE, spell, ${SlowProcBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${SlowProcBuff}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
-				}
-			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
 				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 				/delay 1s
 				/if (!${Target.Buff[${SlowProcBuff}].ID}) {
@@ -348,15 +366,15 @@ Sub shm_group_buffs
 			}
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				/if (${Group.Member[${_count}].ID}==${Group.MainTank.ID}) {
+				
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
 					/if (!${tmpbuffid} && !${tmpstackcheck}) {
 						/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
-				}
-			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
 				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 				/delay 1s
 				/if (!${Target.Buff[${AllianceBuff}].ID}) {

@@ -91,7 +91,7 @@ Sub war_combat_buffs
 |---------------------------------------------------------------------------- 
 Sub war_disc
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
 
@@ -156,7 +156,7 @@ Sub war_disc
 |---------------------------------------------------------------------------- 
 Sub war_get_aggro
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Target.MaxRangeTo}>=${Target.Distance}) {
 		/call AANow ${Me.AltAbility[Battle Leap].ID}
@@ -249,7 +249,7 @@ Sub war_aoe_aggro
 	/declare x				 int local 1
 	/declare numberOfSpawn 	 int local 0
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1 && ${Me.XTarget} > 1) {
 		/if (${validate_cast[FALSE, disc, "${aeroar}", ${Target.ID}]}) /call core_cast2 "${aeroar}" disc ${Target.ID} FALSE

@@ -57,12 +57,24 @@ Sub shd_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 	/call LoadSpellGem "${Touch1}" 1
-	/call LoadSpellGem "${DireTestemony}" 2
+
+	/if (${Me.Book[${Spell[${DireTestemony}].RankName}]}) {
+		/call LoadSpellGem "${DireTestemony}" 2
+	} else {
+		/call LoadSpellGem "${Touch2}" 2
+	}
+
 	/call LoadSpellGem "${Touch3}" 3
 	/call LoadSpellGem "${Terror1}" 4
 	/call LoadSpellGem "${Terror2}" 5
 	/call LoadSpellGem "${Bond}" 6
-	/call LoadSpellGem "${Stance}" 7
+	
+	/if (${Me.Book[${Spell[${Stance}].RankName}]}) {
+		/call LoadSpellGem "${Stance}" 7
+	} else {
+		/call LoadSpellGem "${SnareSpell}" 7
+	}
+
 	/call LoadSpellGem "${Skin}" 8
 
 	/delay 2s
@@ -275,6 +287,8 @@ Sub shd_abilities
 		/varset HPShroud ${Spell[Shroud of Death].RankName}
 	} else /if (${Me.Level}>=37 && ${Me.Book[${Spell[Scream of Death].RankName}]}) {
 		/varset HPShroud ${Spell[Scream of Death].RankName}
+	} else /if (${Me.Level}>=22 && ${Me.Book[${Spell[Vampiric Embrace].RankName}]}) {
+		/varset HPShroud ${Spell[Vampiric Embrace].RankName}
 	}
 
 	/if (${Me.Level}>=96 && ${Me.Book[${Spell[Mental Terror].RankName}]}) {

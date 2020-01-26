@@ -166,16 +166,7 @@ Sub wiz_load_spellbar
 | SUB: SetWizSpells
 |------------------------------------------------------------------------------------------ *|
 Sub wiz_abilities
-	/if (!${SpellSet.Equal[auto]} && !${SpellSet.Equal[fire]} && !${SpellSet.Equal[cold]} && !${SpellSet.Equal[magic]}) /varset SpellSet auto
-|-Arco/Cryo/Pyromancy
-	/if (${SpellSet.Equal[auto]} || ${SpellSet.Equal[fire]}) {
-		/varset ACPyromancy Pyromancy
-	} else /if (${SpellSet.Equal[cold]}) {
-		/varset ACPyromancy Cryomancy
-	} else /if (${SpellSet.Equal[magic]}) {
-		/varset ACPyromancy Arcomancy
-	}
-	
+
 |-Familiar Buff
 	/if (${Me.AltAbility[Kerafyrm's Prismatic Familiar].Rank} >= 1) {
 		/varset FamiliarBuff "Kerafyrm's Prismatic Familiar"

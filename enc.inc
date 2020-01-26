@@ -138,7 +138,7 @@ Sub enc_combat
 	/call get_target
 
 	| Do we have a valid target?
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	| Before debuffing and nuking check if we have to mezz
 	/while (!${mezzDone} && ${Me.XTarget} > 1) {

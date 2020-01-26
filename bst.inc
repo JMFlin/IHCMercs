@@ -91,7 +91,7 @@ Sub bst_combat_buffs
 |---------------------------------------------------------------------------- 
 Sub bst_combat
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/call get_target
 	/call engage

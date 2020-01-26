@@ -72,7 +72,7 @@ Sub shd_self_buffs
 Sub shd_combat
 	
 	/call get_target
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 	
 	/squelch /attack on
 
@@ -153,7 +153,7 @@ Sub shd_combat_buffs
 Sub shd_disc
 
 	/call get_target
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 
 	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.PctHPs} < 30) {
@@ -226,7 +226,7 @@ Sub shd_disc
 |---------------------------------------------------------------------------- 
 Sub shd_get_aggro
 	
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/squelch /attack on
 
@@ -247,7 +247,7 @@ Sub shd_get_aggro
 |---------------------------------------------------------------------------- 
 Sub shd_aoe_aggro
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/if (${Me.XTarget} > 1) {
 		/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {

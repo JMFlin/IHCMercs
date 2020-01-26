@@ -190,6 +190,8 @@ Sub brd_abilities
 		/varset WarMarchSong ${Spell[War March of the Mastruq].RankName}
 	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[McVaxius' Rousing Rondo].RankName}]})  {
 		/varset WarMarchSong ${Spell[McVaxius' Rousing Rondo].RankName}
+	} else /if (${Me.Level}>=10 && ${Me.Book[${Spell[Anthem de Arms].RankName}]})  {
+		/varset WarMarchSong ${Spell[Anthem de Arms].RankName}
 	} 
 
 
@@ -273,6 +275,8 @@ Sub brd_abilities
 		/varset ChorusRegenSong ${Spell[Chorus of Replenishment].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Cantata of Replenishment].RankName}]})  {
 		/varset ChorusRegenSong ${Spell[Cantata of Replenishment].RankName}
+	} else /if (${Me.Level}>=6 && ${Me.Book[${Spell[Hymn of Restoration].RankName}]})  {
+		/varset ChorusRegenSong ${Spell[Hymn of Restoration].RankName}
 	} 
 |- CrescendoSong
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Jembel's Lively Crescendo].RankName}]})  {
@@ -402,6 +406,8 @@ Sub brd_abilities
 		/varset AccelerandoSong ${Spell[Alleviating Accelerando].RankName}
 	}  else /if (${Me.Level}>=49 && ${Me.Book[${Spell[Selo's Accelerating Chorus].RankName}]})  {
 		/varset AccelerandoSong ${Spell[Selo's Accelerating Chorus].RankName}
+	} else /if (${Me.Level}>=5 && ${Me.Book[${Spell[Selo's Accelerando].RankName}]})  {
+		/varset AccelerandoSong ${Spell[Selo's Accelerando].RankName}
 	}
  |- SpitefulSong
  	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Travenro's Spiteful Lyric].RankName}]})  {

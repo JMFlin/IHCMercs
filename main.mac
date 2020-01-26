@@ -19,6 +19,9 @@
 #include IHCMercs\wizutil.inc
 #include IHCMercs\wiz.inc
 
+#include IHCMercs\magutil.inc
+#include IHCMercs\mag.inc
+
 #include IHCMercs\bstutil.inc
 #include IHCMercs\bst.inc
 
@@ -91,6 +94,8 @@ Sub AFKRadiusCamping
 
 	/while (${Mode} == 3) {
 
+		DEBUG CYCLE START
+
 		/call afk_pull
 		/call get_target
 		/call check_state FALSE
@@ -99,6 +104,7 @@ Sub AFKRadiusCamping
 		/call ${Me.Class.ShortName.Lower}_main
 		/call misc
 		/call dummy_mode
+		/delay 1s
 	}
 /return
 
@@ -314,6 +320,7 @@ Sub dummy_mode
 		/while (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]} > 6)) { 
 			/for _count 1 to ${DummyTime}
 				/echo (${_count}/${DummyTime})
+				/if (${Mode} == 0) /return
 				/delay 1s
 				/if (${Me.XTarget}) /return
 				/call move_to_camp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
