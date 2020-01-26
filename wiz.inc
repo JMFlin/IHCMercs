@@ -138,11 +138,11 @@ Sub wiz_combat
 		}
 	}
 
-	/if (${Target.PctHPs} >= 100) /return
-
 	/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
 		/call core_cast2 "${SelfRune1}" spell 0 FALSE
 	}
+
+	/if (${Target.PctHPs} >= 100) /return
 
 	/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
 		/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE

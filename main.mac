@@ -94,6 +94,7 @@ Sub AFKRadiusCamping
 
 	/while (${Mode} == 3) {
 
+		| /delay 1s
 		DEBUG CYCLE START
 
 		/call afk_pull
@@ -104,7 +105,6 @@ Sub AFKRadiusCamping
 		/call ${Me.Class.ShortName.Lower}_main
 		/call misc
 		/call dummy_mode
-		/delay 1s
 	}
 /return
 
