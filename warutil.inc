@@ -4,16 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub WarSetup
-|-Create Alias
-	|-- Toggles
-	/squelch /alias /autotank		/setvarint Toggle AutoTank
-	/squelch /alias /tglaggro		/setvarint Toggle DoAggro
-	/squelch /alias /tglaeaggro		/setvarint Toggle DoAEAggro
-	/squelch /alias /tglbuff		/setvarint Toggle DoBuffs
-	/squelch /alias /tgldefense		/setvarint Toggle DoDefense
-	/squelch /alias /tglengage		/setvarint Toggle DoAutoEngage
-	/squelch /alias /tgltargeting	/setvarint Toggle DoAutoTarget
+Sub war_setup
 |-Declare Discs
 	/declare meleemit		string outer NULL
 	/declare missall		string outer NULL
@@ -48,80 +39,15 @@ Sub WarSetup
 	/declare FortitudeDiscID		int outer 0
 	/declare CulminatingStandID 	int outer 0
 	/declare ACDiscID				int outer 0
-|-Config Options
-	/call LoadCommonConfig
-	/call LoadIni Buffs UseAEHateBuff	int 0
-	/call LoadIni Combat AutoTank		int 0
-	/call LoadIni Combat DoAEAggro		int 1
-	/call LoadIni Combat DoAggro		int 1
-	/call LoadIni Combat DoBattleLeap	int 1
-	/call LoadIni Combat DoDefense		int 1
-	/call LoadIni Combat StickHow		string front
-	/call LoadIni Combat UseMelee		int 1
-	/call LoadIni Options DoAutoBag		int 1
-	/call LoadIni Options DoAutoPDH		int 0
-	/call LoadIni Options DoBuffs		int 1
-	/call LoadIni Item ChestItemName	string "${Me.Inventory[17].Name}"
-	/declare stayontarget				int outer 0
+
+	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
 	/declare CastResult             	string outer
 
-	/if (${FindItem[Gladiator's Plate Chestguard of War].ID}) /varset ItemOoWBP Gladiator's Plate Chestguard of War
-	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
-/return 
-|----------------------------------------------------------------------------
-|- SUB: CheckOptions
-|---------------------------------------------------------------------------- 
-Sub CheckOptions
-	/if (${AutoTank}) /varset changetoini 1
-	/if (${AutoTank} && ${AutoAssistAt}<100) /varset AutoAssistAt 100
-	/if (${AutoTank} && !${DoAggro}) /varset DoAggro 1
-	/if (${AutoTank} && !${DoAutoTarget}) /varset DoAutoTarget 1
-	/if (${AutoTank} && ${stayontarget}) /varset stayontarget 0
-	/if (${AutoTank} && !${DoAutoEngage}) /varset DoAutoEngage 1
-	/if (${AutoTank} && !${DoDefense}) /varset DoDefense 1
-	/if (${AutoTank} && ${UseSmartAssist}) /varset UseSmartAssist 0
-	/if (!${UseMelee}) /varset UseMelee 1
-	/if (${DoAggro}) {
-		/if (${Me.AltAbility[692].Name.Find[disabled]} && ${Me.AltAbilityReady[692]}) {
-			/alt act 692
-			/delay 2s
-		}
-		/if (${Me.AltAbility[684].Name.Find[disabled]} && ${Me.AltAbilityReady[684]}) {
-			/alt act 684
-			/delay 2s
-		}
-		/if (${Me.AltAbility[1126].Name.Find[disabled]} && ${Me.AltAbilityReady[1126]}) {
-			/alt act 1126
-			/delay 2s
-		}
-		/if (${Me.AltAbility[2001].Name.Find[disabled]} && ${Me.AltAbilityReady[2001]}) {
-			/alt act 2001
-			/delay 2s
-		}
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Combat AutoTank		int ${AutoTank}
-	/call SetIni Combat DoAEAggro		int ${DoAEAggro}
-	/call SetIni Combat DoAggro			int ${DoAggro}
-	/call SetIni Combat DoAutoTarget	int ${DoAutoTarget}
-	/call SetIni Combat DoAutoEngage	int ${DoAutoEngage}
-	/call SetIni Combat DoBattleLeap	int ${DoBattleLeap}
-	/call SetIni Combat DoDefense		int ${DoDefense}
-	/call SetIni Combat UseMelee		int ${UseMelee}
-	/call SetIni Options DoAutoBag		int ${DoAutoBag}
-	/call SetIni Options DoAutoPDH		int ${DoAutoPDH}
-	/call SetIni Options DoBuffs		int ${DoBuffs}
 /return 
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs
 |---------------------------------------------------------------------------- 
-Sub SetupDiscs
+Sub war_abilities
 
 
 	|--One off discs
@@ -366,6 +292,26 @@ Sub SetupDiscs
 		/varset Aura1 ${Spell[Myrmidon's Aura].RankName}
 	}
 
+	/if (${Me.AltAbility[692].Name.Find[disabled]} && ${Me.AltAbilityReady[692]}) {
+		/alt act 692
+		/delay 2s
+	}
+	/if (${Me.AltAbility[684].Name.Find[disabled]} && ${Me.AltAbilityReady[684]}) {
+		/alt act 684
+		/delay 2s
+	}
+	/if (${Me.AltAbility[1126].Name.Find[disabled]} && ${Me.AltAbilityReady[1126]}) {
+		/alt act 1126
+		/delay 2s
+	}
+	/if (${Me.AltAbility[2001].Name.Find[disabled]} && ${Me.AltAbilityReady[2001]}) {
+		/alt act 2001
+		/delay 2s
+	}
+
+	/if (${FindItem[Gladiator's Plate Chestguard of War].ID}) /varset ItemOoWBP Gladiator's Plate Chestguard of War
+	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
+
 	/if (${Me.CombatAbility[${insult}]}) {
 		/varset PullAbility ${insult}
 		/varset PullDistance 85
@@ -373,75 +319,6 @@ Sub SetupDiscs
 		/varset PullAbility ${Spell[Throw Stone].RankName}
 		/varset PullDistance 55
 	}
-/return
-|----------------------------------------------------------------------------
-|-SUB: Bind Change Var Int resets various interger settings from ini file
-|----------------------------------------------------------------------------
-Sub Bind_SetVarInt(string ISection, string IName, int IVar)
-    /docommand /varset changetoini 1
- |-Toggles
-	/if (${ISection.Equal[Toggle]}) {
-		/if (${IName.Equal[AutoTank]}) {
-			/if (!${AutoTank}) {
-				/echo \aw Setting AutoTank to \ag ON
-				/varset AutoTank 1
-			} else {
-				/echo \aw Resetting AutoTank to \ar OFF
-				/varset AutoTank 0
-			}
-		} else /if (${IName.Equal[DoAggro]}) {
-			/if (!${DoAggro}) {
-				/echo \aw Setting DoAggro to \ag ON
-				/varset DoAggro 1
-			} else {
-				/echo \aw Resetting DoAggro to \ar OFF
-				/varset DoAggro 0
-			}
-		} else /if (${IName.Equal[DoBuffs]}) {
-			/if (!${DoBuffs}) {
-				/echo \aw Setting DoBuffs to \ag ON
-				/varset DoBuffs 1
-			} else {
-				/echo \aw Resetting DoBuffs to \ar OFF
-				/varset DoBuffs 0
-			}
-		} else /if (${IName.Equal[DoDefense]}) {
-			/if (!${DoDefense}) {
-				/echo \aw Setting DoDefense to \ag ON
-				/varset DoDefense 1
-			} else {
-				/echo \aw Resetting DoDefense to \ar OFF
-				/varset DoDefense 0
-			}
-		} else /if (${IName.Equal[DoAutoEngage]}) {
-			/if (!${DoAutoEngage}) {
-				/echo \aw Setting DoAutoEngage to \ag ON
-				/varset DoAutoEngage 1
-			} else {
-				/echo \aw Resetting DoAutoEngage to \ar OFF
-				/varset DoAutoEngage 0
-			}
-		} else /if (${IName.Equal[DoAutoTarget]}) {
-			/if (!${DoAutoTarget}) {
-				/echo \aw Setting DoAutoTarget to \ag ON
-				/varset DoAutoTarget 1
-				/varset stayontarget 0
-			} else {
-				/echo \aw Resetting DoAutoTarget to \ar OFF
-				/varset DoAutoTarget 0
-				/varset stayontarget 1
-			}
-		} else /if (${IName.Equal[DoAEAggro]}) {
-			/if (!${DoAEAggro}) {
-				/echo \aw Setting DoAEAggro to \ag ON
-				/varset DoAEAggro 1
-			} else {
-				/echo \aw Resetting DoAEAggro to \ar OFF
-				/varset DoAEAggro 0
-			}
-		}
-	}
-	/call CheckOptions
 /return
 |----------------------------------------------------------------------------
 |-SUB: BIND DefenseDisc - 
@@ -468,18 +345,4 @@ Sub Bind_FortitudeDisc
 	} else {
 		/echo \ar COOL DOWN \ag >> \aw ${missall} \ag << 
 	}
-/return 
-|----------------------------------------------------------------------------
-|-SUB: BIND CmdList - 
-|----------------------------------------------------------------------------
-Sub Bind_CmdList
-/call CommonHelp
-/echo \ag===${MacroName} Commands=== 
-/echo \ag/autotank\aw - Turns on all Tanking features
-/echo \ag/tglaeaggro\aw - Toggle use of AE Aggro Abilities
-/echo \ag/tglaggro\aw - Toggle use of Aggro Abilities
-/echo \ag/tglbuff\aw - Toggle use of Warrior buffs ( Aura, AC, Dodge)
-/echo \ag/tgldefense\aw - Toggle use of defensive abilities during combat
-/echo \ag/tglengage\aw - Toggle use of Auto Engaging target
-/echo \ag/tgltargeting\aw - Toggle use of Auto Targeting 
 /return 

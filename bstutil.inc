@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub BstSetup
+Sub bst_setup
 
 	/declare Aura1				string outer NULL
 	/declare Aura2				string outer NULL
@@ -57,51 +57,11 @@ Sub BstSetup
 	/declare spellmisc 			int outer 8
 	/declare miscspellremem		string outer NULL
 	/declare CastResult         string outer
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
-	/if (${Me.AltAbility[8300].Name.Find[disabled]} && ${Me.AltAbilityReady[8300]}) {
-		/alt act 8300
-		/delay 5
-	}
 /return 
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Combat AllowMezBreak		 	int ${AllowMezBreak}
-	/call SetIni Combat DoSlow					int ${DoSlow}
-	/call SetIni Combat DoDot					int ${DoDot}
-	/call SetIni Combat Manatonuke				int ${Manatonuke}
-	/call SetIni Combat StopNukeAggro			int ${StopNukeAggro}
-	/call SetIni Combat UseAoE					int ${UseAoE}
-	/call SetIni Combat UseMelee		 		int ${UseMelee}
-	/call SetIni Healing DoHeals				int ${DoHeals}
-	/call SetIni Healing DynamicHealing			int ${DynamicHealing}
-	/call SetIni Healing Healpoint				int ${Healpoint}
-	/call SetIni Healing PetHealpoint			int ${PetHealpoint}
-	/call SetIni Healing TBMHealpoint			int ${TBMHealpoint}
-	/call SetIni Healing RaidHealpoint			int ${RaidHealpoint}
-	/call SetIni Item ChestCombatCast			int ${ChestCombatCast}
-	/call SetIni Item UsePoisons		 		int ${UsePoisons}
-	/call SetIni Options BringYourOwnSpells		int ${BringYourOwnSpells}
-	/call SetIni Options DoFerocity				int ${DoFerocity}
-	/call SetIni Options FocParagonManaPct		int ${FocParagonManaPct}
-	/call SetIni Options FocParagonEndPct		int ${FocParagonEndPct}
-	/call SetIni Options ParagonManaPct			int ${ParagonManaPct}
-	/call SetIni Pet UsePet		 				int ${UsePet}
-	/call SetIni Pet DoPetTank		 			int ${DoPetTank}
-	/call SetIni Pet UseSwarmpet		 		int ${UseSwarmpet}
-	/call SetIni Pet DoPetSlow			 		int ${DoPetSlow}
-/return
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar
+| SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |------------------------------------------------------------------------------------------ *|
-Sub LoadSpellBar
+Sub bst_load_spellbar
 	
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
@@ -203,7 +163,7 @@ Sub LoadSpellBar
 |----------------------------------------------------------------------------
 |- SUB: CheckSpells
 |---------------------------------------------------------------------------- 
-Sub CheckSpells
+Sub bst_abilities
 
 	/if (${Me.Level}>=${Spell[Incapacitate].Level} && ${Me.Book[${Spell[Incapacitate].RankName}]}) {
 		/varset CrippleSpell1 ${Spell[Incapacitate].RankName}
@@ -789,24 +749,8 @@ Sub CheckSpells
 		/varset PetDamageProc ${Spell[Spirit of Lightning].RankName}
 	}
 
-	| Pull ability
-	/if (${Me.Book[${DoTSpell1}]} && !${Me.Book[${SlowSpell}]}) {
-		/varset PullAbility ${DoTSpell1}
-		/varset PullDistance 150
-	} else /if (${Me.Book[${SlowSpell}]}) {
-		/varset PullAbility ${SlowSpell}
-		/varset PullDistance 150
-	} else {
-		/varset PullAbility Melee
-		/varset PullDistance 5
-	}
-	
-/return
-|----------------------------------------------------------------------------
-|- SUB: SetupDiscs
-|---------------------------------------------------------------------------- 
-Sub SetupDiscs
-|------Discs*
+
+	|------Discs*
 	/if (${Me.Level}>=${Spell[Mangle].Level} && ${Me.CombatAbility[${Spell[Mangle].RankName}]}) {
 		/varset Maul ${Spell[Mangle].RankName}
 	} else /if (${Me.Level}>=${Spell[Maul].Level} && ${Me.CombatAbility[${Spell[Maul].RankName}]}) {
@@ -887,5 +831,28 @@ Sub SetupDiscs
 		/varset EndRegenDisc ${Spell[Respite].RankName}
 	}
 
+	| Pull ability
+	/if (${Me.Book[${DoTSpell1}]} && !${Me.Book[${SlowSpell}]}) {
+		/varset PullAbility ${DoTSpell1}
+		/varset PullDistance 150
+	} else /if (${Me.Book[${SlowSpell}]}) {
+		/varset PullAbility ${SlowSpell}
+		/varset PullDistance 150
+	} else {
+		/varset PullAbility Melee
+		/varset PullDistance 5
+	}
 
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
+	/if (${Me.AltAbility[8300].Name.Find[disabled]} && ${Me.AltAbilityReady[8300]}) {
+		/alt act 8300
+		/delay 5
+	}
+
+	/call bst_load_spellbar
+	
 /return

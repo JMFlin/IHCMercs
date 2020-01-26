@@ -1,81 +1,28 @@
-|- IHCBST.mac - By IHC385
-|- Automatic Druid bot - 
-|- Version 2.0
-|- Updated: 4/25/2019
-|- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
-#Chat group
-#Chat tell
-#Chat raid
-#turbo 80
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcdruutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-#warning
-#bind SetVarInt	/setvarint
-#bind CmdList        /ihchelp
-
-Sub Main
-	/delay ${Math.Rand[10]}
-	/doevents flush
-	/declare MacroName       	string outer IHCWAR
-	/declare MacroPath       	string outer IHCMercs\IHCWAR
-	/declare IHCVersion       	string outer 2.0 
-	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-
-	/call setup_plugins
-	/call DruSetup
-	/call VarSetup
-	/call SetupSpells
-	/call LoadSpellBar
-
-|-Cursor ID
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/call WelcomeMsg
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 50
-	/varset AssistRange 10
-	/declare AutoCampRadius int outer 10
-	/call setup_skill_melee FALSE
- :mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call ManualPullCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
- /goto :mainloop
-/return
 |----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs  
+Sub dru_main
 
-	/while (${Mode}==1 || ${Mode}==3) {
-		/call check_state FALSE
-		/call single_target_heals
-		/call group_heals
-		/call combat
-|		/call check_for_corpse FALSE
-		/call group_buffs
-		/call self_buffs
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/call combat_tank_buffs
-		/call misc
-		/doevents
-	}
+	/call dru_single_target_heals
+	/call dru_group_heals
+	/call dru_combat
+|	/call check_for_corpse FALSE
+	/call dru_group_buffs
+	/call dru_self_buffs
+	/call dru_combat_tank_buffs
+
+	/doevents
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: combat_tank_buffs
 |---------------------------------------------------------------------------- 
-Sub combat_tank_buffs
-	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+Sub dru_combat_tank_buffs
+
+	/if (${Group.Member[${Group.MainTank}].Type.Equal[Mercenary]}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return
+	}
+
 	/delay 8
 	/if (!${Target.Buff[${Reptile}].ID} && ${Target.PctHPs} > 70) {
 		/if (${validate_cast[FALSE, spell, ${Reptile}, ${Group.MainTank.ID}]}) {
@@ -86,7 +33,7 @@ Sub combat_tank_buffs
 |----------------------------------------------------------------------------
 |- SUB: combat 
 |---------------------------------------------------------------------------- 
-Sub combat
+Sub dru_combat
 	/call get_target
 	
 	/if (!${validate_combat[FALSE]}) /return
@@ -98,7 +45,7 @@ Sub combat
 		}
 	}
 
-	/call single_target_heals
+	/call dru_single_target_heals
 
 	/call get_target
 	/if (!${Target.Buff[${ColdAtkDebuff}].ID}) {
@@ -110,13 +57,15 @@ Sub combat
 
 	/if (${Me.PctMana} < ${HybridManaLimit}) /return
 
-	/call single_target_heals
+	/call dru_single_target_heals
 	/call get_target
 	/if (!${Target.Buff[${NBW}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
 	}
 
-	/call single_target_heals
+	/if (${Me.PctMana} < ${HybridManaLimit}) /return
+	
+	/call dru_single_target_heals
 	/call get_target
 	/if (${validate_cast[FALSE, spell, "${NukeSpell1}", ${Target.ID}]}) /call core_cast2 "${NukeSpell1}" spell ${Target.ID} FALSE
 
@@ -124,7 +73,7 @@ Sub combat
 |----------------------------------------------------------------------------
 |- SUB: debuff_xtarget
 |---------------------------------------------------------------------------- 
-Sub debuff_xtarget
+Sub dru_debuff_xtarget
 	/declare x int local 1
 
 	/if (!${Me.XTarget}) /return
@@ -160,7 +109,7 @@ Sub debuff_xtarget
 |----------------------------------------------------------------------------
 |- SUB: group_buffs
 |---------------------------------------------------------------------------- 
-Sub self_buffs
+Sub dru_self_buffs
 	/declare CastCheck			int local 0
 
 	/if (!${Me.Buff[${Mask}].ID}) {
@@ -170,7 +119,7 @@ Sub self_buffs
 		}
 	}
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 /return
@@ -178,7 +127,7 @@ Sub self_buffs
 |- SUB: group_buffs
 |---------------------------------------------------------------------------- 
 
-Sub group_buffs
+Sub dru_group_buffs
 	/declare _count				int local 0
 	/declare CastCheck			int local 0
 
@@ -187,17 +136,19 @@ Sub group_buffs
 
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
-
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+
+	/if (${useMerc}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
+	}
 	
 	/for _count 0 to ${Group}
 
 		/if (${Group.Member[${_count}].OtherZone}) /continue
 
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
-
 		/if (${Me.XTarget}) {
-			/call LoadSpellBar
+			/call ${Me.Class.ShortName.Lower}_load_spellbar
 			/return
 		}
 
@@ -326,7 +277,7 @@ Sub group_buffs
 	/if (${Defined[tmpstackcheck]}) /deletevar tmpstackcheck
 
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
@@ -334,7 +285,7 @@ Sub group_buffs
 |----------------------------------------------------------------------------
 |- SUB: Single Heal
 |---------------------------------------------------------------------------- 
-Sub single_target_heals
+Sub dru_single_target_heals
 	/declare _worstHurtId int local 0
 
 	/call get_heal_target 55
@@ -358,7 +309,7 @@ Sub single_target_heals
 |----------------------------------------------------------------------------
 |- SUB: HealGroup
 |---------------------------------------------------------------------------- 
-Sub group_heals
+Sub dru_group_heals
 
 	/if (${check_hurt[FALSE, group, 20]} >= 1) {
 		/if (${validate_cast[FALSE, spell, "${Survival}", ${Me.ID}]}) /call core_cast2 "${Survival}" spell ${Me.ID} FALSE

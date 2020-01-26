@@ -29,7 +29,7 @@ Sub ZoneEventChk
 		/varset NoDisease 1
 		/varset NoCorruption 1
 		/varset EventSetupFlag 795
-	|-	/varset DoAutoEngage 0
+	|-	/varset DoAutoengage 0
 	}
  |- Expansion: Ring of Scale
 	|-Zone: Gorowyn - RoS
@@ -158,7 +158,7 @@ Sub EventLogic795
 	|-	/stick id ${assistid} 10
 	|- }
 	|- /if (${Me.XTarget[1].ID} && ${assistid}!=${Me.ID}) {
-	|-	/call EngageAttack
+	|-	/call engageAttack
 	|- }
 /return
 |-------------------------------------------------------------------------------------

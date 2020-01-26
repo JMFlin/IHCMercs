@@ -1,19 +1,52 @@
+#turbo 80
+#warning
+
+#define DEBUG /echo
+
+#include IHCMercs\subs.inc
+#include IHCMercs\events.inc
+#include IHCMercs\config.inc
+
+#include IHCMercs\warutil.inc
+#include IHCMercs\war.inc
+
+#include IHCMercs\shdutil.inc
+#include IHCMercs\shd.inc
+
+#include IHCMercs\berutil.inc
+#include IHCMercs\ber.inc
+
+#include IHCMercs\wizutil.inc
+#include IHCMercs\wiz.inc
+
+#include IHCMercs\bstutil.inc
+#include IHCMercs\bst.inc
+
+#include IHCMercs\brdutil.inc
+#include IHCMercs\brd.inc
+
+#include IHCMercs\encutil.inc
+#include IHCMercs\enc.inc
+
+#include IHCMercs\druutil.inc
+#include IHCMercs\dru.inc
+
+#include IHCMercs\clrutil.inc
+#include IHCMercs\clr.inc
+
+#include IHCMercs\shmutil.inc
+#include IHCMercs\shm.inc
+
 #Chat group
 #Chat tell
 #Chat raid
-#turbo 80
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-#warning
 
 Sub Main
+	/delay ${Math.Rand[30]}
+	
 	/doevents flush
-
 	/call setup_plugins
-	/call VarSetup
-	/call AliasSetup
-	/call ${Me.Class.ShortName}util.inc
+	/call var_setup
 
 |-Cursor ID
 	/if (${Cursor.ID}) {
@@ -21,14 +54,20 @@ Sub Main
 		/autoinventory
 	}
 
-	/call WelcomeMsg
-
+	/call ${Me.Class.ShortName.Lower}_setup
+	/call ${Me.Class.ShortName.Lower}_abilities
+	/call ${Me.Class.ShortName.Lower}_rotations
 	
 
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
+	/call WelcomeMsg
+
 	/call setup_skill_melee FALSE
-	/delay 2s
-	/if (${Group.Puller.ID} == ${Me.ID}) /call pre_pull_group_healer_spells
+	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
+	/if (${Group.Puller.ID} == ${Me.ID}) {
+		/delay 3s
+		/call pre_pull_group_healer_spells
+	}
+	/call misc
 
  :mainloop
 	/call ModeSet
@@ -47,22 +86,240 @@ Sub AFKRadiusCamping
     /call MakeCamp
     /call RemoveTravelBuffs
 	/target clear
-	/if (${Group.Puller.ID} == ${Me.ID}) /call AddToAlert
-	/if (${Group.Leader.ID} == ${Me.ID}) /docommand /campfire
+	/if (${Group.Puller.ID} == ${Me.ID}) /call ignore_mobs_to_pull
+	/if (${Me.Pet.ID}) /pet guard
 
 	/while (${Mode} == 3) {
 
-		/call puller_check_group_resources 
 		/call afk_pull
-		
-		/call check_state FALSE
 		/call get_target
-		|/call balance_hp MAKE THIS INTO A BIND KEY
-		/call check_add_aggro
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-
-		/call sub_${Me.Class.ShortName}
+		/call check_state FALSE
+		/call balance_hp
+		/call move_to_camp
+		/call ${Me.Class.ShortName.Lower}_main
 		/call misc
-		/doevents
+		/call dummy_mode
 	}
+/return
+
+sub misc
+
+	| Close windows trying to get you to buy
+	/if (${Window[AlertWnd].Open}) /notify AlertWnd ALW_Dismiss_Button leftmouseup
+	/if (${Window[LargeDialogWindow].Open}) /notify LargeDialogWindow LDW_YesButton leftmouseup
+ 	/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox Yes_Button leftmouseup
+ 	/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox OK_Button leftmouseup
+ 	
+	| Accept trades 
+	/if (${Window[TradeWND].Open}) /notify TradeWND TRDW_Trade_Button leftmouseup
+ 	/if (${Window[GiveWnd].Open}) /notify GiveWnd GVW_Give_Button leftmouseup
+
+	| Accept tasks 
+ 	/if (${Window[TaskTemplateSelectWnd].Open}) /notify TaskTemplateSelectWnd TaskTemplateSelectAcceptButton leftmouseup
+ 	/if (${Window[ProgressionTemplateSelectWnd].Open}) /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
+	
+	| drop a campfire
+	/if (${Mode} != 0) /call check_campfire
+
+	| pop your merc
+	/if (${useMerc} && ${Me.CombatState.NotEqual[COMBAT]}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) {
+			/if (!${Window[MMGW_ManageWnd].Open}) /windowstate MMGW_ManageWnd open
+			/delay 1s
+			/if (${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Revive]} || ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Unsuspend]}) {
+				/notify MMGW_ManageWnd MMGW_SuspendButton leftmouseup
+				/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Unsuspend]}
+				/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Revive]}
+			}
+		}
+	}
+/return
+
+
+Sub check_state(bool _debug)
+
+	| am I dead?
+	/if (${Me.Hovering}) /call DeathSub
+	
+	| clear target
+	/if (${Target.Type.Equal[Corpse]} || ${Target.PctHPs} <= 0 || ${Target.ID} == ${Me.Pet.ID}) {
+		/if (${Target.ID}) /target clear
+	}
+	| mod rod on cursor?
+	|/if (${Cursor.ID}) /call BagModRods
+	
+	| have I been knocked down?
+	/if (${Me.State.Equal[FEIGN]}) /stand
+
+	| should I be in battle?
+	/if (${Me.XTarget}) /return
+
+	| am I moving?
+	/if (${Me.Moving}) /return
+	
+	| if stick is on we can turn it off
+	/if (${Stick.Status.Equal[ON]}) /stick off
+
+	| turn autoattack off
+	/if (${Me.CombatState.Equal[COMBAT]}) /attack off
+
+	| am I casting?
+	/if (${Me.Casting.ID} && !${Me.Class.ShortName.Find[BRD]}) /return
+
+
+	| am I navigating?
+	/if (${Navigation.Active}) /return
+
+	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90 || ${Me.PctHPs} < 90)) /sit
+
+	| clear sets
+	/declare _count int local ${immuneSet.Count}
+	/if (${_count} > 0) {
+		/echo 'Immune Set Clear: ${immuneSet.Clear}.'
+	}
+
+	| check pet
+	/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
+
+	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
+		
+		| check aura one
+		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
+
+			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) {
+				/call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
+					/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+				
+					| reload the spell if i just memmed aura
+					/call ${Me.Class.ShortName.Lower}_load_spellbar
+				}
+			}
+
+		}
+	}
+
+	/if (${Me.Book[${Aura2}]} && ${Me.AltAbility[Auroria Mastery].Rank} >= 1) {
+		
+		| check aura two
+		/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
+
+			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) {
+				/call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+					/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+				
+					| reload the spell if i just memmed aura
+					/call ${Me.Class.ShortName.Lower}_load_spellbar
+				}
+			}
+		}
+	}
+
+|		/call check_illusion FALSE ${illusionItem}
+	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+	
+/return
+
+Sub move_to_camp
+
+	| Melee are sticking to target so no need to move to camp
+	/if (${Me.XTarget}) {
+		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) /return
+	}
+	| if casting return
+	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
+
+	/if (${Navigation.Active}) /return
+
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius}) {
+		
+		/if (${Stick.Status.Equal[ON]}) /stick off
+		
+		/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
+
+		/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius} && ${Navigation.Active}) {
+			/if (${Mode} == 0) {
+				/nav stop
+				/return
+			}
+			/delay 5
+		}
+
+		/if (${Navigation.Active}) /nav stop
+		
+		/if (${Target.ID}) /face fast
+		
+		/delay 1s
+	}
+/return
+
+
+Sub balance_hp
+	/if (!${Balance}) /return
+	/if (!${Me.XTarget}) /return
+	/if (!${Me.XTarget[2].ID}) /return
+	/if (${Me.ID} != ${Group.MainAssist.ID}) /return
+
+	/while (${Me.XTarget[2].ID} && ${Balance}) {
+		/if (!${Target.ID}) /target id ${Me.XTarget[1].ID}
+		/call high_hp
+		/if (!${Me.Combat} || ${Target.ID} == ${HighHPID}) {
+			/attack on
+			/if (${Me.XTarget[2].ID} && ${Balance}) /call engage
+			/if (${Me.XTarget[2].ID} && ${Balance}) /call AoEAggro
+			/if (${Me.XTarget[2].ID} && ${Balance}) /call DoDisc
+			/if (${Me.XTarget[2].ID} && ${Balance}) /call DoCombat
+			/if (${Me.XTarget[2].ID} && ${Balance}) /call CombatBuffs	
+		}
+		/delay 1
+	}
+
+	/if (!${Me.XTarget[2].ID} || !${Balance}) /return
+
+Sub high_hp
+    /declare x int local 0
+    /declare LowHP int local ${Target.PctHPs}
+    /declare LowHPID int local ${Target.ID}
+    /declare HighHP int local 0
+    
+    /for x 1 to ${Me.XTarget}
+        /if (${Me.XTarget[${x}].PctHPs}<${LowHP}) {
+            /varset LowHP ${Me.XTarget[${x}].PctHPs}
+            /varset LowHPID ${Target.ID}
+        }
+        /if (!${Balance}) /return
+        /if (${Me.XTarget[${x}].PctHPs}>${HighHP}) {
+            /varset HighHP ${Me.XTarget[${x}].PctHPs}
+            /varset HighHPID ${Me.XTarget[${x}].ID}
+        }
+    /next x
+    
+    /declare HPDiff int local 0
+    /varcalc HPDiff ${HighHP}-${LowHP}
+    /if (${HPDiff}>=2 && ${Target.ID}!=${HighHPID}) {
+        /target id ${HighHPID}
+        /delay 2s ${Target.ID}==${HighHPID}
+    }
+/return
+
+Sub dummy_mode 
+	/declare _count int local
+
+	/if (${Me.XTarget}) /return
+
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]} > 6)) { 
+		/echo Entering Dummy Mode...
+		/delay 1s 
+		/echo PC nearby! 
+		
+		/while (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]} > 6)) { 
+			/for _count 1 to ${DummyTime}
+				/echo (${_count}/${DummyTime})
+				/delay 1s
+				/if (${Me.XTarget}) /return
+				/call move_to_camp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/next _count
+			/delay 1s 
+		}
+	}
+
 /return

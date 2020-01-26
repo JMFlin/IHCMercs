@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub ShdSetup
+Sub shd_setup
 |-Create Alias
 	|-- Toggles
 |-Declare Discs
@@ -23,7 +23,7 @@ Sub ShdSetup
 	/declare Withstand 		string outer NULL
 	/declare WithstandID 	int outer 0
 |-Config Options
-	/call LoadIni Item ChestItemName	string "${Me.Inventory[17].Name}"
+	/declare ChestItemName string outer "${Me.Inventory[17].Name}"
 
 |- Spells
 	/declare DichotomicFang	string outer NULL
@@ -49,21 +49,9 @@ Sub ShdSetup
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 /return 
 |----------------------------------------------------------------------------
-|- SUB: CheckOptions
+|- SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |---------------------------------------------------------------------------- 
-Sub CheckOptions
-
-/return
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-
-/return 
-|----------------------------------------------------------------------------
-|- SUB: LoadSpellBar
-|---------------------------------------------------------------------------- 
-Sub LoadSpellBar
+Sub shd_load_spellbar
 	
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
@@ -84,7 +72,7 @@ Sub LoadSpellBar
 |----------------------------------------------------------------------------
 |- SUB: SetupSpells
 |---------------------------------------------------------------------------- 
-Sub SetupSpells
+Sub shd_abilities
 	| Spells
 
 	| Dicho
@@ -344,18 +332,21 @@ Sub SetupSpells
 	}
 
 	| Pull ability
-	/if (${Me.Book[${Touch3}]} && !${Me.Book[${Terror1}]} && !${Me.Book[${Terror2}]}) {
-		/varset PullAbility ${Touch3}
-		/varset PullDistance 190
-	} else /if (${Me.Book[${Terror1}]}) {
+	/if (${Me.Level}>=42) {
 		/varset PullAbility ${Terror1}
 		/varset PullDistance 190
-	} else /if (${Me.Book[${Terror2}]}) {
+	} else /if (${Me.Level}>=33) {
 		/varset PullAbility ${Terror2}
+		/varset PullDistance 190
+	} else /if (${Me.Level}>=8) {
+		/varset PullAbility ${Touch3}
 		/varset PullDistance 190
 	} else {
 		/varset PullAbility Melee
 		/varset PullDistance 5
 	}
 
+	/call shd_load_spellbar
+
 /return
+

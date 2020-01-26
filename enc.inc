@@ -1,97 +1,29 @@
-|- IHCENC.mac - By IHC385
-|- Automatic Enchanter bot - 
-|- Version 2.0
-|- Updated: 4/25/2019
-|- Credit: Noobhax0r, Maskoi, Ctaylor, Treehuggindruid, Devstator. A lot of ideas were borrowed and modified from their macros
-#turbo 80
-#include IHCMercs\ihcsubs.inc
-|-#include IHCMercs\ihcenchmez.inc
-|-#include IHCMercs\ihcxtenchmez.inc
-#include IHCMercs\ihcenchutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-#warning
-#Chat group
-#Chat tell
-#Chat raid
-#bind SingleBanish		/banish
-#bind AEBanish			/aebanish
-Sub Main
-	/delay ${Math.Rand[3]}
-	/doevents flush
-	/declare MacroName       		string outer IHCENC
-	/declare MacroPath       		string outer IHCMercs\IHCENC
-	/declare IHCVersion       		string outer 2.0
-	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini	
-
-	/call EnchSetup
-	/call setup_plugins
-	/call VarSetup
-	/call AliasSetup
-	/call SetEncSpells
-	/call LoadSpellBar
-
-	/call WelcomeMsg
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/call setup_skill_melee FALSE
-:mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call ManualPullCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
-/return
 |----------------------------------------------------------------------------
 |- SUB: ManualPullCamping
 |----------------------------------------------------------------------------
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs  
+Sub enc_main
+	|/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
+	|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
+	|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
 
-	/while (${Mode}==1 || ${Mode}==3) {			
-		/call check_state FALSE
-		|/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
-		|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
-		|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
+	/call enc_group_buffs
+	/call enc_self_buffs
 
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-|		/call BuffCheck
-		/call group_buffs
-		/call self_buffs
-|		/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
-|		/if (${DoMed}) /call AutoMed
-|		/call CheckMana
+	/call get_target
 
-|		/if (${Me.XTarget}) /assist ${Group.MainAssist.Name}
-|		/call PetAttack
-|		/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
-|		/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-|		/if ((${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow}) && (${Me.AltAbilityReady[Calculated Insanity]} || ${Me.AltAbilityReady[Improved Twincast]}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) /call BurnRoutine
-		/call get_target
-|		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
-		/call combat
-|		/call CheckMana
-		
-|-		/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
-
-|		/if (${UseModRods}) /call ClickModRoD
-		
-|		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/call misc
-		/doevents
-	}
+	/call enc_combat
+|	/call CheckMana
+	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
+|	/if (${UseModRods}) /call ClickModRoD
+	
+|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+	/doevents
+	
 /return
 |----------------------------------------------------------------------------
-|- SUB: debuff_xtarget
+|- SUB: enc_debuff_xtarget
 |---------------------------------------------------------------------------- 
-Sub debuff_xtarget
+Sub enc_debuff_xtarget
 	/declare x int local 1
 
 	| Is there something to mez?
@@ -113,11 +45,6 @@ Sub debuff_xtarget
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
-		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
-		}
 
 		/if (!${Target.Buff[${DoTSpell3}].ID} && ${Target.Named}) {
 			/if (${validate_cast[FALSE, spell, "${DoTSpell3}", ${Target.ID}]}) /call core_cast2 "${DoTSpell3}" spell ${Target.ID} FALSE
@@ -127,11 +54,6 @@ Sub debuff_xtarget
 			/if (${validate_cast[FALSE, alt, "Mental Contortion", ${Target.ID}]}) /call core_cast2 "Mental Contortion" alt ${Target.ID} FALSE
 		}
 
-		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
-		}
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
@@ -142,11 +64,6 @@ Sub debuff_xtarget
 			}
 		}
 
-		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
-		}
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
@@ -163,11 +80,6 @@ Sub debuff_xtarget
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 			}
-		}
-		/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 		}
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 |				/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
@@ -200,7 +112,7 @@ Sub debuff_xtarget
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
-Sub AANDisc
+Sub enc_aa_and_disc
 	
 |-Defensive AA's for Name Mobs or Low HP on MA
 	/if (${Me.AltAbilityReady[Glyphy Spray]} && ((${Target.Named} && ${Target.Level}>${Me.Level}) || ${Target.Level}>(${Me.Level}+3) || (${Group.Member[${assistname}]${TnKCond}PctHPs}<45 && ${Group.Member[${assistname}]${TnKCond}PctHPs}>5))) {
@@ -220,19 +132,22 @@ Sub AANDisc
 |----------------------------------------------------------------------------
 |- SUB: combat
 |---------------------------------------------------------------------------- 
-Sub combat
+Sub enc_combat
 
-	| Before debuffing and nuking check if we have to mezz
-	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-
-	| Before nuking check if we have to debuff
-	/call debuff_xtarget
-	
 	| Have we assisted MA?
 	/call get_target
 
 	| Do we have a valid target?
 	/if (!${validate_combat[FALSE]}) /return
+
+	| Before debuffing and nuking check if we have to mezz
+	/while (!${mezzDone} && ${Me.XTarget} > 1) {
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/varset mezzDone ${Macro.Return}
+	}
+
+	| Before nuking check if we have to debuff
+	/call enc_debuff_xtarget
 
 	| Start dpsing
 	/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
@@ -240,9 +155,6 @@ Sub combat
 	/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 	}
-	
-	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-	/if (${Me.XTarget} > 1) /call get_target
 
 	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
@@ -261,7 +173,7 @@ Sub combat
 	}
 
 	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-	/call debuff_xtarget
+	/call enc_debuff_xtarget
 	/if (${Me.XTarget} > 1) /call get_target
 
 	/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
@@ -289,7 +201,7 @@ Sub combat
 |----------------------------------------------------------------------------
 |- SUB: BurnRoutine
 |---------------------------------------------------------------------------- 
-Sub BurnRoutine
+Sub enc_burn
 	/if (${Me.AltAbilityReady[Illusions of Grandeur]}) {
 		/alt act ${Me.AltAbility[Illusions of Grandeur].ID}
 		/delay 10
@@ -334,7 +246,7 @@ Sub BurnRoutine
 |----------------------------------------------------------------------------
 |- SUB: self_buffs
 |---------------------------------------------------------------------------- 
-Sub self_buffs
+Sub enc_self_buffs
 
 	/declare CastCheck			int local 0
 
@@ -438,7 +350,7 @@ Sub self_buffs
 |				/call LoadSpellGem "${miscspellremem}" ${spellmisc}
 |	}
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
@@ -446,7 +358,7 @@ Sub self_buffs
 |----------------------------------------------------------------------------
 |- SUB: group_buffs
 |---------------------------------------------------------------------------- 
-Sub group_buffs
+Sub enc_group_buffs
 	/declare _count			int local 0
 	/declare CastCheck			int local 0
 
@@ -457,7 +369,7 @@ Sub group_buffs
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone} && (!${Me.Casting.ID})) {
 			
 			/if (${Me.XTarget}) {
-				/call LoadSpellBar
+				/call ${Me.Class.ShortName.Lower}_load_spellbar
 				/return
 			}
 			/if (${Mode} !=3 ) /return
@@ -522,14 +434,14 @@ Sub group_buffs
 	/if (${Defined[jaanbuffid]}) /deletevar jaanbuffid
 	/if (${Window[SpellBookWnd]}) /book
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: ManageAggro
 |---------------------------------------------------------------------------- 
-Sub ManageAggro(string OptFlag)
+Sub enc_manage_aggro(string OptFlag)
 	/if (!${Me.Buff[Eldritch Rune].ID} && !${Me.Buff[${SelfRune1}].ID} && ${Cast.Status.Equal[I]} && (${Spell[Eldritch Rune].Stacks}) && ${Me.AltAbilityReady[Eldritch Rune]}) {
 		/alt act 173
 		/delay 5 

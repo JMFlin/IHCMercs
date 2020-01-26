@@ -4,7 +4,7 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub DruSetup
+Sub dru_setup
 |-Create Alias
 	/declare Aura1			string outer NULL
 	/declare Aura2			string outer NULL
@@ -34,16 +34,10 @@ Sub DruSetup
 	/declare Survival 			string outer NULL
 	/declare Mask 				string outer NULL
 /return 
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-
-/return
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar
+| SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |------------------------------------------------------------------------------------------ *|
-Sub LoadSpellBar
+Sub dru_load_spellbar
 /if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
@@ -64,7 +58,7 @@ Sub LoadSpellBar
 |----------------------------------------------------------------------------
 |- SUB: SetupSpells
 |---------------------------------------------------------------------------- 
-Sub SetupSpells
+Sub dru_abilities
 
 	/if (${Me.Level}>=${Spell[Puravida].Level} && ${Me.Book[${Spell[Puravida].RankName}]}) {
 		/varset HealSpell1 ${Spell[Puravida].RankName}
@@ -292,5 +286,7 @@ Sub SetupSpells
 	/if (${Me.Level}>=${Spell[Mask of the Shadowcat].Level} && ${Me.Book[${Spell[Mask of the Shadowcat].RankName}]}) {
 		/varset Mask ${Spell[Mask of the Shadowcat].RankName}
 	}
+
+	/call dru_load_spellbar
 
 /return

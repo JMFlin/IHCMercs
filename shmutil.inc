@@ -1,14 +1,15 @@
-|- ihcshmutil.inc
+|- shmutil.inc
 |- Version 0.1
 |- Updated: 5/24/2019
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub ShmSetup
-/noparse /alias /autorez /multiline ; /docommand ${If[${AutoRez}==1,/varset AutoRez 0,/varset AutoRez 1]} ; /varset changetoini 1 ; /echo Setting AutoRez to ${If[${AutoRez}==0,OFF,ON]}
+Sub shm_setup
 |-Spells
-	/declare ShamanAura				string outer NULL
+	/declare Aura1					string outer NULL
+	/declare Aura2					string outer NULL
 	/declare FocusSpell				string outer NULL
+	/declare SingleFocusSpell 		string outer NULL
 	/declare RegenSpell				string outer NULL
 	/declare CanniSpell				string outer NULL
 	/declare RunSpeedBuff			string outer NULL
@@ -79,70 +80,7 @@ Sub ShmSetup
 |-Special
 	/declare EpicSpiritStaff		string outer NULL
 	/declare UseEpic 				int outer 0
-|-Config Options
-	/call LoadCommonConfig
-	/call LoadIni Buffs UseAllianceBuff			int 0
-	/call LoadIni Buffs UseAura					int 1
-	/call LoadIni Buffs UseFocus				int 1
-	/call LoadIni Buffs UseGrowthBuff			int 1
-	/call LoadIni Buffs UseHaste				int 1
-	/call LoadIni Buffs UseRunSpeed				int 1
-	/call LoadIni Combat AllowMezBreak		 	int 0
-	/call LoadIni Combat DoDot					int 0
-	/call LoadIni Combat Manatonuke				int 5
-	/call LoadIni Combat StickHow				string behind
-	/call LoadIni Combat StopNukeAggro			int 80
-	/call LoadIni Combat UseAoE					int 0
-	/call LoadIni Combat UseMelee		 		int 1
-	/call LoadIni Combat UseRoar		 		int 1
-	/call LoadIni Combat UseProcBuff		 	int 0
-	/call LoadIni Debuff AutoDebuffAt			int 99
-	/call LoadIni Debuff DoMalo					int 1
-	/call LoadIni Debuff DoAEMalo				int 1
-	/call LoadIni Debuff DoRoot					int 1
-	/call LoadIni Debuff DoAERoot				int 1
-	/call LoadIni Debuff DoSlow					int 1
-	/call LoadIni Debuff DoAESlow				int 1
-	/call LoadIni General DoAACanni				int 1
-	/call LoadIni General AACanniManaPct		int 70
-	/call LoadIni General AACanniMinHP			int 70
-	/call LoadIni General DoSpellCanni			int 1
-	/call LoadIni General CanniManaPct			int 90
-	/call LoadIni General CanniMinHP			int 60
-	/call LoadIni General Travel				int 1
-	/call LoadIni Healing DoCures				int 0
-	/call LoadIni Healing DoHeals				int 1
-	/call LoadIni Healing DoHoTs				int 1
-	/call LoadIni Healing CureOther				int 1
-	/call LoadIni Healing DynamicHealing		int 1
-	/call LoadIni Healing BigHealPoint			int 70
-	/call LoadIni Healing GroupHealPoint		int 80
-	/call LoadIni Healing GroupHealCount		int 2
-	/call LoadIni Healing HoTHealPoint			int 95
-	/call LoadIni Healing PetHealPoint			int 30 
-	/call LoadIni Healing RaidHealPoint			int 65
-	/call LoadIni Healing TankHealPoint			int 90
-	/call LoadIni Healing TBMHealPoint			int 65
-	/call LoadIni Item ChestItemName			string "${Me.Inventory[17].Name}"
-	/call LoadIni Item ChestCombatCast			int 0
-	/call LoadIni Options BringYourOwnSpells	int 0
-	/call LoadIni Options AutoRez 				int 1
-	/call LoadIni Pet UsePet		 			int 1
-	/call LoadIni Pet UseSwarmpet		 		int 0
-	/varset ChestItemName		"${Me.Inventory[17].Name}"
-	/if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==1) /varset DurationMod 1.15
-    /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==2) /varset DurationMod 1.3
-    /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==3) /varset DurationMod 1.5
-    /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==4) /varset DurationMod 1.7
-    /if (${Me.AltAbility[Spell Casting Reinforcement].Rank}==5) /varset DurationMod 1.9
-|- Check for epic
-	/if (${FindItem[=Crafted Talisman of Fates].ID}) {
-		/varset EpicSpiritStaff	Crafted Talisman of Fates	
-		/varset UseEpic 1
-	} else /if (${FindItem[=Blessed Spiritstaff of the Heyokah].ID}) {
-		/varset EpicSpiritStaff	Blessed Spiritstaff of the Heyokah
-		/varset UseEpic 1
-	}
+	/declare ChestItemName			string outer "${Me.Inventory[17].Name}"
 	/declare DoCC 				int outer 0
 |-Declare spell variables
 	/declare spellmisc 			int outer 11
@@ -154,95 +92,55 @@ Sub ShmSetup
 	/declare ReadyToCast	  	timer outer 0
 	/declare groupbufftimer		timer outer 0
 	/declare CCTimer			timer outer 0
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
-|-	/if (${DoHeals}) /call CheckPlugin MQ2WorstHurt
-|-	/if (${Me.AltAbility[8300].Name.Find[disabled]} && ${Me.AltAbilityReady[8300]}) {
-|-		/alt act 8300
-|-		/delay 5
-|-	}
+	
 /return 
-Sub ClassAliasSetup
-|-Create Class Aliases 
-	|-- Toggles
-	/squelch /alias /byos			/setvarint Toggle BringYourOwnSpells
-	/squelch /alias /tglaoe			/togglevariable UseAoE
-	/squelch /alias /tglbp			/togglevariable ChestCombatCast
-	/squelch /alias /tglpet			/togglevariable UsePet
-	/squelch /alias /tglpoison		/togglevariable UsePoisons
-	/squelch /alias /tgldots		/togglevariable DoDot
-	/squelch /alias /tglmezbreak	/togglevariable AllowMezBreak
-	/squelch /alias /tglslow		/togglevariable DoSlow
-	/squelch /alias /tglferocity	/togglevariable DoFerocity
-	/squelch /alias /tglpetslow		/togglevariable DoPetSlow
-	/squelch /alias /tgltravel		/togglevariable Travel
-	/call AliasSetup
-	/call SetIni General IHCMacVersion			string ${IHCVersion}
-/return
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Combat AllowMezBreak		 	int ${AllowMezBreak}
-	/call SetIni Combat DoSlow					int ${DoSlow}
-	/call SetIni Combat DoDot					int ${DoDot}
-	/call SetIni Combat Manatonuke				int ${Manatonuke}
-	/call SetIni Combat StopNukeAggro			int ${StopNukeAggro}
-	/call SetIni Combat UseAoE					int ${UseAoE}
-	/call SetIni Combat UseMelee		 		int ${UseMelee}
-	/call SetIni Healing DoHeals				int ${DoHeals}
-	/call SetIni Healing DynamicHealing			int ${DynamicHealing}
-	/call SetIni Item ChestCombatCast			int ${ChestCombatCast}
-	/call SetIni Options BringYourOwnSpells		int ${BringYourOwnSpells}
-	/call SetIni Pet UsePet		 				int ${UsePet}
-	/call SetIni Pet UseSwarmpet		 		int ${UseSwarmpet}
-	/call SetIni General Travel					int ${Travel}
-	/call SetIni Options AutoRez 				int ${AutoRez}
-/return
+
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar /echo ${Me.Gem[1]}
+| SUB: ${Me.Class.ShortName.Lower}_load_spellbar /echo ${Me.Gem[1]}
 |------------------------------------------------------------------------------------------ *|
-Sub LoadSpellBar
-	/if (!${BringYourOwnSpells}) {
-		/if (${Me.Standing}) /sit
-		/delay 10 ${Me.Sitting}
-		/echo \aw Loading Spell Bar
-		/call LoadSpellGem "${Spell1}" 1
-		/call LoadSpellGem "${Spell2}" 2
-		/call LoadSpellGem "${Spell3}" 3
-		/call LoadSpellGem "${Spell4}" 4
-		/call LoadSpellGem "${Spell5}" 5
-		/call LoadSpellGem "${Spell6}" 6
-		/call LoadSpellGem "${Spell7}" 7
-		/call LoadSpellGem "${Spell8}" 8
-		/if (${spellmisc}>8) {
-			/call LoadSpellGem "${Spell9}" 9
-		}
-		/if (${spellmisc}>9) {
-			/call LoadSpellGem "${Spell10}" 10
-		}
-		/if (${spellmisc}>10) {
-			/call LoadSpellGem "${Spell11}" 11
-		}
-		/if (${spellmisc}>11) {
-			/call LoadSpellGem "${Spell12}" 12
-		}
-		/if (${spellmisc}>12) {
-			/call LoadSpellGem "${Spell13}" 13
-		}
+Sub shm_load_spellbar
+
+	/if (${Me.Standing}) /sit
+	/delay 10 ${Me.Sitting}
+	/echo \aw Loading Spell Bar
+
+	/call LoadSpellGem "${RecklessHeal1}" 1
+	/call LoadSpellGem "${RecklessHeal2}" 2
+	/call LoadSpellGem "${RecklessHeal3}" 3
+	/call LoadSpellGem "${RecourseHeal}" 4
+	/call LoadSpellGem "${InterventionHeal}" 5
+	/call LoadSpellGem "${AESpiritualHeal}" 6
+	/call LoadSpellGem "${GroupRenewalHoT}" 7
+
+	/if (${DichoSpell.NotEqual[NULL]}) {
+		/call LoadSpellGem "${DichoSpell}" 8
+	} else /if (${MeleeProcBuff.NotEqual[NULL]}) {
+		/call LoadSpellGem "${MeleeProcBuff}" 8
 	}
+
+	/if (${spellmisc}>8) {
+		/call LoadSpellGem "${GrowthBuff}" 9
+	}
+	/if (${spellmisc}>9) {
+		/call LoadSpellGem "${CurseDoT1}" 10
+	}
+	/if (${spellmisc}>10) {
+		/call LoadSpellGem "${TwinHealNuke}" 11
+	}
+	/if (${spellmisc}>11) {
+		/call LoadSpellGem "${FastDiseaseDoT}" 12
+	}
+	/if (${spellmisc}>12) {
+		/call LoadSpellGem "${ChaoticPoisonDoT}" 13
+	}
+	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
 /return 
 |----------------------------------------------------------------------------
 |- SUB: CheckSpells
 |---------------------------------------------------------------------------- 
-Sub CheckSpells
+Sub shm_abilities
 |-*
 |-	/if (${Me.Level}>=${Spell[].Level} && ${Me.Book[${Spell[].RankName}]}) {
 |-		/varset  ${Spell[].RankName}
@@ -287,7 +185,7 @@ Sub CheckSpells
 	}
 |- ShamanAura
 	/if (${Me.AltAbility[Pact of the Wolf].ID}) {
-		/varset ShamanAura Pact of the Wolf
+		/varset Aura1 Pact of the Wolf
 	}
 |- FocusSpell
 	/if (${Me.Level}>=${Spell[Talisman of the Wulthan].Level} && ${Me.Book[${Spell[Talisman of the Wulthan].RankName}]}) {
@@ -302,6 +200,10 @@ Sub CheckSpells
 		/varset FocusSpell ${Spell[Talisman of Soul's Unity].RankName}
 	} else /if (${Me.Level}>=${Spell[Talisman of Unity].Level} && ${Me.Book[${Spell[Talisman of Unity].RankName}]}) {
 		/varset FocusSpell ${Spell[Talisman of Unity].RankName}
+	}
+	
+	/if (${Me.Level}>=${Spell[Inner Fire].Level} && ${Me.Book[${Spell[Inner Fire].RankName}]}) {
+		/varset SingleFocusSpell ${Spell[Inner Fire].RankName}
 	}
 |- RunSpeedBuff
 	/if (${Me.Level}>=${Spell[Spirit of Tala'Tak].Level} && ${Me.Book[${Spell[Spirit of Tala'Tak].RankName}]}) {
@@ -340,6 +242,8 @@ Sub CheckSpells
 		/varset RecklessHeal1 ${Spell[Reckless Regeneration].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Reckless Restoration].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Reckless Restoration].RankName}
+	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Minor Healing].RankName}
 	}
 |- RecklessHeal2
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Reckless Regeneration].RankName}]}) {
@@ -602,48 +506,18 @@ Sub CheckSpells
 	} else /if (${Me.Level}>=${Spell[Pack of Wurt].Level} && ${Me.Book[${Spell[Pack of Wurt].RankName}]}) {
 		/varset PackSelfBuff ${Spell[Pack of Wurt].RankName}
 	}
-	/if (${CureOther}) {
-		/varset CureSpell ${PureSpiritSpell}
-	}
-	/varset Spell1 ${RecklessHeal1}
-	/varset Spell2 ${RecklessHeal2}
-	/varset Spell3 ${RecklessHeal3}
-	/varset Spell4 ${RecourseHeal}
-	/varset Spell5 ${InterventionHeal}
-	/varset Spell6 ${AESpiritualHeal}
-|-	/varset Spell7 ${AllianceBuff}
-	/varset Spell7 ${GroupRenewalHoT}
-	/if (${DichoSpell.NotEqual[NULL]}) {
-		/varset Spell8 ${DichoSpell}
-	} else /if (${MeleeProcBuff.NotEqual[NULL]}) {
-		/varset Spell8 ${MeleeProcBuff}
-	}
-	/varset Spell9 ${GrowthBuff}
-	|- ${SlowProcBuff}
-	/varset Spell10 ${CurseDoT1} 
-	/varset Spell11 ${TwinHealNuke}
-	/if (${spellmisc}==12) {
-		/varset Spell12 ${FastDiseaseDoT}
-		/varset miscspellremem ${Spell12}
-	} else /if (${spellmisc}==13) {
-		/varset Spell12 ${FastDiseaseDoT}
-		/if (${ChaoticPoisonDoT.NotEqual[NULL]}) {
-			/varset Spell13 ${ChaoticPoisonDoT}
-		} else {
-			/varset Spell13 ${FastPoisonDoT}
-		}
-		/varset miscspellremem ${Spell13}
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: Bind Change Var Int resets various interger settings from ini file
-|----------------------------------------------------------------------------
-Sub Bind_SetVarInt(string ISection, string IName, int IVar)
-    /docommand /varset changetoini 1
- |-Toggles
-	/if (${ISection.Equal[Toggle]}) {
-  |--Pet
-	}
+	|/if (${CureOther}) {
+	|	/varset CureSpell ${PureSpiritSpell}
+	|}
+
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
+
+	/call shm_load_spellbar
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: BIND BNDSingleCure - 
@@ -651,16 +525,3 @@ Sub Bind_SetVarInt(string ISection, string IName, int IVar)
 Sub Bind_BNDSingleCure(int RequestorID)
 	/call SingleCure ${RequestorID}
 /return 
-|----------------------------------------------------------------------------
-|- SUB: BIND CmdList - 
-|----------------------------------------------------------------------------
-Sub Bind_CmdList
-/call CommonHelp
-/echo \ag===${MacroName} Commands=== 
-/echo \sg/byos\aw - Bring Your Own Spells! Use what ever spells you have mem'd
-/echo \ag/tglaoe\aw - Turn the use of AE abilities on/off
-/echo \ag/tglbp\aw - Turn on/off the use of a Chest piece defined in the ini
-/echo \ag/tglpet\aw - Pet toggle...cause sometimes they arent allowed
-/echo \ag/tglmezbreak\aw - Allow attacking mez'd mobs if below assistat % - Ignores waiting for MA
-/echo \ag/tgltravel\aw - Turn the use of group cheetah/invis
-/return

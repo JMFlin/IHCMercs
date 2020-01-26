@@ -4,35 +4,8 @@
 |--------------------------------------------------------------------------------------
 |-Setup Variable Environment
 |--------------------------------------------------------------------------------------
-Sub EnchSetup
+Sub enc_setup
 |-Create Alias
-	|-- Toggles
-	/squelch /alias /byos			/setvarint Toggle BringYourOwnSpells
-	/squelch /alias /charmstun		/setvarint Toggle CharmPreStun
-	/squelch /alias /charmtash		/setvarint Toggle CharmPreTash
-	/squelch /alias /tglblur		/setvarint Toggle DoBlurr
-	/squelch /alias /tglcharm		/setvarint Toggle UseCharmPet
-	/squelch /alias /tglcrip		/setvarint Toggle DoCripple
-	/squelch /alias /tgldicho		/setvarint Toggle UseDicho
-	/squelch /alias /tgldots		/setvarint Toggle UseDoTs
-	/squelch /alias /tgldps			/setvarint Toggle DoDPS
-	/squelch /alias /tglpet			/setvarint Toggle UsePet
-	/squelch /alias /tglmez			/setvarint Toggle MezOn
-	/squelch /alias /tglmezmsg		/setvarint Toggle MezAnnounce
-	/squelch /alias /tglndt			/setvarint Toggle DoNDTBuff
-	/squelch /alias /tgltash		/setvarint Toggle DoTash
-	/squelch /alias /tglslow		/setvarint Toggle DoSlow
-	/squelch /alias /tglstrip		/setvarint Toggle StripBuffs
-	|-- Sets
-	/squelch /alias /autodebuffat	/setvarint Set AutoDebuffAt
-	/squelch /alias /blurpct		/setvarint Set BlurrAggroPct
-	/squelch /alias /maxmezcount	/setvarint Set MaxMezCount
-	/squelch /alias /mezaecount		/setvarint Set MezAECount
-	/squelch /alias /mezmaxlevel	/setvarint Set MezMaxLevel
-	/squelch /alias /mezminlevel	/setvarint Set MezMinLevel
-	/squelch /alias /mezradius		/setvarint Set MezRadius
-	/squelch /alias /mezstartcount	/setvarint Set MezStartCount
-	/squelch /alias /mezstophp		/setvarint Set MezStopHPs	
 |-Declare AA and Spell variables
   |-Buffs
 	/declare Aura1					string outer NULL
@@ -124,54 +97,10 @@ Sub EnchSetup
 	/declare HarvestSpell1 			string 	outer	"NULL"
 	/declare UnityRune 				string 	outer	 NULL
 |-Config Options	
-	/call LoadCommonConfig
-	/call LoadIni Charm UseCharmPet		 		int 0
-	/call LoadIni Charm CharmMinLvl				int 0
-	/call LoadIni Charm CharmPreStun			int 1
-	/call LoadIni Charm CharmPreTash			int 1
-	/call LoadIni Combat DoDPS					int 1
-	/call LoadIni Combat Manatonuke				int 40
-	/call LoadIni Combat StickHow				string NULL
-	/call LoadIni Combat UseDicho				int 0
-	/call LoadIni Combat UseDoTs				int 0
-	/call LoadIni Combat UseMelee		 		int 0
-	/call LoadIni Combat UsePet			 		int 1
-	/call LoadIni Debuff AutoDebuffAt			int 99
-	/call LoadIni Debuff DoTash					int 1
-	/call LoadIni Debuff DoSlow					int 1
-	/call LoadIni Debuff DoCripple				int 0
-	/call LoadIni Debuff DoBlurr				int 0
-	/call LoadIni Debuff BlurrAggroPct			int 50
-	/call LoadIni Debuff StripBuffs				int 1
-	/call LoadIni Mez AutoLevelRange         	int 1
-	/call LoadIni Mez MezOn                 	int 1
-	/call LoadIni Mez MezAnnounce               int 1	
-	/call LoadIni Mez MezStartCount             int 2
-	/call LoadIni Mez MezAECount               	int 3
-	/call LoadIni Mez MaxMezCount               int 13
-    /call LoadIni Mez MezRadius             	int 100
-    /call LoadIni Mez MezMinLevel           	int 0
-    /call LoadIni Mez MezMaxLevel           	int 0
-    /call LoadIni Mez MezStopHPs            	int 80
-	/call LoadIni Mez UseTwinCastMez         	int 1
-	/call LoadIni Mez UseAEAAMez	         	int 0
-	/call LoadIni Options BringYourOwnSpells	int 0
-	/call LoadIni Options DoNDTBuff				int 1
-	/call LoadIni Rune UseMeleeRune				int 0
-	/call LoadIni Rune UseSpellRune				int 0
-	/call LoadIni Rune UseDoTRune				int 0
-	/call LoadIni Rune UseAuspice				int 0
-	/call LoadIni Rune MeleeRuneHeal			int 0
-	/call LoadIni Rune SpellRuneHeal			int 0
-	/call LoadIni Rune DoTRuneHeal				int 0
-	/call LoadIni Item ChestItemName			string "${Me.Inventory[17].Name}"
+
 	/varcalc MezWatchRadius ${MezRadius}*2
-	/varset ChestItemName		"${Me.Inventory[17].Name}"
+	/declare ChestItemName		string outer "${Me.Inventory[17].Name}"
 	|-Set AA DurationMod for mez timer from Spell Casting Reinforcement AA
-    /if (${Me.AltAbility[Mesmerization Mastery].Rank}==1) /varset MezMod 6
-    /if (${Me.AltAbility[Mesmerization Mastery].Rank}==2) /varset MezMod 12
-    /if (${Me.AltAbility[Mesmerization Mastery].Rank}==3) /varset MezMod 18
-    /if (${Me.AltAbility[Mesmerization Mastery].Rank}==4) /varset MezMod 24
 	/declare spellmisc 				int outer 8
 	/declare spellgem				int outer 1	
 	/declare CastResult             string outer
@@ -179,10 +108,6 @@ Sub EnchSetup
 	/declare spellrememtimer		timer outer 0
 	/declare groupbufftimer		timer outer 0
 	/declare DeBuffTimer		timer outer 0
-	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
-		/alt act 25
-		/delay 5
-	}
 |- Below Code is only needed for using ihcxtenchmez.inc
 |-	/declare MezCount[13]           			int         outer 	0
 |-	/declare MezArray[50,3]			            string      outer       NULL
@@ -191,98 +116,10 @@ Sub EnchSetup
 
 |-	/if (${MezOn}) /call CreateTimersMez
 /return
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Charm UseCharmPet		 	int ${UseCharmPet}
-	/call SetIni Charm CharmMinLvl			int ${CharmMinLvl}
-	/call SetIni Charm CharmPreStun			int ${CharmPreStun}
-	/call SetIni Charm CharmPreTash			int ${CharmPreTash}
-	/call SetIni Combat DoDPS				int ${DoDPS}
-	/call SetIni Combat Manatonuke			int ${Manatonuke}
-	/call SetIni Combat UseDicho			int ${UseDicho}
-	/call SetIni Combat UseDoTs				int ${UseDoTs}
-	/call SetIni Combat UseMelee		 	int ${UseMelee}
-	/call SetIni Combat UsePet			 	int ${UsePet}
-	/call SetIni Debuff AutoDebuffAt		int ${AutoDebuffAt}
-	/call SetIni Debuff DoTash				int ${DoTash}
-	/call SetIni Debuff DoSlow				int ${DoSlow}
-	/call SetIni Debuff DoCripple			int ${DoCripple}
-	/call SetIni Debuff DoBlurr				int ${DoBlurr}
-	/call SetIni Debuff BlurrAggroPct		int ${BlurrAggroPct}
-	/call SetIni Debuff StripBuffs			int ${StripBuffs}
-	/call SetIni Mez AutoLevelRange         int ${AutoLevelRange}
-	/call SetIni Mez MezOn                 	int ${MezOn}
-	/call SetIni Mez MezAnnounce            int ${MezAnnounce}	
-	/call SetIni Mez MezStartCount          int ${MezStartCount}
-	/call SetIni Mez MezAECount             int ${MezAECount}
-	/call SetIni Mez MaxMezCount            int ${MaxMezCount}
-    /call SetIni Mez MezRadius             	int ${MezRadius}
-    /call SetIni Mez MezMinLevel           	int ${MezMinLevel}
-    /call SetIni Mez MezMaxLevel           	int ${MezMaxLevel}
-    /call SetIni Mez MezStopHPs            	int ${MezStopHPs}
-	/call SetIni Mez UseTwinCastMez         int ${UseTwinCastMez}
-	/call SetIni Options BringYourOwnSpells	int ${BringYourOwnSpells}
-	/call SetIni Options DoNDTBuff			int ${DoNDTBuff}
-	/call SetIni Rune UseMeleeRune			int ${UseMeleeRune}
-	/call SetIni Rune UseSpellRune			int ${UseSpellRune}
-	/call SetIni Rune UseDoTRune			int ${UseDoTRune}
-	/call SetIni Rune UseAuspice			int ${UseAuspice}
-	/call SetIni Rune MeleeRuneHeal			int ${MeleeRuneHeal}
-	/call SetIni Rune SpellRuneHeal			int ${SpellRuneHeal}
-	/call SetIni Rune DoTRuneHeal			int ${DoTRuneHeal}
-/return
-|----------------------------------------------------------------------------
-|- SUB: CheckOptions - Used to sort conflicting options at startup and set basic values if needed
-|---------------------------------------------------------------------------- 
-Sub CheckOptions
-	/if (${AutoCampHold}) /moveto dist 2
-	/if (${CharmMaxLvl}==0 || ${CharmMaxLvl}>${Spell[${CharmSpell1}].MaxLevel}) {
-			/varset CharmMaxLvl ${Spell[${CharmSpell1}].MaxLevel}
-			/varset changetoini 1
-	}
-	/if (${MezMinLevel}>${MezMaxLevel} || ${AutoLevelRange}) {
-		/varset MezMinLevel 0
-	}
-	/if (${MezMaxLevel}==0 || ${MezMaxLevel}>${Spell[${MezSpell}].MaxLevel} || ${AutoLevelRange}) {
-		/varset MezMaxLevel ${Spell[${MezSpell}].MaxLevel}
-		/varset changetoini 1
-	}
-	/if (${MezMinLevel}==0) {
-		/if (${Me.Level}>=40) {
-			/varcalc MezMinLevel ${Me.Level}-30 
-		} else /if (${Me.Level}>=30) {
-			/varcalc MezMinLevel ${Me.Level}-20
-		} else {
-			/varset MezMinLevel 1
-		}
-		/varset changetoini 1
-	}
-	/if (${CharmMinLvl}==0) {
-		/if (${Me.Level}>=40) {
-			/varcalc CharmMinLvl ${Me.Level}-30 
-		} else /if (${Me.Level}>=30) {
-			/varcalc CharmMinLvl ${Me.Level}-20
-		} else {
-			/varset CharmMinLvl 1
-		}
-		/varset changetoini 1
-	}
-	/if (${UseCharmPet} && ${Me.Pet.ID}) {
-		/pet get lost
-		/if (${UsePet}) {
-			/varset UsePet 0
-			/varset changetoini 1
-		}
-	}
-/return
 |* ------------------------------------------------------------------------------------------
-| SUB: LoadSpellBar
+| SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |------------------------------------------------------------------------------------------ *|
-Sub LoadSpellBar
+Sub enc_load_spellbar
 
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
@@ -500,7 +337,7 @@ Sub LoadSpellBar
 |* ------------------------------------------------------------------------------------------
 | SUB: SetEncSpells
 |------------------------------------------------------------------------------------------ *|
-Sub SetEncSpells
+Sub enc_abilities
 |-AE Mez AA * Var Name : MezAEAA string outer
 	/if (${Me.Level}>=85 && ${Me.AltAbilityReady[Beam of Slumber]}) {
 		/varset MezAEAA Beam of Slumber
@@ -1629,264 +1466,16 @@ Sub SetEncSpells
 	} else /if (${Me.Level}>=6 && ${Me.Book[${Spell[Root].RankName}]}) {
 		/varset RootSpell ${Spell[Root].RankName}
 	}
-/return 
-|----------------------------------------------------------------------------
-|- SUB: Bind Set Var Int resets various interger settings from ini file
-|----------------------------------------------------------------------------
-Sub Bind_SetVarInt(string ISection, string IName, int IVar)
-    /docommand /varset changetoini 1
- |-Toggles
-	/if (${ISection.Equal[Toggle]}) {
-  |--Pet
-		/if (${IName.Equal[UsePet]}) {
-			/if (!${UsePet}) {
-				/echo \aw Setting UsePet to \ag ON
-				/varset UsePet 1
-				/if (${UseCharmPet}) /varset UseCharmPet 0
-			} else {
-				/echo \aw Resetting UsePet to \ar OFF
-				/varset UsePet 0
-			}
-  |--Mez
-		} else /if (${IName.Equal[MezOn]}) {
-			/if (!${MezOn}) {
-				/echo \aw Setting MezOn to \ag ON
-				/varset MezOn 1
-|-				/call CreateTimersMez
-			} else {
-				/echo \aw Resetting MezOn to \ar OFF
-				/varset MezOn 0
-|-				/call DeleteTimersMez
-			}
-  |--DPS
-		} else /if (${IName.Equal[DoDPS]}) {
-			/if (!${DoDPS}) {
-				/echo \aw Setting DoDPS to \ag ON
-				/varset DoDPS 1
-			} else {
-				/echo \aw Resetting DoDPS to \ar OFF
-				/varset DoDPS 0
-			}
-  |--DoTs
-		} else /if (${IName.Equal[UseDoTs]}) {
-			/if (!${UseDoTs}) {
-				/echo \aw Setting UseDoTs to \ag ON
-				/varset UseDoTs 1
-				/call LoadSpellBar
-			} else {
-				/echo \aw Resetting UseDoTs to \ar OFF
-				/varset UseDoTs 0
-				/call LoadSpellBar
-			}
-  |--Tash
-		} else /if (${IName.Equal[DoTash]}) {
-			/if (!${DoTash}) {
-				/echo \aw Setting DoTash to \ag ON
-				/varset DoTash 1
-			} else {
-				/echo \aw Resetting DoTash to \ar OFF
-				/varset DoTash 0
-			}
-  |--Slow
-		} else /if (${IName.Equal[DoSlow]}) {
-			/if (!${DoSlow}) {
-				/echo \aw Setting DoSlow to \ag ON
-				/varset DoSlow 1
-			} else {
-				/echo \aw Resetting DoSlow to \ar OFF
-				/varset DoSlow 0
-			}
-  |--Strip Buffs
-		} else /if (${IName.Equal[StripBuffs]}) {
-			/if (!${StripBuffs}) {
-				/echo \aw Setting StripBuffs to \ag ON
-				/varset StripBuffs 1
-			} else {
-				/echo \aw Resetting StripBuffs to \ar OFF
-				/varset StripBuffs 0
-			}
-  |--Mez Announce
-		} else /if (${IName.Equal[MezAnnounce]}) {
-			/if (!${MezAnnounce}) {
-				/echo \aw Setting MezAnnounce to \ag ON
-				/varset MezAnnounce 1
-			} else {
-				/echo \aw Resetting MezAnnounce to \ar OFF
-				/varset MezAnnounce 0
-			}
-  |- Cripple
-		} else /if (${IName.Equal[DoCripple]}) {
-			/if (!${DoCripple}) {
-				/echo \aw Setting DoCripple to \ag ON
-				/varset DoCripple 1
-			} else {
-				/echo \aw Resetting DoCripple to \ar OFF
-				/varset DoCripple 0
-			}
-  |- DoBlurr
-		} else /if (${IName.Equal[DoBlurr]}) {
-			/if (!${DoBlurr}) {
-				/echo \aw Setting DoBlurr to \ag ON
-				/varset DoBlurr 1
-			} else {
-				/echo \aw Resetting DoBlurr to \ar OFF
-				/varset DoBlurr 0
-			}
-  |- 
-		} else /if (${IName.Equal[CharmPreStun]}) {
-			/if (!${CharmPreStun}) {
-				/echo \aw Setting CharmPreStun to \ag ON
-				/varset CharmPreStun 1
-			} else {
-				/echo \aw Resetting CharmPreStun to \ar OFF
-				/varset CharmPreStun 0
-			}
-  |-
-		} else /if (${IName.Equal[CharmPreTash]}) {
-			/if (!${CharmPreTash}) {
-				/echo \aw Setting CharmPreTash to \ag ON
-				/varset CharmPreTash 1
-			} else {
-				/echo \aw Resetting CharmPreTash to \ar OFF
-				/varset CharmPreTash 0
-			}
-  |- Use Charm UseCharmPet
-		} else /if (${IName.Equal[UseCharmPet]}) {
-			/if (!${UseCharmPet}) {
-				/echo \aw Setting UseCharmPet to \ag ON
-				/varset UseCharmPet 1
-				/call LoadSpellBar
-				/if (${CharmMaxLvl}==0 || ${CharmMaxLvl}>${Spell[${CharmSpell1}].MaxLevel}) {
-					/varset CharmMaxLvl ${Spell[${CharmSpell1}].MaxLevel}
-				}
-				/if (${Me.Pet.ID}) /pet get lost
-				/if (${UsePet}) /varset UsePet 0
-			} else {
-				/echo \aw Resetting UseCharmPet to \ar OFF
-				/varset UseCharmPet 0
-				/call LoadSpellBar
-			}
-		} else /if (${IName.Equal[UseDicho]}) {
-			/if (!${UseDicho}) {
-				/echo \aw Setting UseDicho to \ag ON
-				/varset UseDicho 1
-				/call LoadSpellBar
-			} else {
-				/echo \aw Resetting UseDicho to \ar OFF
-				/varset UseDicho 0
-				/call LoadSpellBar
-			}
-		} else /if (${IName.Equal[BringYourOwnSpells]}) {
-			/if (!${BringYourOwnSpells}) {
-				/echo \aw Setting BringYourOwnSpells to \ag ON
-				/varset BringYourOwnSpells 1
-			} else {
-				/echo \aw Resetting BringYourOwnSpells to \ar OFF
-				/varset BringYourOwnSpells 0
-				/call LoadSpellBar
-			}
-		} else /if (${IName.Equal[DoNDTBuff]}) {
-			/if (!${DoNDTBuff}) {
-				/echo \aw Setting DoNDTBuff to \ag ON
-				/varset DoNDTBuff 1
-			} else {
-				/echo \aw Resetting DoNDTBuff to \ar OFF
-				/varset DoNDTBuff 0
-			}
-		}
- |-Set's
-	} else /if (${ISection.Equal[Set]}) {
-  |--MezStartCount
-		/if (${IName.Equal[MezStartCount]}) {
-			/if (${IVar}>=2 && ${IVar}<=100) {
-				/varset MezStartCount ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 2-100 mobs
-			}
-  |--MezAECount
-		} else /if (${IName.Equal[MezAECount]}) {
-			/if (${IVar}>=3 && ${IVar}<=100) {
-				/varset MezAECount ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 3-100 mobs
-			}
-  |--MaxMezCount
-		} else /if (${IName.Equal[MaxMezCount]}) {
-			/if (${IVar}>=3 && ${IVar}<=50) {
-				/varset MaxMezCount ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 3-50 mobs
-			}
-  |--MezRadius
-		} else /if (${IName.Equal[MezRadius]}) {
-			/if (${IVar}>=20 && ${IVar}<=150) {
-				/varset MezRadius ${IVar}
-				/varset MezWatchRadius 0
-				/varcalc MezWatchRadius ${MezRadius}*2
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 20-150 units
-			}
-  |--MezMinLevel
-		} else /if (${IName.Equal[MezMinLevel]}) {
-			/if (${IVar}>=1 && ${IVar}<=200 && ${IVar}<${MezMaxLevel}) {
-				/varset MezMinLevel ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else /if (${IVar}>${MezMaxLevel}) {
-				/beep
-				/echo \ag ${IName} \aw can NOT be set higher than \ag MezMaxLevel=${MezMaxLevel}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 1-200
-			}
-  |--MezMaxLevel
-		} else /if (${IName.Equal[MezMaxLevel]}) {
-			/if (${IVar}>=2 && ${IVar}<=201 && ${IVar}>${MezMinLevel}) {
-				/varset MezMaxLevel ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}	
-			} else /if (${IVar}<${MezMinLevel}) {
-				/beep
-				/echo \ag ${IName} \aw can NOT be set lower than \ag MezMinLevel=${MezMinLevel}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw - Set between 2-201
-			}
-  |--MezStopHPs
-		} else /if (${IName.Equal[MezStopHPs]}) {
-			/if (${IVar}>=1 && ${IVar}<=99) {
-				/varset MezStopHPs ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw HP%- Set between 1-99
-			}
-  |--
-		} else /if (${IName.Equal[BlurrAggroPct]}) {
-			/if (${IVar}>=1 && ${IVar}<=99) {
-				/varset BlurrAggroPct ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw Aggro%- Set between 1-99
-			}
-		} else /if (${IName.Equal[AutoDebuffAt]}) {
-			/if (${IVar}>=1 && ${IVar}<=99) {
-				/varset AutoDebuffAt ${IVar}
-				/echo \aw ${IName} set to \ag ${IVar}
-			} else {
-				/beep
-				/echo \ar Invalid \ag ${IName} \aw%- Set between 1-99
-			}
-		}
+
+	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
+		/alt act 25
+		/delay 5
 	}
-/return
+	
+	/call enc_load_spellbar
+
+/return 
+
 |----------------------------------------------------------------------------
 |-SUB: BIND  - SingleBanish
 |----------------------------------------------------------------------------

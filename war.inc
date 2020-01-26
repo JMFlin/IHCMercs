@@ -1,107 +1,29 @@
-|- IHCWAR.mac - By IHC385
-|- Automatic Warrior bot - 
-|- Version 2.0
-|- Updated: 4/25/2019
-|- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
-
-#turbo 80
-#warning
-
-#define DEBUG /echo
-
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcwarutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-
-#Chat group
-#Chat tell
-#Chat raid
-
-|- #Event TargetCasting	"#*#${Target.CleanName} begins to cast a spell.#*#"
-
-Sub Main
-	/delay ${Math.Rand[3]}
-	/doevents flush
-	/declare MacroName       	string outer IHCWAR
-	/declare MacroPath       	string outer IHCMercs\IHCWAR
-	/declare IHCVersion       	string outer 2.0 
-	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-
-	/call setup_plugins
-	/call WarSetup	
-	/call VarSetup
-	/call AliasSetup
-	/call SetupDiscs
-|-Cursor ID
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/call WelcomeMsg
-
-	/call setup_skill_melee FALSE
-
-	/delay 2s
-	/call pre_pull_group_healer_spells
- :mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call AFKRadiusCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
-/return
 |----------------------------------------------------------------------------
-|- SUB: AFKRadiusCamping 
+|- SUB: warrior 
 |---------------------------------------------------------------------------- 
-Sub AFKRadiusCamping
-    /call MakeCamp
-    /call RemoveTravelBuffs
-	/target clear
-	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call ignore_mobs_to_pull
+Sub war_main
 
-	/while (${Mode}==3) {
+	/call engage
+	/call war_get_aggro
+	/call check_add_aggro
+	/call war_combat_buffs
+	/call war_disc
+	/call war_aoe_aggro
 
-		DEBUG CYCLE START
-		/call afk_pull
-
-		/call check_state FALSE
-		/call get_target
-		
-
-		/call balance_hp
-
-		/call check_add_aggro
-
-		/call Engage
-		/call AoEAggro
-		/call DoDisc
-		/call get_aggro
-		/call combat_buffs
-
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-  		/call DummyMode 
-		
-|		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/call misc
-		/doevents
-		/delay 1s
-	}
+|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+	/doevents
 /return
 |----------------------------------------------------------------------------
 |- SUB: combat_buffs 
 |---------------------------------------------------------------------------- 
-Sub combat_buffs
+Sub war_combat_buffs
 	
 	/if (!${validate_combat_buffs[FALSE]}) /return
 
-	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupac}]} && !${Me.Song[Field].ID} && ${DoBuffs}) {
+	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupac}]} && !${Me.Song[Field].ID}) {
 		/call DiscNow "${groupac}"
 	}
-	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupdodge}]} && !${Me.Song[Commanding Voice].ID} && ${DoBuffs}) {
+	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupdodge}]} && !${Me.Song[Commanding Voice].ID}) {
 		/call DiscNow "${groupdodge}"
 	}
 	/if (${Me.CombatAbilityReady[${defenseac}]} && !${Me.ActiveDisc.ID} && ${Me.XTarget[1].ID}) {
@@ -167,7 +89,7 @@ Sub combat_buffs
 |----------------------------------------------------------------------------
 |- SUB: DoDisc 
 |---------------------------------------------------------------------------- 
-Sub DoDisc
+Sub war_disc
 
 	/if (!${validate_combat[FALSE]}) /return
 
@@ -232,7 +154,7 @@ Sub DoDisc
 |----------------------------------------------------------------------------
 |- SUB: get_aggro
 |---------------------------------------------------------------------------- 
-Sub get_aggro
+Sub war_get_aggro
 
 	/if (!${validate_combat[FALSE]}) /return
 
@@ -323,7 +245,7 @@ Sub get_aggro
 |----------------------------------------------------------------------------
 |- SUB: AoEAggro   
 |---------------------------------------------------------------------------- 
-Sub AoEAggro
+Sub war_aoe_aggro
 	/declare x				 int local 1
 	/declare numberOfSpawn 	 int local 0
 
@@ -355,13 +277,4 @@ Sub AoEAggro
 		}
 	}
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: Event Iamsnared
-|----------------------------------------------------------------------------
-Sub Event_Iamsnared 
-	/if (${DoGroupBeg}) {
-	 /call BegForCure	
-	}
-	/doevents flush NotOnTarget
 /return

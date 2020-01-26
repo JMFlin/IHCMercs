@@ -60,7 +60,7 @@ Sub AFKRadiusCamping
 	/while (${Mode}==3) {
 		
 		/call afk_pull
-		/call Engage
+		/call engage
 		/call CombatdpsItems
 		/call CombatdpsMash
 		/call CombatdpsDiscs
@@ -397,8 +397,8 @@ Sub DowntimeDiscs
 |- SUB: Event NotOnTarget - For dealing with too far away and cannot see messages
 |----------------------------------------------------------------------------
 |Sub Event_NotOnTarget
-|	/if (${DoAutoEngage}) {
-|		/call Engage
+|	/if (${DoAutoengage}) {
+|		/call engage
 ||	}
 |	/doevents flush NotOnTarget
 |/return

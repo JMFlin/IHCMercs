@@ -1,99 +1,22 @@
-|- IHCWAR.mac - By IHC385
-|- Automatic Warrior bot - 
-|- Version 2.0
-|- Updated: 4/25/2019
-|- Credit: Toots, Noobhax0r, Maskoi, Ctaylor, Treehuggindruid. A lot of ideas were borrowed and modified from their macros
-#turbo 80
-#warning
-
-#define DEBUG /echo
-
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcshdutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-
-#Chat group
-#Chat tell
-#Chat raid
-
-Sub Main
-	/delay ${Math.Rand[3]}
-	/doevents flush
-	/declare MacroName       	string outer IHCWAR
-	/declare MacroPath       	string outer IHCMercs\IHCWAR
-	/declare IHCVersion       	string outer 2.0 
-	/declare IniFileName     	string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini
-
-	/call setup_plugins
-	/call ShdSetup	
-	/call VarSetup
-	/call AliasSetup
-	/call SetupSpells
-	/call LoadSpellBar
-|-Cursor ID
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/call WelcomeMsg
-	
-	/declare AssistRange int outer 10
-	/declare AutoCampRadius int outer 10
-
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/call setup_skill_melee FALSE
-	/delay 2s
-	/call pre_pull_group_healer_spells
-
- :mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call AFKRadiusCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
-/return
 |----------------------------------------------------------------------------
-|- SUB: AFKRadiusCamping 
+|- SUB: shadowknight 
 |---------------------------------------------------------------------------- 
-Sub AFKRadiusCamping
-    /call MakeCamp
-    /call RemoveTravelBuffs
-	/target clear
-	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK,SHD]}) /call ignore_mobs_to_pull
+Sub shd_main
 
-	/while (${Mode}==3) {
-
-		/call set_timers
-
-		/call afk_pull
-		/call check_state FALSE
-
-		/call balance_hp
-
-		/call check_add_aggro
-		/call Engage
-		/call aoe_aggro
-		/call DoDisc
-		/call get_aggro
-		/call self_buffs
-		/call combat
-		/call combat_buffs
-
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-
-		/call misc
-  		/call DummyMode
-		/doevents
-	}
+	/call engage
+	/call check_add_aggro
+	/call shd_aoe_aggro
+	/call shd_disc
+	/call shd_get_aggro
+	/call shd_self_buffs
+	/call shd_combat
+	/call shd_combat_buffs
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: self_buffs 
 |---------------------------------------------------------------------------- 
-Sub self_buffs
+Sub shd_self_buffs
 	/declare CastCheck			int local 0
 
 	/if (${Me.XTarget}) /return
@@ -139,14 +62,14 @@ Sub self_buffs
 	
 
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/docommand /dgt \aw Done Buffing
 	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: combat 
 |---------------------------------------------------------------------------- 
-Sub combat
+Sub shd_combat
 	
 	/call get_target
 	/if (!${validate_combat[FALSE]}) /return
@@ -199,7 +122,7 @@ Sub combat
 
 /return
 
-Sub combat_buffs
+Sub shd_combat_buffs
 	
 	/call get_target
 	/if (!${validate_combat_buffs[FALSE]}) /return
@@ -227,7 +150,7 @@ Sub combat_buffs
 |----------------------------------------------------------------------------
 |- SUB: DoDisc 
 |---------------------------------------------------------------------------- 
-Sub DoDisc
+Sub shd_disc
 
 	/call get_target
 	/if (!${validate_combat[FALSE]}) /return
@@ -301,7 +224,7 @@ Sub DoDisc
 |----------------------------------------------------------------------------
 |- SUB: get_aggro
 |---------------------------------------------------------------------------- 
-Sub get_aggro
+Sub shd_get_aggro
 	
 	/if (!${validate_combat[FALSE]}) /return
 
@@ -322,7 +245,7 @@ Sub get_aggro
 |----------------------------------------------------------------------------
 |- SUB: aoe_aggro   
 |---------------------------------------------------------------------------- 
-Sub aoe_aggro
+Sub shd_aoe_aggro
 
 	/if (!${validate_combat[FALSE]}) /return
 

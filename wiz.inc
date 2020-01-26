@@ -1,85 +1,27 @@
-|- IHCWIZ.mac - By IHC385
-|- Automatic Wizard bot - 
-|- Version 2.0
-|- Updated: 4/25/2019
-|- Credit: Noobhax0r, Maskoi, Ctaylor, Treehuggindruid, Devstator. A lot of ideas were borrowed and modified from their macros
-|- Thanks to Saar for additions and bug fixes
-#turbo 80
-#include IHCMercs\ihcsubs.inc
-#include IHCMercs\ihcwizutil.inc
-#include IHCMercs\events.inc
-#include IHCMercs\config.inc
-#warning
-#Chat group
-#Chat tell
-#Chat raid
-#Event MezBroke          "#1# has been awakened by #2#."
-#bind SetVarInt	/setvarint
-#bind CmdList	/ihchelp
-
-Sub Main
-	/delay ${Math.Rand[10]}
-	/doevents flush
-	/declare MacroName       		string outer IHCWIZ
-	/declare MacroPath       		string outer IHCMercs\IHCWIZ
-	/declare IHCVersion       		string outer 2.0
-	/declare IniFileName     		string outer ${MacroPath}_${EverQuest.Server}_${Me.CleanName}.ini	
-
-	/call setup_plugins
-	/call WizSetup
-	/call VarSetup
-	/call AliasSetup
-	/call SetWizSpells
-	/call LoadSpellBar
-
-	/call WelcomeMsg
-
-	/if (${Cursor.ID}) {
-		/echo Sending Item on Cursor to Bag
-		/autoinventory
-	}
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-	/call setup_skill_melee FALSE
-:mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call ManualPullCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
-/return
 |----------------------------------------------------------------------------
-|- SUB: ManualPullCamping
+|- SUB: wiz_main
 |----------------------------------------------------------------------------
-Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs  
+Sub wiz_main
 
-	/while (${Mode}==1 || ${Mode}==3) {
+	
+	/call wiz_self_buff_check FALSE
 
-		/call check_state FALSE
-		/call self_buff_check FALSE
-		/call MoveToCamp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
-		/call get_target
-|-		/call PetAttack
-|-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
-|-		/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
-		/call combat
+	/call get_target
+|-	/call PetAttack
+|-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
+|-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
+	/call wiz_combat
 
-|-		/if (${UseModRods}) /call ClickModRoD
-		
-		
-	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-		/call misc
-		/doevents
-	}
+|-	/if (${UseModRods}) /call ClickModRoD
+	
+|-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0) /call BegForCure
+	/doevents
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 
-Sub DebuffMobs
+Sub wiz_debuff
 	/if (${Me.Casting.ID}) /return
 	/if (${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 		/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
@@ -94,7 +36,7 @@ Sub DebuffMobs
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
-Sub AANDisc
+Sub wiz_aa_and_disc
 	/if (${Target.PctHPs}>20 && ${Me.PctAggro}>50 && ${Me.AltAbilityReady[Concussive Intuition]}) {
 		/alt act ${Me.AltAbility[Concussive Intuition].ID}
 		/delay 5
@@ -169,7 +111,7 @@ Sub AANDisc
 |----------------------------------------------------------------------------
 |- SUB: combat
 |---------------------------------------------------------------------------- 
-Sub combat
+Sub wiz_combat
 	| if mana is below the puller check limit
 	/if ((${Me.XTarget} && ${Me.PctMana} < 20) || (!${Me.XTarget} && ${Me.PctMana} < ${Limit})) {
 
@@ -248,7 +190,7 @@ Sub combat
 			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
 		}
 
-		/call manage_aggro
+		/call wiz_manage_aggro
 
 		/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
 			/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
@@ -258,7 +200,7 @@ Sub combat
 			/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
 		}
 
-		/call manage_aggro
+		/call wiz_manage_aggro
 	}
 /return
 
@@ -309,7 +251,7 @@ Sub combat
  *	NOTE: This is designed tomake sure whatever we are attempting to cast, is castable. be it a disc, item, spell, booger flick.. whatever.. IS IT READY TO BE USED?
  ***|
 
-Sub self_buff_check(bool _debug)
+Sub wiz_self_buff_check(bool _debug)
 	/declare CastCheck			int local 0
 	
 	/if (${Me.XTarget}) /return
@@ -332,7 +274,7 @@ Sub self_buff_check(bool _debug)
 	}
 
 	/if (${CastCheck}) {
-		/call LoadSpellBar
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 
@@ -346,7 +288,7 @@ Sub BurnRoutine
 |----------------------------------------------------------------------------
 |- SUB: ManageAggro
 |---------------------------------------------------------------------------- 
-Sub manage_aggro
+Sub wiz_manage_aggro
 	
 	/if (${Target.PctHPs} < 35) /return
 	/if (${Me.Buff[Twincast].ID}) /return
