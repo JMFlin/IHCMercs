@@ -6,8 +6,10 @@
 |--------------------------------------------------------------------------------------
 Sub shm_setup
 |-Spells
-	/declare ShamanAura				string outer NULL
+	/declare Aura1					string outer NULL
+	/declare Aura2					string outer NULL
 	/declare FocusSpell				string outer NULL
+	/declare SingleFocusSpell 		string outer NULL
 	/declare RegenSpell				string outer NULL
 	/declare CanniSpell				string outer NULL
 	/declare RunSpeedBuff			string outer NULL
@@ -183,7 +185,7 @@ Sub shm_abilities
 	}
 |- ShamanAura
 	/if (${Me.AltAbility[Pact of the Wolf].ID}) {
-		/varset ShamanAura Pact of the Wolf
+		/varset Aura1 Pact of the Wolf
 	}
 |- FocusSpell
 	/if (${Me.Level}>=${Spell[Talisman of the Wulthan].Level} && ${Me.Book[${Spell[Talisman of the Wulthan].RankName}]}) {
@@ -198,6 +200,10 @@ Sub shm_abilities
 		/varset FocusSpell ${Spell[Talisman of Soul's Unity].RankName}
 	} else /if (${Me.Level}>=${Spell[Talisman of Unity].Level} && ${Me.Book[${Spell[Talisman of Unity].RankName}]}) {
 		/varset FocusSpell ${Spell[Talisman of Unity].RankName}
+	}
+	
+	/if (${Me.Level}>=${Spell[Inner Fire].Level} && ${Me.Book[${Spell[Inner Fire].RankName}]}) {
+		/varset SingleFocusSpell ${Spell[Inner Fire].RankName}
 	}
 |- RunSpeedBuff
 	/if (${Me.Level}>=${Spell[Spirit of Tala'Tak].Level} && ${Me.Book[${Spell[Spirit of Tala'Tak].RankName}]}) {
@@ -236,6 +242,8 @@ Sub shm_abilities
 		/varset RecklessHeal1 ${Spell[Reckless Regeneration].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Reckless Restoration].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Reckless Restoration].RankName}
+	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Minor Healing].RankName}
 	}
 |- RecklessHeal2
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Reckless Regeneration].RankName}]}) {
@@ -498,9 +506,9 @@ Sub shm_abilities
 	} else /if (${Me.Level}>=${Spell[Pack of Wurt].Level} && ${Me.Book[${Spell[Pack of Wurt].RankName}]}) {
 		/varset PackSelfBuff ${Spell[Pack of Wurt].RankName}
 	}
-	/if (${CureOther}) {
-		/varset CureSpell ${PureSpiritSpell}
-	}
+	|/if (${CureOther}) {
+	|	/varset CureSpell ${PureSpiritSpell}
+	|}
 
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12

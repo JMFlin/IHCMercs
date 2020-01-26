@@ -2,7 +2,22 @@
 |- SUB: shm_main
 |----------------------------------------------------------------------------
 Sub shm_main
+	/call shm_single_target_heals
+/return
+|----------------------------------------------------------------------------
+|- SUB: Single Heal
+|---------------------------------------------------------------------------- 
+Sub shm_single_target_heals
+	/declare _worstHurtId int local 0
+
+	/call get_heal_target 85
+	/varset _worstHurtId ${Macro.Return}
 	
+	/if (${_worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${_worstHurtId}]}) {
+			/call core_cast2 "${RecklessHeal1}" spell ${_worstHurtId} FALSE
+		}
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: HealthToMana
@@ -63,116 +78,6 @@ Sub shm_do_named
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: HealGroup
-|---------------------------------------------------------------------------- 
-Sub shm_heal_group
-	/declare WaitOnHeals int local 0
-	/if (${DoHeals}) {
-		/declare petworsthurtid		int local 0
-		/declare petworsthp 		int local 100
-		/declare worsthp 			int local 100
-		/declare worsthurtid		int local 0
-		/declare worsthurtname		string local NULL
-		/declare gmember			int local 0
-		/declare HurtMember     	int local 0
-		/varset GrPCond .
-		/if (${Stick.Status.Equal[ON]}) {
-			/stick pause
-			/varset WasStickOn 1
-		}
-		/if (${Me.PctHPs}<=${GroupHealPoint}) {
-			/varcalc HurtMember ${HurtMember}+1
-			/varset worsthurtid ${Me.ID}
-			/varset worsthurtname ${Me.Name}
-			/varset worsthp ${Me.PctHPs}
-		}
-		/for gmember 1 to ${Group}
-			/if (${Group.Member[${gmember}].Distance}<=185 && ${Group.Member[${gmember}].PctHPs}<100 && !${Group.Member[${gmember}].Hovering} && ${Group.Member[${gmember}].Type.NotEqual[Corpse]}) {
-				/if ((${Group.Member[${gmember}].Distance}<100) && (${Group.Member[${gmember}].PctHPs}<${GroupHealPoint}) && (${Group.Member[${gmember}].PctHPs}>=1)) /varcalc HurtMember ${HurtMember}+1
-				/if (${Group.Member[${gmember}].PctHPs}<=${worsthp} && ((${Me.XTarget[1].PctHPs}<=99) || ${Group.Member[${gmember}].Distance}<50)) {
-					/varset worsthurtid ${Group.Member[${gmember}].ID}
-					/varset worsthurtname ${Group.Member[${gmember}].Name}
-					/varset worsthp ${Group.Member[${gmember}].PctHPs}
-					/varset GrPCond .
-				}
-			}
-			/if (${Group.Member[${gmember}].Pet.ID}) {
-				/if (${Group.Member[${gmember}].Pet.Distance}<=185 && (${Group.Member[${gmember}].Pet.PctHPs}<=${worsthp}) && (${Group.Member[${gmember}].Pet.PctHPs}<=${PetHealPoint}) && ${PetHealPoint}>0 && (${worsthp}>${GroupHealPoint})) {         
-					/varset worsthurtid ${Group.Member[${gmember}].Pet.ID}
-					/varset worsthurtname ${Group.Member[${gmember}].Name}
-					/varset petworsthp ${Group.Member[${gmember}].Pet.PctHPs}
-					/varset GrPCond .Pet.
-				}
-			}
-			/if (${DanNet.Peers.Find[${EverQuest.Server.Lower}_${Group.Member[${gmember}].Name.Lower}]} && ${CureCheckTimer}==0) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${gmember}].Name.Lower} "Me.TotalCounters" "tmpcureflag" "int"
-				/if (${tmpcureflag}) {
-					/varcalc CureMemberCount ${CureMemberCount}+1
-					/if (${CureMemberID}!=${assistid}) {
-						/varset CureMemberID ${Group.Member[${gmember}].ID}
-					}
-				}
-			}
-		/next gmember
-		/if (${CureCheckTimer}==0) /varset CureCheckTimer 3s
-		/if (!${Me.Song[${GroupRenewalHoT}].ID} && !${Me.Buff[${GroupRenewalHoT}].ID} && (${Group.Member[${assistname}]${TnKCond}Distance}<=159) && ${Me.XTarget[1].ID} && (${Group.Member[${assistname}]${TnKCond}PctHPs}>${BigHealPoint}) && !${Me.Casting.ID}) {
-			/call SpellQueue "${GroupRenewalHoT}" ${assistid}
-			/delay ${Math.Calc[(${Spell[${GroupRenewalHoT}].MyCastTime}/100)+5].Int} !${Me.Casting.ID}
-|-			/varset WaitOnHeals 1	
-		}
-		|-Group Healing
-		/if (${HurtMember}>=${GroupHealCount} && ${Me.AltAbilityReady[Soothsayer's Intervention]} && ${Group} && ${worsthp}<65 && (${worsthp}<=${GroupHealPoint})) {
-			/call AANow ${Me.AltAbility[Soothsayer's Intervention].ID} ${Me.ID}
-			/varset WaitOnHeals 1
-			/delay 10
-		} else /if (${HurtMember}>=${GroupHealCount} && ${Me.SpellReady[${InterventionHeal}]} && ${Group} && ${worsthp}<65 && (${worsthp}<=${GroupHealPoint})) {
-			/call SpellQueue "${InterventionHeal}" ${Me.ID}
-			/varset WaitOnHeals 1
-			/delay 10
-		} else /if (${HurtMember}>=${GroupHealCount} && ${Me.SpellReady[${RecourseHeal}]}) {
-			/call SpellQueue "${RecourseHeal}" ${Me.ID}
-			/varset WaitOnHeals 1
-			/delay 10
-		} else /if (${Me.PctHPs}<=${GroupHealPoint}) {
-			/call HealQueue ${Me.ID}
-			/varset WaitOnHeals 1
-		} else /if ((${Group.Member[${assistname}]${TnKCond}Distance}<=185) && (${Group.Member[${assistname}]${TnKCond}PctHPs}<=${TankHealPoint}) && ${Group.Member[${assistname}]${TnKCond}PctHPs}>=1) {
-			/call HealQueue ${assistid}
-|-			/varset WaitOnHeals 1
-		} else /if ((${Group.Member[${worsthurtname}]${GrPCond}Distance}<=185) && (${worsthp}<=${GroupHealPoint} || ${petworsthp}<=${GroupHealPoint}) && ${Group.Member[${worsthurtname}]${GrPCond}PctHPs}>=1) {
-			/call HealQueue ${worsthurtid}
-|-			/varset WaitOnHeals 1
-		} else /if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID}) && (${Me.AltAbilityReady[Radiant Cure]} || ${Me.AltAbilityReady[Purified Spirits]}) && !${Me.Casting.ID} && ${DoCures} && ${CureTimer}==0) {
-			/call GroupCure ${Me.ID}
-|-			/varset WaitOnHeals 1
-		} else /if (${Me.AltAbilityReady[Radiant Cure]} && !${Me.Casting.ID} && ${CureMemberCount}>1 && ${CureTimer}==0 && ${DoCures}) {
-			/call GroupCure ${Target.ID}
-|-			/varset WaitOnHeals 1
-		} else /if ((${Me.AltAbilityReady[Radiant Cure]} || ${Me.SpellReady[${CureSpell}]}) && !${Me.Casting.ID} && ${CureMemberID} && ${CureTimer}==0 && ${DoCures}) {
-			/call SingleCure ${CureMemberID}
-|-			/varset WaitOnHeals 1
-		}
-		/if (!${Me.Casting.ID} && ${Me.XTarget[1].ID} && (${Target.Named} || ${Target.Level}>(${Me.Level}+3) || ${SpawnCount[NPC radius 30 zradius 20]}>3) &&) /call DoNamed
-		/varset GrPCond .
-		/if (${WasStickOn} && !${WaitOnHeals}) {
-			/stick unpause
-			/varset WasStickOn 0
-		}
-	/if (${Defined[tmpcureflag]}) /deletevar tmpcureflag
-	}
-	/if (!${WaitOnHeals}) {
-|-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && !${BackOffFlag}) /call CC
-		/if ((${Me.XTarget[1].ID} || (${Group.MainAssist.ID} && ${Group.MainAssist.ID}!=${Me.ID} && ${Target.ID}!=${${assisttargetid}}) || ${SpawnCount[npc radius ${AssistRange} zradius 15 targetable playerstate 4]} || ${FollowMarkTarget}) && !${BackOffFlag} && ${DoAutoTarget}) /call FindTarget
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag} && ${DoAutoengage}) /call engageTarget
-		/if ((${Me.PctMana}>=30) && (!${Me.Casting.ID}) && (!${Me.XTarget[1].ID}) && !${Me.Invis} && !${MoveTo.Moving} && !${AdvPath.Following} && ${Stick.Status.Equal[OFF]} && ${DoBuffs}) /call BuffGroup
-		/if (${Me.XTarget[1].ID} && (${DoMalo} || ${DoAEMalo} || ${DoSlow} || ${DoAESlow}) && !${BackOffFlag} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt} && ${Ok2Assist}) /call DebuffMobs
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag}) /call AANDisc
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<${AssistRange} && ${Ok2Assist} && (!${Target.Mezzed.ID} || ${AllowMezBreak}) && !${BackOffFlag}) /call Combatdps
-		/if (!${Me.Casting.ID} && ${Me.XTarget[1].ID} && (${Target.Named} || ${Target.Level}>(${Me.Level}+3) || ${SpawnCount[NPC radius 60 zradius 50]}>4) && ${Me.XTarget[1].Distance}<=75) /call DoNamed
-	}
-	/doevents
-/return
-|----------------------------------------------------------------------------
 |- SUB: SingleCure
 |----------------------------------------------------------------------------
 Sub shm_single_cure(int cureid)
@@ -197,82 +102,6 @@ Sub shm_group_cure(int cureid)
 	}
 	/varset CureMemberCount 0
 	/varset CureMemberID 0
-/return
-|----------------------------------------------------------------------------
-|- SUB: Group HealQueue - New logic
-|---------------------------------------------------------------------------- 
-Sub HealQueue(int nextid)
-	/declare nexthealspell		string local NULL
-	/varset GrPCond .
-	/if (${Spawn[${nextid}].Type.Equal[Pet]}) {
-		/declare groupmembertoheal	string local ${Spawn[${nextid}].Master.Name}
-		/varset GrPCond .Pet.
-	} else {
-		/declare groupmembertoheal	string local ${Spawn[${nextid}].Name}
-		/varset GrPCond .
-	}
-|-Check to see if we can heal
-	/if (${Group.Member[${groupmembertoheal}]${GrPCond}FeetWet}!=${Me.FeetWet}) /return
-	/if (${Group.Member[${groupmembertoheal}]${GrPCond}Hovering} || ${Group.Member[${groupmembertoheal}]${GrPCond}Type.Equal[Corpse]}) /return
-
-|-Shaman AAs before heals
-	/if (${nextid}==${assistid} && ${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}>${BigHealPoint} && (${Me.XTarget}>3 || ${Spawn[id ${Me.XTarget[1].ID} radius 100].Named})) {
-		/if (${Me.AltAbilityReady[Spirit Guardian]}) /call AANow ${Me.AltAbility[Spirit Guardian].ID} ${assistid}
-	}
-	
-	/if ((${Group.Member[${assistname}]${TnKCond}Distance}<=159) && ${Me.SpellReady[${TwinHealNuke}]} && ${Group.Member[${assistname}]${TnKCond}PctHPs}>${BigHealPoint} && ${Me.PctMana}>=${Manatonuke} && ${Me.XTarget[1].PctHPs}<98 && ${Me.XTarget[1].ID}) {
-			/call SpellQueue "${TwinHealNuke}" ${assistid}
-			/delay 10 !${Me.Casting.ID}
-	}
-|-Determine which heal to use
-	/if (${FindItem[${ChestItemName}].ID} && ${FindItem[${ChestItemName}].Timer}==0 && ${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<=40 && ${Group.Member[${groupmembertoheal}]${GrPCond}Type.NotEqual[Pet]}) {
-		/call ItemNow "${ChestItemName}"
-	} else /if ((${Me.SpellReady[${RecklessHeal1}]}) && (${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<=${BigHealPoint}) && (${nextid}==${assistid}) && ${Me.CurrentMana}>${Spell[${RecklessHeal1}].Mana}) {
-		/varset nexthealspell ${RecklessHeal1}
-	} else /if ((${Me.SpellReady[${RecklessHeal2}]}) && (${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<=${BigHealPoint}) && (${nextid}==${assistid}) && ${Me.CurrentMana}>${Spell[${RecklessHeal2}].Mana}) {
-		/varset nexthealspell ${RecklessHeal2}
-	} else /if ((${Me.SpellReady[${RecklessHeal3}]}) && (${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<=${BigHealPoint}) && (${nextid}==${assistid}) && ${Me.CurrentMana}>${Spell[${RecklessHeal3}].Mana}) {
-		/varset nexthealspell ${RecklessHeal3}
-	} else /if ((${Me.AltAbilityReady[Soothsayer's Intervention]}) && (${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<65) && (${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<=${GroupHealPoint})) {
-		/call AANow ${Me.AltAbility[Soothsayer's Intervention].ID} ${Me.ID}
-		/delay 10
-	} else /if ((${Me.SpellReady[${InterventionHeal}]}) && (${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<65) && ${Me.CurrentMana}>${Spell[${InterventionHeal}].Mana} && (${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<=${GroupHealPoint})) {
-		/varset nexthealspell ${InterventionHeal}
-	} else /if ((${Me.SpellReady[${RecourseHeal}]}) && (${Group.Member[${groupmembertoheal}]${GrPCond}PctHPs}<=${GroupHealPoint}) && ${Me.CurrentMana}>${Spell[${RecourseHeal}].Mana}) {
-		/varset nexthealspell ${RecourseHeal}
-	} else /if ((${Me.SpellReady[${AESpiritualHeal}]}) && ${Me.CurrentMana}>${Spell[${AESpiritualHeal}].Mana} && ${Group.Member[${groupmembertoheal}]${GrPCond}LineOfSight}) {
-		/varset nexthealspell ${AESpiritualHeal}
-	}
-
-	/if (${Bool[${nexthealspell}]}) {
-		|------------Broadcast Spell--------------------
-		/if (${Me.Sitting}) /stand
-		/if (${Window[SpellBookWnd]}) /book
-		/if (${Target.ID}!=${nextid}) {
-			/if (${Me.Combat}) /squelch /attack off
-			/target id ${nextid}
-			/delay 5 ${Target.ID}==${nextid}
-		}
-		/if (!${Me.Casting.ID} && ${Me.SpellReady[${nexthealspell}]}) {
-			/cast "${nexthealspell}"
-			/if (${acverbose}!=0 && ${Me.Casting.ID}==${Spell[${nexthealspell}].ID}) {
-				/if (${Target.PctHPs}>=85) {
-|-					/docommand /dgt \ag ${nexthealspell} \ar =>> \ay ${groupmembertoheal} \ar <<= \ag ${Target.PctHPs}% HP \ax
-				} else /if (${Target.PctHPs}>=50) {
-|-					/docommand /dgt \ag ${nexthealspell} \ar =>> \ay ${groupmembertoheal} \ar <<= \ay ${Target.PctHPs}% HP \ax
-				} else /if (${Target.PctHPs}<50) {
-|-					/docommand /dgt \ag ${nexthealspell} \ar =>> \ay ${groupmembertoheal} \ar <<= \ar ${Target.PctHPs}% HP \ax
-				}
-			}
-			/delay 10 ${Window[CastingWindow].Open}
-			/delay ${Math.Calc[(${Spell[${nexthealspell}].MyCastTime}/100)+5].Int} !${Me.Casting.ID}
-		}
-|-		/if (${Cast.Result.Equal[CAST_SUCCESS]}) {
-|-			/if ((!${EQBC.Connected} || !${Bool[${Plugin[MQ2EQBC]}]}) && ${acverbose}!=0) /docommand /echo [+o+]${nexthealspell} =>> ${groupmembertoheal} <<=[+x+]
-|-			/if (${EQBC.Connected} && ${acverbose}!=0) /docommand /bc [+o+]${nexthealspell} =>> ${groupmembertoheal} <<=[+x+]
-|-		}
-	}
-	/varset GrPCond .
 /return
 |----------------------------------------------------------------------------
 |- SUB: CC
@@ -407,11 +236,36 @@ Sub shm_group_buffs
 		/if (${Mode} !=3 ) /return
 		/if (${Group.Member[${_count}].Distance}<100 && !${Group.Member[${_count}].OtherZone}) {
 
+
+
+			/if (!${Me.Book[${FocusSpell}]}) {
+			
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SingleFocusSpell}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpbuffid}) {
+					/if (${validate_cast[FALSE, spell, ${SingleFocusSpell}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${SingleFocusSpell}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${SingleFocusSpell}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${SingleFocusSpell}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${SingleFocusSpell}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+			}
+		} else {
+
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
 
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${FocusSpell}].Stacks" "tmpstackcheck" "bool"
-				/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid} && ${Me.Book[${FocusSpell}]} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && !${Me.Casting.ID}) {
+				/if (${tmpstackcheck} && !${tmpbuffid} && ${Me.Book[${FocusSpell}]} && ${Me.CurrentMana}>${Spell[${FocusSpell}].Mana} && !${Me.Casting.ID}) {
 					/if (${validate_cast[FALSE, spell, ${FocusSpell}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${FocusSpell}" spell ${Group.Member[${_count}].ID} FALSE
 					/varset CastCheck 1
 				}

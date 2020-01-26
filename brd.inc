@@ -13,7 +13,6 @@ Sub brd_main
 |	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	
-	/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 	/doevents
 /return
 
@@ -32,8 +31,19 @@ Sub brd_pulse(bool _debug, string _melody)
         /varset _melodyArray[${_song}] ${_melody.Mid[${_song},1]}
     /next _song
 	
-	/for _song 1 to ${_lnString}
+	/while (!${mezzDone} && ${Me.XTarget} > 1) {
 		/call get_target
+		/call engage
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/varset mezzDone ${Macro.Return}
+	}
+
+	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
+
+	/for _song 1 to ${_lnString}
+
+		/call brd_combat
+
 		/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
@@ -41,10 +51,6 @@ Sub brd_pulse(bool _debug, string _melody)
 				/call check_cast_events "${SlowSong}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
-		/call engage
-		/call brd_combat
 		
 		/if (!${Me.XTarget} && ${_melody} == ${BattleMelody}) {
 			/call pulse_stop pulse_line_start
@@ -54,7 +60,7 @@ Sub brd_pulse(bool _debug, string _melody)
 			/return
 		}
 		
-		/echo ${Me.Gem[${_melodyArray[${_song}]}]}: ${validate_cast[FALSE, pulse, "${Me.Gem[${_melodyArray[${_song}]}]}", ${Me.ID}]}
+		|DEBUG ${Me.Gem[${_melodyArray[${_song}]}]}: ${validate_cast[FALSE, pulse, "${Me.Gem[${_melodyArray[${_song}]}]}", ${Me.ID}]}
 		/if (${validate_cast[FALSE, pulse, "${Me.Gem[${_melodyArray[${_song}]}]}", ${Me.ID}]}) {
 			/call core_cast2 "${Me.Gem[${_melodyArray[${_song}]}]}" pulse 0 FALSE
 		}

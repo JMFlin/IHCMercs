@@ -18,7 +18,11 @@ Sub dru_main
 |- SUB: combat_tank_buffs
 |---------------------------------------------------------------------------- 
 Sub dru_combat_tank_buffs
-	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+
+	/if (${Group.Member[${Group.MainTank}].Type.Equal[Mercenary]}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return
+	}
+
 	/delay 8
 	/if (!${Target.Buff[${Reptile}].ID} && ${Target.PctHPs} > 70) {
 		/if (${validate_cast[FALSE, spell, ${Reptile}, ${Group.MainTank.ID}]}) {
@@ -132,15 +136,17 @@ Sub dru_group_buffs
 
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
-
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
+
+	/if (${useMerc}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
+	}
 	
 	/for _count 0 to ${Group}
 
 		/if (${Group.Member[${_count}].OtherZone}) /continue
 
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
-
 		/if (${Me.XTarget}) {
 			/call ${Me.Class.ShortName.Lower}_load_spellbar
 			/return

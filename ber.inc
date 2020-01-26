@@ -248,7 +248,6 @@ Sub ber_combat
 		/delay 5
 	}
 	| ${berStunRotationStunner.Equal[${Me.DisplayName}]} && 
-	/docommand /dgt My stunTurn is ${stunTurn}
 	/if (${stunTurn}) {
 		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
 			/call core_cast2 "${Stun}" disc ${Target.ID} FALSE
@@ -305,7 +304,7 @@ Sub make_axes(string AxeName, string AxeComponents)
 /return
 
 
-sub get_next_in_rotation
+Sub get_next_in_rotation
 
   	/declare _counter   int local 1
   	/declare si setiterator local

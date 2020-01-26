@@ -90,8 +90,6 @@ Sub AFKRadiusCamping
 	/if (${Me.Pet.ID}) /pet guard
 
 	/while (${Mode} == 3) {
-		
-		DEBUG CYCLE START
 
 		/call afk_pull
 		/call get_target
@@ -101,7 +99,6 @@ Sub AFKRadiusCamping
 		/call ${Me.Class.ShortName.Lower}_main
 		/call misc
 		/call dummy_mode
-		/delay 1s
 	}
 /return
 
@@ -173,7 +170,7 @@ Sub check_state(bool _debug)
 	| am I navigating?
 	/if (${Navigation.Active}) /return
 
-	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90 || ${Me.PctHPs} < 90)) /sit
 
 	| clear sets
 	/declare _count int local ${immuneSet.Count}

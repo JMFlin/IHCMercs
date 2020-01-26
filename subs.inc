@@ -84,6 +84,7 @@ Sub var_setup
 	/declare setMaxRezRange 	int outer 150
 	/declare rezToken 			bool outer FALSE
 	/declare rezCombat			bool outer FALSE
+
 |- AFK camping
     /declare pullRadiusXY 		int outer 100
 	/declare pullRadiusZ 		int outer 100
@@ -102,6 +103,7 @@ Sub var_setup
 	/declare DummyTime        	int outer 10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
 |	/declare PCRadiusCheck 		int outer 10
+
 |- Balance events
 	/declare HighHPID 					int outer 0
     /declare highhppct 					int outer 99
@@ -167,10 +169,16 @@ Sub var_setup
 	/declare verboseENC 		bool outer TRUE
 	/declare verboseBRD 		bool outer TRUE
 	/declare verboseCLR 		bool outer FALSE
+
 |- classes
 	/declare casterCasting 		int outer 0
 
+|- travel
 	/declare Invis				bool outer FALSE
+
+|- travel
+	/declare mezzDone 			bool outer FALSE
+
 |- mercs
 	/declare useMerc 			int outer 0
 /return 
@@ -376,12 +384,14 @@ Sub puller_check_group_resources
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Casting.ID" "casterCasting" "int"
 
 				DEBUG Asking ${Group.Member[${_count}].DisplayName} about mana ${ResPct} < ${Limit}
+				DEBUG ${DanNet.Q.Received}
 
 			} else /if (${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 
 				DEBUG Asking ${Group.Member[${_count}].DisplayName} about endurance ${ResPct} < ${Limit}
+				DEBUG ${DanNet.Q.Received}
 
 			}
 			/if (${ResPct} < ${Limit} || ${casterCasting}) {
@@ -478,9 +488,11 @@ Sub afk_pull
 		}
 
 		/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
-
 				/attack on
+				/if (!${Stick.Active}) /stick 12 front loose
+				/delay 10 ${Stick.Active}
 				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
+				/if (!${Stick.Active} && ${Me.XTarget}) /stick off
 
 		} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
@@ -539,10 +551,12 @@ Sub get_pull_target(int _tmpID)
 				/nav stop
 				/return ${Me.XTarget[1].ID}
 			}
+
 			/if (${Navigation.Active} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
 			/delay 1
 			/if (!${Navigation.Active} && !${Spawn[id ${_tmpID}].LineOfSight}) /nav id ${_tmpID}
 		}
+
 	} else {
 		/target id ${_tmpID}
 	}
@@ -605,13 +619,13 @@ Sub set_pull_target
 			/continue
 		}
 		
-		DEBUG Are there PCs close by ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
+		DEBUG Are there PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
 		/if (!${validate_no_pc[${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
 		}
 		
-		DEBUG Are there mobs in radius ${npcRadiusCheck} ${Spawn[id ${_pullMob}].DisplayName}: ${validate_single_pull[${_pullMob}]}
+		DEBUG Are there no adds close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_single_pull[${_pullMob}]}
 		/if (!${validate_single_pull[${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
@@ -1788,7 +1802,9 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				
 				/cast ${Me.Gem[${_spell}]}
 
+				/call get_target
 				/call engage
+				/call move_to_camp
 
 				| adjust delay for Metronome AA (fuck bards)
 				/if (${Me.AltAbility[Metronome]}) {
@@ -1798,6 +1814,9 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				}
 
 				/while (${Window[CastingWindow].Open}) {
+					/call get_target
+					/call engage
+					/call move_to_camp
 					/delay 3
 				}
  				
@@ -2329,6 +2348,9 @@ Sub get_heal_target(int _hpLimit)
 	
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 		/if (${Group.Member.OtherZone}) /continue
+		/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
+			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
+		}
 	
 		/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
 
@@ -2349,6 +2371,9 @@ Sub validate_pre_heal_target(int _hpLimit)
 	
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 		/if (${Group.Member.OtherZone}) /continue
+		/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
+			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
+		}
 
 		/if (${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
 			
@@ -2785,8 +2810,8 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/declare _mezAERange		int local 0
 
 	| Is there something to mez or debuff?
-	/if (!${validate_combat[FALSE]}) /return
-	/if (${Me.XTarget} < 2) /return
+	/if (!${validate_combat[FALSE]}) /return FALSE
+	/if (${Me.XTarget} < 2) /return FALSE
 	
 	/call get_target
 
@@ -2799,6 +2824,10 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	| How many mobs are there?
 	/if (${SpawnCount[npc targetable noalert 1 radius ${_mezAERange} zradius ${_mezAERange}]} > 1) {
 		
+		/if (${Select[${Me.Class.ShortName},BRD]}) {
+			/if (${Me.Casting.Name.NotEqual[${_mezAERange}]}) /call pulse_stop 18
+		}
+
 		/for x 1 to ${Me.XTarget}
 
 			| If xtarget is not mezzed, add it to count
@@ -2890,6 +2919,8 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 				}
 			}
 		} else /if (${Select[${Me.Class.ShortName},BRD]}) {
+
+			/if (${Me.Casting.Name.NotEqual[${_mezSingle}]}) /call pulse_stop 18
 			
 			/call pulse_stop pulse_line_start
 			/delay 1s
@@ -2909,4 +2940,5 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/next x
 	/if (${Defined[MATargetID]}) /deletevar MATargetID
 	/if (${Defined[MTTargetID]}) /deletevar MTTargetID
-/return
+
+/return TRUE

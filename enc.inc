@@ -6,25 +6,14 @@ Sub enc_main
 	|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
 	|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
 
-|	/call BuffCheck
 	/call enc_group_buffs
 	/call enc_self_buffs
-|	/if (${UseCharmPet} && ${Me.XTarget}>=${CharmMinMobs}) /call CharmCheck 
-|	/if (${DoMed}) /call AutoMed
-|	/call CheckMana
 
-|	/if (${Me.XTarget}) /assist ${Group.MainAssist.Name}
-|	/call PetAttack
-|	/if (((${MezOn} && (${Me.XTarget}>=${MezStartCount} || ${MezMobCount})) || ${MezWait}) && (${Me.SpellReady[${MezSpell}]} || (${MezAETimer}==0 && ${Me.SpellReady[${MezAESpell}]}) || ${Me.Casting.ID}!=${Spell[${MezSpell}].ID})) /call DoMezStuff
-|	/if ((${Me.PctAggro}>80 || ${Me.XTarget[2].PctAggro}>80 || ${Me.XTarget[3].PctAggro}>80)) /call ManageAggro
-|	/if ((${Me.XTarget}>=${BurnMobCount} || ${Target.Named} || ${BurnAlways} || ${burnnow}) && (${Me.AltAbilityReady[Calculated Insanity]} || ${Me.AltAbilityReady[Improved Twincast]}) && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) /call BurnRoutine
 	/call get_target
-|	/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
+
 	/call enc_combat
 |	/call CheckMana
-	
-|-	/if (${Target.ID} && ${Target.ID}!=${Me.ID} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call UseItemsCommon
-
+	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
 |	/if (${UseModRods}) /call ClickModRoD
 	
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
@@ -152,7 +141,10 @@ Sub enc_combat
 	/if (!${validate_combat[FALSE]}) /return
 
 	| Before debuffing and nuking check if we have to mezz
-	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
+	/while (!${mezzDone} && ${Me.XTarget} > 1) {
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/varset mezzDone ${Macro.Return}
+	}
 
 	| Before nuking check if we have to debuff
 	/call enc_debuff_xtarget
@@ -163,9 +155,6 @@ Sub enc_combat
 	/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 	}
-	
-	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-	/if (${Me.XTarget} > 1) /call get_target
 
 	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
 		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {

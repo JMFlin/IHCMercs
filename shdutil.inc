@@ -72,7 +72,7 @@ Sub shd_load_spellbar
 |----------------------------------------------------------------------------
 |- SUB: SetupSpells
 |---------------------------------------------------------------------------- 
-Sub shd_setup
+Sub shd_abilities
 	| Spells
 
 	| Dicho
@@ -332,14 +332,14 @@ Sub shd_setup
 	}
 
 	| Pull ability
-	/if (${Me.Book[${Touch3}]} && !${Me.Book[${Terror1}]} && !${Me.Book[${Terror2}]}) {
-		/varset PullAbility ${Touch3}
-		/varset PullDistance 190
-	} else /if (${Me.Book[${Terror1}]}) {
+	/if (${Me.Level}>=42) {
 		/varset PullAbility ${Terror1}
 		/varset PullDistance 190
-	} else /if (${Me.Book[${Terror2}]}) {
+	} else /if (${Me.Level}>=33) {
 		/varset PullAbility ${Terror2}
+		/varset PullDistance 190
+	} else /if (${Me.Level}>=8) {
+		/varset PullAbility ${Touch3}
 		/varset PullDistance 190
 	} else {
 		/varset PullAbility Melee
@@ -349,3 +349,4 @@ Sub shd_setup
 	/call shd_load_spellbar
 
 /return
+
