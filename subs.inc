@@ -1584,17 +1584,17 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		}
 
 		| cast GOM if song proc?
-		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && !${Select[${Me.Class.ShortName},CLR]} && ${Spawn[${Target.ID}].Type.NotEqual[pc]}) {
+		|/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && !${Select[${Me.Class.ShortName},CLR]} && ${Spawn[id ${Target.ID}].Type.NotEqual[pc]}) {
 		
 			| nuke 1
-			/if (${Me.SpellReady[${Spell[${GoMNuke}].RankName}]}) {
-				/varset _spell ${GoMNuke}
+		|	/if (${Me.SpellReady[${Spell[${GoMNuke}].RankName}]}) {
+		|		/varset _spell ${GoMNuke}
 
 			| nuke 2
-			} else /if (${Me.SpellReady[${Spell[${GoMNuke2}].RankName}]}) {
-				/varset _spell ${GoMNuke2}
-			}	
-		}
+		|	} else /if (${Me.SpellReady[${Spell[${GoMNuke2}].RankName}]}) {
+		|		/varset _spell ${GoMNuke2}
+		|	}	
+		|}
 				
 		| correct the rank
 		/varset _spell ${Spell[${_spell}].RankName}
