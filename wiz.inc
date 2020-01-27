@@ -124,7 +124,7 @@ Sub wiz_combat
 	}
 
 	/call get_target
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
@@ -138,11 +138,11 @@ Sub wiz_combat
 		}
 	}
 
-	/if (${Target.PctHPs} >= 100) /return
-
 	/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
 		/call core_cast2 "${SelfRune1}" spell 0 FALSE
 	}
+
+	/if (${Target.PctHPs} >= 100) /return
 
 	/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
 		/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE

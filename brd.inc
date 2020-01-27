@@ -75,7 +75,7 @@ Sub brd_pulse(bool _debug, string _melody)
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
 Sub brd_combat
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/if (${Me.XTarget}>=${BurnMobCount} || ${Target.Named}) {
 		/if (${Me.CombatAbilityReady[Thousand Blades]}) {
@@ -135,7 +135,7 @@ Sub brd_combat
 Sub brd_aa_and_disc
 	/doevents
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	/call use_skill_melee FALSE ${Target.ID}
 

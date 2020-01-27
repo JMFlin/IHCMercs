@@ -169,6 +169,7 @@ Sub var_setup
 	/declare verboseENC 		bool outer TRUE
 	/declare verboseBRD 		bool outer TRUE
 	/declare verboseCLR 		bool outer FALSE
+	/declare verboseMAG 		bool outer FALSE
 
 |- classes
 	/declare casterCasting 		int outer 0
@@ -265,7 +266,7 @@ Sub RemoveTravelBuffs
 |---------------------------------------------------------------------------- 
 Sub engage
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 	/if (!${validate_target_distance[FALSE]}) /return
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
@@ -434,13 +435,11 @@ Sub afk_pull
 	/if (${Me.PctHPs} < 90) /return
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${checkResourcesTimer} != 0) /return
-
 	/if (!${PullAbility.Equal[Melee]}) {
 		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return
 	}
-	
 	/call puller_check_group_resources
-
+	
 	/if (${ResourceChecker} == 0) {
 		/call set_timers
 		/return
@@ -489,7 +488,8 @@ Sub afk_pull
 		/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 				/attack on
 				/if (!${Stick.Active}) /stick 12 front loose
-				/delay 10 ${Stick.Active}
+				/delay 1s ${Stick.Active}
+				/delay 7s ${Target.Distance} <= ${PullDistance}
 				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 				/if (!${Stick.Active} && ${Me.XTarget}) /stick off
 
@@ -500,7 +500,7 @@ Sub afk_pull
 				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
 			}
 		}
-		/delay 5
+		/delay 1
 	}
 
     /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
@@ -508,6 +508,7 @@ Sub afk_pull
 	/while (${Navigation.Active}) {
 		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} < 10 && ${Navigation.Active}) /nav stop
+		/delay 1
 	}
 	
 	/if (!${Me.XTarget}) /target clear
@@ -528,7 +529,7 @@ Sub get_pull_target(int _tmpID)
 
 			/if (${Spawn[id ${_tmpID}].LineOfSight}) {
 
-				/if (${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 50)) {
+				/if (${Spawn[id ${_tmpID}].Distance} < (${PullDistance} + 50)) {
 					/target id ${_tmpID}
 					/delay 1s ${Target.ID} == ${_tmpID}
 				}
@@ -546,14 +547,16 @@ Sub get_pull_target(int _tmpID)
 			}
 			
 			/if (${Navigation.Active} && ${Me.XTarget}) {
-				/if (${Target.ID} != ${Me.XTarget[1].ID}) /target id ${Me.XTarget[1].ID}
-				/nav stop
-				/return ${Me.XTarget[1].ID}
+				/if (${Target.ID} != ${Me.XTarget[1].ID}) {
+					/target id ${Me.XTarget[1].ID}
+					/nav stop
+					/return ${Me.XTarget[1].ID}
+				}
 			}
 
-			/if (${Navigation.Active} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
+			/if (${Navigation.Active} && ${Target.ID} == ${_tmpID} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
 			/delay 1
-			/if (!${Navigation.Active} && !${Spawn[id ${_tmpID}].LineOfSight}) /nav id ${_tmpID}
+			/if (!${Navigation.Active} && (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight})) /nav id ${_tmpID}
 		}
 
 	} else {
@@ -676,8 +679,9 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 Sub pet_attack
 	/if (!${Me.Pet.ID}) /return
 	/if (${petFollow}) /varset petFollow 0
-	/if (!${validate_combat[FALSE]}) /return
-
+	/if (!${validate_combat[${Target.ID}]} ) /return
+	/if (${Target.Distance3D} > ${AssistRange}/2) /return
+	
 	|- Spirit call
 	/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
 		/if (!${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /alt act 177
@@ -792,7 +796,7 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
 		/delay 1s
-		/nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
+		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
 		/delay 1s
 		/windowstate FellowshipWnd close
 	}
@@ -812,9 +816,7 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
 		/windowstate FellowshipWnd close
     }
@@ -1253,17 +1255,17 @@ sub validate_combat_buffs(bool _debug)
 |-------------------------------------------------------------------------------- 
 | Sub validate_combat
 |--------------------------------------------------------------------------------
-sub validate_combat(bool _debug)
+sub validate_combat(int _tmpID)
 	
 	/if (!${Me.XTarget}) /return FALSE
-	/if (!${Target.ID}) /return FALSE
+	/if (!${_tmpID}) /return FALSE
 	|/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 
 
-	/if (!${Spawn[id ${Target.ID}].LineOfSight} && ${Navigation.PathLength[id ${Target.ID}]} < ${AssistRange} && ${Select[${Me.Class.ShortName},BER,ROG,BRD,MNK]}) {
+	/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange} && ${Select[${Me.Class.ShortName},BER,ROG,BRD,MNK]}) {
 		/if (${Stick.Active}) /stick off
-		/nav id ${Target.ID}
+		/nav id ${_tmpID}
 	}
 
 	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
@@ -1278,7 +1280,7 @@ sub validate_combat(bool _debug)
 		}
 	}
 
-	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${Target.ID}]} < 65) || ${Navigation.PathLength[id ${Target.ID}]} < ${AssistRange}) {
+	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${_tmpID}]} < 65) || ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange}) {
 		/return TRUE
 	} else {
 		/return FALSE
@@ -1399,8 +1401,7 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		
 		/if (!${Bool[${Me.Book[${_spell}]}]}) /return FALSE
 |		DEBUG ${dep}validate spell END: ${Spell[${_spell}].RankName}
-
-
+		
 	| check alt ability
 	} else /if (${_type.Equal[alt]}) {
 |		DEBUG ${dep}alt\ax${dep}name:${_spell}
@@ -2470,7 +2471,7 @@ sub setup_skill_melee(bool _debug)
 		/varset AssistRange 55
 	}
 
-	/if (${Select[${Me.Class.ShortName},WIZ,ENC,DRU,MAG]}) {
+	/if (${Select[${Me.Class.ShortName},WIZ,ENC,DRU,MAG,SHM]}) {
 		/varset AutoAssistAt 99
 		/varset AssistRange 100
 	}
@@ -2810,7 +2811,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/declare _mezAERange		int local 0
 
 	| Is there something to mez or debuff?
-	/if (!${validate_combat[FALSE]}) /return FALSE
+	/if (!${validate_combat[${Target.ID}]} ) /return FALSE
 	/if (${Me.XTarget} < 2) /return FALSE
 	
 	/call get_target

@@ -46,6 +46,7 @@ Sub shm_setup
 	/declare SlowProcBuff			string outer NULL
 	/declare SelfHealProcBuff		string outer NULL
 	/declare Malo 					string outer NULL
+	/declare LowLevelTalisman 		string outer NULL
 |- Misc Variables
 	/declare Spell1					string outer NULL
 	/declare Spell2					string outer NULL
@@ -110,7 +111,12 @@ Sub shm_load_spellbar
 	/call LoadSpellGem "${RecourseHeal}" 4
 	/call LoadSpellGem "${InterventionHeal}" 5
 	/call LoadSpellGem "${AESpiritualHeal}" 6
-	/call LoadSpellGem "${GroupRenewalHoT}" 7
+
+	/if (${Me.AltAbility[Turgur's Swarm].ID}) {
+		/call LoadSpellGem "${GroupRenewalHoT}" 7
+	} else {
+		/call LoadSpellGem "${SlowSpell}" 7
+	}
 
 	/if (${DichoSpell.NotEqual[NULL]}) {
 		/call LoadSpellGem "${DichoSpell}" 8
@@ -210,6 +216,10 @@ Sub shm_abilities
 		/varset RunSpeedBuff ${Spell[Spirit of Tala'Tak].RankName}
 	} else /if (${Me.Level}>=${Spell[Spirit of Bih'Li].Level} && ${Me.Book[${Spell[Spirit of Bih'Li].RankName}]}) {
 		/varset RunSpeedBuff ${Spell[Spirit of Bih'Li].RankName}
+	} else /if (${Me.Level}>=${Spell[Pack Shrew].Level} && ${Me.Book[${Spell[Pack Shrew].RankName}]}) {
+		/varset RunSpeedBuff ${Spell[Pack Shrew].RankName}
+	} else /if (${Me.Level}>=${Spell[Spirit of Wolf].Level} && ${Me.Book[${Spell[Spirit of Wolf].RankName}]}) {
+		/varset RunSpeedBuff ${Spell[Spirit of Wolf].RankName}
 	}
 |- DichoSpell
 	/if (${Me.Level}>=${Spell[Dissident Roar].Level} && ${Me.Book[${Spell[Dissident Roar].RankName}]}) {
@@ -242,6 +252,14 @@ Sub shm_abilities
 		/varset RecklessHeal1 ${Spell[Reckless Regeneration].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Reckless Restoration].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Reckless Restoration].RankName}
+	} /if (${Me.Level}>=${Spell[Superior Healing].Level} && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Superior Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Greater Healing].Level} && ${Me.Book[${Spell[Greater Healing].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Greater Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Healing].Level} && ${Me.Book[${Spell[Healing].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Light Healing].Level} && ${Me.Book[${Spell[Light Healing].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Light Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Minor Healing].RankName}
 	}
@@ -443,7 +461,14 @@ Sub shm_abilities
 |- SlowSpell
 	/if (${Me.AltAbility[Turgur's Swarm].ID}) {
 		/varset SlowSpell Turgur's Swarm
+	} else /if (${Me.Level}>=${Spell[Drowsy].Level} && ${Me.Book[${Spell[Drowsy].RankName}]}) {
+		/varset SlowSpell ${Spell[Drowsy].RankName}
 	}
+	/if (${Me.Level}>=${Spell[Talisman of the Beast].Level} && ${Me.Book[${Spell[Talisman of the Beast].RankName}]}) {
+		/varset LowLevelTalisman ${Spell[Talisman of the Beast].RankName}
+	}
+		
+
 |- AESlowSpell
 	/if (${Me.AltAbility[Turgur's Virulent Swarm].ID}) {
 		/varset AESlowSpell Turgur's Virulent Swarm

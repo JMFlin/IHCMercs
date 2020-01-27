@@ -23,7 +23,7 @@ Sub ber_aa_and_disc
 
 	/call get_target
 
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 	/if (${Target.Distance3D} > 50) /return
 	/doevents
 	
@@ -183,7 +183,7 @@ Sub ber_aa_and_disc
 Sub ber_combat
 
 	/call get_target
-	/if (!${validate_combat[FALSE]}) /return
+	/if (!${validate_combat[${Target.ID}]} ) /return
 
 |	/doevents BerStunRotation
 

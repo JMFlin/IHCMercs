@@ -78,22 +78,22 @@ Sub dru_abilities
 		/varset HealSpell1 ${Spell[Nature's Touch].RankName}
 	} else /if (${Me.Level}>=${Spell[Tunare's Renewal].Level} && ${Me.Book[${Spell[Tunare's Renewal].RankName}]}) {
 		/varset HealSpell1 ${Spell[Tunare's Renewal].RankName}
-	} else /if (${Me.Level}>=${Spell[Superior Healing].Level} && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Superior Healing].RankName}
-	} else /if (${Me.Level}>=${Spell[Greater Healing].Level} && ${Me.Book[${Spell[Greater Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Greater Healing].RankName}
-	} else /if (${Me.Level}>=${Spell[Healing].Level} && ${Me.Book[${Spell[Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Healing].RankName}
-	} else /if (${Me.Level}>=${Spell[Light Healing].Level} && ${Me.Book[${Spell[Light Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Light Healing].RankName}
-	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Minor Healing].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Adrenaline Swell].Level} && ${Me.Book[${Spell[Adrenaline Swell].RankName}]}) {
 		/varset HealSpell2 ${Spell[Adrenaline Swell].RankName}
 	} else /if (${Me.Level}>=${Spell[Adrenaline Surge].Level} && ${Me.Book[${Spell[Adrenaline Surge].RankName}]}) {
 		/varset HealSpell2 ${Spell[Adrenaline Surge].RankName}
+	} else /if (${Me.Level}>=${Spell[Superior Healing].Level} && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
+		/varset HealSpell2 ${Spell[Superior Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Greater Healing].Level} && ${Me.Book[${Spell[Greater Healing].RankName}]}) {
+		/varset HealSpell2 ${Spell[Greater Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Healing].Level} && ${Me.Book[${Spell[Healing].RankName}]}) {
+		/varset HealSpell2 ${Spell[Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Light Healing].Level} && ${Me.Book[${Spell[Light Healing].RankName}]}) {
+		/varset HealSpell2 ${Spell[Light Healing].RankName}
+	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
+		/varset HealSpell2 ${Spell[Minor Healing].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Crescentbloom].Level} && ${Me.Book[${Spell[Crescentbloom].RankName}]}) {
@@ -286,7 +286,7 @@ Sub dru_abilities
 	/if (${Me.Level}>=${Spell[Mask of the Shadowcat].Level} && ${Me.Book[${Spell[Mask of the Shadowcat].RankName}]}) {
 		/varset Mask ${Spell[Mask of the Shadowcat].RankName}
 	}
-
+	/delay 1s
 	/call dru_load_spellbar
 
 /return
