@@ -109,7 +109,7 @@ Sub shd_combat
 		}
 	}
 	
-	/if (!${Me.Buff[${Recourse}]}) {
+	/if (!${Me.Buff["${Recourse}"]}) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 	/doevents
