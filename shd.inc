@@ -138,10 +138,8 @@ Sub shd_combat_buffs
 	}
 
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
-
-	/if (${Me.PctHPs} < 65) {
-		/if (${validate_cast[FALSE, alt, "Scourage Skin", ${Target.ID}]}) /call core_cast2 "Scourage Skin" alt ${Target.ID} FALSE
-	}
+	
+	/if (${validate_cast[FALSE, alt, "Scourge Skin", ${Me.ID}]}) /call core_cast2 "Scourge Skin" alt ${Target.ID} FALSE
 
 	
 	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) /call core_cast2 "Spire of the Reavers" alt ${Target.ID} FALSE
@@ -242,15 +240,15 @@ Sub shd_get_aggro
 		/call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, spell, "Ageless Enmity", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=100) {
+	/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=100) {
 		/call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, spell, "Projection of Doom", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=30) {
+	/if (${validate_cast[FALSE, alt, "Projection of Doom", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=30) {
 		/call core_cast2 "Projection of Doom" alt ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, spell, "Hates Attraction", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=50) {
+	/if (${validate_cast[FALSE, alt, "Hates Attraction", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=50) {
 		/call core_cast2 "Hates Attraction" alt ${Target.ID} FALSE
 	}
 

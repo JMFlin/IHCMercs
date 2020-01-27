@@ -818,6 +818,7 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
+		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/windowstate FellowshipWnd close
     }
 /return
