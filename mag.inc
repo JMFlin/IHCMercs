@@ -159,6 +159,8 @@ Sub mag_self_buff_check(bool _debug)
 	}
 
 	/if (${Me.Pet.ID}) {
+		
+		/call cast_summon_weapons
 
 		/if (!${Me.Pet.Buff[${BurnoutSpell}]}) {
 			/if (${validate_cast[FALSE, spell, "${BurnoutSpell}", ${Me.Pet.ID}]}) {
@@ -166,7 +168,26 @@ Sub mag_self_buff_check(bool _debug)
 				/varset CastCheck 1
 			}
 		}
-		/call cast_summon_weapons
+
+		/if (!${Me.Pet.Buff[${PetProc}]}) {
+			/if (${validate_cast[FALSE, spell, "${PetProc}", ${Me.Pet.ID}]}) {
+				/call core_cast2 "${PetProc}" spell ${Me.Pet.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
+
+		/if (!${Me.Pet.Buff[${PetMalo}]}) {
+			/if (${validate_cast[FALSE, spell, "${PetMalo}", ${Me.Pet.ID}]}) {
+				/call core_cast2 "${PetMalo}" spell ${Me.Pet.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
+
+		/if (${validate_cast[FALSE, spell, "${ChaoticHeal}", ${Me.ID}]}) {
+			/call core_cast2 "${ChaoticHeal}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+		
 	}
 
 	/if (${CastCheck}) {

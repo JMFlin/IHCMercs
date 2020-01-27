@@ -554,9 +554,9 @@ Sub get_pull_target(int _tmpID)
 				}
 			}
 
-			/if (${Navigation.Active} && ${Target.ID} == ${_tmpID}) /nav stop
+			/if (${Navigation.Active} && ${Target.ID} == ${_tmpID} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
 			/delay 1
-			/if (!${Navigation.Active} && !${Spawn[id ${_tmpID}].LineOfSight}) /nav id ${_tmpID}
+			/if (!${Navigation.Active} && (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight})) /nav id ${_tmpID}
 		}
 
 	} else {
@@ -796,7 +796,7 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
 		/delay 1s
-		/nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
+		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
 		/delay 1s
 		/windowstate FellowshipWnd close
 	}
@@ -816,9 +816,7 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
 		/windowstate FellowshipWnd close
     }
