@@ -345,27 +345,27 @@ Sub enc_abilities
 		/varset HarvestSpell1 Gather Mana
 	}
 |-Mez Spell * Var Name: MezSpell string	outer
-	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Chaotic Delusion].RankName}]} && ${UseTwinCastMez}) {
+	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Chaotic Delusion].RankName}]}) {
 		/varset MezSpell ${Spell[Chaotic Delusion].RankName}
 	} else /if (${Me.Level}>=106 && ${Me.Book[${Spell[Delude].RankName}]}) {
 		/varset MezSpell ${Spell[Delude].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Chaotic Bewildering].RankName}]} && ${UseTwinCastMez}) {
+	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Chaotic Bewildering].RankName}]}) {
 		/varset MezSpell ${Spell[Chaotic Bewildering].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Bewilder].RankName}]}) {
 		/varset MezSpell ${Spell[Bewilder].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Chaotic Confounding].RankName}]} && ${UseTwinCastMez}) {
+	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Chaotic Confounding].RankName}]}) {
 		/varset MezSpell ${Spell[Chaotic Confounding].RankName}
 	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Confound].RankName}]}) {
 		/varset MezSpell ${Spell[Confound].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Chaotic Confusion].RankName}]} && ${UseTwinCastMez}) {
+	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Chaotic Confusion].RankName}]}) {
 		/varset MezSpell ${Spell[Chaotic Confusion].RankName}
 	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Mislead].RankName}]}) {
 		/varset MezSpell ${Spell[Mislead].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Chaotic Baffling].RankName}]} && ${UseTwinCastMez}) {
+	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Chaotic Baffling].RankName}]}) {
 		/varset MezSpell ${Spell[Chaotic Baffling].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Baffle].RankName}]}) {
 		/varset MezSpell ${Spell[Baffle].RankName}
-	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Chaotic Befuddling].RankName}]} && ${UseTwinCastMez}) {
+	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Chaotic Befuddling].RankName}]}) {
 		/varset MezSpell ${Spell[Chaotic Befuddling].RankName}
 	} else /if (${Me.Level}>=82 && ${Me.Book[${Spell[Befuddle].RankName}]}) {
 		/varset MezSpell ${Spell[Befuddle].RankName}
