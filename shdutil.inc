@@ -133,7 +133,7 @@ Sub shd_abilities
 		/varset Touch3 ${Spell[Touch of Falsin].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Touch of Lanys].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Lanys].RankName}
-		/varset Recourse Gift of Lanys
+		/varset Recourse "Gift of Lanys"
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Touch of the Soulbleeder].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of the Soulbleeder].RankName}
 	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Touch of Volatis].RankName}]}) {
@@ -304,7 +304,7 @@ Sub shd_abilities
 	| Darkness
 	
 	/if (${Me.AltAbilityReady[Enroaching Darkness]}) {
-		/varset SnareSpell Enroaching Darkness
+		/varset SnareSpell "Enroaching Darkness"
 	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Festering Darkness].RankName}]}) {
 		/varset SnareSpell ${Spell[Festering Darkness].RankName}
 	} else /if (${Me.Level}>=4 && ${Me.Book[${Spell[Clinging Darkness].RankName}]}) {
