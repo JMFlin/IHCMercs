@@ -33,10 +33,13 @@ Sub mag_setup
     /declare DamageShieldSpell		string 	outer	NULL
   |-Pet
 	/declare PetSpell				string	outer	NULL
-    /declare PetBuff        		string 	outer	NULL
+    /declare BurnoutSpell        	string 	outer	NULL
+	/declare PetProc 				string 	outer	NULL
+	/declare PetMalo				string 	outer	NULL
     /declare PetToysPlate			string 	outer	NULL
     /declare PetToysJewlry			string 	outer	NULL
     /declare PetToysWeps			string 	outer	NULL
+	/declare PetToysFace 			string 	outer 	NULL
 
 /return
 |* ------------------------------------------------------------------------------------------
@@ -54,7 +57,7 @@ Sub mag_load_spellbar
 	/call LoadSpellGem "${ServantSpell}" 5
 	/call LoadSpellGem "${Malo}" 6
     /call LoadSpellGem "${TwincastSpell}" 7
-	/call LoadSpellGem "${}" 8
+	/call LoadSpellGem "${DamageShieldSpell}" 8
 	
     |**
 	/if (${Me.Book[${TwincastSpell}]}) {
@@ -186,13 +189,22 @@ Sub mag_abilities
 		/varset PetToysPlate ${Spell[Grant Manaforged Plate].RankName}
 	} else /if (${Me.Level}>=${Spell[Grant Spectral Plate].Level} && ${Me.Book[${Spell[Grant Spectral Plate].RankName}]}) {
 		/varset PetToysPlate ${Spell[Grant Spectral Plate].RankName}
+	} else /if (${Me.Level}>=${Spell[Summon Plate of the Elements].Level} && ${Me.Book[${Spell[Summon Plate of the Elements].RankName}]}) {
+		/varset PetToysPlate ${Spell[Summon Plate of the Elements].RankName}
 	} else /if (${Me.Level}>=${Spell[Summon Plate of the Prime].Level} && ${Me.Book[${Spell[Summon Plate of the Prime].RankName}]}) {
 		/varset PetToysPlate ${Spell[Summon Plate of the Prime].RankName}
 	} else /if (${Me.Level}>=${Spell[Summon Plate of the Elements].Level} && ${Me.Book[${Spell[Summon Plate of the Elements].RankName}]}) {
 		/varset PetToysPlate ${Spell[Summon Plate of the Elements].RankName}
 	} else /if (${Me.Level}>=${Spell[Summon Phantom Plate].Level} && ${Me.Book[${Spell[Summon Phantom Plate].RankName}]}) {
 		/varset PetToysPlate ${Spell[Summon Phantom Plate].RankName}
+	} else /if (${Me.Level}>=${Spell[Summon Phantom Chain].Level} && ${Me.Book[${Spell[Summon Phantom Chain].RankName}]}) {
+		/varset PetToysPlate ${Spell[Summon Phantom Chain].RankName}
+	} else /if (${Me.Level}>=${Spell[Summon Phantom Leather].Level} && ${Me.Book[${Spell[Summon Phantom Leather].RankName}]}) {
+		/varset PetToysPlate ${Spell[Summon Phantom Leather].RankName}
 	}
+
+
+		
     
 
     /if (${Me.Level}>=${Spell[Grant Crystasia's Heirlooms].Level} && ${Me.Book[${Spell[Grant Crystasia's Heirlooms].RankName}]}) {
@@ -211,6 +223,25 @@ Sub mag_abilities
 		/varset PetToysJewlry ${Spell[Summon Zabella's Heirlooms].RankName}
 	} else /if (${Me.Level}>=${Spell[Summon Nastel's Heirlooms].Level} && ${Me.Book[${Spell[Summon Nastel's Heirlooms].RankName}]}) {
 		/varset PetToysJewlry ${Spell[Summon Nastel's Heirlooms].RankName}
+	} else /if (${Me.Level}>=${Spell[Summon Aenda's Trinkets].Level} && ${Me.Book[${Spell[Summon Aenda's Trinkets].RankName}]}) {
+		/varset PetToysJewlry ${Spell[Summon Aenda's Trinkets].RankName}
+	} else /if (${Me.Level}>=${Spell[Summon Pouch of Jerikor].Level} && ${Me.Book[${Spell[Summon Pouch of Jerikor].RankName}]}) {
+		/varset PetToysJewlry ${Spell[Summon Pouch of Jerikor].RankName}
+	} else /if (${Me.Level}>=${Spell[Summon Jewelry Bag].Level} && ${Me.Book[${Spell[Summon Jewelry Bag].RankName}]}) {
+		/varset PetToysJewlry ${Spell[Summon Jewelry Bag].RankName}
+	} 
+	
+
+		
+	
+	/if (${Me.Level}>=${Spell[Grant Visor of Gobeker].Level} && ${Me.Book[${Spell[Grant Visor of Gobeker].RankName}]}) {
+		/varset PetToysFace ${Spell[Grant Visor of Gobeker].RankName}
+	} else /if (${Me.Level}>=${Spell[Grant Visor of Vabtik].Level} && ${Me.Book[${Spell[Grant Visor of Vabtik].RankName}]}) {
+		/varset PetToysFace ${Spell[Grant Visor of Vabtik].RankName}
+	} else /if (${Me.Level}>=${Spell[Summon Muzzle of Mowcha].Level} && ${Me.Book[${Spell[Summon Muzzle of Mowcha].RankName}]}) {
+		/varset PetToysFace ${Spell[Summon Muzzle of Mowcha].RankName}
+	} else /if (${Me.Level}>=${Spell[Muzzle of Mardu].Level} && ${Me.Book[${Spell[Muzzle of Mardu].RankName}]}) {
+		/varset PetToysFace ${Spell[Muzzle of Mardu].RankName}
 	}
 
    
@@ -223,42 +254,105 @@ Sub mag_abilities
 	} else /if (${Me.Level}>=${Spell[Grant Frightforged Armaments].Level} && ${Me.Book[${Spell[Grant Frightforged Armaments].RankName}]}) {
 		/varset PetToysWeps ${Spell[Grant Frightforged Armaments].RankName}
     } else /if (${Me.Level}>=${Spell[Grant Manaforged Armaments].Level} && ${Me.Book[${Spell[Grant Manaforged Armaments].RankName}]}) {
-		/varset PetToysJewlry ${Spell[Grant Manaforged Armaments].RankName}
+		/varset PetToysWeps ${Spell[Grant Manaforged Armaments].RankName}
 	} else /if (${Me.Level}>=${Spell[Grant Spectral Armaments].Level} && ${Me.Book[${Spell[Grant Spectral Armaments].RankName}]}) {
 		/varset PetToysWeps ${Spell[Grant Spectral Armaments].RankName}
+
+ 
+ 
+
+	} else /if (${Me.Level}>=${Spell[Summon Elemental Armaments].Level} && ${Me.Book[${Spell[Summon Elemental Armaments].RankName}]}) {
+		/varset PetToysWeps ${Spell[Summon Elemental Armaments].RankName} 
+	} else /if (${Me.Level}>=${Spell[Summon Fireblade].Level} && ${Me.Book[${Spell[Summon Fireblade].RankName}]}) {
+		/varset PetToysWeps ${Spell[Summon Fireblade].RankName} 
+		/varset PetWepItem Summoned: Fireblade
+	} else /if (${Me.Level}>=${Spell[Blade of The Kedge].Level} && ${Me.Book[${Spell[Blade of The Kedge].RankName}]}) {
+		/varset PetToysWeps ${Spell[Blade of The Kedge].RankName} 
+		/varset PetWepItem Summoned: Blade of The Kedge
+	} else /if (${Me.Level}>=${Spell[Fist of Ixiblat].Level} && ${Me.Book[${Spell[Fist of Ixiblat].RankName}]}) {
+		/varset PetToysWeps ${Spell[Fist of Ixiblat].RankName} 
+		/varset PetWepItem Summoned: Fist of Ixiblat
+	} else /if (${Me.Level}>=${Spell[Blade of Walnan].Level} && ${Me.Book[${Spell[Blade of Walnan].RankName}]}) {
+		/varset PetToysWeps ${Spell[Blade of Walnan].RankName} 
+		/varset PetWepItem Summoned: Blade of Walnan
+	} else /if (${Me.Level}>=${Spell[Dagger of Symbols].Level} && ${Me.Book[${Spell[Dagger of Symbols].RankName}]}) {
+		/varset PetToysWeps ${Spell[Dagger of Symbols].RankName} 
+		/varset PetWepItem Summoned: Dagger of Symbols
+	} else /if (${Me.Level}>=${Spell[Sword of Runes].Level} && ${Me.Book[${Spell[Sword of Runes].RankName}]}) {
+		/varset PetToysWeps ${Spell[Sword of Runes].RankName} 
+		/varset PetWepItem Summoned: Sword of Runes
+	} else /if (${Me.Level}>=${Spell[Staff of Runes].Level} && ${Me.Book[${Spell[Staff of Runes].RankName}]}) {
+		/varset PetToysWeps ${Spell[Staff of Runes].RankName} 
+		/varset PetWepItem Summoned: Staff of Runes
+	} else /if (${Me.Level}>=${Spell[Spear of Warding].Level} && ${Me.Book[${Spell[Spear of Warding].RankName}]}) {
+		/varset PetToysWeps ${Spell[Spear of Warding].RankName} 
+		/varset PetWepItem Summoned: Spear of Warding
 	}
 
 
+
+	/if (${Me.Level}>=${Spell[Maloseniac Eminence].Level} && ${Me.Book[${Spell[Maloseniac Eminence].RankName}]}) {
+		/varset PetMalo ${Spell[Maloseniac Eminence].RankName} 
+	}
+
+
+	/if (${Me.Level}>=${Spell[Iceflame Rampart].Level} && ${Me.Book[${Spell[Iceflame Rampart].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Rampart].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Keep].Level} && ${Me.Book[${Spell[Iceflame Keep].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Keep].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Armaments].Level} && ${Me.Book[${Spell[Iceflame Armaments].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Armaments].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Eminence].Level} && ${Me.Book[${Spell[Iceflame Eminence].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Eminence].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Armor].Level} && ${Me.Book[${Spell[Iceflame Armor].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Armor].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Ward].Level} && ${Me.Book[${Spell[Iceflame Ward].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Ward].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Efflux].Level} && ${Me.Book[${Spell[Iceflame Efflux].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Efflux].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Tenement].Level} && ${Me.Book[${Spell[Iceflame Tenement].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Tenement].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Body].Level} && ${Me.Book[${Spell[Iceflame Body].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Body].RankName} 
+	} else /if (${Me.Level}>=${Spell[Iceflame Guard].Level} && ${Me.Book[${Spell[Iceflame Guard].RankName}]}) {
+		/varset PetProc ${Spell[Iceflame Guard].RankName} 
+	}
+	
+	/if (${Me.Level}>=${Spell[Chaotic Boon].Level} && ${Me.Book[${Spell[Chaotic Boon].RankName}]}) {
+		/varset BurnoutSpell ${Spell[Chaotic Boon].RankName}
+	}
+
+	   
     /if (${Me.Level}>=${Spell[Burnout XIV].Level} && ${Me.Book[${Spell[Burnout XIV].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout XIV].RankName}
+		/varset BurnoutSpell ${Spell[Burnout XIV].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout XIII].Level} && ${Me.Book[${Spell[Burnout XIII].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout XIII].RankName}
+		/varset BurnoutSpell ${Spell[Burnout XIII].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout XII].Level} && ${Me.Book[${Spell[Burnout XII].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout XII].RankName}
+		/varset BurnoutSpell ${Spell[Burnout XII].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout XI].Level} && ${Me.Book[${Spell[Burnout XI].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout XI].RankName}
+		/varset BurnoutSpell ${Spell[Burnout XI].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout X].Level} && ${Me.Book[${Spell[Burnout X].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout X].RankName}
+		/varset BurnoutSpell ${Spell[Burnout X].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout IX].Level} && ${Me.Book[${Spell[Burnout IX].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout IX].RankName}
+		/varset BurnoutSpell ${Spell[Burnout IX].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout VIII].Level} && ${Me.Book[${Spell[Burnout VIII].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout VIII].RankName}
+		/varset BurnoutSpell ${Spell[Burnout VIII].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout VII].Level} && ${Me.Book[${Spell[Burnout VII].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout VII].RankName}
+		/varset BurnoutSpell ${Spell[Burnout VII].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout VI].Level} && ${Me.Book[${Spell[Burnout VI].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout VI].RankName}
+		/varset BurnoutSpell ${Spell[Burnout VI].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout V].Level} && ${Me.Book[${Spell[Burnout V].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout V].RankName}
+		/varset BurnoutSpell ${Spell[Burnout V].RankName}
 	} else /if (${Me.Level}>=${Spell[Ancient: Burnout Blaze].Level} && ${Me.Book[${Spell[Ancient: Burnout Blaze].RankName}]}) {
-		/varset PetBuff ${Spell[Ancient: Burnout Blaze].RankName}
+		/varset BurnoutSpell ${Spell[Ancient: Burnout Blaze].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout IV].Level} && ${Me.Book[${Spell[Burnout IV].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout IV].RankName}
+		/varset BurnoutSpell ${Spell[Burnout IV].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout III].Level} && ${Me.Book[${Spell[Burnout III].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout III].RankName}
+		/varset BurnoutSpell ${Spell[Burnout III].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout II].Level} && ${Me.Book[${Spell[Burnout II].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout II].RankName}
+		/varset BurnoutSpell ${Spell[Burnout II].RankName}
 	} else /if (${Me.Level}>=${Spell[Burnout].Level} && ${Me.Book[${Spell[Burnout].RankName}]}) {
-		/varset PetBuff ${Spell[Burnout].RankName}
+		/varset BurnoutSpell ${Spell[Burnout].RankName}
 	}
 
 
@@ -447,27 +541,30 @@ Sub mag_abilities
 	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Minor Shielding].RankName}]}) {
 		/varset SelfHPBuff ${Spell[Minor Shielding].RankName}
 	}
+
 |-Self Rune 1 * Var Name: SelfRune1 string outer
-	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Armor of Wirn].RankName}]}) {
-		/varset SelfRune1 ${Spell[Armor of Wirn].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Armor of the Codex].RankName}]}) {
-		/varset SelfRune1 ${Spell[Armor of the Codex].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Armor of the Stonescale].RankName}]}) {
-		/varset SelfRune1 ${Spell[Armor of the Stonescale].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Armor of the Crystalwing].RankName}]}) {
-		/varset SelfRune1 ${Spell[Armor of the Crystalwing].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Dermis of the Crystalwing].RankName}]}) {
-		/varset SelfRune1 ${Spell[Dermis of the Crystalwing].RankName}
-	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Squamae of the Crystalwing].RankName}]}) {
-		/varset SelfRune1 ${Spell[Squamae of the Crystalwing].RankName}
-	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Laminae of the Crystalwing].RankName}]}) {
-		/varset SelfRune1 ${Spell[Laminae of the Crystalwing].RankName}
-	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Scales of the Crystalwing].RankName}]}) {
-		/varset SelfRune1 ${Spell[Scales of the Crystalwing].RankName}
-	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Ether Skin].RankName}]}) {
-		/varset SelfRune1 ${Spell[Ether Skin].RankName}
-	} else /if (${Me.Level}>=63 && ${Me.Book[${Spell[Force Shield].RankName}]}) {
-		/varset SelfRune1 ${Spell[Force Shield].RankName}
+	/if (${Me.Level}>=${Spell[Restless Guardian].Level} && ${Me.Book[${Spell[Restless Guardian].RankName}]}) {
+		/varset PhantomBuff ${Spell[Restless Guardian].RankName}
+	} else /if (${Me.Level}>=${Spell[Burning Guardian].Level} && ${Me.Book[${Spell[Burning Guardian].RankName}]}) {
+		/varset PhantomBuff ${Spell[Burning Guardian].RankName}
+	} else /if (${Me.Level}>=${Spell[Praetorian Guardian].Level} && ${Me.Book[${Spell[Praetorian Guardian].RankName}]}) {
+		/varset PhantomBuff ${Spell[Praetorian Guardian].RankName}
+	} else /if (${Me.Level}>=${Spell[Phantasmal Guardian].Level} && ${Me.Book[${Spell[Phantasmal Guardian].RankName}]}) {
+		/varset PhantomBuff ${Spell[Phantasmal Guardian].RankName}
+	} else /if (${Me.Level}>=${Spell[Splendrous Guardian].Level} && ${Me.Book[${Spell[Splendrous Guardian].RankName}]}) {
+		/varset PhantomBuff ${Spell[Splendrous Guardian].RankName}
+	} else /if (${Me.Level}>=${Spell[Cognitive Guardian].Level} && ${Me.Book[${Spell[Cognitive Guardian].RankName}]}) {
+		/varset PhantomBuff ${Spell[Cognitive Guardian].RankName}
+	} else /if (${Me.Level}>=${Spell[Empyrean Guardian].Level} && ${Me.Book[${Spell[Empyrean Guardian].RankName}]}) {
+		/varset PhantomBuff ${Spell[Empyrean Guardian].RankName}
+	} else /if (${Me.Level}>=${Spell[Eidolic Guardian].Level} && ${Me.Book[${Spell[Eidolic Guardian].RankName}]}) {
+		/varset PhantomBuff ${Spell[Eidolic Guardian].RankName}
+	} else /if (${Me.Level}>=${Spell[Phantasmal Warden].Level} && ${Me.Book[${Spell[Phantasmal Warden].RankName}]}) {
+		/varset PhantomBuff ${Spell[Phantasmal Warden].RankName}
+	} else /if (${Me.Level}>=${Spell[Transon's Phantasmal Protection].Level} && ${Me.Book[${Spell[Transon's Phantasmal Protection].RankName}]}) {
+		/varset PhantomBuff ${Spell[Transon's Phantasmal Protection].RankName}
+	} else /if (${Me.Level}>=${Spell[Phantasmal Armor].Level} && ${Me.Book[${Spell[Phantasmal Armor].RankName}]}) {
+		/varset PhantomBuff ${Spell[Phantasmal Armor].RankName}
 	}
 |-StripBuffSpell
 	/if (${Me.Level}>=100 && ${Me.AltAbilityReady[Eradicate Magic]}) {
