@@ -27,7 +27,7 @@ Sub shd_self_buffs
 
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) {
-		/call core_cast2 "${Stance}" spell ${Me.ID} FALSE¨
+		/call core_cast2 "${Stance}" spell ${Me.ID} FALSE
 		/varset CastCheck 1
 	}
 	
