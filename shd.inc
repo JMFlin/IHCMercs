@@ -152,7 +152,7 @@ Sub shd_combat_buffs
 		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
 	}
 
-	/if (!${Me.Buff[${Recourse}]}) {
+	/if (!${Me.Buff["${Recourse}"]}) {
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 
