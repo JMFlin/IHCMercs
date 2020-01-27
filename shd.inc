@@ -27,7 +27,7 @@ Sub shd_self_buffs
 
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) {
-		/call core_cast2 "${Stance}" spell ${Me.ID} FALSE¨
+		/call core_cast2 "${Stance}" spell ${Me.ID} FALSE
 		/varset CastCheck 1
 	}
 	
@@ -126,7 +126,7 @@ Sub shd_combat_buffs
 		}
 	}
 
-	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) /call core_cast2 "${Skin}" spell ${Me.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) /call core_cast2 "${Skin}" spell ${Target.ID} FALSE
 	
 
 	/if (!${Target.Buff[${Bond}].ID}) {
@@ -137,7 +137,7 @@ Sub shd_combat_buffs
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) /call core_cast2 "${Stance}" spell ${Me.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
 
 	/if (${Me.PctHPs} < 65) {
 		/if (${validate_cast[FALSE, alt, "Scourage Skin", ${Target.ID}]}) /call core_cast2 "Scourage Skin" alt ${Target.ID} FALSE

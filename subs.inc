@@ -816,7 +816,7 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 1s
-		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
 		/windowstate FellowshipWnd close
     }
@@ -2822,6 +2822,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		/varset _mezAERange ${Spell[${_mezAE}].AERange}
 		/varcalc _mezAERange ${_mezAERange} + 20
 	}
+
 	| How many mobs are there?
 	/if (${SpawnCount[npc targetable noalert 1 radius ${_mezAERange} zradius ${_mezAERange}]} > 1) {
 		
@@ -2861,7 +2862,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		}
 	}
 	
-	/if (!${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) /return
+	/if (!${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) /return FALSE
 	/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 
 	| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
