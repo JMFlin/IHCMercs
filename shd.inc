@@ -59,7 +59,11 @@ Sub shd_self_buffs
 		/call core_cast2 "${Stance}" spell ${Target.ID} FALSE
 		/varset CastCheck 1
 	}
-	
+
+	/if (${validate_cast[FALSE, alt, "Voice of Thule", ${Me.ID}]}) {
+		/call core_cast2 "Voice of Thule" alt ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
 
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
@@ -161,7 +165,6 @@ Sub shd_combat_buffs
 	
 	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Target.ID}]}) /call core_cast2 "Spire of the Reavers" alt ${Target.ID} FALSE
 	
-
 
 /return
 |----------------------------------------------------------------------------

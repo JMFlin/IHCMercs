@@ -1845,15 +1845,15 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 Sub global_cooldown_spells
 | ${Me.AltAbility[Force of Flame].Rank} >= 1
 
-	/if (${validate_cast[FALSE, alt, Force of Flame, ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Flame", ${Target.ID}]}) {
 		/alt act ${Me.AltAbility[Force of Flame].ID}
 		/return
 	}
-	/if (${validate_cast[FALSE, alt, Force of Ice, ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Ice", ${Target.ID}]}) {
 		/alt act ${Me.AltAbility[Force of Ice].ID}
 		/return
 	}
-	/if (${validate_cast[FALSE, alt, Force of Will, ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Will", ${Target.ID}]}) {
 		/alt act ${Me.AltAbility[Force of Will].ID}
 		/return
 	}
