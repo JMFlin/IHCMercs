@@ -142,7 +142,7 @@ Sub enc_combat
 
 	| Before debuffing and nuking check if we have to mezz
 	/while (!${mezzDone} && ${Me.XTarget} > 1) {
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 		/varset mezzDone ${Macro.Return}
 	}
 
@@ -175,11 +175,11 @@ Sub enc_combat
 	}
 
 	/while (!${mezzDone} && ${Me.XTarget} > 1) {
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 		/varset mezzDone ${Macro.Return}
 	}
 	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
-	
+
 	/call enc_debuff_xtarget
 	/if (${Me.XTarget} > 1) /call get_target
 

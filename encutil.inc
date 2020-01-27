@@ -69,8 +69,8 @@ Sub enc_setup
 	/declare LastMobCount           int		outer	0
 	/declare MezAEClosest           int		outer	0
 	/declare MezAEAA				string	outer	"NULL"
-	/declare MezAESpell				string	outer	"NULL"
-	/declare MezAESpellFast			string	outer	"NULL"
+	/declare AEMezSpell				string	outer	"NULL"
+	/declare AEMezSpellFast			string	outer	"NULL"
 	/declare MezAETimer             timer	outer	0
 	/declare MezBroke               int		outer	0
 	/declare MezCheckElements       int		outer	0
@@ -124,7 +124,7 @@ Sub enc_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 	/call LoadSpellGem "${MezSpell}" 1
-	/call LoadSpellGem "${MezAESpell}" 2
+	/call LoadSpellGem "${AEMezSpell}" 2
 	/call LoadSpellGem "${TashSpell}" 3
 	/call LoadSpellGem "${SlowSpell}" 4
 	/call LoadSpellGem "${Drown}" 5
@@ -390,33 +390,33 @@ Sub enc_abilities
 	} else /if (${Me.Level}>=2 && ${Me.Book[${Spell[Mesmerize].RankName}]}) {
 		/varset MezSpell ${Spell[Mesmerize].RankName}
 	}
-|-AE Mez * Var Name: MezAESpell	string outer
+|-AE Mez * Var Name: AEMezSpell	string outer
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Perplexing Wave].RankName}]}) {
-		/varset MezAESpell ${Spell[Perplexing Wave].RankName}
+		/varset AEMezSpell ${Spell[Perplexing Wave].RankName}
 	} else /if (${Me.Level}>=104 && ${Me.Book[${Spell[Deadening Wave].RankName}]}) {
-		/varset MezAESpell ${Spell[Deadening Wave].RankName}
+		/varset AEMezSpell ${Spell[Deadening Wave].RankName}
 	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[Slackening Wave].RankName}]}) {
-		/varset MezAESpell ${Spell[Slackening Wave].RankName}
+		/varset AEMezSpell ${Spell[Slackening Wave].RankName}
 	} else /if (${Me.Level}>=94 && ${Me.Book[${Spell[Peaceful Wave].RankName}]}) {
-		/varset MezAESpell ${Spell[Peaceful Wave].RankName}
+		/varset AEMezSpell ${Spell[Peaceful Wave].RankName}
 	} else /if (${Me.Level}>=89 && ${Me.Book[${Spell[Serene Wave].RankName}]}) {
-		/varset MezAESpell ${Spell[Serene Wave].RankName}
+		/varset AEMezSpell ${Spell[Serene Wave].RankName}
 	} else /if (${Me.Level}>=84 && ${Me.Book[${Spell[Ensorcelling Wave].RankName}]}) {
-		/varset MezAESpell ${Spell[Ensorcelling Wave].RankName}
+		/varset AEMezSpell ${Spell[Ensorcelling Wave].RankName}
 	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[Quelling Wave].RankName}]}) {
-		/varset MezAESpell ${Spell[Quelling Wave].RankName}
+		/varset AEMezSpell ${Spell[Quelling Wave].RankName}
 	} else /if (${Me.Level}>=74 && ${Me.Book[${Spell[Wake of Subdual].RankName}]}) {
-		/varset MezAESpell ${Spell[Wake of Subdual].RankName}
+		/varset AEMezSpell ${Spell[Wake of Subdual].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Wake of Felicity].RankName}]}) {
-		/varset MezAESpell ${Spell[Wake of Felicity].RankName}
+		/varset AEMezSpell ${Spell[Wake of Felicity].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Echoing Madness].RankName}]}) {
-		/varset MezAESpell ${Spell[Echoing Madness].RankName}
+		/varset AEMezSpell ${Spell[Echoing Madness].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Bliss of the Nihil].RankName}]}) {
-		/varset MezAESpell ${Spell[Bliss of the Nihil].RankName}
+		/varset AEMezSpell ${Spell[Bliss of the Nihil].RankName}
 	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Fascination].RankName}]}) {
-		/varset MezAESpell ${Spell[Fascination].RankName}
+		/varset AEMezSpell ${Spell[Fascination].RankName}
 	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Mesmerization].RankName}]}) {
-		/varset MezAESpell ${Spell[Mesmerization].RankName}
+		/varset AEMezSpell ${Spell[Mesmerization].RankName}
 	}
 |-PBAE Mez Spell * Var Name: MezPBAESpell string outer
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Perplex].RankName}]}) {
@@ -443,11 +443,11 @@ Sub enc_abilities
 		/varset MezPBAESpell ${Spell[Entrancing Lights].RankName}
 	}
 
-|-AE Mez Fast Cast * Var Name: MezAESpellFast string outer
+|-AE Mez Fast Cast * Var Name: AEMezSpellFast string outer
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Perplexing Glance].RankName}]}) {
-		/varset MezAESpellFast ${Spell[Perplexing Glance].RankName}
+		/varset AEMezSpellFast ${Spell[Perplexing Glance].RankName}
 	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[Slackening Glance].RankName}]}) {
-		/varset MezAESpellFast ${Spell[Slackening Glance].RankName}
+		/varset AEMezSpellFast ${Spell[Slackening Glance].RankName}
 	}
 	
 |-Single Mez Fast Cast * Var Name: MezSpellFast string outer
