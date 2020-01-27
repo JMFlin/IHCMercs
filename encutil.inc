@@ -98,7 +98,6 @@ Sub enc_setup
 	/declare UnityRune 				string 	outer	 NULL
 |-Config Options	
 
-	/varcalc MezWatchRadius ${MezRadius}*2
 	/declare ChestItemName		string outer "${Me.Inventory[17].Name}"
 	|-Set AA DurationMod for mez timer from Spell Casting Reinforcement AA
 	/declare spellmisc 				int outer 8
