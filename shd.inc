@@ -94,10 +94,14 @@ Sub shd_combat
 		/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 	}
 	
-	/call get_target
+	/call shd_get_aggro
 
 	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
+	}
+
+	/if (!${Me.Buff["${Recourse}"]}) {
+		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 
 	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
@@ -106,7 +110,7 @@ Sub shd_combat
 		}
 	}
 	
-	/call get_target
+	/call shd_get_aggro
 
 	/if (${Me.PctHPs} < 65) {
 		/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
@@ -118,13 +122,7 @@ Sub shd_combat
 Sub shd_combat_buffs
 	
 	/call get_target
-	/if (!${validate_combat_buffs[FALSE]}) /return
-
-	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
-		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {
-			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
-		}
-	}
+	
 
 	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) /call core_cast2 "${Skin}" spell ${Target.ID} FALSE
 	
@@ -133,17 +131,20 @@ Sub shd_combat_buffs
 		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
 	}
 
-	/if (!${Me.Buff["${Recourse}"]}) {
-		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
-	}
-
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
 	
 	/if (${validate_cast[FALSE, alt, "Scourge Skin", ${Me.ID}]}) /call core_cast2 "Scourge Skin" alt ${Target.ID} FALSE
-
 	
 	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) /call core_cast2 "Spire of the Reavers" alt ${Target.ID} FALSE
 	
+	
+	/if (!${validate_combat_buffs[FALSE]}) /return
+
+	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
+		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {
+			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
+		}
+	}
 
 /return
 |----------------------------------------------------------------------------
