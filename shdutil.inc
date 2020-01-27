@@ -132,7 +132,7 @@ Sub shd_abilities
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Falsin].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Falsin].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Touch of Lanys].RankName}]}) {
-		/varset Touch2 ${Spell[Touch of Lanys].RankName}
+		/varset Touch3 ${Spell[Touch of Lanys].RankName}
 		/varset Recourse Gift of Lanys
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Touch of the Soulbleeder].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of the Soulbleeder].RankName}
