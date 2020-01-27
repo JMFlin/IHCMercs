@@ -55,11 +55,6 @@ Sub shd_self_buffs
 
 	/if (${Me.XTarget}) /return
 	
-	/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) {
-		/call core_cast2 "${Stance}" spell ${Target.ID} FALSE
-		/varset CastCheck 1
-	}
-
 	/if (${validate_cast[FALSE, alt, "Voice of Thule", ${Me.ID}]}) {
 		/call core_cast2 "Voice of Thule" alt ${Me.ID} FALSE
 		/varset CastCheck 1
@@ -87,18 +82,20 @@ Sub shd_combat
 		}
 	}
 
-	/if (${validate_cast[FALSE, spell, "Chattering Bones", ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
 		/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, spell, "Vicious Bite of Chaos", ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Vicious Bite of Chaos", ${Target.ID}]}) {
 		/call core_cast2 "Vicious Bite of Chaos" alt ${Target.ID} FALSE
 	}
 
 	/if (${Me.PctHPs} < 99) {
 		/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 	}
-	/doevents
+	
+	/call get_target
+
 	/if (${Me.PctHPs} < 90) {
 		/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 	}
@@ -109,28 +106,12 @@ Sub shd_combat
 		}
 	}
 	
-	/if (!${Me.Buff["${Recourse}"]}) {
-		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
-	}
-	/doevents
+	/call get_target
 
 	/if (${Me.PctHPs} < 65) {
 		/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
 	}
 
-	/if (!${Target.Buff[${Bond}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
-	}
-
-	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) /call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
-	
-	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
-		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Target.ID}]}) {
-			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
-		}
-	}
-
-	/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) /call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 
 /return
 
@@ -140,12 +121,12 @@ Sub shd_combat_buffs
 	/if (!${validate_combat_buffs[FALSE]}) /return
 
 	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
-		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Target.ID}]}) {
-			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {
+			/call core_cast2 "${Withstand}" disc ${Me.ID} FALSE
 		}
 	}
 
-	/if (${validate_cast[FALSE, spell, "${Skin}", ${Target.ID}]}) /call core_cast2 "${Skin}" spell ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) /call core_cast2 "${Skin}" spell ${Me.ID} FALSE
 	
 
 	/if (!${Target.Buff[${Bond}].ID}) {
@@ -156,14 +137,14 @@ Sub shd_combat_buffs
 		/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) /call core_cast2 "${Stance}" spell ${Me.ID} FALSE
 
 	/if (${Me.PctHPs} < 65) {
 		/if (${validate_cast[FALSE, alt, "Scourage Skin", ${Target.ID}]}) /call core_cast2 "Scourage Skin" alt ${Target.ID} FALSE
 	}
 
 	
-	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Target.ID}]}) /call core_cast2 "Spire of the Reavers" alt ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) /call core_cast2 "Spire of the Reavers" alt ${Target.ID} FALSE
 	
 
 /return
