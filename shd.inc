@@ -122,7 +122,7 @@ Sub shd_combat_buffs
 
 	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
 		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {
-			/call core_cast2 "${Withstand}" disc ${Me.ID} FALSE
+			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
 		}
 	}
 
@@ -160,12 +160,12 @@ Sub shd_disc
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
-				/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Target.ID}]}) {
+				/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) {
 					/call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
 				}
 			}
 		} else {
-			/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) {
 				/call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
 			}
 		}
@@ -176,12 +176,12 @@ Sub shd_disc
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
-				/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Target.ID}]}) {
+				/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Me.ID}]}) {
 					/call core_cast2 "${IchorGuardDisc}" disc ${Target.ID} FALSE
 				}
 			}
 		} else {
-			/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Me.ID}]}) {
 				/call core_cast2 "${IchorGuardDisc}" disc ${Target.ID} FALSE
 			}
 		}
@@ -192,12 +192,12 @@ Sub shd_disc
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
-				/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Target.ID}]}) {
+				/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
 					/call core_cast2 "${LeechcurseID}" disc ${Target.ID} FALSE
 				}
 			}
 		} else {
-			/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
 				/call core_cast2 "${LeechcurseID}" disc ${Target.ID} FALSE
 			}
 		}
@@ -208,12 +208,12 @@ Sub shd_disc
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
-				/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Target.ID}]}) {
+				/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
 					/call core_cast2 "${UnholyAuraDisc}" disc ${Target.ID} FALSE
 				}
 			}
 		} else {
-			/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
 				/call core_cast2 "${UnholyAuraDisc}" disc ${Target.ID} FALSE
 			}
 		}

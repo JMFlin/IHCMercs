@@ -2474,7 +2474,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},WIZ,ENC,DRU,MAG,SHM]}) {
 		/varset AutoAssistAt 99
-		/varset AssistRange 100
+		/varset AssistRange 150
 	}
 
 /return
