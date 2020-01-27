@@ -77,10 +77,18 @@ Sub shd_combat
 	/squelch /attack on
 
 	/if (!${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
-		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-			/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 			/call check_cast_events CAST_IMMUNE "${SnareSpell}"
 		}
+	}
+
+	/if (${validate_cast[FALSE, spell, "Chattering Bones", ${Target.ID}]}) {
+		/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
+	}
+
+	/if (${validate_cast[FALSE, spell, "Vicious Bite of Chaos", ${Target.ID}]}) {
+		/call core_cast2 "Vicious Bite of Chaos" alt ${Target.ID} FALSE
 	}
 
 	/if (${Me.PctHPs} < 99) {
@@ -145,6 +153,15 @@ Sub shd_combat_buffs
 	}
 
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Target.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
+
+	/if (${Me.PctHPs} < 65) {
+		/if (${validate_cast[FALSE, alt, "Scourage Skin", ${Target.ID}]}) /call core_cast2 "Scourage Skin" alt ${Target.ID} FALSE
+	}
+
+	
+	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Target.ID}]}) /call core_cast2 "Spire of the Reavers" alt ${Target.ID} FALSE
+	
+
 
 /return
 |----------------------------------------------------------------------------
@@ -241,6 +258,18 @@ Sub shd_get_aggro
 		/call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 	}
 
+	/if (${validate_cast[FALSE, spell, "Ageless Enmity", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=100) {
+		/call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
+	}
+
+	/if (${validate_cast[FALSE, spell, "Projection of Doom", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=30) {
+		/call core_cast2 "Projection of Doom" alt ${Target.ID} FALSE
+	}
+
+	/if (${validate_cast[FALSE, spell, "Hates Attraction", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=50) {
+		/call core_cast2 "Hates Attraction" alt ${Target.ID} FALSE
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: aoe_aggro   
@@ -257,6 +286,11 @@ Sub shd_aoe_aggro
 			}
 		}
 		
+
+		/if (${SpawnCount[NPC radius 50 zradius 50]} > 2) {
+			/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${Target.ID}]}) /call core_cast2 "Explosion of Hatred" alt ${Target.ID} FALSE
+		} 
+
 		/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
 	|		/if (${validate_cast[FALSE, spell, "${Bargain}", ${Target.ID}]}) /call core_cast2 "${Bargain}" spell ${Target.ID} FALSE
 		} 
