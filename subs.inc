@@ -680,7 +680,7 @@ Sub pet_attack
 	/if (!${Me.Pet.ID}) /return
 	/if (${petFollow}) /varset petFollow 0
 	/if (!${validate_combat[${Target.ID}]} ) /return
-	/if (${Target.Distance3D} > ${AssistRange}/2) /return
+	/if (${Target.Distance3D} > ${AssistRange}) /return
 	
 	|- Spirit call
 	/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
@@ -787,17 +787,17 @@ Sub check_campfire
 
 	/if (${Zone.Name.NotEqual[${Me.Fellowship.CampfireZone}]}) {
 		/windowstate FellowshipWnd open
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 1s
+		/delay 2s
 		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
-		/delay 1s
+		/delay 2s
 		/windowstate FellowshipWnd close
 	}
 	
@@ -809,13 +809,13 @@ Sub check_campfire
 
     /if (${FellowCount}>=3) {
         /windowstate FellowshipWnd open
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
 		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
@@ -1249,7 +1249,14 @@ sub validate_combat_buffs(bool _debug)
 	/if (!${Me.XTarget}) /return FALSE
 	/if (!${Target.ID}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
-	/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}+60) /return FALSE
+	
+	/if (!${Select[${Me.Class.ShortName},WAR,PAL]}) {
+		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}+60) /return FALSE
+	}
+
+	/if (!${Select[${Me.Class.ShortName},SHD]}) {
+		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}+100) /return FALSE
+	}
 
 /return TRUE
 
