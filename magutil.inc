@@ -319,7 +319,7 @@ Sub mag_abilities
 	}
 	
 	/if (${Me.Level}>=${Spell[Chaotic Boon].Level} && ${Me.Book[${Spell[Chaotic Boon].RankName}]}) {
-		/varset BurnoutSpell ${Spell[Chaotic Boon].RankName}
+		/varset ChaoticHeal ${Spell[Chaotic Boon].RankName}
 	}
 
 	   
