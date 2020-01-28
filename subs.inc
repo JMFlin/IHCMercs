@@ -479,12 +479,6 @@ Sub afk_pull
 		/varset _pullTargetID ${Macro.Return}
 		/if (!${_pullTargetID}) /return
 
-		/if (!${Spawn[id ${_pullTargetID}].LineOfSight} || !${Target.ID}) {
-			/call get_pull_target ${_pullTargetID}
-			/varset _pullTargetID ${Macro.Return}
-			/if (!${_pullTargetID}) /return
-		}
-
 		/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 				/attack on
 				/if (!${Stick.Active}) /stick 12 front loose
@@ -543,7 +537,6 @@ Sub get_pull_target(int _tmpID)
 						/return 0
 					}
 				}
-
 			}
 			
 			/if (${Navigation.Active} && ${Me.XTarget}) {
@@ -643,7 +636,7 @@ Sub set_pull_target
 		/varcalc _count ${_count} + 1
 	}
 
-	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as target to pull
+	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as pull target
 	
 /return ${_pullTargetID}
 |----------------------------------------------------------------------------
