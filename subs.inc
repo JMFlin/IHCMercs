@@ -479,12 +479,6 @@ Sub afk_pull
 		/varset _pullTargetID ${Macro.Return}
 		/if (!${_pullTargetID}) /return
 
-		/if (!${Spawn[id ${_pullTargetID}].LineOfSight} || !${Target.ID}) {
-			/call get_pull_target ${_pullTargetID}
-			/varset _pullTargetID ${Macro.Return}
-			/if (!${_pullTargetID}) /return
-		}
-
 		/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 				/attack on
 				/if (!${Stick.Active}) /stick 12 front loose
@@ -543,7 +537,6 @@ Sub get_pull_target(int _tmpID)
 						/return 0
 					}
 				}
-
 			}
 			
 			/if (${Navigation.Active} && ${Me.XTarget}) {
@@ -594,6 +587,7 @@ Sub set_pull_target
 	/declare _pullMob 		int local 0
 	/declare _mobsInRadius 	int local 0
 	/declare _pullTargetID 	int local 0
+	/declare _pathLength 	int local 999
 
 	/if (${Me.XTarget[1].ID}) {
 		/varset _pullTargetID ${Me.XTarget[1].ID}
@@ -633,11 +627,16 @@ Sub set_pull_target
 			/continue
 		}
 		
-		/varset _pullTargetID ${_pullMob}
-		/break
+		DEBUG How does the Path Length compare for ${Spawn[id ${_pullMob}].DisplayName}: ${Int[${Navigation.PathLength[id ${_pullMob}]}]} vs ${_pathLength}
+		/if (${_pathLength} > ${Int[${Navigation.PathLength[id ${_pullMob}]}]}) {
+			/varset _pullTargetID ${_pullMob}
+			/varset _pathLength ${Int[${Navigation.PathLength[id ${_pullMob}]}]}
+		}
+
+		/varcalc _count ${_count} + 1
 	}
 
-	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as target to pull
+	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as pull target
 	
 /return ${_pullTargetID}
 |----------------------------------------------------------------------------
