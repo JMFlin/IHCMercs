@@ -594,6 +594,7 @@ Sub set_pull_target
 	/declare _pullMob 		int local 0
 	/declare _mobsInRadius 	int local 0
 	/declare _pullTargetID 	int local 0
+	/declare _pathLength 	int local 999
 
 	/if (${Me.XTarget[1].ID}) {
 		/varset _pullTargetID ${Me.XTarget[1].ID}
@@ -633,8 +634,13 @@ Sub set_pull_target
 			/continue
 		}
 		
-		/varset _pullTargetID ${_pullMob}
-		/break
+		DEBUG How does the Path Length compare for ${Spawn[id ${_pullMob}].DisplayName}: ${Int[${Navigation.PathLength[id ${_pullMob}]}]} vs ${_pathLength}
+		/if (${_pathLength} > ${Int[${Navigation.PathLength[id ${_pullMob}]}]}) {
+			/varset _pullTargetID ${_pullMob}
+			/varset _pathLength ${Int[${Navigation.PathLength[id ${_pullMob}]}]}
+		}
+
+		/varcalc _count ${_count} + 1
 	}
 
 	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as target to pull
