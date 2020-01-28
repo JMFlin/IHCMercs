@@ -142,9 +142,11 @@ Sub enc_combat
 
 	| Before debuffing and nuking check if we have to mezz
 	/while (!${mezzDone} && ${Me.XTarget} > 1) {
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 		/varset mezzDone ${Macro.Return}
 	}
+
+	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
 
 	| Before nuking check if we have to debuff
 	/call enc_debuff_xtarget
@@ -172,7 +174,12 @@ Sub enc_combat
 		}
 	}
 
-	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
+	/while (!${mezzDone} && ${Me.XTarget} > 1) {
+		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+		/varset mezzDone ${Macro.Return}
+	}
+	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
+
 	/call enc_debuff_xtarget
 	/if (${Me.XTarget} > 1) /call get_target
 
@@ -184,9 +191,6 @@ Sub enc_combat
 
 	/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
 	
-	/call mezz_xtarget "${MezAESpell}" "${MezSpell}"
-	/if (${Me.XTarget} > 1) /call get_target
-
 	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=

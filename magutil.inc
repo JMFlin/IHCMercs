@@ -34,12 +34,14 @@ Sub mag_setup
   |-Pet
 	/declare PetSpell				string	outer	NULL
     /declare BurnoutSpell        	string 	outer	NULL
+	/declare ChaoticHeal 			string 	outer 	NULL
 	/declare PetProc 				string 	outer	NULL
 	/declare PetMalo				string 	outer	NULL
     /declare PetToysPlate			string 	outer	NULL
     /declare PetToysJewlry			string 	outer	NULL
     /declare PetToysWeps			string 	outer	NULL
 	/declare PetToysFace 			string 	outer 	NULL
+
 
 /return
 |* ------------------------------------------------------------------------------------------

@@ -554,9 +554,9 @@ Sub get_pull_target(int _tmpID)
 				}
 			}
 
-			/if (${Navigation.Active} && ${Target.ID} == ${_tmpID}) /nav stop
+			/if (${Navigation.Active} && ${Target.ID} == ${_tmpID} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
 			/delay 1
-			/if (!${Navigation.Active} && !${Spawn[id ${_tmpID}].LineOfSight}) /nav id ${_tmpID}
+			/if (!${Navigation.Active} && (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight})) /nav id ${_tmpID}
 		}
 
 	} else {
@@ -796,7 +796,7 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
 		/delay 1s
-		/nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
+		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
 		/delay 1s
 		/windowstate FellowshipWnd close
 	}
@@ -816,10 +816,9 @@ Sub check_campfire
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
+		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/windowstate FellowshipWnd close
     }
 /return
@@ -1586,17 +1585,17 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		}
 
 		| cast GOM if song proc?
-		/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && !${Select[${Me.Class.ShortName},CLR]} && ${Spawn[${Target.ID}].Type.NotEqual[pc]}) {
+		|/if (${_tmpID} != 0 && ${Target.ID} && ${Me.Song[Gift of Mana].ID} && !${Select[${Me.Class.ShortName},CLR]} && ${Spawn[id ${Target.ID}].Type.NotEqual[pc]}) {
 		
 			| nuke 1
-			/if (${Me.SpellReady[${Spell[${GoMNuke}].RankName}]}) {
-				/varset _spell ${GoMNuke}
+		|	/if (${Me.SpellReady[${Spell[${GoMNuke}].RankName}]}) {
+		|		/varset _spell ${GoMNuke}
 
 			| nuke 2
-			} else /if (${Me.SpellReady[${Spell[${GoMNuke2}].RankName}]}) {
-				/varset _spell ${GoMNuke2}
-			}	
-		}
+		|	} else /if (${Me.SpellReady[${Spell[${GoMNuke2}].RankName}]}) {
+		|		/varset _spell ${GoMNuke2}
+		|	}	
+		|}
 				
 		| correct the rank
 		/varset _spell ${Spell[${_spell}].RankName}
@@ -1847,15 +1846,15 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 Sub global_cooldown_spells
 | ${Me.AltAbility[Force of Flame].Rank} >= 1
 
-	/if (${validate_cast[FALSE, alt, Force of Flame, ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Flame", ${Target.ID}]}) {
 		/alt act ${Me.AltAbility[Force of Flame].ID}
 		/return
 	}
-	/if (${validate_cast[FALSE, alt, Force of Ice, ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Ice", ${Target.ID}]}) {
 		/alt act ${Me.AltAbility[Force of Ice].ID}
 		/return
 	}
-	/if (${validate_cast[FALSE, alt, Force of Will, ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Will", ${Target.ID}]}) {
 		/alt act ${Me.AltAbility[Force of Will].ID}
 		/return
 	}
@@ -2475,7 +2474,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},WIZ,ENC,DRU,MAG,SHM]}) {
 		/varset AutoAssistAt 99
-		/varset AssistRange 100
+		/varset AssistRange 150
 	}
 
 /return
@@ -2823,6 +2822,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		/varset _mezAERange ${Spell[${_mezAE}].AERange}
 		/varcalc _mezAERange ${_mezAERange} + 20
 	}
+
 	| How many mobs are there?
 	/if (${SpawnCount[npc targetable noalert 1 radius ${_mezAERange} zradius ${_mezAERange}]} > 1) {
 		
@@ -2862,7 +2862,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		}
 	}
 	
-	/if (!${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) /return
+	/if (!${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) /return FALSE
 	/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 
 	| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
