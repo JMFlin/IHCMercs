@@ -532,7 +532,7 @@ Sub get_pull_target(int _tmpID)
 
 				/if (${Target.ID} == ${_tmpID}) {
 
-					DEBUG los: ${Spawn[id ${_tmpID}].LineOfSight} pc: ${validate_no_pc[${_tmpID}]} npc: ${validate_single_pull[${_tmpID}]}
+					| DEBUG los: ${Spawn[id ${_tmpID}].LineOfSight} pc: ${validate_no_pc[${_tmpID}]} npc: ${validate_single_pull[${_tmpID}]}
 
 					/if (!${validate_no_pc[${_tmpID}]} || !${validate_single_pull[${_tmpID}]}) {
 						/nav stop
@@ -598,8 +598,9 @@ Sub set_pull_target
 
 	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
 	
-	DEBUG
+	DEBUG 
 	DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
+	DEBUG 
 
 	/if (${_mobsInRadius} == 0) /return 0
 
@@ -617,7 +618,7 @@ Sub set_pull_target
 			/continue
 		}
 		
-		DEBUG Are there PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
+		DEBUG Are there no PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
 		/if (!${validate_no_pc[${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
@@ -637,9 +638,10 @@ Sub set_pull_target
 
 		/varcalc _count ${_count} + 1
 	}
-
+	DEBUG 
 	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as pull target
-	
+	DEBUG 
+
 /return ${_pullTargetID}
 |----------------------------------------------------------------------------
 |- SUB: pre_combat_buffs
@@ -2106,6 +2108,12 @@ sub check_for_corpse(bool _debug)
 			|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 			|} 
 		/next _count
+
+	/if (${Spawn[${Me.Name} pccorpse radius ${setMaxRezRange}].ID}) {
+		/varset _tmpID ${Spawn[${Me.Name} pccorpse radius 40].ID}
+		/call cast_rez ${_tmpID} "${RezSpell}"	
+	}
+	
 /return
 
 |-------------------------------------------------------------------------------------

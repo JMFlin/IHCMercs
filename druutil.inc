@@ -42,12 +42,14 @@ Sub dru_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 
-	/call LoadSpellGem "${HealSpell1}" 1
-	/call LoadSpellGem "${Survival}" 2
-	/call LoadSpellGem "${Reptile}" 3
+	/call LoadSpellGem "${Revitalization}" 1
+	/call LoadSpellGem "${Adrenaline}" 2
+	
+	
+	/call LoadSpellGem "${Curavida}" 3
 
-	/call LoadSpellGem "${ColdAtkDebuff}" 4
-	/call LoadSpellGem "${HealSpell2}" 5
+	/call LoadSpellGem "${Reptile}" 4
+	/call LoadSpellGem "${Survival}" 5
 	/call LoadSpellGem "${NBW}" 6
 	/call LoadSpellGem "${NukeSpell1}" 7
 	/call LoadSpellGem "${GroupHealSpell1}" 8
@@ -60,40 +62,118 @@ Sub dru_load_spellbar
 |---------------------------------------------------------------------------- 
 Sub dru_abilities
 
-	/if (${Me.Level}>=${Spell[Puravida].Level} && ${Me.Book[${Spell[Puravida].RankName}]}) {
-		/varset HealSpell1 ${Spell[Puravida].RankName}
-	} else /if (${Me.Level}>=${Spell[Pure Life].Level} && ${Me.Book[${Spell[Pure Life].RankName}]}) {
-		/varset HealSpell1 ${Spell[Pure Life].RankName}
-	} else /if (${Me.Level}>=${Spell[Ancient Chlorobon].Level} && ${Me.Book[${Spell[Ancient Chlorobon].RankName}]}) {
-		/varset HealSpell1 ${Spell[Ancient Chlorobon].RankName}
-	} else /if (${Me.Level}>=${Spell[Chlorotrope].Level} && ${Me.Book[${Spell[Chlorotrope].RankName}]}) {
-		/varset HealSpell1 ${Spell[Chlorotrope].RankName}
-	} else /if (${Me.Level}>=${Spell[Sylvan Infusion].Level} && ${Me.Book[${Spell[Sylvan Infusion].RankName}]}) {
-		/varset HealSpell1 ${Spell[Sylvan Infusion].RankName}
-	} else /if (${Me.Level}>=${Spell[Karana's Renewal].Level} && ${Me.Book[${Spell[Karana's Renewal].RankName}]}) {
-		/varset HealSpell1 ${Spell[Karana's Renewal].RankName}
-	} else /if (${Me.Level}>=${Spell[Nature's Infusion].Level} && ${Me.Book[${Spell[Nature's Infusion].RankName}]}) {
-		/varset HealSpell1 ${Spell[Nature's Infusion].RankName}
-	} else /if (${Me.Level}>=${Spell[Nature's Touch].Level} && ${Me.Book[${Spell[Nature's Touch].RankName}]}) {
-		/varset HealSpell1 ${Spell[Nature's Touch].RankName}
-	} else /if (${Me.Level}>=${Spell[Tunare's Renewal].Level} && ${Me.Book[${Spell[Tunare's Renewal].RankName}]}) {
-		/varset HealSpell1 ${Spell[Tunare's Renewal].RankName}
+|**
+HEAL:
+1-   Revitalization
+2-   Adrenaline Barrage (or Thornspike Rush if short event)
+3-   Curavida
+4-   Lunasalve
+5-   Promised Rebirth
+6-   Sunflash Blessing
+7-   Survival of the Auspicious
+8-   Guard of the Reptile
+9-   Savage Growth
+10-   Arcronite Skin (or Blessing if short event)
+11-   Bosquetender’s Alliance
+12-   Nature’s Response
+13-   Nourishing Growth
+
+BALANCED:
+1-   Revitalization
+2-   Adrenaline Barrage (or Thornspike Rush if short event)
+3-   Curavida
+4-   Lunasalve
+5-   Survival of the Auspicious
+6-   Remote Moonflash (or Remote Sunblaze)
+7-   Dichotomic Winds
+8-   Nature’s Blistening Wrath
+9-   Sunflame
+10-   Horde of Polybiads
+11-   Chill of the Wildtender (Cycle with the spell Nourishing Growth for mana regen)
+12-   Pearlescent Moonbeam (Cycle with the spell Bosquetener’s Fortitude for a short-burn event) OR Overwhelming Sunray (Cycle with the spell Twincast for extra Twin burn)
+13-   Cyclonic Roar (Cycle with the spell Frostreave Aura or Wildspark Aura for extra cold/fire burst procs for your group)
+**|
+
+
+
+	/if (${Me.Level}>=${Spell[Rejuvenescence].Level} && ${Me.Book[${Spell[Rejuvenescence].RankName}]}) {
+		/varset Revitalization ${Spell[Rejuvenescence].RankName}
+	} else /if (${Me.Level}>=${Spell[Revitalization].Level} && ${Me.Book[${Spell[Revitalization].RankName}]}) {
+		/varset Revitalization ${Spell[Revitalization].RankName}
+	} else /if (${Me.Level}>=${Spell[Resurgence].Level} && ${Me.Book[${Spell[Resurgence].RankName}]}) {
+		/varset Revitalization ${Spell[Resurgence].RankName}
+	} else /if (${Me.Level}>=${Spell[Vivification].Level} && ${Me.Book[${Spell[Vivification].RankName}]}) {
+		/varset Revitalization ${Spell[Vivification].RankName}
+	} else /if (${Me.Level}>=${Spell[Invigoration].Level} && ${Me.Book[${Spell[Invigoration].RankName}]}) {
+		/varset Revitalization ${Spell[Invigoration].RankName}
+	} else /if (${Me.Level}>=${Spell[Rejuvilation].Level} && ${Me.Book[${Spell[Rejuvilation].RankName}]}) {
+		/varset Revitalization ${Spell[Rejuvilation].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Adrenaline Swell].Level} && ${Me.Book[${Spell[Adrenaline Swell].RankName}]}) {
-		/varset HealSpell2 ${Spell[Adrenaline Swell].RankName}
+
+	/if (${Me.Level}>=${Spell[Viridavida].Level} && ${Me.Book[${Spell[Viridavida].RankName}]}) {
+		/varset Curavida ${Spell[Viridavida].RankName}
+	} else /if (${Me.Level}>=${Spell[Curavida].Level} && ${Me.Book[${Spell[Curavida].RankName}]}) {
+		/varset Curavida ${Spell[Curavida].RankName}
+	} else /if (${Me.Level}>=${Spell[Panavida].Level} && ${Me.Book[${Spell[Panavida].RankName}]}) {
+		/varset Curavida ${Spell[Panavida].RankName}
+	} else /if (${Me.Level}>=${Spell[Sterivida].Level} && ${Me.Book[${Spell[Sterivida].RankName}]}) {
+		/varset Curavida ${Spell[Sterivida].RankName}
+	} else /if (${Me.Level}>=${Spell[Sanavida].Level} && ${Me.Book[${Spell[Sanavida].RankName}]}) {
+		/varset Curavida ${Spell[Sanavida].RankName}
+	} else /if (${Me.Level}>=${Spell[Benevida].Level} && ${Me.Book[${Spell[Benevida].RankName}]}) {
+		/varset Curavida ${Spell[Benevida].RankName}
+	} else /if (${Me.Level}>=${Spell[Granvida].Level} && ${Me.Book[${Spell[Granvida].RankName}]}) {
+		/varset Curavida ${Spell[Granvida].RankName}
+	} else /if (${Me.Level}>=${Spell[Puravida].Level} && ${Me.Book[${Spell[Puravida].RankName}]}) {
+		/varset Curavida ${Spell[Puravida].RankName}
+	} else /if (${Me.Level}>=${Spell[Pure Life].Level} && ${Me.Book[${Spell[Pure Life].RankName}]}) {
+		/varset Curavida ${Spell[Pure Life].RankName}
+	} else /if (${Me.Level}>=${Spell[Ancient Chlorobon].Level} && ${Me.Book[${Spell[Ancient Chlorobon].RankName}]}) {
+		/varset Curavida ${Spell[Ancient Chlorobon].RankName}
+	} else /if (${Me.Level}>=${Spell[Chlorotrope].Level} && ${Me.Book[${Spell[Chlorotrope].RankName}]}) {
+		/varset Curavida ${Spell[Chlorotrope].RankName}
+	} else /if (${Me.Level}>=${Spell[Sylvan Infusion].Level} && ${Me.Book[${Spell[Sylvan Infusion].RankName}]}) {
+		/varset Curavida ${Spell[Sylvan Infusion].RankName}
+	} else /if (${Me.Level}>=${Spell[Karana's Renewal].Level} && ${Me.Book[${Spell[Karana's Renewal].RankName}]}) {
+		/varset Curavida ${Spell[Karana's Renewal].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Infusion].Level} && ${Me.Book[${Spell[Nature's Infusion].RankName}]}) {
+		/varset Curavida ${Spell[Nature's Infusion].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Touch].Level} && ${Me.Book[${Spell[Nature's Touch].RankName}]}) {
+		/varset Curavida ${Spell[Nature's Touch].RankName}
+	} else /if (${Me.Level}>=${Spell[Tunare's Renewal].Level} && ${Me.Book[${Spell[Tunare's Renewal].RankName}]}) {
+		/varset Curavida ${Spell[Tunare's Renewal].RankName}
+	}
+
+
+	/if (${Me.Level}>=${Spell[Adrenaline Deluge].Level} && ${Me.Book[${Spell[Adrenaline Deluge].RankName}]}) {
+		/varset Adrenaline ${Spell[Adrenaline Deluge].RankName}
+	} else /if (${Me.Level}>=${Spell[Adrenaline Barrage].Level} && ${Me.Book[${Spell[Adrenaline Barrage].RankName}]}) {
+		/varset Adrenaline ${Spell[Adrenaline Barrage].RankName}
+	} else /if (${Me.Level}>=${Spell[Adrenaline Torrent].Level} && ${Me.Book[${Spell[Adrenaline Torrent].RankName}]}) {
+		/varset Adrenaline ${Spell[Adrenaline Torrent].RankName}
+	} else /if (${Me.Level}>=${Spell[Adrenaline Rush].Level} && ${Me.Book[${Spell[Adrenaline Rush].RankName}]}) {
+		/varset Adrenaline ${Spell[Adrenaline Rush].RankName}
+	} else /if (${Me.Level}>=${Spell[Adrenaline Flood].Level} && ${Me.Book[${Spell[Adrenaline Flood].RankName}]}) {
+		/varset Adrenaline ${Spell[Adrenaline Flood].RankName}
+	} else /if (${Me.Level}>=${Spell[Adrenaline Blast].Level} && ${Me.Book[${Spell[Adrenaline Blast].RankName}]}) {
+		/varset Adrenaline ${Spell[Adrenaline Blast].RankName}
+	} else /if (${Me.Level}>=${Spell[Adrenaline Burst].Level} && ${Me.Book[${Spell[Adrenaline Burst].RankName}]}) {
+		/varset Adrenaline ${Spell[Adrenaline Burst].RankName}
+	} else /if (${Me.Level}>=${Spell[Adrenaline Swell].Level} && ${Me.Book[${Spell[Adrenaline Swell].RankName}]}) {
+		/varset Adrenaline ${Spell[Adrenaline Swell].RankName}
 	} else /if (${Me.Level}>=${Spell[Adrenaline Surge].Level} && ${Me.Book[${Spell[Adrenaline Surge].RankName}]}) {
-		/varset HealSpell2 ${Spell[Adrenaline Surge].RankName}
+		/varset Adrenaline ${Spell[Adrenaline Surge].RankName}
 	} else /if (${Me.Level}>=${Spell[Superior Healing].Level} && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
-		/varset HealSpell2 ${Spell[Superior Healing].RankName}
+		/varset Adrenaline ${Spell[Superior Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Greater Healing].Level} && ${Me.Book[${Spell[Greater Healing].RankName}]}) {
-		/varset HealSpell2 ${Spell[Greater Healing].RankName}
+		/varset Adrenaline ${Spell[Greater Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Healing].Level} && ${Me.Book[${Spell[Healing].RankName}]}) {
-		/varset HealSpell2 ${Spell[Healing].RankName}
+		/varset Adrenaline ${Spell[Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Light Healing].Level} && ${Me.Book[${Spell[Light Healing].RankName}]}) {
-		/varset HealSpell2 ${Spell[Light Healing].RankName}
+		/varset Adrenaline ${Spell[Light Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
-		/varset HealSpell2 ${Spell[Minor Healing].RankName}
+		/varset Adrenaline ${Spell[Minor Healing].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Crescentbloom].Level} && ${Me.Book[${Spell[Crescentbloom].RankName}]}) {
@@ -267,7 +347,23 @@ Sub dru_abilities
 		/varset GroupWolfAtkBuff ${Spell[Feral Pack].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Survival of the Fittest].Level} && ${Me.Book[${Spell[Survival of the Fittest].RankName}]}) {
+ 
+
+	/if (${Me.Level}>=${Spell[Survival of the Favored].Level} && ${Me.Book[${Spell[Survival of the Favored].RankName}]}) {
+		/varset Survival ${Spell[Survival of the Favored].RankName}
+	} else /if (${Me.Level}>=${Spell[Survival of the Auspicious].Level} && ${Me.Book[${Spell[Survival of the Auspicious].RankName}]}) {
+		/varset Survival ${Spell[Survival of the Auspicious].RankName}
+	} else /if (${Me.Level}>=${Spell[Survival of the Serendipitous].Level} && ${Me.Book[${Spell[Survival of the Serendipitous].RankName}]}) {
+		/varset Survival ${Spell[Survival of the Serendipitous].RankName}
+	} else /if (${Me.Level}>=${Spell[Survival of the Fortuitous].Level} && ${Me.Book[${Spell[Survival of the Fortuitous].RankName}]}) {
+		/varset Survival ${Spell[Survival of the Fortuitous].RankName}
+	} else /if (${Me.Level}>=${Spell[Survival of the Prosperous].Level} && ${Me.Book[${Spell[Survival of the Prosperous].RankName}]}) {
+		/varset Survival ${Spell[Survival of the Prosperous].RankName}
+	} else /if (${Me.Level}>=${Spell[Survival of the Propitious].Level} && ${Me.Book[${Spell[Survival of the Propitious].RankName}]}) {
+		/varset Survival ${Spell[Survival of the Propitious].RankName}
+	} else /if (${Me.Level}>=${Spell[Survival of the Felicitous].Level} && ${Me.Book[${Spell[Survival of the Felicitous].RankName}]}) {
+		/varset Survival ${Spell[Survival of the Felicitous].RankName}
+	} else /if (${Me.Level}>=${Spell[Survival of the Fittest].Level} && ${Me.Book[${Spell[Survival of the Fittest].RankName}]}) {
 		/varset Survival ${Spell[Survival of the Fittest].RankName}
 	}
 

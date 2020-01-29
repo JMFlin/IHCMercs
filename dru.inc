@@ -301,8 +301,8 @@ Sub dru_single_target_heals
 	/varset _worstHurtId ${Macro.Return}
 	
 	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${HealSpell2}", ${_worstHurtId}]}) {
-			/call core_cast2 "${HealSpell2}" spell ${_worstHurtId} FALSE
+		/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${_worstHurtId}]}) {
+			/call core_cast2 "${Adrenaline}" spell ${_worstHurtId} FALSE
 		}
 	}
 /return
