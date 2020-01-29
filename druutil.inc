@@ -366,8 +366,22 @@ BALANCED:
 	} else /if (${Me.Level}>=${Spell[Survival of the Fittest].Level} && ${Me.Book[${Spell[Survival of the Fittest].RankName}]}) {
 		/varset Survival ${Spell[Survival of the Fittest].RankName}
 	}
-
-	/if (${Me.Level}>=${Spell[Scales of the Reptile].Level} && ${Me.Book[${Spell[Scales of the Reptile].RankName}]}) {
+ 
+	/if (${Me.Level}>=${Spell[Defense of the Reptile].Level} && ${Me.Book[${Spell[Defense of the Reptile].RankName}]}) {
+		/varset Reptile ${Spell[Defense of the Reptile].RankName}
+	} else /if (${Me.Level}>=${Spell[Guard of the Reptile].Level} && ${Me.Book[${Spell[Guard of the Reptile].RankName}]}) {
+		/varset Reptile ${Spell[Guard of the Reptile].RankName}
+	} else /if (${Me.Level}>=${Spell[Pellicle of the Reptile].Level} && ${Me.Book[${Spell[Pellicle of the Reptile].RankName}]}) {
+		/varset Reptile ${Spell[Pellicle of the Reptile].RankName}
+	} else /if (${Me.Level}>=${Spell[Husk of the Reptile].Level} && ${Me.Book[${Spell[Husk of the Reptile].RankName}]}) {
+		/varset Reptile ${Spell[Husk of the Reptile].RankName}
+	} else /if (${Me.Level}>=${Spell[Hide of the Reptile].Level} && ${Me.Book[${Spell[Hide of the Reptile].RankName}]}) {
+		/varset Reptile ${Spell[Hide of the Reptile].RankName}
+	} else /if (${Me.Level}>=${Spell[Shell of the Reptile].Level} && ${Me.Book[${Spell[Shell of the Reptile].RankName}]}) {
+		/varset Reptile ${Spell[Shell of the Reptile].RankName}
+	} else /if (${Me.Level}>=${Spell[Carapace of the Reptile].Level} && ${Me.Book[${Spell[Carapace of the Reptile].RankName}]}) {
+		/varset Reptile ${Spell[Carapace of the Reptile].RankName}
+	} else /if (${Me.Level}>=${Spell[Scales of the Reptile].Level} && ${Me.Book[${Spell[Scales of the Reptile].RankName}]}) {
 		/varset Reptile ${Spell[Scales of the Reptile].RankName}
 	} else /if (${Me.Level}>=${Spell[Skin of the Reptile].Level} && ${Me.Book[${Spell[Skin of the Reptile].RankName}]}) {
 		/varset Reptile ${Spell[Skin of the Reptile].RankName}
