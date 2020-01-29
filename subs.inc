@@ -486,6 +486,7 @@ Sub afk_pull
 				/delay 7s ${Target.Distance} <= ${PullDistance}
 				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 				/if (!${Stick.Active} && ${Me.XTarget}) /stick off
+				/delay 1s ${Me.XTarget}
 
 		} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
