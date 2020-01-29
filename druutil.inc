@@ -21,6 +21,10 @@ Sub dru_setup
 	/declare SoW				string outer NULL
 	/declare DamageShield 		string outer NULL
 
+	/declare Revitalization 	string outer NULL
+	/declare Curavida 			string outer NULL
+	/declare Adrenaline 		string outer NULL
+
 	/declare FireAtkDebuff 		string outer NULL
 	/declare FireAcDebuff		string outer NULL
 	/declare ColdAtkDebuff 		string outer NULL

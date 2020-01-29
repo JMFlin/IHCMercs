@@ -31,17 +31,14 @@ Sub brd_pulse(bool _debug, string _melody)
         /varset _melodyArray[${_song}] ${_melody.Mid[${_song},1]}
     /next _song
 	
-	/while (!${mezzDone} && ${Me.XTarget} > 1) {
+	/call get_target
+	/call engage
+	/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+
+	/for _song 1 to ${_lnString}
 		/call get_target
 		/call engage
 		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
-		/varset mezzDone ${Macro.Return}
-	}
-
-	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
-
-	/for _song 1 to ${_lnString}
-
 		/call brd_combat
 
 		/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && !${immuneSet.Contains[${Target.ID}]}) {

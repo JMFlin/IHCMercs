@@ -183,6 +183,10 @@ Sub check_state(bool _debug)
 	/if (${_count} > 0) {
 		/echo 'Immune Set Clear: ${immuneSet.Clear}.'
 	}
+	/varset _count ${debuffSet.Count}
+	/if (${_count} > 0) {
+		/echo 'Debuff Set Clear: ${debuffSet.Clear}.'
+	}
 
 	| check pet
 	/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back off
@@ -315,12 +319,12 @@ Sub dummy_mode
 
 	/if (${Me.XTarget}) /return
 
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]} > 6)) { 
+	/if (${Spawn[gm].ID} || (${SpawnCount[pc noalert 2 radius ${pullRadiusXY}]} > 6)) { 
 		/echo Entering Dummy Mode...
 		/delay 1s 
 		/echo PC nearby! 
 		
-		/while (${Spawn[gm].ID} || (${SpawnCount[pc radius ${pullRadiusXY}]} > 6)) { 
+		/while (${Spawn[gm].ID} || (${SpawnCount[pc noalert 2 radius ${pullRadiusXY}]} > 6)) { 
 			/for _count 1 to ${DummyTime}
 				/echo (${_count}/${DummyTime})
 				/if (${Mode} == 0) /return

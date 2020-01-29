@@ -6,14 +6,14 @@ Sub enc_main
 	|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
 	|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
 
-	/call enc_group_buffs
 	/call enc_self_buffs
+	/call enc_group_buffs
 
 	/call get_target
 
 	/call enc_combat
 |	/call CheckMana
-	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
+	/if (${Me.XTarget} < 2) /varset mezzDone FALSE
 |	/if (${UseModRods}) /call ClickModRoD
 	
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
@@ -32,12 +32,16 @@ Sub enc_debuff_xtarget
 
 	/for x 1 to ${Me.XTarget}
 
+		/if (${debuffSet.Contains[${Me.XTarget[${x}].ID}]}) /continue
+		
 		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
 			/target id ${Me.XTarget[${x}].ID}
 			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
 		}
 		
 		/delay 1s
+
+		
 
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
@@ -63,17 +67,7 @@ Sub enc_debuff_xtarget
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-
-		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			
-			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
-				/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
-				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
-			}
-		}
 		
-
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
 			
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
@@ -81,6 +75,11 @@ Sub enc_debuff_xtarget
 				/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 			}
 		}
+		
+		/if (!${debuffSet.Add[${Target.ID}]}) {
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Set Add of${Target.ID} failed.
+		}
+
 |			/if (${StripBuffs} && (!${Me.Casting.ID}) && ${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
 |				/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
 |					/alt act ${Me.AltAbility[${StripBuffSpell}].ID}
@@ -105,8 +104,11 @@ Sub enc_debuff_xtarget
 |			}
 |			/if (${DoBlurr} && ${Me.PctAggro}>=${BlurrAggroPct}) /call ManageAggro "BlrFlg"
 |		/delay 5s !${Me.Casting.ID}
-		/delay 1s
+		/delay 7
 	/next x
+
+	/call get_target
+
 /return
 
 |----------------------------------------------------------------------------
@@ -141,12 +143,7 @@ Sub enc_combat
 	/if (!${validate_combat[${Target.ID}]} ) /return
 
 	| Before debuffing and nuking check if we have to mezz
-	/while (!${mezzDone} && ${Me.XTarget} > 1) {
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/varset mezzDone ${Macro.Return}
-	}
-
-	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
+	/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
 	| Before nuking check if we have to debuff
 	/call enc_debuff_xtarget
@@ -166,7 +163,10 @@ Sub enc_combat
 		}
 	}
 
+	/call enc_debuff_xtarget
+
 	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			
 		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
 			/call core_cast2 "${SingleStunSpell1}" spell ${Target.ID} FALSE
@@ -174,23 +174,23 @@ Sub enc_combat
 		}
 	}
 
-	/while (!${mezzDone} && ${Me.XTarget} > 1) {
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/varset mezzDone ${Macro.Return}
-	}
-	/if (${mezzDone} && ${Me.XTarget} < 2) /varset mezzDone FALSE
-
+	/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 	/call enc_debuff_xtarget
-	/if (${Me.XTarget} > 1) /call get_target
 
 	/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
 	}
 
+	/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+	/call enc_debuff_xtarget
+
 	/if (${validate_cast[FALSE, spell, "Chromatic Haze", ${Target.ID}]}) /call core_cast2 "Chromatic Haze" alt ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
 	
+	/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+	/call enc_debuff_xtarget
+
 	/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Stunning \ar ${Target.Name} \ax with =>> \ag ${SingleStunSpell1} \ax <<=
@@ -198,6 +198,8 @@ Sub enc_combat
 			/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
 		}
 	}
+	/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+	/call enc_debuff_xtarget
 	
 	/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
 

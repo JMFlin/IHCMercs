@@ -138,9 +138,9 @@ Sub wiz_combat
 		}
 	}
 
-	/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
-		/call core_cast2 "${SelfRune1}" spell 0 FALSE
-	}
+	|/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
+	|	/call core_cast2 "${SelfRune1}" spell 0 FALSE
+	|}
 
 	/if (${Target.PctHPs} >= 100) /return
 

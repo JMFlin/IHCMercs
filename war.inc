@@ -280,7 +280,7 @@ Sub war_aoe_aggro
 
 		| If no mob is yet mezzed hit them all
 		/if (${numberOfSpawn} > 1) {
-			/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
+		|	/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
 		}
 	}
 

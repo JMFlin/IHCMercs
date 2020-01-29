@@ -158,6 +158,7 @@ Sub var_setup
 |- sets 
 	/declare immuneSet			 set outer
 	/declare immuneSetIterator	 setiterator outer
+	/declare debuffSet 			 set outer
 |- verbose
 	/declare verboseSHD 		bool outer FALSE
 	/declare verboseWAR 		bool outer FALSE
@@ -1275,9 +1276,11 @@ sub validate_combat(int _tmpID)
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 
 
-	/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange} && ${Select[${Me.Class.ShortName},BER,ROG,BRD,MNK]}) {
-		/if (${Stick.Active}) /stick off
-		/nav id ${_tmpID}
+	/if (${Select[${Me.Class.ShortName},BER,ROG,BRD,MNK]}) {
+		/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange}) {
+			/if (${Stick.Active}) /stick off
+			/nav id ${_tmpID}
+		}
 	}
 
 	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
@@ -1294,8 +1297,10 @@ sub validate_combat(int _tmpID)
 
 	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${_tmpID}]} < 65) || ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange}) {
 		
-		/if (${Group.MainTank.ID} != ${Me.ID} && ${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK]}) {
-			/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
+		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK]}) {
+			/if (${Group.MainTank.ID} != ${Me.ID}) {
+				/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
+			}
 		}
 		
 		/return TRUE
@@ -2835,7 +2840,6 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/declare _mezAERange		int local 0
 
 	| Is there something to mez or debuff?
-	/if (!${validate_combat[${Target.ID}]} ) /return FALSE
 	/if (${Me.XTarget} < 2) /return FALSE
 	
 	/call get_target
@@ -2872,13 +2876,11 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 				/if (${validate_cast[FALSE, spell, "${_mezAE}", ${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
 					/call core_cast2 "${_mezAE}" spell ${Target.ID} FALSE
-					/return TRUE
 				}
 			} else /if (${Select[${Me.Class.ShortName},BRD]}) {
 				/if (${validate_cast[FALSE, pulse, "${_mezAE}", ${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
 					/call core_cast2 "${_mezAE}" pulse ${Target.ID} FALSE
-					/return TRUE
 				}
 			}
 		}
@@ -2889,6 +2891,8 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 
 		| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
 		/for x 1 to ${Me.XTarget}
+
+			/if (${immuneSet.Contains[${Me.XTarget[${x}].ID}]}) /continue
 
 			| If target is too far away then skip
 			/if (${Me.XTarget[${x}].Distance} > 200) /continue
@@ -2918,8 +2922,6 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.Name} - ${Target.ID}
 			/delay 1s
-			
-			/if (!${immuneSet.Contains[${Target.ID}]}) /continue
 
 			/if (${Spawn[id ${Target.ID}].Body.Name.Equal[Giant]}) {
 				/if (!${immuneSet.Add[${_tmpID}]}) {
@@ -2966,4 +2968,6 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/if (${Defined[MATargetID]}) /deletevar MATargetID
 	/if (${Defined[MTTargetID]}) /deletevar MTTargetID
 
-/return TRUE
+	/call get_target
+
+/return
