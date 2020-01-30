@@ -417,14 +417,14 @@ Sub wiz_abilities
 	} 
 
 |-FuseNuke
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
+	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Confluence].RankName}]}) {
+		/varset FuseNuke ${Spell[Ethereal Confluence].RankName}
+	} else /if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Braid].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Ethereal Fuse].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Fuse].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Ethereal Weave].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Weave].RankName}
-	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Ethereal Barrage].RankName}]}) {
-		/varset FuseNuke ${Spell[Ethereal Barrage].RankName}
 	}
 |-WildNuke
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Wildflash Strike].RankName}]}) {
