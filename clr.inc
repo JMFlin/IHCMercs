@@ -238,13 +238,17 @@ Sub clr_group_buffs
 Sub clr_combat_tank_buffs
 
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
-	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
-	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
+	/if (!${Me.XTarget} && ${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (!${Me.XTarget} && ${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 	
+	/if (${Group.Member[${Group.MainTank}].Type.Equal[Mercenary]}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return
+	}
+
 	/if (${Target.ID} != ${Group.MainTank.ID}) {
-			/target id ${Group.MainTank.ID}
-			/delay 1s ${Target.ID} == ${Group.MainTank.ID}
-		}
+		/target id ${Group.MainTank.ID}
+		/delay 1s ${Target.ID} == ${Group.MainTank.ID}
+	}
 
 	/delay 8
 	/if (!${Target.Buff[${TankBuff}].ID} && ${Target.PctHPs} > 90) {
