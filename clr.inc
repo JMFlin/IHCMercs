@@ -20,8 +20,10 @@ Sub clr_self_buffs
 	/if (${Me.XTarget}) /return
 
 	/if (!${Me.Buff[${GroupHPBuff}].ID}) {
-		/if (${validate_cast[FALSE, spell, ${GroupHPBuff}, ${Me.ID}]}) /call core_cast2 "${GroupHPBuff}" spell ${Me.ID} FALSE
-		/varset CastCheck 1
+		/if (${validate_cast[FALSE, spell, ${GroupHPBuff}, ${Me.ID}]}) {
+			/call core_cast2 "${GroupHPBuff}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
 	}
 	
 	/if (${CastCheck}) {

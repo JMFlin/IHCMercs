@@ -55,7 +55,6 @@ Sub dru_load_spellbar
 	/call LoadSpellGem "${Curavida}" 3
 	/call LoadSpellGem "${Lunasalve}" 4
 	/call LoadSpellGem "${Survival}" 5
-
 	/call LoadSpellGem "${Reptile}" 6
 
 	/call LoadSpellGem "${NBW}" 7
