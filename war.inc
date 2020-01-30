@@ -49,7 +49,8 @@ Sub war_combat_buffs
 	}
 
 	/if (!${Me.Buff[${warbulwark}].ID} && !${Me.Buff[Roaring Shield].ID} && ${Me.CombatAbilityReady[${bmdisc}]}) {
-		/docommand /disc 57800
+		|/docommand /disc 57800
+		/if (${validate_cast[FALSE, disc, "${bmdisc}", ${Me.ID}]}) /call core_cast2 "${bmdisc}" disc 0 FALSE
 	} else /if (!${FindItem[${ChestItemName}].TimerReady} && !${Me.Buff[Dichotomic Shield].ID} && !${Me.Buff[${warbulwark}].ID}) {
 		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
 	} else /if (!${Me.Buff[Dichotomic Shield].ID} && !${Me.Buff[${warbulwark}].ID} && !${Me.Buff[Roaring Shield].ID}) {
@@ -150,14 +151,14 @@ Sub war_get_aggro
 
 	/if (${validate_cast[FALSE, alt, "Call of Challenge", ${Target.ID}]}) /call core_cast2 "Call of Challenge" alt ${Target.ID} FALSE	
 
-	/if (${validate_cast[FALSE, disc, "${shout}", ${Target.ID}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, disc, "${shout}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
+	
 	/if (${validate_cast[FALSE, disc, "${insult}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
 	
 	/if (${Me.SecondaryPctAggro}>=30) {
 		/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
 	}
 	
-
 	/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, disc, "Knee Strike", ${Target.ID}]}) /call core_cast2 "Knee Strike" disc ${Target.ID} FALSE
@@ -168,6 +169,14 @@ Sub war_get_aggro
 		/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
 	}
 
+	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
+		/if (${validate_cast[FALSE, alt, "Rage of the Forsaken", ${Target.ID}]}) {
+			/call core_cast2 "Rage of the Forsaken" alt ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) {
+				/call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE
+			}
+		}
+	}
 
 	/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]} < 2) {
 		/if (${validate_cast[FALSE, alt, "Rampage", ${Target.ID}]}) /call core_cast2 "Rampage" alt ${Target.ID} FALSE
@@ -182,17 +191,9 @@ Sub war_get_aggro
 	}
 
 	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
-		/if (${validate_cast[FALSE, alt, "Rage of the Forsaken", ${Target.ID}]}) {
-			/call core_cast2 "Rage of the Forsaken" alt ${Target.ID} FALSE
-			/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) {
-				/call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE
-			}
-		}
+		/if (${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]}) /call core_cast2 "Warlord's Fury" alt ${${Target.ID}} FALSE
+		/if (${validate_cast[FALSE, alt, "Blast of Anger", ${${Target.ID}}]}) /call core_cast2 "Blast of Anger" alt ${${Target.ID}} FALSE
 	}
-
-	/if (${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]} && ${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) /call core_cast2 "Warlord's Fury" alt ${${Target.ID}} FALSE
-	/if (${validate_cast[FALSE, alt, "Blast of Anger", ${${Target.ID}}]} && ${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) /call core_cast2 "Blast of Anger" alt ${${Target.ID}} FALSE
-
 
 	/if (${Me.SecondaryPctAggro} > 30) {
 		/if (${validate_cast[FALSE, alt, "Projection of Fury", ${Target.ID}]}) /call core_cast2 "Projection of Fury" alt ${Target.ID} FALSE
