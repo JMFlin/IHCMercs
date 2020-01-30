@@ -158,6 +158,7 @@ Sub var_setup
 |- sets 
 	/declare immuneSet			 set outer
 	/declare immuneSetIterator	 setiterator outer
+	/declare debuffSet 			 set outer
 |- verbose
 	/declare verboseSHD 		bool outer FALSE
 	/declare verboseWAR 		bool outer FALSE
@@ -486,12 +487,14 @@ Sub afk_pull
 				/delay 7s ${Target.Distance} <= ${PullDistance}
 				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 				/if (!${Stick.Active} && ${Me.XTarget}) /stick off
+				/delay 1s ${Me.XTarget}
 
 		} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
 
 			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) {
 				/call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
 				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
+				/delay 3s ${Me.XTarget}
 			}
 		}
 		/delay 1
@@ -530,7 +533,7 @@ Sub get_pull_target(int _tmpID)
 
 				/if (${Target.ID} == ${_tmpID}) {
 
-					DEBUG los: ${Spawn[id ${_tmpID}].LineOfSight} pc: ${validate_no_pc[${_tmpID}]} npc: ${validate_single_pull[${_tmpID}]}
+					| DEBUG los: ${Spawn[id ${_tmpID}].LineOfSight} pc: ${validate_no_pc[${_tmpID}]} npc: ${validate_single_pull[${_tmpID}]}
 
 					/if (!${validate_no_pc[${_tmpID}]} || !${validate_single_pull[${_tmpID}]}) {
 						/nav stop
@@ -596,8 +599,9 @@ Sub set_pull_target
 
 	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
 	
-	DEBUG
+	DEBUG 
 	DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
+	DEBUG 
 
 	/if (${_mobsInRadius} == 0) /return 0
 
@@ -615,7 +619,7 @@ Sub set_pull_target
 			/continue
 		}
 		
-		DEBUG Are there PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
+		DEBUG Are there no PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
 		/if (!${validate_no_pc[${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
@@ -635,9 +639,10 @@ Sub set_pull_target
 
 		/varcalc _count ${_count} + 1
 	}
-
+	DEBUG 
 	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as pull target
-	
+	DEBUG 
+
 /return ${_pullTargetID}
 |----------------------------------------------------------------------------
 |- SUB: pre_combat_buffs
@@ -679,7 +684,7 @@ Sub pet_attack
 	/if (!${Me.Pet.ID}) /return
 	/if (${petFollow}) /varset petFollow 0
 	/if (!${validate_combat[${Target.ID}]} ) /return
-	/if (${Target.Distance3D} > ${AssistRange}/2) /return
+	/if (${Target.Distance3D} > ${AssistRange}) /return
 	
 	|- Spirit call
 	/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
@@ -786,17 +791,17 @@ Sub check_campfire
 
 	/if (${Zone.Name.NotEqual[${Me.Fellowship.CampfireZone}]}) {
 		/windowstate FellowshipWnd open
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 1s
+		/delay 2s
 		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
-		/delay 1s
+		/delay 2s
 		/windowstate FellowshipWnd close
 	}
 	
@@ -808,13 +813,13 @@ Sub check_campfire
 
     /if (${FellowCount}>=3) {
         /windowstate FellowshipWnd open
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 1s
+		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
 		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
@@ -1248,7 +1253,15 @@ sub validate_combat_buffs(bool _debug)
 	/if (!${Me.XTarget}) /return FALSE
 	/if (!${Target.ID}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
-	/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}+60) /return FALSE
+	/if (!${Target.Type.Equal[NPC]}) /return FALSE
+	
+	/if (!${Select[${Me.Class.ShortName},WAR,PAL]}) {
+		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}+60) /return FALSE
+	}
+
+	/if (!${Select[${Me.Class.ShortName},SHD]}) {
+		/if (${Navigation.PathLength[id ${Target.ID}]} > ${AssistRange}+100) /return FALSE
+	}
 
 /return TRUE
 
@@ -1256,16 +1269,18 @@ sub validate_combat_buffs(bool _debug)
 | Sub validate_combat
 |--------------------------------------------------------------------------------
 sub validate_combat(int _tmpID)
-	
+
 	/if (!${Me.XTarget}) /return FALSE
 	/if (!${_tmpID}) /return FALSE
 	|/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 
 
-	/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange} && ${Select[${Me.Class.ShortName},BER,ROG,BRD,MNK]}) {
-		/if (${Stick.Active}) /stick off
-		/nav id ${_tmpID}
+	/if (${Select[${Me.Class.ShortName},BER,ROG,BRD,MNK]}) {
+		/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange}) {
+			/if (${Stick.Active}) /stick off
+			/nav id ${_tmpID}
+		}
 	}
 
 	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
@@ -1281,6 +1296,13 @@ sub validate_combat(int _tmpID)
 	}
 
 	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${_tmpID}]} < 65) || ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange}) {
+		
+		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK]}) {
+			/if (${Group.MainTank.ID} != ${Me.ID}) {
+				/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
+			}
+		}
+		
 		/return TRUE
 	} else {
 		/return FALSE
@@ -1470,9 +1492,9 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	} else /if (${_type.Equal[pulse]}) {
 		/varset _spell ${Spell[${_spell}].RankName}
 		/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
-		/if (${Me.Buff[${_spell}].Duration.Seconds} > 6) /return FALSE
-		/if (${Me.Song[${_spell}].Duration.Seconds} > 6) /return FALSE
-		/if (!${Spell[${_spell}].NewStacks}) /return FALSE
+		|/if (${Me.Buff[${_spell}].Duration.Seconds} > 20) /return FALSE
+		|/if (${Me.Song[${_spell}].Duration.Seconds} > 20) /return FALSE
+		|/if (!${Spell[${_spell}].NewStacks}) /return FALSE
 	}
 /return TRUE
 	| epic clicks
@@ -1997,7 +2019,6 @@ sub check_for_corpse(bool _debug)
 		/if (!${FindItem[Essence Emerald].ID}) /return FALSE
 		/declare _rezNEC						string	local "Convergence"
 	}
-
 	
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]} > 2) {
 		/call cast_rez ${Me.ID} "${MassRezSpell}"
@@ -2092,6 +2113,12 @@ sub check_for_corpse(bool _debug)
 			|	/call cast_rez ${_tmpID} ${_rez${Me.Class.ShortName}}
 			|} 
 		/next _count
+
+	/if (${Spawn[${Me.Name} pccorpse radius ${setMaxRezRange}].ID}) {
+		/varset _tmpID ${Spawn[${Me.Name} pccorpse radius 40].ID}
+		/call cast_rez ${_tmpID} "${RezSpell}"	
+	}
+	
 /return
 
 |-------------------------------------------------------------------------------------
@@ -2121,9 +2148,12 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 		/while (${_count} <= ${_corpsessInRadius}) {
 			
 			/varset _corpseID ${NearestSpawn[${_count}, pccorpse radius ${setMaxRezRange}].ID}
-			/squelch /target ID ${_corpseID}
-			/delay 1s ${Target.ID} == ${_corpseID}
-			/squelch /corpse
+			
+			/if (${NearestSpawn[${_count}, pccorpse radius ${setMaxRezRange}].Distance} > 20) {
+				/squelch /target ID ${_corpseID}
+				/delay 1s ${Target.ID} == ${_corpseID}
+				/squelch /corpse
+			}
 		
 			/varcalc _count ${_count}+1
 			/delay 1		
@@ -2811,7 +2841,6 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/declare _mezAERange		int local 0
 
 	| Is there something to mez or debuff?
-	/if (!${validate_combat[${Target.ID}]} ) /return FALSE
 	/if (${Me.XTarget} < 2) /return FALSE
 	
 	/call get_target
@@ -2845,15 +2874,11 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			/delay 1s
 
 			/if (${Select[${Me.Class.ShortName},ENC]}) {
-				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,xtarhater radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
-				| /varset closestMezzTarget ${NearestSpawn[1, npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
 				/if (${validate_cast[FALSE, spell, "${_mezAE}", ${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
 					/call core_cast2 "${_mezAE}" spell ${Target.ID} FALSE
 				}
 			} else /if (${Select[${Me.Class.ShortName},BRD]}) {
-				| /varset closestMezzTarget ${SpawnSort[1,asc,PathLength,xtarhater radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
-				| /varset closestMezzTarget ${NearestSpawn[1, npc targetable noalert 1 radius ${Spell[${_mezAE}].AERange} zradius ${Spell[${_mezAE}].AERange}].ID}
 				/if (${validate_cast[FALSE, pulse, "${_mezAE}", ${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
 					/call core_cast2 "${_mezAE}" pulse ${Target.ID} FALSE
@@ -2862,85 +2887,88 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		}
 	}
 	
-	/if (!${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) /return FALSE
-	/if (${Me.CombatState.Equal[COMBAT]}) /attack off
-
-	| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
-	/for x 1 to ${Me.XTarget}
-
-		| If target is too far away then skip
-		/if (${Me.XTarget[${x}].Distance} > 200) /continue
-
-		| If the xtarget is already mezzed then skip
-		/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
-
-		| Query MA and MT on what is currently being killed
-		/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
-		/call Gquery ${Group.MainTank.Name.Lower} "Target.ID" "MTTargetID" "int"
-
-		| If xtarget is being targetted by MA or MT then skip
-		/if (${Me.XTarget[${x}].ID} == ${MATargetID} || ${Me.XTarget[${x}].ID} == ${MTTargetID}) /continue
-
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MA Target is \ar${MATargetID}
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MT Target is \ar${MTTargetID}
-
+	/if (${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) {
 		/if (${Me.CombatState.Equal[COMBAT]}) /attack off
-		/if (${Stick.Status.Equal[ON]}) /stick off
-		/if (${Stick.Active}) /stick off
-		/delay 2s !${Stick.Status.Equal[ON]}
-		/delay 2s !${Stick.Active}
-		/attack off
-		| If not then target it
-		/target id ${Me.XTarget[${x}].ID}
-		/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
 
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.Name} - ${Target.ID}
-		/delay 1s
-		
-		/if (!${immuneSet.Contains[${Target.ID}]}) /continue
+		| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
+		/for x 1 to ${Me.XTarget}
 
-		/if (${Spawn[id ${Target.ID}].Body.Name.Equal[Giant]}) {
-			/if (!${immuneSet.Add[${_tmpID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Set Add of ${_tmpID} failed.
+			/if (${immuneSet.Contains[${Me.XTarget[${x}].ID}]}) /continue
+
+			| If target is too far away then skip
+			/if (${Me.XTarget[${x}].Distance} > 200) /continue
+
+			| If the xtarget is already mezzed then skip
+			/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
+
+			| Query MA and MT on what is currently being killed
+			/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
+			/call Gquery ${Group.MainTank.Name.Lower} "Target.ID" "MTTargetID" "int"
+
+			| If xtarget is being targetted by MA or MT then skip
+			/if (${Me.XTarget[${x}].ID} == ${MATargetID} || ${Me.XTarget[${x}].ID} == ${MTTargetID}) /continue
+
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MA Target is \ar${MATargetID}
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MT Target is \ar${MTTargetID}
+
+			/if (${Me.CombatState.Equal[COMBAT]}) /attack off
+			/if (${Stick.Status.Equal[ON]}) /stick off
+			/if (${Stick.Active}) /stick off
+			/delay 2s !${Stick.Status.Equal[ON]}
+			/delay 2s !${Stick.Active}
+			/attack off
+			| If not then target it
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
+
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.Name} - ${Target.ID}
+			/delay 1s
+
+			/if (${Spawn[id ${Target.ID}].Body.Name.Equal[Giant]}) {
+				/if (!${immuneSet.Add[${_tmpID}]}) {
+					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Set Add of ${_tmpID} failed.
+				}
+				/continue
 			}
-			/continue
-		}
 
-		/if (${Select[${Me.Class.ShortName},ENC]}) {
-			| If target is not tashed then tash
-			/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
-			}
+			/if (${Select[${Me.Class.ShortName},ENC]}) {
+				| If target is not tashed then tash
+				/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
+					/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
+				}
 
-			| If target is not mezzed then mez
-			/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) {
+				| If target is not mezzed then mez
+				/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID}) {
+					
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
 					/call core_cast2 "${_mezSingle}" spell ${Target.ID} FALSE
 					/call check_cast_events "${_mezSingle}" CAST_IMMUNE ${Target.ID}
+					
 				}
-			}
-		} else /if (${Select[${Me.Class.ShortName},BRD]}) {
+			} else /if (${Select[${Me.Class.ShortName},BRD]}) {
 
-			/if (${Me.Casting.Name.NotEqual[${_mezSingle}]}) /call pulse_stop 18
-			
-			/call pulse_stop pulse_line_start
-			/delay 1s
-			| If target is not mezzed then mez
-			/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && ${Stick.Status.Equal[OFF]}) {
-				/if (${validate_cast[FALSE, pulse, "${_mezSingle}", ${Target.ID}]}) {
+				/if (${Me.Casting.Name.NotEqual[${_mezSingle}]}) /call pulse_stop 18
+				
+				/call pulse_stop pulse_line_start
+				/delay 1s
+				| If target is not mezzed then mez
+				/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && ${Stick.Status.Equal[OFF]}) {
+					
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
 					/call core_cast2 "${_mezSingle}" pulse ${Target.ID} FALSE
 					/call check_cast_events "${_mezSingle}" CAST_IMMUNE ${Target.ID}
+					
 				}
+				/call get_target
 			}
-			/call get_target
-		}
 
-		/delay 1s
+			/delay 1s
 
-	/next x
+		/next x
+	}
 	/if (${Defined[MATargetID]}) /deletevar MATargetID
 	/if (${Defined[MTTargetID]}) /deletevar MTTargetID
 
-/return TRUE
+	/call get_target
+
+/return

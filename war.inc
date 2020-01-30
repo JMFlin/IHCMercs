@@ -3,6 +3,7 @@
 |---------------------------------------------------------------------------- 
 Sub war_main
 
+	
 	/call engage
 	/call war_get_aggro
 	/call check_add_aggro
@@ -11,7 +12,7 @@ Sub war_main
 	/call war_aoe_aggro
 
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: combat_buffs 
@@ -19,6 +20,8 @@ Sub war_main
 Sub war_combat_buffs
 	
 	/if (!${validate_combat_buffs[FALSE]}) /return
+
+	/call engage
 
 	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupac}]} && !${Me.Song[Field].ID}) {
 		/call DiscNow "${groupac}"
@@ -157,6 +160,8 @@ Sub war_disc
 Sub war_get_aggro
 
 	/if (!${validate_combat[${Target.ID}]} ) /return
+	
+	/call engage
 
 	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Target.MaxRangeTo}>=${Target.Distance}) {
 		/call AANow ${Me.AltAbility[Battle Leap].ID}
@@ -250,6 +255,8 @@ Sub war_aoe_aggro
 	/declare numberOfSpawn 	 int local 0
 
 	/if (!${validate_combat[${Target.ID}]} ) /return
+	
+	/call engage
 
 	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1 && ${Me.XTarget} > 1) {
 		/if (${validate_cast[FALSE, disc, "${aeroar}", ${Target.ID}]}) /call core_cast2 "${aeroar}" disc ${Target.ID} FALSE
@@ -273,7 +280,7 @@ Sub war_aoe_aggro
 
 		| If no mob is yet mezzed hit them all
 		/if (${numberOfSpawn} > 1) {
-			/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
+		|	/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
 		}
 	}
 

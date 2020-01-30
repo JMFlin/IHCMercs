@@ -48,8 +48,8 @@ Sub dru_combat
 	/call dru_single_target_heals
 
 	/call get_target
-	/if (!${Target.Buff[${ColdAtkDebuff}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${ColdAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${ColdAtkDebuff}" spell ${Target.ID} FALSE
+	/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
 	}
 	|/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
 	|	/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
@@ -89,11 +89,11 @@ Sub dru_debuff_xtarget
 		/if (!${Target.Type.Equal[NPC]}) /return
 		
 		| How will you handle the AA?
-		/if (!${Target.Buff[${ColdAtkDebuff}].ID}) {
+		/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
 			
-			/if (${validate_cast[FALSE, spell, "${ColdAtkDebuff}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${ColdAtkDebuff} \ax <<=
-				/call core_cast2 "${ColdAtkDebuff}" spell ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${SingleFrostAtkDebuff} \ax <<=
+				/call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
 			}
 		}
 
@@ -301,8 +301,8 @@ Sub dru_single_target_heals
 	/varset _worstHurtId ${Macro.Return}
 	
 	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${HealSpell2}", ${_worstHurtId}]}) {
-			/call core_cast2 "${HealSpell2}" spell ${_worstHurtId} FALSE
+		/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${_worstHurtId}]}) {
+			/call core_cast2 "${Adrenaline}" spell ${_worstHurtId} FALSE
 		}
 	}
 /return
@@ -316,7 +316,7 @@ Sub dru_group_heals
 	}
 
 	/if (${check_hurt[FALSE, group, 85]} >= 3) {
-		/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${Lunasalve}", ${Me.ID}]}) /call core_cast2 "${Lunasalve}" spell ${Me.ID} FALSE
 	}
 
 /return

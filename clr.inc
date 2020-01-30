@@ -7,12 +7,30 @@ Sub clr_main
 	/call clr_group_heals
 	/if (!${Me.XTarget}) /call check_for_corpse FALSE
 	/call clr_group_buffs
+	/call clr_self_buffs
 	/call clr_combat_tank_buffs
 |	/call cures
 	/doevents
 	
 /return
-|----------------------------------------------------------------------------
+
+Sub clr_self_buffs
+	/declare CastCheck			int local 0
+
+	/if (${Me.XTarget}) /return
+
+	/if (!${Me.Buff[${GroupHPBuff}].ID}) {
+		/if (${validate_cast[FALSE, spell, ${GroupHPBuff}, ${Me.ID}]}) /call core_cast2 "${GroupHPBuff}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
+	
+	/if (${CastCheck}) {
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
+		/docommand /dgt \aw Done Buffing
+	}
+
+/return
+|-------------------------------------------------------------------------
 |- SUB: ConfigHeal
 |---------------------------------------------------------------------------- 
 Sub clr_config_heal
@@ -119,21 +137,21 @@ Sub clr_group_buffs
 			} else {
 				
 				/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupBuff}].ID" "tmpbuffid" "int"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GroupHPBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Skin.ID" "tmpskinid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Symbol.ID" "tmpsymbolid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Aego.ID" "tmpaegoid" "int"
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupBuff}].Stacks" "tmpstackcheck" "bool"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GroupHPBuff}].Stacks" "tmpstackcheck" "bool"
 					/if (${tmpstackcheck} && !${tmpaegoid} && !${tmpbuffid}) {
-						/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${GroupBuff}" spell ${Group.Member[${_count}].ID} FALSE
+						/if (${validate_cast[FALSE, spell, ${GroupHPBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${GroupHPBuff}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
 				} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
 					/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 					/delay 1s
-					/if (!${Target.Buff[${GroupBuff}].ID}) {
-						/if (${validate_cast[FALSE, spell, ${GroupBuff}, ${Group.Member[${_count}].ID}]}) {
-							/call core_cast2 "${GroupBuff}" spell ${Group.Member[${_count}].ID} FALSE
+					/if (!${Target.Buff[${GroupHPBuff}].ID}) {
+						/if (${validate_cast[FALSE, spell, ${GroupHPBuff}, ${Group.Member[${_count}].ID}]}) {
+							/call core_cast2 "${GroupHPBuff}" spell ${Group.Member[${_count}].ID} FALSE
 							/varset CastCheck 1
 						}
 					}
@@ -223,6 +241,11 @@ Sub clr_combat_tank_buffs
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 	
+	/if (${Target.ID} != ${Group.MainTank.ID}) {
+			/target id ${Group.MainTank.ID}
+			/delay 1s ${Target.ID} == ${Group.MainTank.ID}
+		}
+
 	/delay 8
 	/if (!${Target.Buff[${TankBuff}].ID} && ${Target.PctHPs} > 90) {
 		/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Group.MainTank.ID}]}) {
@@ -254,9 +277,13 @@ Sub clr_single_target_heals
 
 	/if (${Me.XTarget}) {
 
-		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${PromisedHeal}].ID" "promisedHeal" "int"
+		| /call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${PromisedHeal}].ID" "promisedHeal" "int"
+		/if (${Target.ID} != ${Group.MainTank.ID}) {
+			/target id ${Group.MainTank.ID}
+			/delay 1s ${Target.ID} == ${Group.MainTank.ID}
+		}
 
-		/if (!${promisedHeal}) {
+		/if (!${Target.Buff[${PromisedHeal}].ID}) {
 			/if (${validate_pre_heal_target[60]}) {
 				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
 					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
@@ -272,7 +299,9 @@ Sub clr_single_target_heals
 			}
 		}
 
+		|**
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
+		
 
 		/if (!${elixirHeal}) {
 			/if (${validate_pre_heal_target[95]}) {
@@ -281,6 +310,7 @@ Sub clr_single_target_heals
 				}
 			}
 		}
+		**|
 	}
 
 /return

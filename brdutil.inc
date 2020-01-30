@@ -88,25 +88,17 @@ Sub brd_load_spellbar
 	/call LoadSpellGem "${AEMezSong}" 8
 
 
-	| /varset SpellGem3 ${SufferingSong}
+|**
+	/call LoadSpellGem "${MainAriaSong}" 1
+	/call LoadSpellGem "${WarMarchSong}" 2
+	/call LoadSpellGem "${SufferingSong}" 3
+	/call LoadSpellGem "${ArcaneSong}" 4
+	/call LoadSpellGem "${StormBladeSong}" 5
+	/call LoadSpellGem "${FateSong}" 6
+	/call LoadSpellGem "${ChorusRegenSong}" 7
+	/call LoadSpellGem "${Aura1}" 8
+**|
 
-	| /varset SpellGem4 ${ArcaneSong}
-
-
-
-	| /varset SpellGem6 ${FateSong}
-	| /varset SpellGem8 ${MainAriaSong}
-
-	|/varset SpellGem9 ${Aura1}
-	|/varset SpellGem10 ${InsultSong1}
-	|/varset SpellGem11 ${InsultSong2}
-	|/varset SpellGem12 ${AEMezSong}
-	|/varset SpellGem13 ${MezSong}
-	|AccelerandoSong
-	|SlowSong
-	|MezSong
-	|AEMezSong
-	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
 /return 

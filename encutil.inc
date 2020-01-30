@@ -34,9 +34,10 @@ Sub enc_setup
 	/declare GroupAuspiceBuff		string	outer	"NULL"
   |-CC
 	/declare AEMezReset				int		outer	0
-	/declare PBAEStunSpell			string	outer	"NULL"
-	/declare TargetAEStun			string	outer	"NULL"
-	/declare SingleStunSpell1		string	outer	"NULL"
+	/declare PBAEStunSpell			string	outer	NULL
+	/declare TargetAEStun			string	outer	NULL
+	/declare SingleStunSpell1		string	outer	NULL
+	/declare SingleStunSpell2 		string 	outer 	NULL
   |-Charm
 	/declare CharmSpell1			string 	outer	"NULL"
 	/declare CharmMaxLvl			int		outer	0

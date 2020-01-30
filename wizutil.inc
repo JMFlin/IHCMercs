@@ -71,12 +71,14 @@ Sub wiz_load_spellbar
 		/call LoadSpellGem "${WildNuke}" 4
 	}
 
-
-	/if (${Me.Book[${SnareSpell}]}) {
-		/call LoadSpellGem "${SnareSpell}" 5
+	/if (${Me.Book[${FuseNuke}]}) {
+		/call LoadSpellGem "${FuseNuke}" 5
+	} else /if (${Me.Book[${SelfRune1}]}) {
+		/call LoadSpellGem "${SelfRune1}" 5
 	} else /if (${Me.Book[${RootSpell}]}) {
 		/call LoadSpellGem "${RootSpell}" 5
 	}
+
 	/call LoadSpellGem "${FireEtherealNuke}" 6
 	/call LoadSpellGem "${ColdEtherealNuke}" 7
 
@@ -415,14 +417,14 @@ Sub wiz_abilities
 	} 
 
 |-FuseNuke
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
+	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Confluence].RankName}]}) {
+		/varset FuseNuke ${Spell[Ethereal Confluence].RankName}
+	} else /if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Braid].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Ethereal Fuse].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Fuse].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Ethereal Weave].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Weave].RankName}
-	} else {
-|-		/varset FuseNuke ${CloudburstNuke}
 	}
 |-WildNuke
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Wildflash Strike].RankName}]}) {
