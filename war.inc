@@ -180,7 +180,7 @@ Sub war_get_aggro
 	/if (${Me.PctEndurance}>5 && ${Me.CombatAbilityReady[${insult}]} && ${Target.PctHPs}>1) {
 		/call DiscNow "${insult}"
 	}
-	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${roar}]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=80) {
+	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${roar}]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=30) {
 		/call DiscNow "${roar}"
 	}
 
