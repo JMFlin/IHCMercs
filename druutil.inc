@@ -102,10 +102,7 @@ BALANCED:
 13-   Cyclonic Roar (Cycle with the spell Frostreave Aura or Wildspark Aura for extra cold/fire burst procs for your group)
 **|
 
-
 	
-RemoteMoon		
-	RemoteSun		
 
 	/if (${Me.Level}>=${Spell[Remote Sunshock].Level} && ${Me.Book[${Spell[Remote Sunshock].RankName}]}) {
 		/varset RemoteSun ${Spell[Remote Sunshock].RankName}

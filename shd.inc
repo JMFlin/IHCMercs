@@ -143,6 +143,8 @@ Sub shd_combat_buffs
 		}
 	}
 
+	/call shd_get_aggro
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: DoDisc 
