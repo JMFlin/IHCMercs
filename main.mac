@@ -115,6 +115,7 @@ Sub AFKRadiusCamping
 		/call ${Me.Class.ShortName.Lower}_main
 		/call misc
 		/call dummy_mode
+		/doevents
 	}
 /return
 

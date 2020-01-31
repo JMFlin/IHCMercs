@@ -9,8 +9,6 @@ Sub dru_setup
 	/declare Aura1			string outer NULL
 	/declare Aura2			string outer NULL
 	
-	/declare HealSpell1			string outer NULL
-	/declare HealSpell2			string outer NULL
 	/declare Lunasalve			string outer NULL
 	/declare NukeSpell1			string outer NULL
 	/declare NukeSpell2			string outer NULL
