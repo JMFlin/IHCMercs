@@ -329,7 +329,7 @@ Sub clr_single_target_heals
 		}
 
 		/if (!${Target.Buff[${PromisedHeal}].ID}) {
-			/if (${validate_pre_heal_target[60]}) {
+			/if (${validate_pre_heal_target[70]}) {
 				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
 					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
 				}

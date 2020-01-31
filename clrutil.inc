@@ -391,9 +391,6 @@ Sub clr_abilities
 		/varset Renewal ${Spell[Desperate Renewal].RankName}
 	}
 
-	remedyheal1
-Remedy2
-
 |---Heal Tank and Nuke Tanks Target
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Merciful Intervention].RankName}]})  {
 		/varset Intervention1 ${Spell[Merciful Intervention].RankName}
