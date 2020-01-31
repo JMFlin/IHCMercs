@@ -4,13 +4,14 @@
 Sub war_main
 
 	
-	/call engage
-	/call war_get_aggro
-	/call check_add_aggro
-	/call war_combat_buffs
-	/call war_disc
-	/call war_aoe_aggro
-
+	/while (${Me.XTarget}) {
+		/call engage
+		/call war_get_aggro
+		/call check_add_aggro
+		/call war_combat_buffs
+		/call war_disc
+		/call war_aoe_aggro
+	}
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 
 /return
@@ -22,17 +23,16 @@ Sub war_combat_buffs
 	/if (!${validate_combat_buffs[FALSE]}) /return
 
 	/call engage
+	
+	/if (${validate_cast[FALSE, disc, "${groupac}", ${Me.ID}]}) /call core_cast2 "${groupac}" disc 0 FALSE
 
-	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupac}]} && !${Me.Song[Field].ID}) {
-		/call DiscNow "${groupac}"
+	/if (${validate_cast[FALSE, disc, "${groupdodge}", ${Me.ID}]}) /call core_cast2 "${groupac}" disc 0 FALSE
+
+	/if (!${Me.ActiveDisc.ID}) {
+		/if (${validate_cast[FALSE, disc, "${defenseac}", ${Me.ID}]}) /call core_cast2 "${defenseac}" disc 0 FALSE
 	}
-	/if (${Me.PctEndurance}>20 && ${Me.CombatAbilityReady[${groupdodge}]} && !${Me.Song[Commanding Voice].ID}) {
-		/call DiscNow "${groupdodge}"
-	}
-	/if (${Me.CombatAbilityReady[${defenseac}]} && !${Me.ActiveDisc.ID} && ${Me.XTarget[1].ID}) {
-		/disc ${defenseac}
-		/delay 5
-	}
+
+	/if (${validate_cast[FALSE, alt, "Brace for Impact", ${Me.ID}]}) /call core_cast2 "Brace for Impact" alt 0 FALSE
 
 	|--DoAutoPDH: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/
 	|-- https://forums.daybreakgames.com/eq/index.php?threads/returning-warrior.253870/
@@ -43,51 +43,44 @@ Sub war_combat_buffs
 	|-- Front Mitigation: Anguish BP > Warlord's Bravery
 
 	/if (!${Me.Buff[Diplomatic Immunity].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && ${Me.CombatAbilityReady[${Spell[Pain Doesn't Hurt].RankName}]}) {
-		/call DiscNow "${absorball}"
+		/if (${validate_cast[FALSE, disc, "${absorball}", ${Me.ID}]}) /call core_cast2 "${absorball}" disc 0 FALSE
 	} else /if (!${Me.Song[Pain Doesn't Hurt].ID} && !${FindItem[${ItemDipPapers}].TimerReady}) {
-		/call ItemNow "${ItemDipPapers}"
+		/if (${validate_cast[FALSE, item, "${ItemDipPapers}", ${Me.ID}]}) /call core_cast2 "${ItemDipPapers}" item 0 FALSE
 	}
-	/if (${Me.AltAbilityReady[Brace for Impact]}) {
-		/call AANow ${Me.AltAbility[Brace for Impact].ID}
-	}
-	/if (${Target.Type.Equal[Corpse]} || !${Target.ID}) /return
-	
-	
+
 	/if (!${Me.Buff[${warbulwark}].ID} && !${Me.Buff[Roaring Shield].ID} && ${Me.CombatAbilityReady[${bmdisc}]}) {
-		/docommand /disc 57800
+		|/docommand /disc 57800
+		/if (${validate_cast[FALSE, disc, "${bmdisc}", ${Me.ID}]}) /call core_cast2 "${bmdisc}" disc 0 FALSE
 	} else /if (!${FindItem[${ChestItemName}].TimerReady} && !${Me.Buff[Dichotomic Shield].ID} && !${Me.Buff[${warbulwark}].ID}) {
-		/call ItemNow "${ChestItemName}"
+		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
 	} else /if (!${Me.Buff[Dichotomic Shield].ID} && !${Me.Buff[${warbulwark}].ID} && !${Me.Buff[Roaring Shield].ID}) {
-		/call DiscNow "${warbulwark}"
+		/if (${validate_cast[FALSE, disc, "${warbulwark}", ${Me.ID}]}) /call core_cast2 "${warbulwark}" disc 0 FALSE
 	} 
 	
-	/if (!${FindItem[${ItemOoWBP}].TimerReady} && !${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Fundament: Third Spire of the Warlord].ID}) {
-		/call ItemNow "${ItemOoWBP}"
-	} else /if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Fundament: Third Spire of the Warlord].ID} && ${Me.AltAbilityReady[Warlord's Bravery]}) {
-		/call AANow ${Me.AltAbility[Warlord's Bravery].ID}
+	/if (!${FindItem[${ItemOoWBP}].TimerReady} && !${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Spire of the Warlord].ID}) {
+		/if (${validate_cast[FALSE, item, "${ItemOoWBP}", ${Me.ID}]}) /call core_cast2 "${ItemOoWBP}" item 0 FALSE
+	} else /if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Spire of the Warlord].ID} && ${Me.AltAbilityReady[Warlord's Bravery]}) {
+		/if (${validate_cast[FALSE, alt, "Warlord's Bravery", ${Me.ID}]}) /call core_cast2 "Warlord's Bravery" alt 0 FALSE
 	}
 
 	/if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Spire of the Warlord].ID} && ${Me.AltAbilityReady[Spire of the Warlord]}) {
-		/call AANow ${Me.AltAbility[Spire of the Warlord].ID}
+		/if (${validate_cast[FALSE, alt, "Spire of the Warlord", ${Me.ID}]}) /call core_cast2 "Spire of the Warlord" alt 0 FALSE
 	}
 
 	|-- Defensive buffs based on health
-	/if (${Me.AltAbilityReady[Blade Guardian]} && ${Me.PctHPs}<45 && ${Target.PctHPs}>1) {
-		/call AANow ${Me.AltAbility[Blade Guardian].ID}
+	/if (${Me.PctHPs} < 45) {
+		/if (${validate_cast[FALSE, alt, "Blade Guardian", ${Me.ID}]}) /call core_cast2 "Blade Guardian" alt 0 FALSE
 	}
-	/if (${Me.PctHPs}<25  && ${Target.PctHPs}>1) {
-		/call AANow ${Me.AltAbility[Warlord's Resurgence].ID}
+	
+	/if (${Me.PctHPs} < 25) {
+		/if (${validate_cast[FALSE, alt, "Warlord's Resurgence", ${Me.ID}]}) /call core_cast2 "Warlord's Resurgence" alt 0 FALSE
 	} 
-	/if (${Me.AltAbilityReady[Imperator's Charge]} && (${Me.PctHPs} < 45 || ${Target.Named}) && ${Target.PctHPs}>1) {
-		/call AANow ${Me.AltAbility[Imperator's Charge].ID}
-		/if (${Me.AltAbilityReady[Resplendent Glory]}) {
-			/call AANow ${Me.AltAbility[Resplendent Glory].ID}
-		}
-	} else /if (${Me.PctHPs} < 45 || ${Target.Named}) {
-		/if (${Me.AltAbilityReady[Resplendent Glory]}) {
-			/call AANow ${Me.AltAbility[Resplendent Glory].ID}
-		}
+	
+	/if (${Me.PctHPs} < 45 || ${Target.Named}) {
+		/if (${validate_cast[FALSE, alt, "Imperator's Charge", ${Me.ID}]}) /call core_cast2 "Imperator's Charge" alt 0 FALSE
+		/if (${validate_cast[FALSE, alt, "Resplendent Glory", ${Me.ID}]}) /call core_cast2 "Resplendent Glory" alt 0 FALSE
 	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: DoDisc 
@@ -96,63 +89,52 @@ Sub war_disc
 
 	/if (!${validate_combat[${Target.ID}]} ) /return
 
-	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) &&  ${Me.CombatAbilityReady[${missall}]}) {
+	/if (${Me.PctHPs} < 55 && ${Me.ActiveDisc.ID} != ${FortitudeDiscID}) {
+		/disc ${parryall}
+	}
+
+	/if (${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
 				/stopdisc
 				/delay 5 !${Me.ActiveDisc.ID}
 				/disc ${missall}
+				/if (${validate_cast[FALSE, disc, "${missall}", ${Me.ID}]}) /call core_cast2 "${missall}" disc 0 FALSE
 			}
 		} else {
-			/disc ${missall}
+			/if (${validate_cast[FALSE, disc, "${missall}", ${Me.ID}]}) /call core_cast2 "${missall}" disc 0 FALSE
 		}
-	}
-
-	/if (${Me.PctHPs} < 55 && ${Me.ActiveDisc.ID} != ${FortitudeDiscID}) {
-		/disc ${parryall}
-	}
-
-	/if ((${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) && ${Me.CombatAbilityReady[${meleemit}]}) {
-
+	
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
 				/stopdisc
 				/delay 5 !${Me.ActiveDisc.ID}
-				/disc ${meleemit}
+				/if (${validate_cast[FALSE, disc, "${meleemit}", ${Me.ID}]}) /call core_cast2 "${meleemit}" disc 0 FALSE
 			}
 		} else {
 			/disc ${meleemit}
+			/if (${validate_cast[FALSE, disc, "${meleemit}", ${Me.ID}]}) /call core_cast2 "${meleemit}" disc 0 FALSE
 		}
-	} 
+	}
 
-	/if (${Target.Type.Equal[Corpse]} || !${Target.ID}) /return
-	
 	/if (${Target.Named} || ${Target.Level} > (${Me.Level}+3)) {
 
-		/if (${Me.AltAbilityReady[Mark of the Mage Hunter]} && ${Target.PctHPs}>1) {
-			/call AANow ${Me.AltAbility[Mark of the Mage Hunter].ID}
-		}
-		/if (${Me.CombatAbilityReady[${attention}]} && ${Target.PctHPs} > 1) {
-			/call DiscNow "${attention}"
-		}
+		/if (${validate_cast[FALSE, alt, "Mark of the Mage Hunter", ${Me.ID}]}) /call core_cast2 "Mark of the Mage Hunter" alt 0 FALSE
+		/if (${validate_cast[FALSE, disc, "${attention}", ${Me.ID}]}) /call core_cast2 "${attention}" disc ${Target.ID} FALSE
 	}
 
-	/if ((${Me.XTarget} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30)) {
-		/if (${Me.AltAbilityReady[Warlord's Tenacity]} && ${Target.PctHPs} > 1) {
-			/call AANow ${Me.AltAbility[Warlord's Tenacity].ID}
-		} 
-		/if (${Me.AltAbilityReady[Wars Sheol's Heroic Blade]} && ${Target.PctHPs} > 1) {
-			/call AANow ${Me.AltAbility[Wars Sheol's Heroic Blade].ID}
-		}
-		/if (${Me.AltAbilityReady[Rage of Rallos Zek]} && ${Target.PctHPs} > 1) {
-			/call AANow ${Me.AltAbility[Rage of Rallos Zek].ID}
-		}
+	/if (${Me.XTarget} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
+
+		/if (${validate_cast[FALSE, alt, "Warlord's Tenacity", ${Me.ID}]}) /call core_cast2 "Warlord's Tenacity" alt 0 FALSE
+		/if (${validate_cast[FALSE, alt, "Wars Sheol's Heroic Blade", ${Me.ID}]}) /call core_cast2 "Wars Sheol's Heroic Blade" alt ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, alt, "Rage of Rallos Zek", ${Me.ID}]}) /call core_cast2 "Rage of Rallos Zek" alt 0 FALSE
 	}
 
-	/if (${Target.Named} && ${Me.CombatAbilityReady[${throat}]} && ${Target.PctHPs} > 1) {
-		/call DiscNow "${throat}"
+	/if (${Target.Named}) {
+		/if (${validate_cast[FALSE, alt, "${throat}", ${Me.ID}]}) /call core_cast2 "${throat}" alt ${Target.ID} FALSE
 	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: get_aggro
@@ -163,89 +145,70 @@ Sub war_get_aggro
 	
 	/call engage
 
-	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Target.MaxRangeTo}>=${Target.Distance}) {
-		/call AANow ${Me.AltAbility[Battle Leap].ID}
-		/squelch /attack on
-	}
+	/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 
 	/call use_skill_melee FALSE ${Target.ID}
 
-	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
-		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
+	/if (${validate_cast[FALSE, alt, "Call of Challenge", ${Target.ID}]}) /call core_cast2 "Call of Challenge" alt ${Target.ID} FALSE	
+
+	/if (${validate_cast[FALSE, disc, "${shout}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
+	
+	/if (${validate_cast[FALSE, disc, "${insult}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
+	
+	/if (${Me.SecondaryPctAggro}>=30) {
+		/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
+	}
+	
+	/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
+
+	/if (${validate_cast[FALSE, disc, "Knee Strike", ${Target.ID}]}) /call core_cast2 "Knee Strike" disc ${Target.ID} FALSE
+
+	/if (${validate_cast[FALSE, disc, "Gut Punch", ${Target.ID}]}) /call core_cast2 "Gut Punch" disc ${Target.ID} FALSE
+
+	/if (${Target.Named} || ${Me.PctHPs} < 61) {
+		/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
 	}
 
-	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${shout}]} && ${Target.PctHPs}>1) {
-		/call DiscNow "${shout}"
-	}
-	/if (${Me.PctEndurance}>5 && ${Me.CombatAbilityReady[${insult}]} && ${Target.PctHPs}>1) {
-		/call DiscNow "${insult}"
-	}
-	/if (${Me.PctEndurance}>10 && ${Me.CombatAbilityReady[${roar}]} && ${Target.PctHPs}>1 && ${Me.SecondaryPctAggro}>=30) {
-		/call DiscNow "${roar}"
-	}
-
-	/if (${Me.AltAbilityReady[Rage of the Forsaken]} && ${Target.PctHPs}>1) {
-		/call AANow ${Me.AltAbility[Rage of the Forsaken].ID}
-	}
-	/if (${Me.CombatAbilityReady[${shieldhit}]} && !${Target.Buff[Sarnak Finesse].ID} && ${Me.Endurance}>500  && ${Target.PctHPs}>1) {
-		/call DiscNow "${shieldhit}"
+	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
+		/if (${validate_cast[FALSE, alt, "Rage of the Forsaken", ${Target.ID}]}) {
+			/call core_cast2 "Rage of the Forsaken" alt ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) {
+				/call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE
+			}
+		}
 	}
 
-	|-- Mash key base
-	/if (${Me.AltAbilityReady[Knee Strike]} && ${Target.PctHPs}>1) {
-		/call AANow ${Me.AltAbility[Knee Strike].ID}
+	/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]} < 2) {
+		/if (${validate_cast[FALSE, alt, "Rampage", ${Target.ID}]}) /call core_cast2 "Rampage" alt ${Target.ID} FALSE
 	}
 
-	/if ((${Target.Named} || ${Me.PctHPs} < 61) && ${Me.CombatAbilityReady[${knuckle}]} && ${Target.PctHPs}>1) {
-		/call DiscNow ${knuckle}
-	}
-	/if (${Me.CombatAbilityReady[${StrikeDisc}]} && ${Target.PctHPs}>1) {
-		/call DiscNow ${StrikeDisc}
+	/if (${Me.SecondaryPctAggro} > 10) {
+		/if (${validate_cast[FALSE, disc, "${singlehealhate}", ${Target.ID}]}) /call core_cast2 "${singlehealhate}" disc ${Target.ID} FALSE
 	}
 
-	/if (${Me.AltAbilityReady[Gut Punch]} && ${Target.PctHPs}>1) {
-		/call AANow ${Me.AltAbility[Gut Punch].ID}
-	}
-	/if (${Me.AltAbilityReady[Call of Challenge]} && ${Target.PctHPs}>1) {
-		/call AANow ${Me.AltAbility[Call of Challenge].ID}
+	/if (${Me.CombatAbilityReady[${singlehealhate}]} && ${Me.SecondaryPctAggro} > 10) {
+		/if (${validate_cast[FALSE, disc, "${phantom}", ${Target.ID}]}) /call core_cast2 "${phantom}" disc ${Target.ID} FALSE
 	}
 
-	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
-
-	/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]}<2 && ${Me.AltAbilityReady[Rampage]} && ${Target.PctHPs}>1) {
-		/call AANow ${Me.AltAbility[Rampage].ID}
+	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
+		/if (${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]}) /call core_cast2 "Warlord's Fury" alt ${${Target.ID}} FALSE
+		/if (${validate_cast[FALSE, alt, "Blast of Anger", ${${Target.ID}}]}) /call core_cast2 "Blast of Anger" alt ${${Target.ID}} FALSE
 	}
 
-	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID}) /return
-
-	|-- Mash key aggro
-	/if (${Me.CombatAbilityReady[${singlehealhate}]} && ${Me.SecondaryPctAggro}>10) {
-		/call DiscNow "${singlehealhate}"
+	/if (${Me.SecondaryPctAggro} > 30) {
+		/if (${validate_cast[FALSE, alt, "Projection of Fury", ${Target.ID}]}) /call core_cast2 "Projection of Fury" alt ${Target.ID} FALSE
 	}
-	/if (${Me.CombatAbilityReady[${phantom}]} && ${Me.PctEndurance}>10 && ${Me.SecondaryPctAggro}>20) {
-		/call DiscNow "${phantom}"
+	/if (${Me.SecondaryPctAggro} > 50) {
+		/if (${validate_cast[FALSE, alt, "Warlord's Grasp", ${Target.ID}]}) /call core_cast2 "Warlord's Grasp" alt ${Target.ID} FALSE
 	}
-	/if (${Me.AltAbilityReady[Blast of Anger]} && ${Me.SecondaryPctAggro}>60) {
-		/call AANow ${Me.AltAbility[Blast of Anger].ID}
-	}
-	/if (${Me.AltAbilityReady[Projection of Fury]} && ${Me.SecondaryPctAggro}>30) {
-		/call AANow ${Me.AltAbility[Projection of Fury].ID}
-	}
-	/if (${Me.AltAbilityReady[Warlord's Grasp]} && ${Me.SecondaryPctAggro}>50) {
-		/call AANow ${Me.AltAbility[Warlord's Grasp].ID}
-	}
-	/if (${Me.AltAbilityReady[Ageless Enmity]} && ${Me.SecondaryPctAggro}>=100 && ${Target.PctHPs}<=98) {
-		/call AANow ${Me.AltAbility[Ageless Enmity].ID}
+	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
+		/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]}) /call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
 	}
 
-	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
+	/if (${validate_cast[FALSE, disc, "${tongue}", ${Target.ID}]}) /call core_cast2 "${tongue}" disc ${Target.ID} FALSE
 
-	/if (${Me.CombatAbilityReady[${tongue}]} && ${Me.SecondaryPctAggro}>10) {
-		/call DiscNow "${tongue}"
-	}
-	/if (${Me.CombatAbilityReady[${reprisal}]} && ${Me.SecondaryPctAggro}>5) {
-		/call DiscNow "${reprisal}"
-	}
+	/if (${validate_cast[FALSE, disc, "${reprisal}", ${Target.ID}]}) /call core_cast2 "${reprisal}" disc ${Target.ID} FALSE
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: AoEAggro   

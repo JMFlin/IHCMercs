@@ -9,8 +9,6 @@ Sub dru_setup
 	/declare Aura1			string outer NULL
 	/declare Aura2			string outer NULL
 	
-	/declare HealSpell1			string outer NULL
-	/declare HealSpell2			string outer NULL
 	/declare Lunasalve			string outer NULL
 	/declare NukeSpell1			string outer NULL
 	/declare NukeSpell2			string outer NULL
@@ -55,7 +53,6 @@ Sub dru_load_spellbar
 	/call LoadSpellGem "${Curavida}" 3
 	/call LoadSpellGem "${Lunasalve}" 4
 	/call LoadSpellGem "${Survival}" 5
-
 	/call LoadSpellGem "${Reptile}" 6
 
 	/call LoadSpellGem "${NBW}" 7
@@ -513,15 +510,54 @@ BALANCED:
 		/varset Reptile ${Spell[Skin of the Reptile].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Nature's Burning Wrath].Level} && ${Me.Book[${Spell[Nature's Burning Wrath].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Nature's Fervid Wrath].Level} && ${Me.Book[${Spell[Nature's Fervid Wrath].RankName}]}) {
+		/varset NBW ${Spell[Nature's Fervid Wrath].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Blistering Wrath].Level} && ${Me.Book[${Spell[Nature's Blistering Wrath].RankName}]}) {
+		/varset NBW ${Spell[Nature's Blistering Wrath].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Fiery Wrath].Level} && ${Me.Book[${Spell[Nature's Fiery Wrath].RankName}]}) {
+		/varset NBW ${Spell[Nature's Fiery Wrath].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Withering Wrath].Level} && ${Me.Book[${Spell[Nature's Withering Wrath].RankName}]}) {
+		/varset NBW ${Spell[Nature's Withering Wrath].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Scorching Wrath].Level} && ${Me.Book[${Spell[Nature's Scorching Wrath].RankName}]}) {
+		/varset NBW ${Spell[Nature's Scorching Wrath].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Incinerating Wrath].Level} && ${Me.Book[${Spell[Nature's Incinerating Wrath].RankName}]}) {
+		/varset NBW ${Spell[Nature's Incinerating Wrath].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Searing Wrath].Level} && ${Me.Book[${Spell[Nature's Searing Wrath].RankName}]}) {
+		/varset NBW ${Spell[Nature's Searing Wrath].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Burning Wrath].Level} && ${Me.Book[${Spell[Nature's Burning Wrath].RankName}]}) {
 		/varset NBW ${Spell[Nature's Burning Wrath].RankName}
 	} else /if (${Me.Level}>=${Spell[Nature's Blazing Wrath].Level} && ${Me.Book[${Spell[Nature's Blazing Wrath].RankName}]}) {
 		/varset NBW ${Spell[Nature's Blazing Wrath].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Mask of the Shadowcat].Level} && ${Me.Book[${Spell[Mask of the Shadowcat].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Mask of the Arboreal].Level} && ${Me.Book[${Spell[Mask of the Arboreal].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Arboreal].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Arbor Tender].Level} && ${Me.Book[${Spell[Mask of the Arbor Tender].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Arbor Tender].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Wildtender].Level} && ${Me.Book[${Spell[Mask of the Wildtender].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Wildtender].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Copsetender].Level} && ${Me.Book[${Spell[Mask of the Copsetender].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Copsetender].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Bosquetender].Level} && ${Me.Book[${Spell[Mask of the Bosquetender].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Bosquetender].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Thicket Dweller].Level} && ${Me.Book[${Spell[Mask of the Thicket Dweller].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Thicket Dweller].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Arboreal].Level} && ${Me.Book[${Spell[Mask of the Arboreal].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Arboreal].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Raptor].Level} && ${Me.Book[${Spell[Mask of the Raptor].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Raptor].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Shadowcat].Level} && ${Me.Book[${Spell[Mask of the Shadowcat].RankName}]}) {
 		/varset Mask ${Spell[Mask of the Shadowcat].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Wild].Level} && ${Me.Book[${Spell[Mask of the Wild].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Wild].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Forest].Level} && ${Me.Book[${Spell[Mask of the Forest].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Forest].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Stalker].Level} && ${Me.Book[${Spell[Mask of the Stalker].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Hunter].RankName}
+	} else /if (${Me.Level}>=${Spell[Mask of the Stalker].Level} && ${Me.Book[${Spell[Mask of the Hunter].RankName}]}) {
+		/varset Mask ${Spell[Mask of the Hunter].RankName}
 	}
+
 	/delay 1s
 	/call dru_load_spellbar
 

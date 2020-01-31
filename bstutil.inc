@@ -10,16 +10,16 @@ Sub bst_setup
 	/declare Aura2				string outer NULL
 |-Spells
 	/declare SwarmPet			string outer NULL
-	/declare NukeSpell1			string outer NULL
-	/declare NukeSpell2			string outer NULL
+	/declare FrozenNuke			string outer NULL
+	/declare MaelstromNuke		string outer NULL
 	/declare NukeSpell3			string outer NULL
 	/declare NukeSpell4			string outer NULL
 	/declare NukeSpell5			string outer NULL
-	/declare DoTSpell1			string outer NULL
-	/declare DoTSpell2			string outer NULL
+	/declare BloodDoT			string outer NULL
+	/declare ChillDoT			string outer NULL
 	/declare SlowSpell			string outer NULL
 	/declare DichoSpell			string outer NULL
-	/declare HealSpell1			string outer NULL
+	/declare Mending			string outer NULL
 	/declare PetHealSpell		string outer NULL
 	/declare FocusSpell			string outer NULL
 	/declare AtkBuff			string outer NULL
@@ -66,15 +66,27 @@ Sub bst_load_spellbar
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
-	/call LoadSpellGem "${HealSpell1}" 1
+	/call LoadSpellGem "${Mending}" 1
 	/call LoadSpellGem "${AtkBuff}" 2
-	/call LoadSpellGem "${NukeSpell5}" 3
-	/call LoadSpellGem "${NukeSpell4}" 4
-	/call LoadSpellGem "${DoTSpell1}" 5
+	/call LoadSpellGem "${FrozenNuke}" 3
+	/call LoadSpellGem "${MaelstromNuke}" 4
+	/call LoadSpellGem "${BloodDoT}" 5
 	
-	/call LoadSpellGem "${PetHaste}" 6
+	/call LoadSpellGem "${ChillDoT}" 6
 	/call LoadSpellGem "${SlowSpell}" 7
 	/call LoadSpellGem "${SwarmPet}" 8	
+
+|**
+	/call LoadSpellGem "${Mending}" 1
+	/call LoadSpellGem "${AtkBuff}" 2
+	/call LoadSpellGem "${FrozenNuke}" 3
+	/call LoadSpellGem "${MaelstromNuke}" 4
+	/call LoadSpellGem "${BloodDoT}" 5
+	
+	/call LoadSpellGem "${ChillDoT}" 6
+	/call LoadSpellGem "${SlowSpell}" 7
+	/call LoadSpellGem "${SwarmPet}" 8	
+**|
 	
 	/if (${Me.Level}>105 && ${spellmisc}>=13) {
 		/call LoadSpellGem "${SwarmPet}" 6
@@ -196,29 +208,41 @@ Sub bst_abilities
 	}
 |-Cold/Poison Nuke fast cast*
 	/if (${Me.Level}>=${Spell[Frozen Toxin].Level} && ${Me.Book[${Spell[Frozen Toxin].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Frozen Toxin].RankName}
+		/varset FrozenNuke ${Spell[Frozen Toxin].RankName}
 	} else /if (${Me.Level}>=${Spell[Frozen Miasma].Level} && ${Me.Book[${Spell[Frozen Miasma].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Frozen Miasma].RankName}
+		/varset FrozenNuke ${Spell[Frozen Miasma].RankName}
 	} else /if (${Me.Level}>=${Spell[Frozen Carbomate].Level} && ${Me.Book[${Spell[Frozen Carbomate].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Frozen Carbomate].RankName}
+		/varset FrozenNuke ${Spell[Frozen Carbomate].RankName}
 	} else /if (${Me.Level}>=${Spell[Frozen Cyanin].Level} && ${Me.Book[${Spell[Frozen Cyanin].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Frozen Cyanin].RankName}
+		/varset FrozenNuke ${Spell[Frozen Cyanin].RankName}
 	} else /if (${Me.Level}>=${Spell[Frozen Venin].Level} && ${Me.Book[${Spell[Frozen Venin].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Frozen Venin].RankName}
+		/varset FrozenNuke ${Spell[Frozen Venin].RankName}
 	} else /if (${Me.Level}>=${Spell[Frozen Venom].Level} && ${Me.Book[${Spell[Frozen Venom].RankName}]}) {
-		/varset NukeSpell1 ${Spell[Frozen Venom].RankName}
+		/varset FrozenNuke ${Spell[Frozen Venom].RankName}
+	} else /if (${Me.Level}>=${Spell[Jagged Torrent].Level} && ${Me.Book[${Spell[Jagged Torrent].RankName}]}) {
+		/varset FrozenNuke ${Spell[Jagged Torrent].RankName}
+	} else /if (${Me.Level}>=${Spell[Ancient Savage Ice].Level} && ${Me.Book[${Spell[Ancient Savage Ice].RankName}]}) {
+		/varset FrozenNuke ${Spell[Ancient Savage Ice].RankName}
+	} else /if (${Me.Level}>=${Spell[Ancient Frozen Chaos].Level} && ${Me.Book[${Spell[Ancient Frozen Chaos].RankName}]}) {
+		/varset FrozenNuke ${Spell[Ancient Frozen Chaos].RankName}
+	} else /if (${Me.Level}>=${Spell[Frost Spear].Level} && ${Me.Book[${Spell[Frost Spear].RankName}]}) {
+		/varset FrozenNuke ${Spell[Frost Spear].RankName}
+	} else /if (${Me.Level}>=${Spell[Frost Shard].Level} && ${Me.Book[${Spell[Frost Shard].RankName}]}) {
+		/varset FrozenNuke ${Spell[Frost Shard].RankName}
+	} else /if (${Me.Level}>=${Spell[Blast of Frost].Level} && ${Me.Book[${Spell[Blast of Frost].RankName}]}) {
+		/varset FrozenNuke ${Spell[Blast of Frost].RankName}
 	}
 |-Cold/Poison/Disease Nuke fast cast*
 	/if (${Me.Level}>=${Spell[Beramos' Maelstrom].Level} && ${Me.Book[${Spell[Beramos' Maelstrom].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Beramos' Maelstrom].RankName}
+		/varset MaelstromNuke ${Spell[Beramos' Maelstrom].RankName}
 	} else /if (${Me.Level}>=${Spell[Visoracius' Maelstrom].Level} && ${Me.Book[${Spell[Visoracius' Maelstrom].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Visoracius' Maelstrom].RankName}
+		/varset MaelstromNuke ${Spell[Visoracius' Maelstrom].RankName}
 	} else /if (${Me.Level}>=${Spell[Nak's Maelstrom].Level} && ${Me.Book[${Spell[Nak's Maelstrom].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Nak's Maelstrom].RankName}
+		/varset MaelstromNuke ${Spell[Nak's Maelstrom].RankName}
 	} else /if (${Me.Level}>=${Spell[Bale's Maelstrom].Level} && ${Me.Book[${Spell[Bale's Maelstrom].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Bale's Maelstrom].RankName}
+		/varset MaelstromNuke ${Spell[Bale's Maelstrom].RankName}
 	} else /if (${Me.Level}>=${Spell[Kron's Maelstrom].Level} && ${Me.Book[${Spell[Kron's Maelstrom].RankName}]}) {
-		/varset NukeSpell2 ${Spell[Kron's Maelstrom].RankName}
+		/varset MaelstromNuke ${Spell[Kron's Maelstrom].RankName}
 	}
 |-Poison Nuke fast cast*
 	/if (${Me.Level}>=${Spell[Mawmun's Bite].Level} && ${Me.Book[${Spell[Mawmun's Bite].RankName}]}) {
@@ -278,41 +302,41 @@ Sub bst_abilities
 	}
 |-Poison DoT Instant Cast*
 	/if (${Me.Level}>=${Spell[Polybiad Blood].Level} && ${Me.Book[${Spell[Polybiad Blood].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Polybiad Blood].RankName}
+		/varset BloodDoT ${Spell[Polybiad Blood].RankName}
 	} else /if (${Me.Level}>=${Spell[Glistenwing Blood].Level} && ${Me.Book[${Spell[Glistenwing Blood].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Glistenwing Blood].RankName}
+		/varset BloodDoT ${Spell[Glistenwing Blood].RankName}
 	} else /if (${Me.Level}>=${Spell[Asp Blood].Level} && ${Me.Book[${Spell[Asp Blood].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Asp Blood].RankName}
+		/varset BloodDoT ${Spell[Asp Blood].RankName}
 	} else /if (${Me.Level}>=${Spell[Binaesa Blood].Level} && ${Me.Book[${Spell[Binaesa Blood].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Binaesa Blood].RankName}
+		/varset BloodDoT ${Spell[Binaesa Blood].RankName}
 	} else /if (${Me.Level}>=${Spell[Spinechiller Blood].Level} && ${Me.Book[${Spell[Spinechiller Blood].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Spinechiller Blood].RankName}
+		/varset BloodDoT ${Spell[Spinechiller Blood].RankName}
 	} else /if (${Me.Level}>=${Spell[Ikaav Blood].Level} && ${Me.Book[${Spell[Ikaav Blood].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Ikaav Blood].RankName}
+		/varset BloodDoT ${Spell[Ikaav Blood].RankName}
 	} else /if (${Me.Level}>=${Spell[Falrazim's Gnashing].Level} && ${Me.Book[${Spell[Falrazim's Gnashing].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Falrazim's Gnashing].RankName}
+		/varset BloodDoT ${Spell[Falrazim's Gnashing].RankName}
 	} else /if (${Me.Level}>=${Spell[Diregriffon's Bite].Level} && ${Me.Book[${Spell[Diregriffon's Bite].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Diregriffon's Bite].RankName}
+		/varset BloodDoT ${Spell[Diregriffon's Bite].RankName}
 	} else /if (${Me.Level}>=${Spell[Chimera Blood].Level} && ${Me.Book[${Spell[Chimera Blood].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Chimera Blood].RankName}
+		/varset BloodDoT ${Spell[Chimera Blood].RankName}
 	} else /if (${Me.Level}>=${Spell[Turepta Blood].Level} && ${Me.Book[${Spell[Turepta Blood].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Turepta Blood].RankName}
+		/varset BloodDoT ${Spell[Turepta Blood].RankName}
 	} else /if (${Me.Level}>=${Spell[Scorpion Venom].Level} && ${Me.Book[${Spell[Scorpion Venom].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Scorpion Venom].RankName}
+		/varset BloodDoT ${Spell[Scorpion Venom].RankName}
 	} else /if (${Me.Level}>=${Spell[Venom of the Snake].Level} && ${Me.Book[${Spell[Venom of the Snake].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Venom of the Snake].RankName}
+		/varset BloodDoT ${Spell[Venom of the Snake].RankName}
 	} else /if (${Me.Level}>=${Spell[Envenomed Breath].Level} && ${Me.Book[${Spell[Envenomed Breath].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Envenomed Breath].RankName}
+		/varset BloodDoT ${Spell[Envenomed Breath].RankName}
 	} else /if (${Me.Level}>=${Spell[Tainted Breath].Level} && ${Me.Book[${Spell[Tainted Breath].RankName}]}) {
-		/varset DoTSpell1 ${Spell[Tainted Breath].RankName}
+		/varset BloodDoT ${Spell[Tainted Breath].RankName}
 	}
 |-Cold DoT Instant Cast*
-/if (${Me.Level}>=${Spell[Ekron's Chill].Level} && ${Me.Book[${Spell[Ekron's Chill].RankName}]}) {
-		/varset DoTSpell2 ${Spell[Ekron's Chill].RankName}
+	/if (${Me.Level}>=${Spell[Ekron's Chill].Level} && ${Me.Book[${Spell[Ekron's Chill].RankName}]}) {
+		/varset ChillDoT ${Spell[Ekron's Chill].RankName}
 	} else /if (${Me.Level}>=${Spell[Kirchen's Chill].Level} && ${Me.Book[${Spell[Kirchen's Chill].RankName}]}) {
-		/varset DoTSpell2 ${Spell[Kirchen's Chill].RankName}
+		/varset ChillDoT ${Spell[Kirchen's Chill].RankName}
 	} else /if (${Me.Level}>=${Spell[Edoth's Chill].Level} && ${Me.Book[${Spell[Edoth's Chill].RankName}]}) {
-		/varset DoTSpell2 ${Spell[Edoth's Chill].RankName}
+		/varset ChillDoT ${Spell[Edoth's Chill].RankName}
 	}
 |-Dicho Spell*
 /if (${Me.Level}>=${Spell[Dissident Fury].Level} && ${Me.Book[${Spell[Dissident Fury].RankName}]}) {
@@ -336,39 +360,39 @@ Sub bst_abilities
 	}
 |-Single target HealSpell1*
 	/if (${Me.Level}>=${Spell[Deltro's Mending].Level} && ${Me.Book[${Spell[Deltro's Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Deltro's Mending].RankName}
+		/varset Mending ${Spell[Deltro's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Sabhattin's Mending].Level} && ${Me.Book[${Spell[Sabhattin's Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Sabhattin's Mending].RankName}
+		/varset Mending ${Spell[Sabhattin's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Jaerol's Mending].Level} && ${Me.Book[${Spell[Jaerol's Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Jaerol's Mending].RankName}
+		/varset Mending ${Spell[Jaerol's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Mending of the Izon].Level} && ${Me.Book[${Spell[Mending of the Izon].RankName}]}) {
-		/varset HealSpell1 ${Spell[Mending of the Izon].RankName}
+		/varset Mending ${Spell[Mending of the Izon].RankName}
 	} else /if (${Me.Level}>=${Spell[Jorra's Mending].Level} && ${Me.Book[${Spell[Jorra's Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Jorra's Mending].RankName}
+		/varset Mending ${Spell[Jorra's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Cadmael's Mending].Level} && ${Me.Book[${Spell[Cadmael's Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Cadmael's Mending].RankName}
+		/varset Mending ${Spell[Cadmael's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Daria's Mending].Level} && ${Me.Book[${Spell[Daria's Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Daria's Mending].RankName}
+		/varset Mending ${Spell[Daria's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Minohten Mending].Level} && ${Me.Book[${Spell[Minohten Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Minohten Mending].RankName}
+		/varset Mending ${Spell[Minohten Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Muada's Mending].Level} && ${Me.Book[${Spell[Muada's Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Muada's Mending].RankName}
+		/varset Mending ${Spell[Muada's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Trushar's Mending].Level} && ${Me.Book[${Spell[Trushar's Mending].RankName}]}) {
-		/varset HealSpell1 ${Spell[Trushar's Mending].RankName}
+		/varset Mending ${Spell[Trushar's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Chloroblast].Level} && ${Me.Book[${Spell[Chloroblast].RankName}]}) {
-		/varset HealSpell1 ${Spell[Chloroblast].RankName}
+		/varset Mending ${Spell[Chloroblast].RankName}
 	} else /if (${Me.Level}>=${Spell[Spirit Salve].Level} && ${Me.Book[${Spell[Spirit Salve].RankName}]}) {
-		/varset HealSpell1 ${Spell[Spirit Salve].RankName}
+		/varset Mending ${Spell[Spirit Salve].RankName}
 	} else /if (${Me.Level}>=${Spell[Greater Healing].Level} && ${Me.Book[${Spell[Greater Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Greater Healing].RankName}
+		/varset Mending ${Spell[Greater Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Healing].Level} && ${Me.Book[${Spell[Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Healing].RankName}
+		/varset Mending ${Spell[Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Light Healing].Level} && ${Me.Book[${Spell[Light Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Light Healing].RankName}
+		/varset Mending ${Spell[Light Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
-		/varset HealSpell1 ${Spell[Minor Healing].RankName}
+		/varset Mending ${Spell[Minor Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Salve].Level} && ${Me.Book[${Spell[Salve].RankName}]}) {
-		/varset HealSpell1 ${Spell[Salve].RankName}
+		/varset Mending ${Spell[Salve].RankName}
 	}
 |-Pet Heal*
 	/if (${Me.Level}>=${Spell[Salve of Artikla].Level} && ${Me.Book[${Spell[Salve of Artikla].RankName}]}) {

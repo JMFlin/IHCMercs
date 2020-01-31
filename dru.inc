@@ -3,13 +3,52 @@
 |---------------------------------------------------------------------------- 
 Sub dru_main
 
-	/call dru_single_target_heals
-	/call dru_group_heals
-	/call dru_combat
 |	/call check_for_corpse FALSE
 	/call dru_group_buffs
 	/call dru_self_buffs
-	/call dru_combat_tank_buffs
+
+	/while (${Me.XTarget}) {
+		
+		/call dru_single_target_heals
+
+		/call get_target
+
+		/if (!${validate_combat[${Target.ID}]}) /continue
+		
+		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
+			}
+		}
+
+		/call dru_single_target_heals
+		/call get_target
+
+		/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
+		}
+
+		/call dru_debuff_xtarget
+
+		/if (${Me.PctMana} < ${HybridManaLimit}) /continue
+
+		/call dru_single_target_heals
+		/call get_target
+
+		/if (!${Target.Buff[${NBW}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
+		}
+
+		/if (${Me.PctMana} < ${HybridManaLimit}) /continue
+		
+		/call dru_single_target_heals
+		/call get_target
+
+		/if (${validate_cast[FALSE, spell, "${NukeSpell1}", ${Target.ID}]}) /call core_cast2 "${NukeSpell1}" spell ${Target.ID} FALSE
+		
+		/call dru_combat_tank_buffs
+	}
 
 	/doevents
 	
@@ -22,7 +61,7 @@ Sub dru_combat_tank_buffs
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
 	/if (!${Me.XTarget} && ${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (!${Me.XTarget} && ${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
-	
+
 	/if (${Group.Member[${Group.MainTank}].Type.Equal[Mercenary]}) {
 		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return
 	}
@@ -43,40 +82,7 @@ Sub dru_combat_tank_buffs
 |- SUB: combat 
 |---------------------------------------------------------------------------- 
 Sub dru_combat
-	/call get_target
 	
-	/if (!${validate_combat[${Target.ID}]} ) /return
-	
-	/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
-		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-			/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-			/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
-		}
-	}
-
-	/call dru_single_target_heals
-
-	/call get_target
-	/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
-	}
-	|/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
-	|	/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
-	|}
-
-	/if (${Me.PctMana} < ${HybridManaLimit}) /return
-
-	/call dru_single_target_heals
-	/call get_target
-	/if (!${Target.Buff[${NBW}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
-	}
-
-	/if (${Me.PctMana} < ${HybridManaLimit}) /return
-	
-	/call dru_single_target_heals
-	/call get_target
-	/if (${validate_cast[FALSE, spell, "${NukeSpell1}", ${Target.ID}]}) /call core_cast2 "${NukeSpell1}" spell ${Target.ID} FALSE
 
 /return
 |----------------------------------------------------------------------------
@@ -86,13 +92,16 @@ Sub dru_debuff_xtarget
 	/declare x int local 1
 
 	/if (!${Me.XTarget}) /return
+	/if (${Me.XTarget} < 2) /return
 
 	/for x 1 to ${Me.XTarget}
 
-		/target id ${Me.XTarget[${x}].ID}
-		/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
-		/delay 2s !${Me.Moving}
-		/delay 2s !${Me.Casting}
+		/if (${immuneSet.Contains[${Me.XTarget[${x}].ID}]}) /continue
+
+		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${x}].ID}
+			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		}
 
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
@@ -103,15 +112,10 @@ Sub dru_debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${SingleFrostAtkDebuff} \ax <<=
 				/call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SingleFrostAtkDebuff}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 
-		|/if (!${Target.Buff[${FireAtkDebuff}].ID}) {
-		|	/if (${validate_cast[FALSE, spell, "${FireAtkDebuff}", ${Target.ID}]}) {
-		|		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Ac debuff \ar ${Target.Name} \ax with =>> \ag ${FireAtkDebuff} \ax <<=
-		|		/call core_cast2 "${FireAtkDebuff}" spell ${Target.ID} FALSE
-		|	}
-		|}
 		/delay 1s
 	/next x
 /return
@@ -301,8 +305,8 @@ Sub dru_single_target_heals
 	/varset _worstHurtId ${Macro.Return}
 	
 	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${_worstHurtId}]}) {
-			/call core_cast2 "${HealSpell1}" spell ${_worstHurtId} FALSE
+		/if (${validate_cast[FALSE, spell, "${Curavida}", ${_worstHurtId}]}) {
+			/call core_cast2 "${Curavida}" spell ${_worstHurtId} FALSE
 		}
 	}
 

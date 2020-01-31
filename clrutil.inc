@@ -9,20 +9,22 @@ Sub clr_setup
 	/declare promgem				int             outer 0
 	/declare divinegem				int             outer 0
 	/declare wardspell		        string          outer NULL
-	/declare remedyheal1	        string          outer NULL
-	/declare remedyheal2	        string          outer NULL
+	/declare Remedy1	        string          outer NULL
+	/declare Remedy2	        string          outer NULL
+	/declare Remedy3	        string          outer NULL
 	/declare patchheal		        string          outer NULL
 	/declare patchheal2		        string          outer NULL
 	/declare groupfastheal	        string          outer NULL
 	/declare GroupHealSpell1		string          outer NULL
 	/declare grouphealnocure        string          outer NULL
 	/declare PromisedHeal		    string          outer NULL
-	/declare bigheal1		        string          outer NULL
+	/declare Renewal		        string          outer NULL
 	/declare bigheal2		        string          outer NULL
 	/declare yaulpspell		        string          outer NULL
 	/declare stunnuke		        string          outer NULL
-	/declare healnuke1		        string          outer NULL
-	/declare healnuke2		        string          outer NULL
+	/declare Intervention1		        string          outer NULL
+	/declare Intervention2		        string          outer NULL
+	/declare Intervention3		        string          outer NULL
 	/declare nukeheal1		        string          outer NULL
 	/declare nukeheal2		        string          outer NULL
 	/declare patchhealpoint			int             outer 44
@@ -103,13 +105,13 @@ Sub clr_load_spellbar
 	
 	/call LoadSpellGem "${SingleElixirSpell}" 1
 	/call LoadSpellGem "${PromisedHeal}" 2
-	/call LoadSpellGem "${remedyheal1}" 3
-	/call LoadSpellGem "${remedyheal2}" 4
+	/call LoadSpellGem "${Remedy1}" 3
+	/call LoadSpellGem "${Remedy2}" 4
 	/call LoadSpellGem "${patchheal}" 5
-	/call LoadSpellGem "${GroupHealSpell1}" 6
-	/call LoadSpellGem "${TankBuff}" 7
-	/call LoadSpellGem "${wardspell}" 8
-	
+	/call LoadSpellGem "${Intervention1}" 6
+	/call LoadSpellGem "${Intervention2}" 7
+	/call LoadSpellGem "${Intervention3}" 8
+
 	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -119,15 +121,28 @@ Sub clr_load_spellbar
 |---------------------------------------------------------------------------- 
 Sub clr_abilities
 	|---Ward Spell Slot 1 or Heal over time for low level
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Ward of Assurance].RankName}]})  {
+	
+	/if (${Me.Level}>=112 && ${Me.Book[${Spell[Ward of Righteousness].RankName}]})  {
+		/varset wardspell ${Spell[Ward of Assurance].RankName}
+	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Ward of Assurance].RankName}]})  {
 		/varset wardspell ${Spell[Ward of Assurance].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Ward of Surety].RankName}]})  {
 		/varset wardspell ${Spell[Ward of Surety].RankName}
 	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Ward of Certitude].RankName}]})  {
 		/varset wardspell ${Spell[Ward of Certitude].RankName}
 	}
-	
-	/if (${Me.Level}>=92 && ${Me.Book[${Spell[Zealous Elixir].RankName}]})  {
+
+
+
+	/if (${Me.Level}>=${Spell[Sincere Elixir].Level} && ${Me.Book[${Spell[Sincere Elixir].RankName}]})  {
+		/varset SingleElixirSpell ${Spell[Sincere Elixir].RankName}
+	} else /if (${Me.Level}>=${Spell[Merciful Elixir].Level} && ${Me.Book[${Spell[Merciful Elixir].RankName}]})  {
+		/varset SingleElixirSpell ${Spell[Merciful Elixir].RankName}
+	} else /if (${Me.Level}>=${Spell[Ardent Elixir].Level} && ${Me.Book[${Spell[Ardent Elixir].RankName}]})  {
+		/varset SingleElixirSpell ${Spell[Ardent Elixir].RankName}
+	} else /if (${Me.Level}>=${Spell[Reverent Elixir].Level} && ${Me.Book[${Spell[Reverent Elixir].RankName}]})  {
+		/varset SingleElixirSpell ${Spell[Reverent Elixir].RankName}
+	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Zealous Elixir].RankName}]})  {
 		/varset SingleElixirSpell ${Spell[Zealous Elixir].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Earnest Elixir].RankName}]})  {
 		/varset SingleElixirSpell ${Spell[Earnest Elixir].RankName}
@@ -153,68 +168,78 @@ Sub clr_abilities
 		/varset SingleElixirSpell ${Spell[Celestial Remedy].RankName}
 	}
 |---Remedy Slot 2 and 3
-	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Merciful Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Merciful Remedy].RankName}
-		/varset remedyheal2 ${Spell[Spiritual Remedy].RankName}
+
+	/if (${Me.Level}>=${Spell[Sincere Remedy].Level} && ${Me.Book[${Spell[Sincere Remedy].RankName}]}) {
+		/varset Remedy1 ${Spell[Sincere Remedy].RankName}
+		/varset Remedy2 ${Spell[Merciful Remedy].RankName}
+		/varset Remedy3 ${Spell[Spiritual Remedy].RankName}
+	} else /if (${Me.Level}>=106 && ${Me.Book[${Spell[Merciful Remedy].RankName}]}) {
+		/varset Remedy1 ${Spell[Merciful Remedy].RankName}
+		/varset Remedy2 ${Spell[Spiritual Remedy].RankName}
+		/varset Remedy3 ${Spell[Graceful Remedy].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Spiritual Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Spiritual Remedy].RankName}
-		/varset remedyheal2 ${Spell[Graceful Remedy].RankName}
+		/varset Remedy1 ${Spell[Spiritual Remedy].RankName}
+		/varset Remedy2 ${Spell[Graceful Remedy].RankName}
+		/varset Remedy3 ${Spell[Faithful Remedy].RankName}
 	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Graceful Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Graceful Remedy].RankName}
-		/varset remedyheal2 ${Spell[Faithful Remedy].RankName}
+		/varset Remedy1 ${Spell[Graceful Remedy].RankName}
+		/varset Remedy2 ${Spell[Faithful Remedy].RankName}
+		/varset Remedy3 ${Spell[Earnest Remedy].RankName}
 	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Faithful Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Faithful Remedy].RankName}
-		/varset remedyheal2 ${Spell[Earnest Remedy].RankName}
+		/varset Remedy1 ${Spell[Faithful Remedy].RankName}
+		/varset Remedy2 ${Spell[Earnest Remedy].RankName}
+		/varset Remedy3 ${Spell[Devout Remedy].RankName}
 	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Earnest Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Earnest Remedy].RankName}
-		/varset remedyheal2 ${Spell[Devout Remedy].RankName}
+		/varset Remedy1 ${Spell[Earnest Remedy].RankName}
+		/varset Remedy2 ${Spell[Devout Remedy].RankName}
+		/varset Remedy3 ${Spell[Solemn Remedy].RankName}
 	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Devout Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Devout Remedy].RankName}
-		/varset remedyheal2 ${Spell[Solemn Remedy].RankName}
+		/varset Remedy1 ${Spell[Devout Remedy].RankName}
+		/varset Remedy2 ${Spell[Solemn Remedy].RankName}
 	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Solemn Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Solemn Remedy].RankName}
-		/varset remedyheal2 ${Spell[Sacred Remedy].RankName}
+		/varset Remedy1 ${Spell[Solemn Remedy].RankName}
+		/varset Remedy2 ${Spell[Sacred Remedy].RankName}
 	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Sacred Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Sacred Remedy].RankName}
-		/varset remedyheal2 ${Spell[Supernal Remedy].RankName}
+		/varset Remedy1 ${Spell[Sacred Remedy].RankName}
+		/varset Remedy2 ${Spell[Supernal Remedy].RankName}
 	} else /if (${Me.Level}>=66 && ${Me.Book[${Spell[Pious Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Pious Remedy].RankName}
-		/varset remedyheal2 ${Spell[Supernal Remedy].RankName}
+		/varset Remedy1 ${Spell[Pious Remedy].RankName}
+		/varset Remedy2 ${Spell[Supernal Remedy].RankName}
 	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Supernal Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Supernal Remedy].RankName}
-		/varset remedyheal2 ${Spell[Ethereal Remedy].RankName}
+		/varset Remedy1 ${Spell[Supernal Remedy].RankName}
+		/varset Remedy2 ${Spell[Ethereal Remedy].RankName}
 	} else /if (${Me.Level}>=59 && ${Me.Book[${Spell[Ethereal Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Ethereal Remedy].RankName}
-		/varset remedyheal2 ${Spell[Solemn Remedy].RankName}
+		/varset Remedy1 ${Spell[Ethereal Remedy].RankName}
+		/varset Remedy2 ${Spell[Solemn Remedy].RankName}
 	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Ethereal Light].RankName}]}) {
-		/varset remedyheal1 ${Spell[Ethereal Light].RankName}
-		/varset remedyheal2 ${Spell[Remedy].RankName}
+		/varset Remedy1 ${Spell[Ethereal Light].RankName}
+		/varset Remedy2 ${Spell[Remedy].RankName}
 	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Remedy].RankName}]}) {
-		/varset remedyheal1 ${Spell[Remedy].RankName}
-		/varset remedyheal2 ${Spell[Superior Healing].RankName}
+		/varset Remedy1 ${Spell[Remedy].RankName}
+		/varset Remedy2 ${Spell[Superior Healing].RankName}
 	} else /if (${Me.Level}>=45 && ${Me.Book[${Spell[Healing Light].RankName}]}) {
-		/varset remedyheal1 ${Spell[Healing Light].RankName}
-		/varset remedyheal2 ${Spell[Greater Healing].RankName}
+		/varset Remedy1 ${Spell[Healing Light].RankName}
+		/varset Remedy2 ${Spell[Greater Healing].RankName}
 	} else /if (${Me.Level}>=39 && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
-		/varset remedyheal1 ${Spell[Superior Healing].RankName}
-		/varset remedyheal2 ${Spell[Celestial Health].RankName}
+		/varset Remedy1 ${Spell[Superior Healing].RankName}
+		/varset Remedy2 ${Spell[Celestial Health].RankName}
 	} else /if (${Me.Level}>=30 && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
-		/varset remedyheal1 ${Spell[Superior Healing].RankName}
-		/varset remedyheal2 ${Spell[Celestial Health].RankName}
+		/varset Remedy1 ${Spell[Superior Healing].RankName}
+		/varset Remedy2 ${Spell[Celestial Health].RankName}
 	} else /if (${Me.Level}>=29 && ${Me.Book[${Spell[Celestial Health].RankName}]}) {
-		/varset remedyheal1 ${Spell[Celestial Health].RankName}
-		/varset remedyheal2 ${Spell[Greater Healing].RankName}
+		/varset Remedy1 ${Spell[Celestial Health].RankName}
+		/varset Remedy2 ${Spell[Greater Healing].RankName}
 	} else /if (${Me.Level}>=20 && ${Me.Book[${Spell[Greater Healing].RankName}]}) {
-		/varset remedyheal1 ${Spell[Greater Healing].RankName}
-		/varset remedyheal2 ${Spell[Healing].RankName}
+		/varset Remedy1 ${Spell[Greater Healing].RankName}
+		/varset Remedy2 ${Spell[Healing].RankName}
 	} else /if (${Me.Level}>=10 && ${Me.Book[${Spell[Healing].RankName}]}) {
-		/varset remedyheal1 ${Spell[Healing].RankName}
-		/varset remedyheal2 ${Spell[Light Healing].RankName}
+		/varset Remedy1 ${Spell[Healing].RankName}
+		/varset Remedy2 ${Spell[Light Healing].RankName}
 	} else /if (${Me.Level}>=4 && ${Me.Book[${Spell[Light Healing].RankName}]}) {
-		/varset remedyheal1 ${Spell[Light Healing].RankName}
-		/varset remedyheal2 ${Spell[Minor Healing].RankName}
+		/varset Remedy1 ${Spell[Light Healing].RankName}
+		/varset Remedy2 ${Spell[Minor Healing].RankName}
 	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
-		/varset remedyheal1 ${Spell[Minor Healing].RankName}
+		/varset Remedy1 ${Spell[Minor Healing].RankName}
 	}
 |---Patch Heals Slot 4 Dissident Blessing
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Sixteenth Serenity].RankName}]} && ${Me.Book[${Spell[Dissident Blessing].RankName}]})  {
@@ -313,10 +338,14 @@ Sub clr_abilities
 		/varset grouphealnocure ${Spell[Word of Health].RankName}
 	}
 |---Group Fast Heal 103+ Only
-	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Syllable of Mending].RankName}]})  {
+	/if (${Me.Level}>=${Spell[Syllable of Soothing].Level} && ${Me.Book[${Spell[Syllable of Soothing].RankName}]})  {
+		/varset groupfastheal ${Spell[Syllable of Soothing].RankName}
+	} else /if (${Me.Level}>=108 && ${Me.Book[${Spell[Syllable of Mending].RankName}]})  {
 		/varset groupfastheal ${Spell[Syllable of Mending].RankName}
 	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Syllable of Convalescence].RankName}]})  {
 		/varset groupfastheal ${Spell[Syllable of Convalescence].RankName}
+	} else /if (${Me.Level}>=${Spell[Syllable of Renewal].Level} && ${Me.Book[${Spell[Syllable of Renewal].RankName}]})  {
+		/varset groupfastheal ${Spell[Syllable of Renewal].RankName}
 	}
 |---Yaulp Setup Pre-91 AA
 	/if (${Me.Level}>=91) {
@@ -338,47 +367,52 @@ Sub clr_abilities
 	} 
 |---Renewal Big Heal Lines
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Furial Renewal].RankName}]})  {
-		/varset bigheal1 ${Spell[Furial Renewal].RankName}
+		/varset Renewal ${Spell[Furial Renewal].RankName}
 		/varset bigheal2 ${Spell[Fervid Renewal].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Fervid Renewal].RankName}]})  {
-		/varset bigheal1 ${Spell[Fervid Renewal].RankName}
+		/varset Renewal ${Spell[Fervid Renewal].RankName}
 		/varset bigheal2 ${Spell[Fraught Renewal].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Fraught Renewal].RankName}]})  {
-		/varset bigheal1 ${Spell[Fraught Renewal].RankName}
+		/varset Renewal ${Spell[Fraught Renewal].RankName}
 		/varset bigheal2 ${Spell[Fervent Renewal].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Fervent Renewal].RankName}]})  {
-		/varset bigheal1 ${Spell[Fervent Renewal].RankName}
+		/varset Renewal ${Spell[Fervent Renewal].RankName}
 		/varset bigheal2 ${Spell[Frenzied Renewal].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Frenzied Renewal].RankName}]})  {
-		/varset bigheal1 ${Spell[Frenzied Renewal].RankName}
+		/varset Renewal ${Spell[Frenzied Renewal].RankName}
 		/varset bigheal2 ${Spell[Frenetic Renewal].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Frenetic Renewal].RankName}]})  {
-		/varset bigheal1 ${Spell[Frenetic Renewal].RankName}
+		/varset Renewal ${Spell[Frenetic Renewal].RankName}
 		/varset bigheal2 ${Spell[Frantic Renewal].RankName}
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Frantic Renewal].RankName}]})  {
-		/varset bigheal1 ${Spell[Frantic Renewal].RankName}
+		/varset Renewal ${Spell[Frantic Renewal].RankName}
 		/varset bigheal2 ${Spell[Desperate Renewal].RankName}
 	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Desperate Renewal].RankName}]})  {
-		/varset bigheal1 ${Spell[Desperate Renewal].RankName}
+		/varset Renewal ${Spell[Desperate Renewal].RankName}
 	}
+
 |---Heal Tank and Nuke Tanks Target
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Merciful Intervention].RankName}]})  {
-		/varset healnuke1 ${Spell[Merciful Intervention].RankName}
-		/varset healnuke2 ${Spell[Mystical Intervention].RankName}
+		/varset Intervention1 ${Spell[Merciful Intervention].RankName}
+		/varset Intervention2 ${Spell[Mystical Intervention].RankName}
+		/varset Intervention3 ${Spell[Virtuous Intervention].RankName}
 	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Mystical Intervention].RankName}]})  {
-		/varset healnuke1 ${Spell[Mystical Intervention].RankName}
-		/varset healnuke2 ${Spell[Virtuous Intervention].RankName}
+		/varset Intervention1 ${Spell[Mystical Intervention].RankName}
+		/varset Intervention2 ${Spell[Virtuous Intervention].RankName}
+		/varset Intervention3 ${Spell[Elysian Intervention].RankName}
 	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Virtuous Intervention].RankName}]})  {
-		/varset healnuke1 ${Spell[Virtuous Intervention].RankName}
-		/varset healnuke2 ${Spell[Elysian Intervention].RankName}
+		/varset Intervention1 ${Spell[Virtuous Intervention].RankName}
+		/varset Intervention2 ${Spell[Elysian Intervention].RankName}
+		/varset Intervention3 ${Spell[Celestial Intervention].RankName}
 	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Elysian Intervention].RankName}]})  {
-		/varset healnuke1 ${Spell[Elysian Intervention].RankName}
-		/varset healnuke2 ${Spell[Celestial Intervention].RankName}
+		/varset Intervention1 ${Spell[Elysian Intervention].RankName}
+		/varset Intervention2 ${Spell[Celestial Intervention].RankName}
+		/varset Intervention3 ${Spell[Holy Intervention].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Celestial Intervention].RankName}]})  {
-		/varset healnuke1 ${Spell[Celestial Intervention].RankName}
-		/varset healnuke2 ${Spell[Holy Intervention].RankName}
+		/varset Intervention1 ${Spell[Celestial Intervention].RankName}
+		/varset Intervention2 ${Spell[Holy Intervention].RankName}
 	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Holy Intervention].RankName}]})  {
-		/varset healnuke1 ${Spell[Holy Intervention].RankName}
+		/varset Intervention1 ${Spell[Holy Intervention].RankName}
 	}
 |---Nuke Target and Heal Tank - DISABLED Auto mem
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Merciful Contravention].RankName}]})  {

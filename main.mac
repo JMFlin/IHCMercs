@@ -1,3 +1,13 @@
+|**
+TODO:
+	Refracture all classes like the ench was.
+	Look at ber disc rotation. It ends burning rage prematurely.
+	Finish class spell lines and rotations.
+	Aura combat cast.
+	All to core_cast2.
+	Fix names of warrior discs.
+**|
+
 #turbo 80
 #warning
 
@@ -95,7 +105,7 @@ Sub AFKRadiusCamping
 	/while (${Mode} == 3) {
 
 		| /delay 1s
-		DEBUG CYCLE START
+		| DEBUG CYCLE START
 
 		/call afk_pull
 		/call get_target
@@ -104,7 +114,8 @@ Sub AFKRadiusCamping
 		/call move_to_camp
 		/call ${Me.Class.ShortName.Lower}_main
 		/call misc
-		|/call dummy_mode
+		/call dummy_mode
+		/doevents
 	}
 /return
 
@@ -241,28 +252,28 @@ Sub move_to_camp
 	| if casting return
 	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
 
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} < ${AutoCampRadius}) /return
+
 	/if (${Navigation.Active}) /return
 
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius}) {
-		
-		/if (${Stick.Status.Equal[ON]}) /stick off
-		
-		/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
+	/if (${Stick.Status.Equal[ON]}) /stick off
+	
+	/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
 
-		/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius} && ${Navigation.Active}) {
-			/if (${Mode} == 0) {
-				/nav stop
-				/return
-			}
-			/delay 5
+	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius} && ${Navigation.Active}) {
+		/if (${Mode} == 0) {
+			/nav stop
+			/return
 		}
-
-		/if (${Navigation.Active}) /nav stop
-		
-		/if (${Target.ID}) /face fast
-		
-		/delay 1s
+		/delay 5
 	}
+
+	/if (${Navigation.Active}) /nav stop
+	
+	/if (${Target.ID}) /face fast
+	
+	/delay 1s
+	
 /return
 
 
