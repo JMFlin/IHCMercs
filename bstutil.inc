@@ -88,66 +88,6 @@ Sub bst_load_spellbar
 	/call LoadSpellGem "${SwarmPet}" 8	
 **|
 	
-	/if (${Me.Level}>105 && ${spellmisc}>=13) {
-		/call LoadSpellGem "${SwarmPet}" 6
-		/call LoadSpellGem "${DoTSpell2}" 7
-		/call LoadSpellGem "${NukeSpell3}" 8
-		/call LoadSpellGem "${DichoSpell}" 9
-		/call LoadSpellGem "${NukeSpell2}" 10
-		/call LoadSpellGem "${NukeSpell1}" 11
-		/call LoadSpellGem "${AtkBuff}" 12
-		/call LoadSpellGem "${PetSlowProc}" 13
-		/varset miscspellremem ${PetSlowProc}
-	} else /if (${Me.Level}>100 && ${spellmisc}>=12 && ${DichoSpell.NotEqual[NULL]}) {
-		/call LoadSpellGem "${SwarmPet}" 6
-		/if (${DoDot}) {
-			/call LoadSpellGem "${DoTSpell2}" 7
-		} else {
-			/call LoadSpellGem "${PetSlowProc}" 7
-		}
-		/call LoadSpellGem "${NukeSpell3}" 8
-		/call LoadSpellGem "${DichoSpell}" 9
-		/call LoadSpellGem "${NukeSpell2}" 10
-		/call LoadSpellGem "${NukeSpell1}" 11
-		/call LoadSpellGem "${AtkBuff}" 12
-		/varset miscspellremem ${AtkBuff}
-	} else /if (${Me.Level}>89 && ${spellmisc}>=12 && ${NukeSpell1.NotEqual[NULL]}) {
-		/call LoadSpellGem "${SwarmPet}" 6
-		/call LoadSpellGem "${SlowSpell}" 7
-		/call LoadSpellGem "${NukeSpell3}" 8
-		/call LoadSpellGem "${PetSlowProc}" 9
-		/call LoadSpellGem "${NukeSpell2}" 10
-		/call LoadSpellGem "${NukeSpell1}" 11
-		/call LoadSpellGem "${AtkBuff}" 12
-		/varset miscspellremem ${AtkBuff}
-	} else /if (${Me.Level}>83 && ${spellmisc}>=12 && ${NukeSpell2.NotEqual[NULL]}) {
-		/call LoadSpellGem "${SwarmPet}" 6
-		/call LoadSpellGem "${SlowSpell}" 7
-		/call LoadSpellGem "${NukeSpell3}" 8
-		/call LoadSpellGem "${PetGrowl}" 9
-		/call LoadSpellGem "${NukeSpell2}" 10
-		/call LoadSpellGem "${PetSlowProc}" 11
-		/call LoadSpellGem "${AtkBuff}" 12
-		/varset miscspellremem ${AtkBuff}
-	} else /if (${Me.Level}>79 && ${spellmisc}>=11) {
-		/call LoadSpellGem "${SwarmPet}" 6
-		/call LoadSpellGem "${SlowSpell}" 7
-		/call LoadSpellGem "${NukeSpell3}" 8
-		/call LoadSpellGem "${PetGrowl}" 9
-		/call LoadSpellGem "${AtkBuff}" 10
-		/call LoadSpellGem "${PetSlowProc}" 11
-		/if (${spellmisc}==11) /varset miscspellremem ${PetSlowProc}
-	} else /if (${Me.Level}>74 && ${Me.Level}<81 && ${spellmisc}>=10) {
-		/if (!${DoDot}) {
-			/call LoadSpellGem "${PetSlowProc}" 5
-		}
-		/call LoadSpellGem "${SwarmPet}" 6
-		/call LoadSpellGem "${SlowSpell}" 7
-		/call LoadSpellGem "${NukeSpell3}" 8
-		/call LoadSpellGem "${PetGrowl}" 9
-		/call LoadSpellGem "${AtkBuff}" 10
-		/varset miscspellremem ${AtkBuff}
-	} 
 	|**
 	else /if (${Me.Level}>72 && ${Me.Level}<75) {
 		/call LoadSpellGem "${SwarmPet}" 6
@@ -856,8 +796,8 @@ Sub bst_abilities
 	}
 
 	| Pull ability
-	/if (${Me.Book[${DoTSpell1}]} && !${Me.Book[${SlowSpell}]}) {
-		/varset PullAbility ${DoTSpell1}
+	/if (${Me.Book[${BloodDoT}]} && !${Me.Book[${SlowSpell}]}) {
+		/varset PullAbility ${BloodDoT}
 		/varset PullDistance 150
 	} else /if (${Me.Book[${SlowSpell}]}) {
 		/varset PullAbility ${SlowSpell}

@@ -244,6 +244,8 @@ Sub clr_group_buffs
 |---------------------------------------------------------------------------- 
 Sub clr_combat_tank_buffs
 
+	/declare CastCheck			int local 0
+
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
 	/if (!${Me.XTarget} && ${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (!${Me.XTarget} && ${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
@@ -261,8 +263,15 @@ Sub clr_combat_tank_buffs
 	/if (!${Target.Buff[${TankBuff}].ID} && ${Target.PctHPs} > 90) {
 		/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Group.MainTank.ID}]}) {
 			/call core_cast2 "${TankBuff}" spell ${Group.MainTank.ID} FALSE
+			/varset CastCheck 1
 		}
 	}
+
+	/if (${CastCheck}) {
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
+		/docommand /dgt \aw Done Buffing
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: single_target_heals
@@ -299,7 +308,7 @@ Sub clr_single_target_heals
 		| /call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${PromisedHeal}].ID" "promisedHeal" "int"
 		
 
-		/call get_heal_target 95
+		/call get_heal_target 75
 		/varset _worstHurtId ${Macro.Return}
 		/if (${_worstHurtId} > 0) {
 			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${_worstHurtId}]}) {
@@ -307,7 +316,7 @@ Sub clr_single_target_heals
 			}
 		}
 
-		/call get_heal_target 95
+		/call get_heal_target 75
 		/varset _worstHurtId ${Macro.Return}
 		/if (${_worstHurtId} > 0) {
 			/if (${validate_cast[FALSE, spell, "${Intervention2}", ${_worstHurtId}]}) {
@@ -315,7 +324,7 @@ Sub clr_single_target_heals
 			}
 		}
 
-		/call get_heal_target 95
+		/call get_heal_target 75
 		/varset _worstHurtId ${Macro.Return}
 		/if (${_worstHurtId} > 0) {
 			/if (${validate_cast[FALSE, spell, "${Intervention3}", ${_worstHurtId}]}) {

@@ -7,6 +7,7 @@ Sub war_main
 	/while (${Me.XTarget}) {
 		/call engage
 		/call war_get_aggro
+		/call get_target
 		/call check_add_aggro
 		/call war_combat_buffs
 		/call war_disc
@@ -24,9 +25,13 @@ Sub war_combat_buffs
 
 	/call engage
 	
-	/if (${validate_cast[FALSE, disc, "${groupac}", ${Me.ID}]}) /call core_cast2 "${groupac}" disc 0 FALSE
+	/if (!${Me.Song[Field].ID}) {
+		/if (${validate_cast[FALSE, disc, "${groupac}", ${Me.ID}]}) /call core_cast2 "${groupac}" disc 0 FALSE
+	}
 
-	/if (${validate_cast[FALSE, disc, "${groupdodge}", ${Me.ID}]}) /call core_cast2 "${groupac}" disc 0 FALSE
+	/if (!${Me.Song[Commanding Voice].ID}) {
+		/if (${validate_cast[FALSE, disc, "${groupdodge}", ${Me.ID}]}) /call core_cast2 "${groupdodge}" disc 0 FALSE
+	}
 
 	/if (!${Me.ActiveDisc.ID}) {
 		/if (${validate_cast[FALSE, disc, "${defenseac}", ${Me.ID}]}) /call core_cast2 "${defenseac}" disc 0 FALSE
@@ -132,7 +137,7 @@ Sub war_disc
 	}
 
 	/if (${Target.Named}) {
-		/if (${validate_cast[FALSE, alt, "${throat}", ${Me.ID}]}) /call core_cast2 "${throat}" alt ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${throat}", ${Me.ID}]}) /call core_cast2 "${throat}" disc ${Target.ID} FALSE
 	}
 
 /return
@@ -145,7 +150,9 @@ Sub war_get_aggro
 	
 	/call engage
 
-	/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
+	/if (!${Me.Song[Battle Leap].ID}) {
+		/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
+	}
 
 	/call use_skill_melee FALSE ${Target.ID}
 
@@ -153,17 +160,17 @@ Sub war_get_aggro
 
 	/if (${validate_cast[FALSE, disc, "${shout}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
 	
-	/if (${validate_cast[FALSE, disc, "${insult}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, disc, "${insult}", ${Target.ID}]}) /call core_cast2 "${insult}" disc ${Target.ID} FALSE
 	
 	/if (${Me.SecondaryPctAggro}>=30) {
-		/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${roar}" disc ${Target.ID} FALSE
 	}
 	
 	/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
 
-	/if (${validate_cast[FALSE, disc, "Knee Strike", ${Target.ID}]}) /call core_cast2 "Knee Strike" disc ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Knee Strike", ${Target.ID}]}) /call core_cast2 "Knee Strike" alt ${Target.ID} FALSE
 
-	/if (${validate_cast[FALSE, disc, "Gut Punch", ${Target.ID}]}) /call core_cast2 "Gut Punch" disc ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Gut Punch", ${Target.ID}]}) /call core_cast2 "Gut Punch" alt ${Target.ID} FALSE
 
 	/if (${Target.Named} || ${Me.PctHPs} < 61) {
 		/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
@@ -191,8 +198,8 @@ Sub war_get_aggro
 	}
 
 	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
-		/if (${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]}) /call core_cast2 "Warlord's Fury" alt ${${Target.ID}} FALSE
-		/if (${validate_cast[FALSE, alt, "Blast of Anger", ${${Target.ID}}]}) /call core_cast2 "Blast of Anger" alt ${${Target.ID}} FALSE
+		/if (${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]}) /call core_cast2 "Warlord's Fury" alt ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) /call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE
 	}
 
 	/if (${Me.SecondaryPctAggro} > 30) {

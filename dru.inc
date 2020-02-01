@@ -57,6 +57,8 @@ Sub dru_main
 |- SUB: combat_tank_buffs
 |---------------------------------------------------------------------------- 
 Sub dru_combat_tank_buffs
+	
+	/declare CastCheck			int local 0
 
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
 	/if (!${Me.XTarget} && ${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
@@ -75,8 +77,14 @@ Sub dru_combat_tank_buffs
 	/if (!${Target.Buff[${Reptile}].ID} && ${Target.PctHPs} > 70) {
 		/if (${validate_cast[FALSE, spell, ${Reptile}, ${Group.MainTank.ID}]}) {
 			/call core_cast2 "${Reptile}" spell ${Group.MainTank.ID} FALSE
+			/varset CastCheck 1
 		}
 	}
+	/if (${CastCheck}) {
+		/call ${Me.Class.ShortName.Lower}_load_spellbar
+		/docommand /dgt \aw Done Buffing
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: combat 
