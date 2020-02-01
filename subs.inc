@@ -386,14 +386,12 @@ Sub puller_check_group_resources
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Casting.ID" "casterCasting" "int"
 
 				DEBUG Asking ${Group.Member[${_count}].DisplayName} about mana ${ResPct} < ${Limit}
-				DEBUG ${DanNet.Q.Received}
 
 			} else /if (${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
 
 				DEBUG Asking ${Group.Member[${_count}].DisplayName} about endurance ${ResPct} < ${Limit}
-				DEBUG ${DanNet.Q.Received}
 
 			}
 			/if (${ResPct} < ${Limit} || ${casterCasting}) {
@@ -787,10 +785,18 @@ Sub check_campfire
 	/if (${Zone.ID} == 202) /return
 	/if (${Zone.ID} == 344) /return
 	/if (${Zone.ID} == 345) /return
-	/if (${Me.Fellowship.CampfireDuration} > 600) /return
+	/if (${Zone.Name.Equal[${Me.Fellowship.CampfireZone}]} && ${Me.Fellowship.CampfireDuration} > 600) /return
 
-	/if (${Zone.Name.NotEqual[${Me.Fellowship.CampfireZone}]}) {
-		/windowstate FellowshipWnd open
+	/for i 1 to ${SpawnCount[pc radius 50]}
+        /for j 1 to ${Me.Fellowship.Members}
+            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
+        /next j
+    /next i
+
+    /if (${FellowCount} < 3) /return
+
+	/if (${Me.Fellowship}) {
+		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
 		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
 		/delay 2s
@@ -805,14 +811,9 @@ Sub check_campfire
 		/windowstate FellowshipWnd close
 	}
 	
-    /for i 1 to ${SpawnCount[pc radius 50]}
-        /for j 1 to ${Me.Fellowship.Members}
-            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
-        /next j
-    /next i
-
-    /if (${FellowCount}>=3) {
-        /windowstate FellowshipWnd open
+	
+	/if (!${Me.Fellowship}) {
+		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
 		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
 		/delay 2s
@@ -825,6 +826,7 @@ Sub check_campfire
 		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/windowstate FellowshipWnd close
     }
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: Load Ini
@@ -2507,7 +2509,7 @@ sub setup_skill_melee(bool _debug)
 	}
 
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
-		/varset AutoAssistAt 100
+		/varset AutoAssistAt 99
 		/varset AssistRange 150
 	}
 

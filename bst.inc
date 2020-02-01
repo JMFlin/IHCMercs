@@ -100,8 +100,8 @@ Sub bst_combat
 
 	/call use_skill_melee ${Target.ID} FALSE
 
-	/if (!${Target.Buff[${DoTSpell1}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) /call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
+	/if (!${Target.Buff[${BloodDoT}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${BloodDoT}", ${Target.ID}]}) /call core_cast2 "${BloodDoT}" spell ${Target.ID} FALSE
 	}
 
 	/if (${Target.PctHPs} > 30) {
@@ -132,14 +132,15 @@ Sub bst_combat
 	|		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
 	|		/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
 	|	}
-	|}
+	|} 
+	
 
-	/if (!${Target.Buff[${NukeSpell4}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${NukeSpell4}", ${Target.ID}]}) /call core_cast2 "${NukeSpell4}" spell ${Target.ID} FALSE
+	/if (!${Target.Buff[${FrozenNuke}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${FrozenNuke}", ${Target.ID}]}) /call core_cast2 "${FrozenNuke}" spell ${Target.ID} FALSE
 	}
 	
-	/if (!${Target.Buff[${NukeSpell5}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${NukeSpell5}", ${Target.ID}]}) /call core_cast2 "${NukeSpell5}" spell ${Target.ID} FALSE
+	/if (!${Target.Buff[${MaelstromNuke}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${MaelstromNuke}", ${Target.ID}]}) /call core_cast2 "${MaelstromNuke}" spell ${Target.ID} FALSE
 	}
 
 /return
