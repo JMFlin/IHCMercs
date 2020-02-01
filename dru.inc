@@ -6,7 +6,8 @@ Sub dru_main
 |	/call check_for_corpse FALSE
 	/call dru_group_buffs
 	/call dru_self_buffs
-
+	/call dru_single_target_heals
+	
 	/while (${Me.XTarget}) {
 		
 		/call dru_single_target_heals
