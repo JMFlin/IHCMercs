@@ -183,6 +183,10 @@ Sub var_setup
 
 |- mercs
 	/declare useMerc 			int outer 0
+
+|- burns
+	/declare BurnRotation 		int outer 1
+	/declare InBetween			int outer 0
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion

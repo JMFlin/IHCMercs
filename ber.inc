@@ -30,7 +30,108 @@ Sub ber_aa_and_disc
 	/if (!${Me.Combat}) {
 		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
 	}
+|**
+Main burn- 
+Disconcerting - 
+Secondary Burn -
+Disconcerting + Glyph - 
+Third Burn - 
+Disconcerting (Vehement Rage will be back up at some point while Disconcerting is running can pop it again now) - 
+Fourth Burn- Disconcerting- 
+Back to main burn minus Furious/Focused and repeat (when you get back to secondary burn cleaving acrimony will not be up either just use reckless abandon anyway at the point)
+**|
 
+
+|**
+Main burn:
+
+Brutal Discipline
+Savage Spirit
+Juggernaut Surge
+Blood Pact
+Blinding Fury
+Silent Strikes
+Second Spire
+Desperation (Added this this expansion due to the extra 1% chance of a second hit with 2hder also it lasts 10 minutes)
+Furious or Focused Rampage
+Untamed Rage (If your not grouped with a bard)
+Epic 2.0 
+EoK Chest click
+
+Secondary Burn:
+
+Reckless Abandon
+Cleaving Acrimony
+Vehement Rage (Use this here just for the added Min hit % bonus)
+
+Third Burn:
+
+Frenzied Resolve
+
+Fourth Burn:
+
+Avenging Flurry Discipline
+
+**|
+	/if (!${Me.ActiveDisc.ID}) {
+		/if (${BurnRotation} == 1) {
+			
+			/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
+				/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
+				/call core_cast2 "${BrutalDisc}" disc 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}) /call core_cast2 "Juggernaut Surge" alt 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}) /call core_cast2 "Blood Pact" alt 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}) /call core_cast2 "Blinding Fury" alt 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Focused Rampage", ${Me.ID}]}) /call core_cast2 "Focused Rampage" alt 0 FALSE
+				/varset InBetween 1
+			}
+		}
+	}
+
+	/if (!${Me.ActiveDisc.ID}) {
+		/if (${BurnRotation} == 2) {
+			/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) {
+				/if (${validate_cast[FALSE, alt, "Reckless Abandon", ${Me.ID}]}) /call core_cast2 "Reckless Abandon" alt 0 FALSE
+				/call core_cast2 "${CleavingDisc}" disc 0 FALSE
+				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
+				/varset InBetween 1
+			}
+		}
+	}
+
+	/if (!${Me.ActiveDisc.ID}) {
+		/if (${BurnRotation} == 3) {
+			/if (${validate_cast[FALSE, disc, "${ResolveDisc}", ${Me.ID}]}) {
+				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
+				/call core_cast2 "${DisconDisc}" disc 0 FALSE
+				/varset InBetween 1
+			}
+		}
+	}
+
+	/if (!${Me.ActiveDisc.ID}) {
+		/if (${BurnRotation} == 4) {
+			/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) {
+				/call core_cast2 "${DisconDisc}" disc 0 FALSE
+				/varset BurnRotation 0
+				/varset InBetween 1
+			}
+		}
+	}
+
+	/if (!${Me.ActiveDisc.ID}) {
+		/if (${InBetween} == 1) {
+			/if (${validate_cast[FALSE, disc, "${DisconDisc}", ${Me.ID}]}) {
+				/call core_cast2 "${DisconDisc}" disc 0 FALSE
+				/varcalc BurnRotation ${BurnRotation} + 1
+				/varset InBetween 0
+			}
+		}
+	}
 	
 
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
@@ -40,10 +141,7 @@ Sub ber_aa_and_disc
 	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap Warcry].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Me.Combat}) {
 		/alt act ${Me.AltAbility[Battle Leap].ID}
 	}
-	/if (${Me.AltAbilityReady[Desperation]} && !${Me.Buff[Desperation].ID} && ${Me.Haste}<224) {
-		/alt act ${Me.AltAbility[Desperation].ID}
-		/delay 5
-	}
+	
 	/if (${Me.CombatAbilityReady[${Spell[${CryHavoc}].RankName}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${CryHavoc}].ID} && ${Me.ActiveDisc.ID}!=${CleavingDiscID}) {
 		/Disc ${Spell[${CryHavoc}].RankName}
 		/delay 5
@@ -73,50 +171,34 @@ Sub ber_aa_and_disc
 		/delay 5
 	}
 
-	/if (${Me.AltAbilityReady[Savage Spirit]} && ${Me.Combat} && ${Target.PctHPs}<99 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
-		/alt act ${Me.AltAbility[Savage Spirit].ID}
-		/delay 5
-	}
 	
-	/if ((${Me.XTarget}>1 || ${Me.Buff[Savage Spirit].ID}) && ${Me.AltAbilityReady[Fundament: Second Spire of Savagery]} && ${Target.PctHPs}>40 && ${Me.Combat} && ${Target.PctHPs}<99) {
-		/alt act ${Me.AltAbility[Fundament: Second Spire of Savagery].ID}
-		/delay 5
-	}
-	/if (${Me.AltAbilityReady[Blinding Fury]} && ${Me.Buff[Savage Spirit].ID}) {
-		/alt act ${Me.AltAbility[Blinding Fury].ID}
-		/delay 5
-	}
+	
 	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Untamed Rage]} && !${Me.Song[Quick Time V].ID}) {
 		/alt act ${Me.AltAbility[Untamed Rage].ID}
 		/delay 5
 	}	
-	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Silent Strikes]}) {
-		/alt act ${Me.AltAbility[Silent Strikes].ID}
-		/delay 5
-	}	
-	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Focused Furious Rampage]}) {
-		/alt act ${Me.AltAbility[Focused Furious Rampage].ID}
-		/delay 5
-	}
+	
 
 	|/if (${Me.AltAbilityReady[Furious Rampage]} && ${Me.XTarget}>1) {
 	|	/alt act ${Me.AltAbility[Furious Rampage].ID}
 	|	/delay 5
 	|}	
 	
+
+	|**
 	/if ((${Me.XTarget} >= ${BurnMobCount} || ${Target.Named})) {
 		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
+			/if (${Me.ActiveDisc.ID} != ${BrutalDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
 				/stopdisc
 				/delay 1s !${Me.ActiveDisc.ID}
-				/if (${validate_cast[FALSE, disc, "${PrimaryBurnDisc}", ${Me.ID}]}) /call core_cast2 "${PrimaryBurnDisc}" disc 0 FALSE
+				/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) /call core_cast2 "${BrutalDisc}" disc 0 FALSE
 			}
 		} else {
-			/if (${validate_cast[FALSE, disc, "${PrimaryBurnDisc}", ${Me.ID}]}) /call core_cast2 "${PrimaryBurnDisc}" disc 0 FALSE
+			/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) /call core_cast2 "${BrutalDisc}" disc 0 FALSE
 		}
 
 		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
+			/if (${Me.ActiveDisc.ID} != ${BrutalDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
 				/stopdisc
 				/delay 1s !${Me.ActiveDisc.ID}
 				/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) /call core_cast2 "${CleavingDisc}" disc 0 FALSE
@@ -126,7 +208,7 @@ Sub ber_aa_and_disc
 		}
 
 		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
+			/if (${Me.ActiveDisc.ID} != ${BrutalDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
 				/stopdisc
 				/delay 1s !${Me.ActiveDisc.ID}
 				/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) /call core_cast2 "${FlurryDisc}" disc 0 FALSE
@@ -136,17 +218,16 @@ Sub ber_aa_and_disc
 		}
 
 	}
+	**|
+
 
 	/if (${Me.AltAbilityReady[Reckless Abandon]} && ${Me.ActiveDisc.ID}==${CleavingDiscID}) {
 		/alt act ${Me.AltAbility[Reckless Abandon].ID}
 		/delay 5
 	}
 	
-	/if ((${Me.XTarget}>1 || ${Me.ActiveDisc.ID}==${FlurryDiscID}) && ${Me.AltAbilityReady[Vehement Rage]} && ${Me.Combat} && ${Target.PctHPs}>20 && ${Target.PctHPs}<99) {
-		/alt act ${Me.AltAbility[Vehement Rage].ID}
-		/delay 5
-	}	
-	/if (${Me.CombatAbilityReady[${HHEBuff}]} && ${Me.Combat} && !${Me.Song[${HHEBuff}].ID} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${PrimaryBurnDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
+	
+	/if (${Me.CombatAbilityReady[${HHEBuff}]} && ${Me.Combat} && !${Me.Song[${HHEBuff}].ID} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${BrutalDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
 		/disc ${HHEBuff}
 		/delay 5
 	}	
@@ -154,22 +235,8 @@ Sub ber_aa_and_disc
 		/useitem "${epicaxe}"
 		/delay 10
 	}
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${DisconDisc}]} && ${Target.PctHPs}>1 && !${Me.ActiveDisc.ID} && !${Me.Song[Strike of Savagery].ID}) {
-		/disc ${DisconDisc}
-		/delay 10
-	}
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${ResolveDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.ActiveDisc.ID}) {
-		/if (${Me.PctHPs}>80) {
-			/alt act ${Me.AltAbility[Bloodfury].ID}
-			/delay 5
-		}
-		/disc ${ResolveDisc}
-		/delay 5
-	}
-	/if ((${Me.XTarget}>1 || ${Me.ActiveDisc.ID}==${ResolveDiscID}) && ${Me.AltAbilityReady[Juggernaut Surge]} && ${Me.Combat} && ${Target.PctHPs}>20 && ${Target.PctHPs}<99) {
-		/alt act ${Me.AltAbility[Juggernaut Surge].ID}
-		/delay 5
-	}
+	
+	
  /return
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
