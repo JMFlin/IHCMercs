@@ -6,13 +6,12 @@ Sub clr_main
 	/call clr_group_buffs
 	/call clr_self_buffs
 	/call clr_combat_tank_buffs
+	/call clr_single_target_heals
 
 	/while (${Me.XTarget}) {
 		/call clr_single_target_heals
 		/call clr_group_heals
 	}
-	
-	
 	
 |	/call cures
 	/doevents
