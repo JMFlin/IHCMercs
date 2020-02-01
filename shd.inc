@@ -119,7 +119,7 @@ Sub shd_self_buffs
 		/varset CastCheck 1
 	}
 
-	/if (!${Me.Buff["Bobbing Corpse"]}) {
+	/if (!${Me.Buff["Bobbing Corpse"].ID}) {
 		/if (${validate_cast[FALSE, alt, "Bobbing Corpse", ${Me.ID}]}) {
 			/call core_cast2 "Bobbing Corpse" alt ${Me.ID} FALSE
 			/varset CastCheck 1
