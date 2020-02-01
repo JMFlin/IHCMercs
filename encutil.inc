@@ -55,7 +55,7 @@ Sub enc_setup
 	/declare DichoSpell				string 	outer	"NULL"
 	/declare Drown				string 	outer	"NULL"
 	/declare DoTSpell2				string 	outer	"NULL"
-	/declare DoTSpell3				string 	outer	"NULL"
+	/declare Constriction				string 	outer	"NULL"
 	/declare DPSRecastTimer			timer 	outer	0
 	/declare FastNukePct 			int 	outer	90
 	/declare MindNukeMain				string 	outer	"NULL"
@@ -145,7 +145,7 @@ Sub enc_load_spellbar
 		/if (${UseCharmPet}) {
 			/call LoadSpellGem "${CharmSpell1}" 11
 		} else /if (${UseDoTs}) {
-			/call LoadSpellGem "${DoTSpell3}" 11
+			/call LoadSpellGem "${Constriction}" 11
 		} else {
 			/call LoadSpellGem "${MezPBAESpell}" 11
 		}
@@ -167,7 +167,7 @@ Sub enc_load_spellbar
 			/if (${UseCharmPet}) {
 				/call LoadSpellGem "${CharmSpell1}" 6
 			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell3}" 6
+				/call LoadSpellGem "${Constriction}" 6
 			} else {
 				/call LoadSpellGem "${PBAEStunSpell}" 6
 			}
@@ -188,7 +188,7 @@ Sub enc_load_spellbar
 				/call LoadSpellGem "${SingleStunSpell1}" 6
 			} else /if (${UseDoTs}) {
 				/call LoadSpellGem "${DoTSpell2}" 10
-				/call LoadSpellGem "${DoTSpell3}" 6
+				/call LoadSpellGem "${Constriction}" 6
 			} else {
 				/call LoadSpellGem "${Chromatic}" 10
 				/call LoadSpellGem "${SingleStunSpell1}" 6
@@ -201,7 +201,7 @@ Sub enc_load_spellbar
 				/call LoadSpellGem "${CharmSpell1}" 10
 				/call LoadSpellGem "${SingleStunSpell1}" 6
 			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell3}" 6
+				/call LoadSpellGem "${Constriction}" 6
 				/call LoadSpellGem "${DoTSpell2}" 10
 			} else {
 				/call LoadSpellGem "${SingleStunSpell1}" 6
@@ -730,17 +730,17 @@ Sub enc_abilities
 	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Mind Shatter].RankName}]}) {
 		/varset DoTSpell2 ${Spell[Mind Shatter].RankName}
 	}
-|-DoT 3 * Var Name: DoTSpell3 string outer
+|-DoT 3 * Var Name: Constriction string outer
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Deluding Constriction].RankName}]}) {
-		/varset DoTSpell3 ${Spell[Deluding Constriction].RankName}
+		/varset Constriction ${Spell[Deluding Constriction].RankName}
 	} else /if (${Me.Level}>=104 && ${Me.Book[${Spell[Bewildering Constriction].RankName}]}) {
-		/varset DoTSpell3 ${Spell[Bewildering Constriction].RankName}
+		/varset Constriction ${Spell[Bewildering Constriction].RankName}
 	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[Confounding Constriction].RankName}]}) {
-		/varset DoTSpell3 ${Spell[Confounding Constriction].RankName}
+		/varset Constriction ${Spell[Confounding Constriction].RankName}
 	} else /if (${Me.Level}>=94 && ${Me.Book[${Spell[Confusing Constriction].RankName}]}) {
-		/varset DoTSpell3 ${Spell[Confusing Constriction].RankName}
+		/varset Constriction ${Spell[Confusing Constriction].RankName}
 	} else /if (${Me.Level}>=89 && ${Me.Book[${Spell[Baffling Constriction].RankName}]}) {
-		/varset DoTSpell3 ${Spell[Baffling Constriction].RankName}
+		/varset Constriction ${Spell[Baffling Constriction].RankName}
 	}
 
 |-Aura Buff 1 * Var Name: AuraBuff1 string outer

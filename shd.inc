@@ -75,7 +75,7 @@ Sub shd_combat
 	
 	/squelch /attack on
 
-	/if (!${Target.Snared.ID} && ${snareImmuneID} != ${Target.ID}) {
+	/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
 			/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 			/call check_cast_events CAST_IMMUNE "${SnareSpell}"
@@ -240,16 +240,17 @@ Sub shd_get_aggro
 		/call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=100) {
-		/call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
+	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
+		/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]}) /call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
 	}
+	
 
 	/if (${validate_cast[FALSE, alt, "Projection of Doom", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=30) {
 		/call core_cast2 "Projection of Doom" alt ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, alt, "Hates Attraction", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=50) {
-		/call core_cast2 "Hates Attraction" alt ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Hate's Attraction", ${Target.ID}]} && ${Me.SecondaryPctAggro}>=50) {
+		/call core_cast2 "Hate's Attraction" alt ${Target.ID} FALSE
 	}
 
 /return
@@ -268,7 +269,6 @@ Sub shd_aoe_aggro
 			}
 		}
 		
-
 		/if (${SpawnCount[NPC radius 50 zradius 50]} > 0) {
 			/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${Target.ID}]}) /call core_cast2 "Explosion of Hatred" alt ${Target.ID} FALSE
 		} 

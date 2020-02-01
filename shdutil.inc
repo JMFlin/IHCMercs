@@ -181,6 +181,8 @@ Sub shd_abilities
 		/varset Terror2 ${Spell[Terror of Narus].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Terror of Narus].RankName}]}) {
 		/varset Terror2 ${Spell[Terror of Narus].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of the Rerekalen].Level} && ${Me.Book[${Spell[Terror of the Rerekalen].RankName}]}) {
+		/varset Terror2 ${Spell[Terror of the Rerekalen].RankName}
 	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Terror of the Soulbleeder].RankName}]}) {
 		/varset Terror2 ${Spell[Terror of the Soulbleeder].RankName}
 	} else /if (${Me.Level}>=63 && ${Me.Book[${Spell[Terror of Thule].RankName}]}) {
@@ -196,6 +198,8 @@ Sub shd_abilities
 		/varset Bond ${Spell[Bond of Xalgoz].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Bond of Xalgoz].RankName}]}) {
 		/varset Bond ${Spell[Bond of Xalgoz].RankName}
+	} else /if (${Me.Level}>=${Spell[Bond of Malthiasiss].Level} && ${Me.Book[${Spell[Bond of Malthiasiss].RankName}]}) {
+		/varset Bond ${Spell[Bond of Malthiasiss].RankName}
 	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Bond of Laarthik].RankName}]}) {
 		/varset Bond ${Spell[Bond of Laarthik].RankName}
 	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Bond of the Blackwater].RankName}]}) {
@@ -271,7 +275,9 @@ Sub shd_abilities
 	}
 
 	| Shrouds
-	/if (${Me.Level}>=82 && ${Me.Book[${Spell[Shroud of the Blightborn].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Shroud of the Plagueborne].Level} && ${Me.Book[${Spell[Shroud of the Plagueborne].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Plagueborne].RankName}
+	} else /if (${Me.Level}>=82 && ${Me.Book[${Spell[Shroud of the Blightborn].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of the Blightborn].RankName}
 	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Shroud of the Gloomborn].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of the Gloomborn].RankName}
@@ -293,6 +299,8 @@ Sub shd_abilities
 
 	/if (${Me.Level}>=96 && ${Me.Book[${Spell[Mental Terror].RankName}]}) {
 		/varset MPShroud ${Spell[Mental Terror].RankName}
+	} else /if (${Me.Level}>${Spell[Amygdalan Horror].Level} && ${Me.Book[${Spell[Amygdalan Horror].RankName}]}) {
+		/varset MPShroud ${Spell[Amygdalan Horror].RankName}
 	} else /if (${Me.Level}>81 && ${Me.Book[${Spell[Mindshear Horror].RankName}]}) {
 		/varset MPShroud ${Spell[Mindshear Horror].RankName}
 	} else /if (${Me.Level}>65 && ${Me.Book[${Spell[Mental Horror].RankName}]}) {
