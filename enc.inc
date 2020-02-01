@@ -36,6 +36,8 @@ Sub enc_main
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
+		
+		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				
