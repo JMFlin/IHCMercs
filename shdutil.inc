@@ -61,10 +61,10 @@ Sub shd_load_spellbar
 	/echo \aw Loading Spell Bar
 
 
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+	/if (${Me.AltAbility[Mnemonic Retention].Rank} == 5) {
 
 
-	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank} == 4) {
 
 		/call LoadSpellGem "${Touch1}" 1
 		/call LoadSpellGem "${Touch2}" 2

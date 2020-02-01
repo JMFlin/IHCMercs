@@ -87,8 +87,8 @@ Avenging Flurry Discipline
 				/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
 				/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
 				/if (${validate_cast[FALSE, alt, "Focused Rampage", ${Me.ID}]}) /call core_cast2 "Focused Rampage" alt 0 FALSE
-				/varset InBetween 1
 			}
+			/varset InBetween 1
 		}
 	}
 
@@ -98,8 +98,8 @@ Avenging Flurry Discipline
 				/if (${validate_cast[FALSE, alt, "Reckless Abandon", ${Me.ID}]}) /call core_cast2 "Reckless Abandon" alt 0 FALSE
 				/call core_cast2 "${CleavingDisc}" disc 0 FALSE
 				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
-				/varset InBetween 1
 			}
+			/varset InBetween 1
 		}
 	}
 
@@ -108,8 +108,8 @@ Avenging Flurry Discipline
 			/if (${validate_cast[FALSE, disc, "${ResolveDisc}", ${Me.ID}]}) {
 				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
 				/call core_cast2 "${DisconDisc}" disc 0 FALSE
-				/varset InBetween 1
 			}
+			/varset InBetween 1
 		}
 	}
 
@@ -117,22 +117,28 @@ Avenging Flurry Discipline
 		/if (${BurnRotation} == 4) {
 			/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) {
 				/call core_cast2 "${DisconDisc}" disc 0 FALSE
-				/varset BurnRotation 0
-				/varset InBetween 1
 			}
+			/varset BurnRotation 0
+			/varset InBetween 1
 		}
 	}
 
 	/if (!${Me.ActiveDisc.ID}) {
+		
 		/if (${InBetween} == 1) {
-			/if (${validate_cast[FALSE, disc, "${DisconDisc}", ${Me.ID}]}) {
-				/call core_cast2 "${DisconDisc}" disc 0 FALSE
+			/if (${Me.CombatAbility[${Spell[Disconcerting Discipline].RankName}]}) {
+				/if (${validate_cast[FALSE, disc, "${DisconDisc}", ${Me.ID}]}) {
+					/call core_cast2 "${DisconDisc}" disc 0 FALSE
+					/varcalc BurnRotation ${BurnRotation} + 1
+					/varset InBetween 0
+				}
+			} else {
 				/varcalc BurnRotation ${BurnRotation} + 1
 				/varset InBetween 0
 			}
 		}
 	}
-	
+		
 
 	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
 		/alt act ${Me.AltAbility[Communion of Blood].ID}
