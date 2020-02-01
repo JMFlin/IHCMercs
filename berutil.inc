@@ -24,8 +24,8 @@ Sub ber_setup
 	/declare RageStrike				string outer NULL
 	/declare SharedBuff				string outer NULL
 	/declare SharedBuffName			string outer NULL
-	/declare PrimaryBurnDisc		string outer NULL
-	/declare PrimaryBurnDiscID		int outer 0
+	/declare BrutalDisc		string outer NULL
+	/declare BrutalDiscID		int outer 0
 	/declare CleavingDisc			string outer NULL
 	/declare CleavingDiscID			int outer 0
 	/declare FlurryDisc				string outer NULL
@@ -243,7 +243,7 @@ Sub ber_abilities
 	} 
 
 
-	/if (${Me.CombatAbility[${PrimaryBurnDisc}]}) /varset PrimaryBurnDiscID ${Spell[${PrimaryBurnDisc}].ID}
+	/if (${Me.CombatAbility[${BrutalDisc}]}) /varset BrutalDiscID ${Spell[${BrutalDisc}].ID}
 
 |---Cleaving Disc
 	/if (${Me.Level}>=86 && ${Me.CombatAbility[${Spell[Cleaving Acrimony Discipline].RankName}]}) {
@@ -392,17 +392,17 @@ Sub ber_abilities
 |---Primary Burn Disc Setup - Expanded for lower level use
 |- TIMER 4
 	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Brutal Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Brutal Discipline].RankName}
+		/varset BrutalDisc ${Spell[Brutal Discipline].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.CombatAbility[${Spell[Sundering Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Sundering Discipline].RankName}
+		/varset BrutalDisc ${Spell[Sundering Discipline].RankName}
 	} else /if (${Me.Level}>=75 && ${Me.CombatAbility[${Spell[Berserking Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Berserking Discipline].RankName}
+		/varset BrutalDisc ${Spell[Berserking Discipline].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Burning Rage Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Burning Rage Discipline].RankName}
+		/varset BrutalDisc ${Spell[Burning Rage Discipline].RankName}
 	} else /if (${Me.Level}>=58 && ${Me.CombatAbility[${Spell[Blind Rage Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Blind Rage Discipline].RankName}
+		/varset BrutalDisc ${Spell[Blind Rage Discipline].RankName}
 	} else /if (${Me.Level}>=54 && ${Me.CombatAbility[${Spell[Cleaving Rage Discipline].RankName}]}) {
-		/varset PrimaryBurnDisc ${Spell[Cleaving Rage Discipline].RankName}
+		/varset BrutalDisc ${Spell[Cleaving Rage Discipline].RankName}
 	} 
 |---Volley - Updated for RoS
 	/if (${Me.Level}>=114 && ${Me.CombatAbility[${Spell[Vindicating Volley].RankName}]}) {

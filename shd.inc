@@ -126,6 +126,11 @@ Sub shd_self_buffs
 		}
 	}
 
+	/if (${validate_cast[FALSE, spell, "${Disruption}", ${Me.ID}]}) {
+		/call core_cast2 "${Disruption}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
+
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/docommand /dgt \aw Done Buffing
@@ -141,6 +146,8 @@ Sub shd_combat_buffs
 	}
 
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
+
+	/if (${validate_cast[FALSE, spell, "${Disruption}", ${Me.ID}]}) /call core_cast2 "${Disruption}" spell ${Me.ID} FALSE
 
 	/if (${validate_cast[FALSE, alt, "Scourge Skin", ${Me.ID}]}) /call core_cast2 "Scourge Skin" alt ${Target.ID} FALSE
 	
@@ -161,7 +168,7 @@ Sub shd_disc
 	/if (${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
 		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
 				/delay 1s !${Me.ActiveDisc.ID}
 				/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) /call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE

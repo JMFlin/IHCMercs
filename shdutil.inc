@@ -39,6 +39,9 @@ Sub shd_setup
 	/declare Bargain		string outer NULL
 	/declare Skin			string outer NULL
 	/declare SnareSpell 	string outer NULL
+	/declare Torrent		string outer NULL
+	/declare Disruption		string outer NULL
+
 
 	/declare Cloak 			string outer NULL
 	/declare HPShroud 		string outer NULL
@@ -56,27 +59,50 @@ Sub shd_load_spellbar
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
-	/call LoadSpellGem "${Touch1}" 1
 
-	/if (${Me.Book[${Spell[${DireTestemony}].RankName}]}) {
-		/call LoadSpellGem "${DireTestemony}" 2
-	} else {
+
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+
+
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+
+		/call LoadSpellGem "${Touch1}" 1
 		/call LoadSpellGem "${Touch2}" 2
-	}
+		/call LoadSpellGem "${Touch3}" 3
+		/call LoadSpellGem "${DireTestemony}" 4
+		/call LoadSpellGem "${Terror1}" 5
+		/call LoadSpellGem "${Terror2}" 6
+		/call LoadSpellGem "${Bond}" 7
+		/call LoadSpellGem "${Denial}" 8
+		/call LoadSpellGem "${Bargain}" 9
+		/call LoadSpellGem "${Disruption}" 10
+		/call LoadSpellGem "${Stance}" 11
+		/call LoadSpellGem "${Skin}" 12
 
-	/call LoadSpellGem "${Touch3}" 3
-	/call LoadSpellGem "${Terror1}" 4
-	/call LoadSpellGem "${Terror2}" 5
-	/call LoadSpellGem "${Bond}" 6
-	
-	/if (${Me.Book[${Spell[${Stance}].RankName}]}) {
-		/call LoadSpellGem "${Stance}" 7
+
 	} else {
-		/call LoadSpellGem "${SnareSpell}" 7
+
+		/call LoadSpellGem "${Touch1}" 1
+
+		/if (${Me.Book[${Spell[${DireTestemony}].RankName}]}) {
+			/call LoadSpellGem "${DireTestemony}" 2
+		} else {
+			/call LoadSpellGem "${Touch2}" 2
+		}
+
+		/call LoadSpellGem "${Touch3}" 3
+		/call LoadSpellGem "${Terror1}" 4
+		/call LoadSpellGem "${Terror2}" 5
+		/call LoadSpellGem "${Bond}" 6
+		
+		/if (${Me.Book[${Spell[${Stance}].RankName}]}) {
+			/call LoadSpellGem "${Stance}" 7
+		} else {
+			/call LoadSpellGem "${SnareSpell}" 7
+		}
+
+		/call LoadSpellGem "${Skin}" 8
 	}
-
-	/call LoadSpellGem "${Skin}" 8
-
 	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -234,6 +260,24 @@ Sub shd_abilities
 		/varset Bargain ${Spell[Hateful Bargain].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Hateful Bargain].RankName}]}) {
 		/varset Bargain ${Spell[Hateful Bargain].RankName}
+	}
+
+	| Torrent
+	/if (${Me.Level}>=${Spell[Torrent of Anguish].Level} && ${Me.Book[${Spell[Torrent of Anguish].RankName}]}) {
+		/varset Torrent ${Spell[Torrent of Anguish].RankName}
+	} else /if (${Me.Level}>=${Spell[Torrent of Suffering].Level} && ${Me.Book[${Spell[Torrent of Suffering].RankName}]}) {
+		/varset Torrent ${Spell[Torrent of Suffering].RankName}
+	} else /if (${Me.Level}>=${Spell[Torrent of Misery].Level} && ${Me.Book[${Spell[Torrent of Misery].RankName}]}) {
+		/varset Torrent ${Spell[Torrent of Misery].RankName}
+	} else /if (${Me.Level}>=${Spell[Torrent of Agony].Level}  && ${Me.Book[${Spell[Torrent of Agony].RankName}]}) {
+		/varset Torrent ${Spell[Torrent of Agony].RankName}
+	}
+
+	| Disruption
+	/if (${Me.Level}>=${Spell[Concordant Disruption].Level} && ${Me.Book[${Spell[Concordant Disruption].RankName}]}) {
+		/varset Disruption ${Spell[Concordant Disruption].RankName}
+	} else /if (${Me.Level}>=${Spell[Harmonious Disruption].Level}  && ${Me.Book[${Spell[Harmonious Disruption].RankName}]}) {
+		/varset Disruption ${Spell[Harmonious Disruption].RankName}
 	}
 
 	
