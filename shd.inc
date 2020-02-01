@@ -19,6 +19,7 @@ Sub shd_main
 
 		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${Me.AltAbilityReady[Encroaching Darkness]}) {
+				/echo ${validate_cast[FALSE, alt, "Encroaching Darkness", ${Target.ID}]}
 				/if (${validate_cast[FALSE, alt, "Encroaching Darkness", ${Target.ID}]}) {
 					/call core_cast2 "Encroaching Darkness" alt ${Target.ID} FALSE
 					/call check_cast_events CAST_IMMUNE "Encroaching Darkness"
