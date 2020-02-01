@@ -795,7 +795,7 @@ Sub check_campfire
 
     /if (${FellowCount} < 3) /return
 
-	/if (${Me.Fellowship}) {
+	/if (${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
 		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
@@ -808,11 +808,11 @@ Sub check_campfire
 		/delay 2s
 		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
 		/delay 2s
-		/windowstate FellowshipWnd close
 	}
 	
-	
-	/if (!${Me.Fellowship}) {
+	/delay 2s
+
+	/if (!${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
 		/delay 2s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
