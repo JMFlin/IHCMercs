@@ -30,6 +30,22 @@ Sub clr_self_buffs
 			/varset CastCheck 1
 		}
 	}
+
+	/if (!${Me.Buff[${SelfBuff}].ID}) {
+		/if (${validate_cast[FALSE, spell, ${SelfBuff}, ${Me.ID}]}) {
+			/call core_cast2 "${SelfBuff}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	}
+
+	/if (!${Me.Buff[${Retaliation}].ID}) {
+		/if (${validate_cast[FALSE, spell, ${Retaliation}, ${Me.ID}]}) {
+			/call core_cast2 "${Retaliation}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	}
+
+	
 	
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar

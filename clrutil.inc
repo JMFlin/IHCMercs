@@ -38,6 +38,7 @@ Sub clr_setup
 	/declare groupbufftimer			timer           outer 0
 	/declare ReverseDS				string          outer NULL
 	/declare SelfBuff				string          outer NULL
+	/declare Retaliation			string			outer NULL
 	/declare GroupHealProcBuff		string          outer NULL
 	/declare GroupHPBuff			string          outer NULL
 	/declare GroupBuff				string          outer NULL
@@ -539,6 +540,10 @@ Sub clr_abilities
 		/varset SelfBuff ${Spell[Ancient High Priest's Bulwark].RankName}
 	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Blessed Armor of the Risen].RankName}]})  {
 		/varset SelfBuff ${Spell[Blessed Armor of the Risen].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Ward of Retaliation].Level} && ${Me.Book[${Spell[Ward of Retaliation].RankName}]})  {
+		/varset Retaliation ${Spell[Ward of Retaliation].RankName}
 	}
 |--Self buff casts group heal on AE spell damage
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Divine Reaction].RankName}]})  {

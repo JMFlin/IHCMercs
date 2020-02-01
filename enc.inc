@@ -112,8 +112,8 @@ Sub enc_debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
 
-		/if (!${Target.Buff[${DoTSpell3}].ID} && ${Target.Named}) {
-			/if (${validate_cast[FALSE, spell, "${DoTSpell3}", ${Target.ID}]}) /call core_cast2 "${DoTSpell3}" spell ${Target.ID} FALSE
+		/if (!${Target.Buff[${Constriction}].ID} && ${Target.Named}) {
+			/if (${validate_cast[FALSE, spell, "${Constriction}", ${Target.ID}]}) /call core_cast2 "${Constriction}" spell ${Target.ID} FALSE
 		}
 	
 		/if (!${Target.Buff[Mental Contortion].ID} && ${Target.Named}) {
