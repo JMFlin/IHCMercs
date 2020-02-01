@@ -103,7 +103,7 @@ Sub war_disc
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
 				/stopdisc
-				/delay 5 !${Me.ActiveDisc.ID}
+				/delay 1s !${Me.ActiveDisc.ID}
 				/disc ${missall}
 				/if (${validate_cast[FALSE, disc, "${missall}", ${Me.ID}]}) /call core_cast2 "${missall}" disc 0 FALSE
 			}
@@ -114,7 +114,7 @@ Sub war_disc
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
 				/stopdisc
-				/delay 5 !${Me.ActiveDisc.ID}
+				/delay 1s !${Me.ActiveDisc.ID}
 				/if (${validate_cast[FALSE, disc, "${meleemit}", ${Me.ID}]}) /call core_cast2 "${meleemit}" disc 0 FALSE
 			}
 		} else {
