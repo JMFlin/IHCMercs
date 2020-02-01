@@ -107,7 +107,7 @@ Avenging Flurry Discipline
 		/if (${BurnRotation} == 3) {
 			/if (${validate_cast[FALSE, disc, "${ResolveDisc}", ${Me.ID}]}) {
 				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
-				/call core_cast2 "${DisconDisc}" disc 0 FALSE
+				/call core_cast2 "${ResolveDisc}" disc 0 FALSE
 			}
 			/varset InBetween 1
 		}
@@ -116,7 +116,7 @@ Avenging Flurry Discipline
 	/if (!${Me.ActiveDisc.ID}) {
 		/if (${BurnRotation} == 4) {
 			/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) {
-				/call core_cast2 "${DisconDisc}" disc 0 FALSE
+				/call core_cast2 "${FlurryDisc}" disc 0 FALSE
 			}
 			/varset BurnRotation 0
 			/varset InBetween 1

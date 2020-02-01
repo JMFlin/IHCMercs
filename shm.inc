@@ -2,9 +2,11 @@
 |- SUB: shm_main
 |----------------------------------------------------------------------------
 Sub shm_main
-	/call shm_single_target_heals
-	|/call shm_group_buffs
-	/call shm_combat
+	/while (${Me.XTarget}) {
+		/call shm_single_target_heals
+		|/call shm_group_buffs
+		/call shm_combat
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: Single Heal
