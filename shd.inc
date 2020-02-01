@@ -269,7 +269,7 @@ Sub shd_aoe_aggro
 		}
 		
 
-		/if (${SpawnCount[NPC radius 50 zradius 50]} > 2) {
+		/if (${SpawnCount[NPC radius 50 zradius 50]} > 0) {
 			/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${Target.ID}]}) /call core_cast2 "Explosion of Hatred" alt ${Target.ID} FALSE
 		} 
 
