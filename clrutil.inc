@@ -41,6 +41,7 @@ Sub clr_setup
 	/declare Retaliation			string			outer NULL
 	/declare GroupHealProcBuff		string          outer NULL
 	/declare GroupHPBuff			string          outer NULL
+	/declare GroupHPBuffName 		string 			outer NULL
 	/declare GroupBuff				string          outer NULL
 	/declare TankBuff				string          outer NULL
 	/declare GroupVieBuff			string          outer NULL
@@ -489,6 +490,7 @@ Sub clr_abilities
 		/varset GroupHPBuff ${Spell[Unified Hand of Certitude].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Unified Hand of Credence].RankName}]})  {
 		/varset GroupHPBuff ${Spell[Unified Hand of Credence].RankName}
+		/varset GroupHPBuffName Credence
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Hand of Reliance].RankName}]})  {
 		/varset GroupHPBuff ${Spell[Hand of Reliance].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Hand of Gallantry].RankName}]})  {

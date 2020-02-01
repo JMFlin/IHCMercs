@@ -3,18 +3,21 @@
 |---------------------------------------------------------------------------- 
 Sub shd_main
 
-	
 	/call shd_self_buffs
 
 	/while (${Me.XTarget}) {
 
 		/call get_target
+		
 		/call shd_get_aggro
+	
 		/call shd_combat_buffs
-
-		/if (!${validate_combat[${Target.ID}]} ) /return
+		
+		/if (!${validate_combat[${Target.ID}]}) /return
 		
 		/call engage
+		
+
 		/call shd_disc
 
 		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
@@ -23,12 +26,14 @@ Sub shd_main
 					/call core_cast2 "Encroaching Darkness" alt ${Target.ID} FALSE
 					/call check_cast_events CAST_IMMUNE "Encroaching Darkness"
 				}
-			} else /if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-				/call check_cast_events CAST_IMMUNE "${SnareSpell}"
+			} else {
+				/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+					/call check_cast_events CAST_IMMUNE "${SnareSpell}"
+				}
 			}
 		}
-
+	
 		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
 			/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
 		}
@@ -70,7 +75,6 @@ Sub shd_main
 		}
 
 	}
-	
 /return
 |----------------------------------------------------------------------------
 |- SUB: self_buffs 
@@ -159,6 +163,8 @@ Sub shd_combat_buffs
 		}
 	}
 
+
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: DoDisc 
@@ -187,7 +193,6 @@ Sub shd_disc
 			}
 		} else {
 			/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Me.ID}]}) /call core_cast2 "${IchorGuardDisc}" disc 0 FALSE
-			
 		}
 	
 

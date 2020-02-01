@@ -47,7 +47,7 @@ Sub shd_setup
 	/declare HPShroud 		string outer NULL
 	/declare MPShroud 		string outer NULL
 
-	/declare Recourse 		string outer NULL 
+	/declare Recourse 		string outer NONE 
 	
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 /return 
