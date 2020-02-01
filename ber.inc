@@ -72,25 +72,12 @@ Sub ber_aa_and_disc
 		/Disc ${FrenzyBoost}
 		/delay 5
 	}
-	
-	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
-	/if (${Target.AggroHolder.ID}==${Me.ID} && ${Me.PctAggro}>90 && (${Target.PctHPs}>20 || ${Target.Named}) && ${Target.Level}>=105 && ${Me.AltAbilityReady[Uncanny Resilience]}) {
-			/echo Looks like I'm Tanking, GL!
-			/alt act ${Me.AltAbility[Uncanny Resilience].ID}
-			/delay 5
-	}
 	/if (${Me.AltAbilityReady[Savage Spirit]} && ${Me.Combat} && ${Target.PctHPs}<99 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
 		/alt act ${Me.AltAbility[Savage Spirit].ID}
 		/delay 5
 	}
-	| ${Me.Buff[Savage Spirit].ID}
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
-		/if (${Me.ActiveDisc.ID}) /stopdisc
-		/delay 5
-		/disc ${PrimaryBurnDisc}
-		/delay 5
-	}
+	
 	/if ((${Me.XTarget}>1 || ${Me.Buff[Savage Spirit].ID}) && ${Me.AltAbilityReady[Fundament: Second Spire of Savagery]} && ${Target.PctHPs}>40 && ${Me.Combat} && ${Target.PctHPs}<99) {
 		/alt act ${Me.AltAbility[Fundament: Second Spire of Savagery].ID}
 		/delay 5
@@ -116,38 +103,45 @@ Sub ber_aa_and_disc
 	|	/alt act ${Me.AltAbility[Furious Rampage].ID}
 	|	/delay 5
 	|}	
-
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${CleavingDisc}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
-
+	
+	/if ((${Me.XTarget} >= ${BurnMobCount} || ${Target.Named})) {
 		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID} != ${FlurryDiscID}) {
+			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
 				/stopdisc
-				/delay 5 !${Me.ActiveDisc.ID}
+				/delay 1s !${Me.ActiveDisc.ID}
+				/if (${validate_cast[FALSE, disc, "${PrimaryBurnDisc}", ${Me.ID}]}) /call core_cast2 "${PrimaryBurnDisc}" disc 0 FALSE
 			}
 		} else {
-			/disc ${CleavingDisc}
+			/if (${validate_cast[FALSE, disc, "${PrimaryBurnDisc}", ${Me.ID}]}) /call core_cast2 "${PrimaryBurnDisc}" disc 0 FALSE
 		}
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
+				/stopdisc
+				/delay 1s !${Me.ActiveDisc.ID}
+				/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) /call core_cast2 "${CleavingDisc}" disc 0 FALSE
+			}
+		} else {
+			/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) /call core_cast2 "${CleavingDisc}" disc 0 FALSE
+		}
+
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
+				/stopdisc
+				/delay 1s !${Me.ActiveDisc.ID}
+				/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) /call core_cast2 "${FlurryDisc}" disc 0 FALSE
+			}
+		} else {
+			/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) /call core_cast2 "${FlurryDisc}" disc 0 FALSE
+		}
+
 	}
 
 	/if (${Me.AltAbilityReady[Reckless Abandon]} && ${Me.ActiveDisc.ID}==${CleavingDiscID}) {
 		/alt act ${Me.AltAbility[Reckless Abandon].ID}
 		/delay 5
 	}
-
-	/if (${Me.PctEndurance}>=5 && ${Me.CombatAbilityReady[${Spell[${FlurryDisc}].RankName}]} && ${Me.Combat} && ${Target.PctHPs}<99 && !${Me.CombatAbilityReady[${PrimaryBurnDisc}]} && !${Me.CombatAbilityReady[${CleavingDisc}]} && (${Me.XTarget}>=${BurnMobCount} || ${Target.Named})) {
-		
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${PrimaryBurnDiscID} && ${Me.ActiveDisc.ID} != ${CleavingDiscID}) {
-				/stopdisc
-				/delay 5 !${Me.ActiveDisc.ID}
-			}
-		} else {
-			/disc ${FlurryDisc}
-		}
-	}
-
-	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
-
+	
 	/if ((${Me.XTarget}>1 || ${Me.ActiveDisc.ID}==${FlurryDiscID}) && ${Me.AltAbilityReady[Vehement Rage]} && ${Me.Combat} && ${Target.PctHPs}>20 && ${Target.PctHPs}<99) {
 		/alt act ${Me.AltAbility[Vehement Rage].ID}
 		/delay 5
