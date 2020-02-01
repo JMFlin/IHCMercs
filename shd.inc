@@ -50,7 +50,7 @@ Sub shd_main
 			/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 		}
 
-		/if (!${Me.Buff[${Recourse}].NotEqual[${Recourse}]}) {
+		/if (!${Me.Buff[${Recourse}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 		}
 
