@@ -171,11 +171,11 @@ Sub shd_disc
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
 				/delay 1s !${Me.ActiveDisc.ID}
-				/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) /call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
+				/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) /call core_cast2 "${DeflectionDisc}" disc 0 FALSE
 				
 			}
 		} else {
-			/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) /call core_cast2 "${DeflectionDisc}" disc ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) /call core_cast2 "${DeflectionDisc}" disc 0 FALSE
 		}
 	
 
@@ -183,10 +183,10 @@ Sub shd_disc
 			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
 				/stopdisc
 				/delay 1s !${Me.ActiveDisc.ID}
-				/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Me.ID}]}) /call core_cast2 "${IchorGuardDisc}" disc ${Target.ID} FALSE
+				/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Me.ID}]}) /call core_cast2 "${IchorGuardDisc}" disc 0 FALSE
 			}
 		} else {
-			/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Me.ID}]}) /call core_cast2 "${IchorGuardDisc}" disc ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, disc, "${IchorGuardDisc}", ${Me.ID}]}) /call core_cast2 "${IchorGuardDisc}" disc 0 FALSE
 			
 		}
 	
@@ -196,12 +196,12 @@ Sub shd_disc
 				/stopdisc
 				/delay 1s !${Me.ActiveDisc.ID}
 				/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
-					/call core_cast2 "${LeechcurseID}" disc ${Target.ID} FALSE
+					/call core_cast2 "${LeechcurseID}" disc 0 FALSE
 				}
 			}
 		} else {
 			/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
-				/call core_cast2 "${LeechcurseID}" disc ${Target.ID} FALSE
+				/call core_cast2 "${LeechcurseID}" disc 0 FALSE
 			}
 		}
 	
@@ -211,12 +211,12 @@ Sub shd_disc
 				/stopdisc
 				/delay 1s !${Me.ActiveDisc.ID}
 				/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
-					/call core_cast2 "${UnholyAuraDisc}" disc ${Target.ID} FALSE
+					/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
 				}
 			}
 		} else {
 			/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
-				/call core_cast2 "${UnholyAuraDisc}" disc ${Target.ID} FALSE
+				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
 			}
 		}
 	}
