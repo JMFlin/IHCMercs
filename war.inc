@@ -2,13 +2,68 @@
 |- SUB: warrior 
 |---------------------------------------------------------------------------- 
 Sub war_main
-
 	
 	/while (${Me.XTarget}) {
 		/call engage
-		/call war_get_aggro
+
 		/call get_target
 		/call check_add_aggro
+
+		/if (!${validate_combat[${Target.ID}]} ) /return
+	
+		/if (!${Me.Song[Battle Leap].ID}) {
+			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
+		}
+
+		/call use_skill_melee FALSE ${Target.ID}
+		
+		/call war_get_aggro
+		/call check_add_aggro
+
+		/if (${Target.Named} || ${Me.PctHPs} < 61) {
+			/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
+		}
+		
+		/call check_add_aggro
+		/call war_aoe_aggro
+
+		/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]} < 2) {
+			/if (${validate_cast[FALSE, alt, "Rampage", ${Target.ID}]}) /call core_cast2 "Rampage" alt ${Target.ID} FALSE
+		}
+
+		/if (${Me.SecondaryPctAggro} > 10) {
+			/if (${validate_cast[FALSE, disc, "${singlehealhate}", ${Target.ID}]}) /call core_cast2 "${singlehealhate}" disc ${Target.ID} FALSE
+		}
+		
+		/call war_get_aggro
+
+		/if (${Me.CombatAbilityReady[${singlehealhate}]} && ${Me.SecondaryPctAggro} > 10) {
+			/if (${validate_cast[FALSE, disc, "${phantom}", ${Target.ID}]}) /call core_cast2 "${phantom}" disc ${Target.ID} FALSE
+		}
+
+		/call war_combat_buffs
+		/call check_add_aggro
+		/call war_disc
+
+		/if (${Me.SecondaryPctAggro} > 30) {
+			/if (${validate_cast[FALSE, alt, "Projection of Fury", ${Target.ID}]}) /call core_cast2 "Projection of Fury" alt ${Target.ID} FALSE
+		}
+		/if (${Me.SecondaryPctAggro} > 50) {
+			/if (${validate_cast[FALSE, alt, "Warlord's Grasp", ${Target.ID}]}) /call core_cast2 "Warlord's Grasp" alt ${Target.ID} FALSE
+		}
+		
+		/call war_get_aggro
+
+		/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
+			/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]}) /call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
+		}
+
+		/call check_add_aggro
+
+		/if (${validate_cast[FALSE, disc, "${tongue}", ${Target.ID}]}) /call core_cast2 "${tongue}" disc ${Target.ID} FALSE
+
+		/if (${validate_cast[FALSE, disc, "${reprisal}", ${Target.ID}]}) /call core_cast2 "${reprisal}" disc ${Target.ID} FALSE
+
 		/call war_combat_buffs
 		/call war_disc
 		/call war_aoe_aggro
@@ -150,10 +205,6 @@ Sub war_get_aggro
 	
 	/call engage
 
-	/if (!${Me.Song[Battle Leap].ID}) {
-		/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
-	}
-
 	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (${validate_cast[FALSE, alt, "Call of Challenge", ${Target.ID}]}) /call core_cast2 "Call of Challenge" alt ${Target.ID} FALSE	
@@ -172,10 +223,6 @@ Sub war_get_aggro
 
 	/if (${validate_cast[FALSE, alt, "Gut Punch", ${Target.ID}]}) /call core_cast2 "Gut Punch" alt ${Target.ID} FALSE
 
-	/if (${Target.Named} || ${Me.PctHPs} < 61) {
-		/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
-	}
-
 	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
 		/if (${validate_cast[FALSE, alt, "Rage of the Forsaken", ${Target.ID}]}) {
 			/call core_cast2 "Rage of the Forsaken" alt ${Target.ID} FALSE
@@ -185,36 +232,11 @@ Sub war_get_aggro
 		}
 	}
 
-	/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]} < 2) {
-		/if (${validate_cast[FALSE, alt, "Rampage", ${Target.ID}]}) /call core_cast2 "Rampage" alt ${Target.ID} FALSE
-	}
-
-	/if (${Me.SecondaryPctAggro} > 10) {
-		/if (${validate_cast[FALSE, disc, "${singlehealhate}", ${Target.ID}]}) /call core_cast2 "${singlehealhate}" disc ${Target.ID} FALSE
-	}
-
-	/if (${Me.CombatAbilityReady[${singlehealhate}]} && ${Me.SecondaryPctAggro} > 10) {
-		/if (${validate_cast[FALSE, disc, "${phantom}", ${Target.ID}]}) /call core_cast2 "${phantom}" disc ${Target.ID} FALSE
-	}
-
 	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
 		/if (${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]}) /call core_cast2 "Warlord's Fury" alt ${Target.ID} FALSE
 		/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) /call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE
 	}
 
-	/if (${Me.SecondaryPctAggro} > 30) {
-		/if (${validate_cast[FALSE, alt, "Projection of Fury", ${Target.ID}]}) /call core_cast2 "Projection of Fury" alt ${Target.ID} FALSE
-	}
-	/if (${Me.SecondaryPctAggro} > 50) {
-		/if (${validate_cast[FALSE, alt, "Warlord's Grasp", ${Target.ID}]}) /call core_cast2 "Warlord's Grasp" alt ${Target.ID} FALSE
-	}
-	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
-		/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]}) /call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
-	}
-
-	/if (${validate_cast[FALSE, disc, "${tongue}", ${Target.ID}]}) /call core_cast2 "${tongue}" disc ${Target.ID} FALSE
-
-	/if (${validate_cast[FALSE, disc, "${reprisal}", ${Target.ID}]}) /call core_cast2 "${reprisal}" disc ${Target.ID} FALSE
 	
 /return
 |----------------------------------------------------------------------------

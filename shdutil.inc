@@ -307,6 +307,8 @@ Sub shd_abilities
 		/varset Cloak ${Spell[Cloak of Luclin].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Cloak of the Akheva].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of the Akheva].RankName}
+	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Grim Aura].RankName}]}) {
+		/varset Cloak ${Spell[Grim Aura].RankName}
 	}
 
 	| Stance

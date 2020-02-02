@@ -39,6 +39,7 @@ Sub dru_setup
 	/declare NBW				string outer NULL
 	/declare Survival 			string outer NULL
 	/declare Mask 				string outer NULL
+	/declare TwincastSpell 		string outer NULL
 /return 
 |* ------------------------------------------------------------------------------------------
 | SUB: ${Me.Class.ShortName.Lower}_load_spellbar
@@ -384,9 +385,15 @@ BALANCED:
 	} else /if (${Me.Level}>=${Spell[Spirit of Wolf].Level} && ${Me.Book[${Spell[Spirit of Wolf].RankName}]}) {
 		/varset SoW ${Spell[Spirit of Wolf].RankName}
 	}
-		
+	
+	|-TwincastSpell
+	/if (${Me.Level}>=85 && ${Me.Book[${Spell[Twincast].RankName}]}) {
+		/varset TwincastSpell ${Spell[Twincast].RankName}
+	}
 
-	/if (${Me.Level}>=${Spell[Legacy of Viridithorns].Level} && ${Me.Book[${Spell[Legacy of Viridithorns].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Legacy of Brierbloom].Level} && ${Me.Book[${Spell[Legacy of Brierbloom].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Brierbloom].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Viridithorns].Level} && ${Me.Book[${Spell[Legacy of Viridithorns].RankName}]}) {
 		/varset DamageShield ${Spell[Legacy of Viridithorns].RankName}
 	} else /if (${Me.Level}>=${Spell[Legacy of Viridiflora].Level} && ${Me.Book[${Spell[Legacy of Viridiflora].RankName}]}) {
 		/varset DamageShield ${Spell[Legacy of Viridiflora].RankName}

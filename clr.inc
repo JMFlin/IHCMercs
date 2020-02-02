@@ -122,7 +122,7 @@ Sub clr_group_buffs
 	/if (${Me.XTarget}) /return
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
 
-	/for _count 1 to ${Group}
+	/for _count 0 to ${Group}
 
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 		/if (${Me.XTarget}) {

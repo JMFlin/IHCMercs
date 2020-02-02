@@ -346,21 +346,21 @@ Sub ber_combat
 |- SUB: DowntimeDiscs
 |---------------------------------------------------------------------------- 
 Sub make_axes(string AxeName, string AxeComponents)
-
+	/delay 1s
 	/if (${Me.Combat}) /return
 	/if (${Me.XTarget}) /return
 	/if (${Me.Moving}) /return
 	/if (${Navigation.Active}) /return
 	/if (${FindItemCount[${AxeComponents}]} <= 1) /return
-	/if (${Me.CombatAbilityReady[${AxeName}]}) /return 
+	/if (!${Me.CombatAbilityReady[${AxeName}]}) /return 
 	/if (!${validate_cast[FALSE, disc, "${AxeName}", ${Me.ID}]}) /return
 
 	/while (${FindItemCount[${AxeName}]} < 200 && ${FindItemCount[${AxeComponents}]} > 1) {
-		DEBUG Making ${AxeName} with ${AxeComponents}
 		/if (${Cursor.ID}) /autoinventory
 		/if (${Me.XTarget}) /return
 		/if (${Mode} == 0) /return
 		/if (!${Me.Casting.ID} && !${Cursor.ID}) {
+			DEBUG Making ${AxeName} with ${AxeComponents}
 			/if (${validate_cast[FALSE, disc, "${AxeName}", ${Me.ID}]}) /call core_cast2 "${AxeName}" disc 0 FALSE
 			/if (${Cursor.ID}) /autoinventory
 		}

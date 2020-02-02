@@ -17,7 +17,6 @@ Sub shd_main
 		
 		/call engage
 		
-
 		/call shd_disc
 
 		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
@@ -50,10 +49,12 @@ Sub shd_main
 		}
 		
 		/call shd_get_aggro
-
+		/call check_add_aggro
 		/if (${Me.PctHPs} < 90) {
 			/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 		}
+
+		/call check_add_aggro
 
 		/if (!${Me.Buff[${Recourse}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE

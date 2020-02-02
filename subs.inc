@@ -357,6 +357,7 @@ Sub check_add_aggro
 			/delay 5 ${Target.ID} == ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
 			/call engage
 			/call ${Me.Class.ShortName.Lower}_get_aggro
+			/call ${Me.Class.ShortName.Lower}_aoe_aggro
 			/delay 1s
 		}
 	}
@@ -430,6 +431,9 @@ Sub pre_pull_group_healer_spells
 
 Sub afk_pull
 	/declare _pullTargetID 	int local 0
+	/if (${Select[${Me.Class.ShortName},BST]}) {
+		/if (!${Me.Pet.ID}) /return
+	}
 	/if (${Me.XTarget}) /return
 	/if (${Me.Casting.ID}) /return
 	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
@@ -801,30 +805,30 @@ Sub check_campfire
 
 	/if (${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
-		/delay 2s
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 2s
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 2s
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 2s
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 2s
+		/delay 1s
 		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
-		/delay 2s
+		/delay 1s
 	}
 	
-	/delay 2s
+	/delay 1s
 
 	/if (!${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
-		/delay 2s
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 2s
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 2s
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 2s
+		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/delay 5s ${Me.Fellowship.Campfire}
 		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
@@ -2568,7 +2572,7 @@ sub use_skill_melee(int _tmpID, bool _debug)
 
 	| Zerker only skill
 	/if (${Select[${Me.Class.ShortName},BER]}) {
-		/if (!${frenzy} && !${Skill[Frenzy].Auto}) {
+		/if (${frenzy} && !${Skill[Frenzy].Auto}) {
 			/if (${Me.AbilityReady[Frenzy]} && ${Spawn[id ${_tmpID}].Distance} <= 13) {
 				/if (${Target.ID}) /doability Frenzy
 			}
