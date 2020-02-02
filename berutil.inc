@@ -138,15 +138,15 @@ Sub ber_abilities
 	} else /if (${Me.Level}>=60 && ${Me.CombatAbility[Head Crush]}) {
 		/varset Stun Head Crush
 		/varset StunAxeName Rage Axe
-		/varset StunAxeComponent Axe Component
+		/varset StunAxeComponent Basic Axe Component
 	} else /if (${Me.Level}>=40 && ${Me.CombatAbility[Head Pummel]}) {
 		/varset Stun Head Pummel
 		/varset StunAxeName Bonesplicer Axe
-		/varset StunAxeComponent Axe Component
+		/varset StunAxeComponent Basic Axe Component
 	} else /if (${Me.Level}>=16 && ${Me.CombatAbility[Head Strike]}) {
 		/varset Stun Head Strike
 		/varset StunAxeName Blunt Axe
-		/varset StunAxeComponent Axe Component
+		/varset StunAxeComponent Basic Axe Component
 	}
 	
 |---Snare

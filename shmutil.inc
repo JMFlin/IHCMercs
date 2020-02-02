@@ -122,6 +122,8 @@ Sub shm_load_spellbar
 		/call LoadSpellGem "${DichoSpell}" 8
 	} else /if (${MeleeProcBuff.NotEqual[NULL]}) {
 		/call LoadSpellGem "${MeleeProcBuff}" 8
+	} else {
+		/call LoadSpellGem "${FastDiseaseDoT}" 8
 	}
 
 	/if (${spellmisc}>8) {
@@ -374,6 +376,8 @@ Sub shm_abilities
 		/varset FastDiseaseDoT ${Spell[Giaborn's Malady].RankName}
 	} else /if (${Me.Level}>=${Spell[Nargul's Malady].Level} && ${Me.Book[${Spell[Nargul's Malady].RankName}]}) {
 		/varset FastDiseaseDoT ${Spell[Nargul's Malady].RankName}
+	} else /if (${Me.Level}>=${Spell[Affliction].Level} && ${Me.Book[${Spell[Affliction].RankName}]}) {
+		/varset FastDiseaseDoT ${Spell[Affliction].RankName}
 	}
 |- TwinHealNuke
 	/if (${Me.Level}>=${Spell[Frostbitten Gift].Level} && ${Me.Book[${Spell[Frostbitten Gift].RankName}]}) {
@@ -424,6 +428,8 @@ Sub shm_abilities
 		/varset FrostNuke ${Spell[Ice Mass].RankName}
 	} else /if (${Me.Level}>=${Spell[Ice Floe].Level} && ${Me.Book[${Spell[Ice Floe].RankName}]}) {
 		/varset FrostNuke ${Spell[Ice Floe].RankName}
+	} else /if (${Me.Level}>=${Spell[Spirit Strike].Level} && ${Me.Book[${Spell[Spirit Strike].RankName}]}) {
+		/varset FrostNuke ${Spell[Spirit Strike].RankName}
 	}
 |- ChaoticPoisonDoT
 	/if (${Me.Level}>=${Spell[Chaotic Poison].Level} && ${Me.Book[${Spell[Chaotic Poison].RankName}]}) {

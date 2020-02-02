@@ -133,20 +133,23 @@ sub misc
 
 	| Accept tasks 
  	/if (${Window[TaskTemplateSelectWnd].Open}) /notify TaskTemplateSelectWnd TaskTemplateSelectAcceptButton leftmouseup
+	/if (${Window[TaskTemplateSelectWnd].Open}) /notify TaskTemplateSelectWnd TSEL_AcceptButton leftmouseup
  	/if (${Window[ProgressionTemplateSelectWnd].Open}) /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
 	
 	| drop a campfire
 	/if (${Mode} != 0) /call check_campfire
 
 	| pop your merc
-	/if (${useMerc} && ${Me.CombatState.NotEqual[COMBAT]}) {
-		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) {
-			/if (!${Window[MMGW_ManageWnd].Open}) /windowstate MMGW_ManageWnd open
-			/delay 1s
-			/if (${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Revive]} || ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Unsuspend]}) {
-				/notify MMGW_ManageWnd MMGW_SuspendButton leftmouseup
-				/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Unsuspend]}
-				/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Revive]}
+	/if (${Mode} != 0) {
+		/if (${useMerc} && ${Me.CombatState.NotEqual[COMBAT]}) {
+			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) {
+				/if (!${Window[MMGW_ManageWnd].Open}) /windowstate MMGW_ManageWnd open
+				/delay 1s
+				/if (${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Revive]} || ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Unsuspend]}) {
+					/notify MMGW_ManageWnd MMGW_SuspendButton leftmouseup
+					/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Unsuspend]}
+					/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Revive]}
+				}
 			}
 		}
 	}

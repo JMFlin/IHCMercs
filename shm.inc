@@ -3,9 +3,31 @@
 |----------------------------------------------------------------------------
 Sub shm_main
 	/while (${Me.XTarget}) {
+
+		/call get_target
+		/if (!${validate_combat[${Target.ID}]}) /return
+
+		/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
+			/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
+		}
+		
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
+			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
+				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
+			}
+		}
+		
 		/call shm_single_target_heals
-		|/call shm_group_buffs
-		/call shm_combat
+
+		/if (!${Target.Buff[${FastDiseaseDoT}].ID}) {		
+			/if (${validate_cast[FALSE, FIND, "${FastDiseaseDoT}", ${Target.ID}]}) {
+				/call core_cast2 "${FastDiseaseDoT}" FIND ${Target.ID} FALSE
+			}
+		}
+		
+		/call shm_group_buffs
 	}
 /return
 |----------------------------------------------------------------------------
@@ -189,22 +211,9 @@ Sub shm_aa_and_disc
 |---------------------------------------------------------------------------- 
 Sub shm_combat
 
-	/call get_target
-	/if (!${validate_combat[${Target.ID}]} ) /return
-
-	/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
-		/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
-	}
-
-	| DEBUG Target.Slowed.ID: ${Target.Slowed.ID} Target.Buff[SlowSpell.ID]: ${Target.Buff[${SlowSpell}].ID} immuneSet.Contains: ${immuneSet.Contains[${Target.ID}]}
 	
-	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
-		/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
-			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-			/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
-			/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
-		}
-	}
+
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: BuffGroup 
@@ -222,7 +231,7 @@ Sub shm_group_buffs
 	}
 	
 
-	/for _count 1 to ${Group}
+	/for _count 0 to ${Group}
 
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 		/if (${Me.XTarget}) {
