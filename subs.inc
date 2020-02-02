@@ -441,6 +441,7 @@ Sub afk_pull
 	/if (${Me.Snared.ID}) /return
 	/if (${Me.PctHPs} < 90) /return
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return
 	/if (${checkResourcesTimer} != 0) /return
 	/if (!${PullAbility.Equal[Melee]}) {
 		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return

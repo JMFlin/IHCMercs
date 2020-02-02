@@ -2,7 +2,7 @@
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub clr_main
-	/if (!${Me.XTarget}) /call check_for_corpse FALSE
+	/call check_for_corpse FALSE
 	/call clr_group_buffs
 	/call clr_self_buffs
 	/call clr_combat_tank_buffs
