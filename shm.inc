@@ -43,9 +43,6 @@ Sub shm_main
 				}
 			}
 		}
-
-		
-		
 		/call shm_group_buffs
 	}
 /return
@@ -60,12 +57,10 @@ Sub shm_single_target_heals
 |- SUB: HealthToMana
 |---------------------------------------------------------------------------- 
 Sub shm_health_to_mana
-	/if (${Me.PctHPs}>=${AACanniMinHP} && ${Me.AltAbilityReady[Cannibalization]}) {
-		/call AANow ${Me.AltAbility[Cannibalization].ID} ${Me.ID}
-		/delay 20 !${Me.Casting.ID}
-	} else /if (${Me.PctHPs}>=${CanniMinHP} && ${Me.SpellReady[${CanniSpell}]}) {
-		/call SpellQueue "${CanniSpell}" ${Me.ID}
-		/delay ${Math.Calc[(${Spell[${CanniSpell}].MyCastTime}/100)+5].Int} !${Me.Casting.ID}
+	/if (${Me.PctHPs} >= 40) {
+		/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
+			/call core_cast2 "Cannibalization" alt 0 FALSE
+		}
 	}
 /return
 |----------------------------------------------------------------------------

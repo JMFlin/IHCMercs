@@ -1,11 +1,11 @@
 |**
 TODO:
 	Refracture all classes like the ench was.
-	Look at ber disc rotation. It ends burning rage prematurely.
 	Finish class spell lines and rotations.
 	Aura combat cast.
 	All to core_cast2.
 	Fix names of warrior discs.
+	Bard to cast song names, not positions in list
 **|
 
 #turbo 80

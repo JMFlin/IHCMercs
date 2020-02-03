@@ -111,14 +111,10 @@ Sub clr_main
 Sub clr_self_buffs
 	/declare CastCheck			int local 0
 
-	/if (${Me.XTarget}) /return
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 
-	/if (!${Me.Buff[${GroupHPBuff}].ID} && !${Me.Buff[${GroupHPBuffName}].ID}) {
-		/if (${validate_cast[FALSE, spell, ${GroupHPBuff}, ${Me.ID}]}) {
-			/call core_cast2 "${GroupHPBuff}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
-	}
+	/if (${Me.XTarget}) /return
 
 	/if (!${Me.Buff[${SelfBuff}].ID}) {
 		/if (${validate_cast[FALSE, spell, ${SelfBuff}, ${Me.ID}]}) {
@@ -134,8 +130,6 @@ Sub clr_self_buffs
 		}
 	}
 
-	
-	
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/docommand /dgt \aw Done Buffing
@@ -207,7 +201,6 @@ Sub clr_group_buffs
 
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
-	/if (${Me.Casting.ID}) /return
 
 	/if (${Me.XTarget}) /return
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return

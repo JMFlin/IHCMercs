@@ -3,11 +3,36 @@
 |---------------------------------------------------------------------------- 
 Sub brd_main
 
-	/if (${Me.XTarget}) {
-		/call brd_pulse FALSE ${BattleMelody}
-	}
-	/if (!${Me.XTarget}) {
-		/call brd_pulse FALSE ${RegenMelody}
+	/call brd_pulse FALSE ${RegenMelody}
+	/while (${Me.XTarget}) {
+		
+		/call get_target
+		/call engage
+
+		/if (!${validate_combat[${Target.ID}]} ) /return
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/call brd_combat
+		
+		/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
+				/call core_cast2 "${SlowSong}" pulse ${Target.ID} FALSE
+				/call check_cast_events "${SlowSong}" CAST_IMMUNE ${Target.ID}
+			}
+		}
+
+		/if (${validate_cast[FALSE, pulse, "${WarMarchSong}", ${Me.ID}]}) {
+			/call core_cast2 "${WarMarchSong}" pulse 0 FALSE
+		}
+		/if (${validate_cast[FALSE, pulse, "${StormBladeSong}", ${Me.ID}]}) {
+			/call core_cast2 "${StormBladeSong}" pulse 0 FALSE
+		}
+		/if (${validate_cast[FALSE, pulse, "${MainAriaSong}", ${Me.ID}]}) {
+			/call core_cast2 "${MainAriaSong}" pulse 0 FALSE
+		}
+		/if (${validate_cast[FALSE, pulse, "${ArcaneSong}", ${Me.ID}]}) {
+			/call core_cast2 "${ArcaneSong}" pulse 0 FALSE
+		}
 	}
 
 |	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
