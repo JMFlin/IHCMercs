@@ -187,6 +187,9 @@ Sub var_setup
 |- burns
 	/declare BurnRotation 		int outer 1
 	/declare InBetween			int outer 0
+
+|- 
+	/declare WorstHurtId 		int outer 0
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion

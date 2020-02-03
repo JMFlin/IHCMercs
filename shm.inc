@@ -2,6 +2,15 @@
 |- SUB: shm_main
 |----------------------------------------------------------------------------
 Sub shm_main
+	/call get_heal_target 90
+	/varset WorstHurtId ${Macro.Return}
+	
+	/if (${WorstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${WorstHurtId}]}) {
+			/call core_cast2 "${RecklessHeal1}" spell ${WorstHurtId} FALSE
+		}
+	}
+
 	/while (${Me.XTarget}) {
 
 		/call get_target
@@ -19,13 +28,23 @@ Sub shm_main
 			}
 		}
 		
-		/call shm_single_target_heals
-
-		/if (!${Target.Buff[${FastDiseaseDoT}].ID}) {		
-			/if (${validate_cast[FALSE, FIND, "${FastDiseaseDoT}", ${Target.ID}]}) {
-				/call core_cast2 "${FastDiseaseDoT}" FIND ${Target.ID} FALSE
+		/call get_heal_target 85
+		/varset WorstHurtId ${Macro.Return}
+		
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${WorstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal1}" spell ${WorstHurtId} FALSE
+			}
+		} else {
+			/call get_target
+			/if (!${Target.Buff[${FastDiseaseDoT}].ID}) {		
+				/if (${validate_cast[FALSE, spell, "${FastDiseaseDoT}", ${Target.ID}]}) {
+					/call core_cast2 "${FastDiseaseDoT}" spell ${Target.ID} FALSE
+				}
 			}
 		}
+
+		
 		
 		/call shm_group_buffs
 	}
@@ -34,16 +53,8 @@ Sub shm_main
 |- SUB: Single Heal
 |---------------------------------------------------------------------------- 
 Sub shm_single_target_heals
-	/declare _worstHurtId int local 0
 
-	/call get_heal_target 85
-	/varset _worstHurtId ${Macro.Return}
 	
-	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${_worstHurtId}]}) {
-			/call core_cast2 "${RecklessHeal1}" spell ${_worstHurtId} FALSE
-		}
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: HealthToMana
@@ -130,21 +141,22 @@ Sub shm_group_cure(int cureid)
 	/varset CureMemberID 0
 /return
 |----------------------------------------------------------------------------
-|- SUB: CC
+|- SUB: shm_cc
 |---------------------------------------------------------------------------- 
-Sub CC
-	/declare x int local 0
+Sub shm_cc
+	/declare _count int local 0
 	
-	/for x 1 to ${Me.XTarget}
+	/for _count 1 to ${Me.XTarget}
 
-		/target id ${Me.XTarget[${x}].ID}
+		/target id ${Me.XTarget[${_count}].ID}
 
-		/if (${Target.Distance}<=55 && !${Target.Mezzed.ID} && !${Me.Casting.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.Type.Equal[NPC]} && ${Target.LineOfSight} && ${Me.AltAbilityReady[Virulent Paralysis]} && !${Target.Buff[Virulent Paralysis].ID} && !${Target.Rooted.ID} && ${Me.GroupAssistTarget.ID}!=${Target.ID} && ${Target.CurrentHPs}>95) {
+		/if (${Target.Distance} <= 55 && !${Target.Mezzed.ID} && ${Target.CurrentHPs} > 95) {
 			/face fast
-			/alt act ${Me.AltAbility[Virulent Paralysis].ID}
-			/delay 20 !${Me.AltAbilityReady[Virulent Paralysis]}
+			/if (${validate_cast[FALSE, alt, "Virulent Paralysis", ${Target.ID}]}) {
+				/call core_cast2 "Virulent Paralysis" alt ${Target.ID} FALSE
+			}
 		}
-	/next x
+	/next _count
 /return
 |----------------------------------------------------------------------------
 |- SUB: DebuffMobs
