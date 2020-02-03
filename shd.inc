@@ -44,6 +44,10 @@ Sub shd_main
 		/call shd_aoe_aggro
 		/call check_add_aggro
 
+		/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
+			/call core_cast2 "Visage of Death" alt 0 FALSE
+		}
+
 		/if (${Me.PctHPs} < 99) {
 			/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 		}
@@ -64,8 +68,8 @@ Sub shd_main
 		/call check_add_aggro
 
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
-			/if (${validate_cast[FALSE, disc, "${Withstand}", ${Target.ID}]}) {
-				/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {
+				/call core_cast2 "${Withstand}" disc 0 FALSE
 			}
 		}
 		
@@ -154,13 +158,13 @@ Sub shd_combat_buffs
 
 	/if (${validate_cast[FALSE, spell, "${Disruption}", ${Me.ID}]}) /call core_cast2 "${Disruption}" spell ${Me.ID} FALSE
 
-	/if (${validate_cast[FALSE, alt, "Scourge Skin", ${Me.ID}]}) /call core_cast2 "Scourge Skin" alt ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Scourge Skin", ${Me.ID}]}) /call core_cast2 "Scourge Skin" alt 0 FALSE
 	
-	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) /call core_cast2 "Spire of the Reavers" alt ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) /call core_cast2 "Spire of the Reavers" alt 0 FALSE
 
 	/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
 		/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {
-			/call core_cast2 "${Withstand}" disc ${Target.ID} FALSE
+			/call core_cast2 "${Withstand}" disc 0 FALSE
 		}
 	}
 

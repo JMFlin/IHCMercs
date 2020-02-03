@@ -3,7 +3,18 @@
 |---------------------------------------------------------------------------- 
 Sub brd_main
 
-	/call brd_pulse FALSE ${RegenMelody}
+	/if (${Me.Song[${ChorusRegenSong}].Duration.TotalSeconds} < 6) {
+		/if (${validate_cast[FALSE, pulse, "${ChorusRegenSong}", ${Me.ID}]}) {
+			/call core_cast2 "${ChorusRegenSong}" pulse 0 FALSE
+		}
+	}
+
+	/if (${Me.Buff[${AccelerandoSong}].Duration.TotalSeconds} < 30) {
+		/if (${validate_cast[FALSE, pulse, "${AccelerandoSong}", ${Me.ID}]}) {
+			/call core_cast2 "${AccelerandoSong}" pulse 0 FALSE
+		}
+	}
+
 	/while (${Me.XTarget}) {
 		
 		/call get_target
@@ -21,18 +32,70 @@ Sub brd_main
 			}
 		}
 
-		/if (${validate_cast[FALSE, pulse, "${WarMarchSong}", ${Me.ID}]}) {
-			/call core_cast2 "${WarMarchSong}" pulse 0 FALSE
+		/if (${Me.XTarget}) {
+			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			}
+			/if (${validate_cast[FALSE, pulse, "${MainAriaSong}", ${Me.ID}]}) {
+				/call core_cast2 "${MainAriaSong}" pulse 0 FALSE
+			}
+			/if (${validate_cast[FALSE, pulse, "${WarMarchSong}", ${Me.ID}]}) {
+				/call core_cast2 "${WarMarchSong}" pulse 0 FALSE
+			}
 		}
-		/if (${validate_cast[FALSE, pulse, "${StormBladeSong}", ${Me.ID}]}) {
-			/call core_cast2 "${StormBladeSong}" pulse 0 FALSE
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget}) {
+			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			}
+			/if (${Me.Gem[${SufferingSong}]}) {
+				/if (${validate_cast[FALSE, pulse, "${SufferingSong}", ${Me.ID}]}) {
+					/call core_cast2 "${SufferingSong}" pulse 0 FALSE
+				}
+			}
+			/if (${validate_cast[FALSE, pulse, "${ArcaneSong}", ${Me.ID}]}) {
+				/call core_cast2 "${ArcaneSong}" pulse 0 FALSE
+			}
 		}
-		/if (${validate_cast[FALSE, pulse, "${MainAriaSong}", ${Me.ID}]}) {
-			/call core_cast2 "${MainAriaSong}" pulse 0 FALSE
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget}) {
+			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			}
+			/if (${validate_cast[FALSE, pulse, "${StormBladeSong}", ${Me.ID}]}) {
+				/call core_cast2 "${StormBladeSong}" pulse 0 FALSE
+			}
+			/if (${validate_cast[FALSE, pulse, "${MainAriaSong}", ${Me.ID}]}) {
+				/call core_cast2 "${MainAriaSong}" pulse 0 FALSE
+			}
 		}
-		/if (${validate_cast[FALSE, pulse, "${ArcaneSong}", ${Me.ID}]}) {
-			/call core_cast2 "${ArcaneSong}" pulse 0 FALSE
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget}) {
+			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			}
+			/if (${validate_cast[FALSE, pulse, "${WarMarchSong}", ${Me.ID}]}) {
+				/call core_cast2 "${WarMarchSong}" pulse 0 FALSE
+			}
+			/if (${Me.Gem[${SufferingSong}]}) {
+				/if (${validate_cast[FALSE, pulse, "${SufferingSong}", ${Me.ID}]}) {
+					/call core_cast2 "${SufferingSong}" pulse 0 FALSE
+				}
+			}
 		}
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget}) {
+			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			}
+			/if (${validate_cast[FALSE, pulse, "${ArcaneSong}", ${Me.ID}]}) {
+				/call core_cast2 "${ArcaneSong}" pulse 0 FALSE
+			}
+			/if (${validate_cast[FALSE, pulse, "${StormBladeSong}", ${Me.ID}]}) {
+				/call core_cast2 "${StormBladeSong}" pulse 0 FALSE
+			}
+		}
+
 	}
 
 |	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc

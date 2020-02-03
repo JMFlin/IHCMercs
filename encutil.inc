@@ -128,7 +128,7 @@ Sub enc_load_spellbar
 	/call LoadSpellGem "${AEMezSpell}" 2
 	/call LoadSpellGem "${TashSpell}" 3
 	/call LoadSpellGem "${SlowSpell}" 4
-	/call LoadSpellGem "${Drown}" 5
+	/call LoadSpellGem "${Constriction}" 5
 	/call LoadSpellGem "${MindNukeSub}" 6
 	/call LoadSpellGem "${MindNukeMain}" 7
 	/call LoadSpellGem "${SingleStunSpell1}" 8

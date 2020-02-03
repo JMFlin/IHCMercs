@@ -85,7 +85,7 @@ Sub brd_load_spellbar
 	/call LoadSpellGem "${StormBladeSong}" 5
 	/call LoadSpellGem "${ArcaneSong}" 6
 	/call LoadSpellGem "${ChorusRegenSong}" 7
-	/call LoadSpellGem "${AEMezSong}" 8
+	/call LoadSpellGem "${InsultSong1}" 8
 
 
 |**

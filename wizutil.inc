@@ -71,7 +71,7 @@ Sub wiz_load_spellbar
 		/call LoadSpellGem "${WildNuke}" 4
 	}
 
-	/if (${Me.Book[${FuseNuke}]}) {
+	/if (!${FuseNuke.Equal[${ColdEtherealNuke}]}) {
 		/call LoadSpellGem "${FuseNuke}" 5
 	} else /if (${Me.Book[${SelfRune1}]}) {
 		/call LoadSpellGem "${SelfRune1}" 5

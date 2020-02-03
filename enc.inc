@@ -51,8 +51,8 @@ Sub enc_main
 		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 		/call enc_debuff_xtarget
 
-		/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
+		/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Constriction}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${Constriction}", ${Target.ID}]}) /call core_cast2 "${Constriction}" spell ${Target.ID} FALSE
 		}
 
 		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
@@ -273,28 +273,28 @@ Sub enc_self_buffs
 			/varset CastCheck 1
 		}
 	}
-
+|**
 	/if (${Me.Pet.ID} && !${Me.Pet.Buff[${PetBuffSpell}]}) {
 		/if (${validate_cast[FALSE, spell, "${PetBuffSpell}", ${Me.Pet.ID}]}) {
 			/call core_cast2 "${PetBuffSpell}" spell ${Me.Pet.ID} FALSE
 			/varset CastCheck 1
 		}
 	}
-
+**|
 	/if (!${Me.Buff[${MezBuff}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${MezBuff}", ${Me.ID}]}) {
 			/call core_cast2 "${MezBuff}" spell ${Me.ID} FALSE
 			/varset CastCheck 1
 		}
 	} 
-
-	|/if (${validate_cast[FALSE, spell, "${UnityRune}", ${Me.ID}]}) {
-	|	/if (!${Me.Buff[${UnityRune}].ID}) {
-	|		/call core_cast2 "${UnityRune}" spell ${Me.ID} FALSE
-	|		/varset CastCheck 1
-	|	}
-	|} else {
-
+|**
+	/if (${validate_cast[FALSE, spell, "${UnityRune}", ${Me.ID}]}) {
+		/if (!${Me.Buff[${UnityRune}].ID}) {
+			/call core_cast2 "${UnityRune}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	} else {
+**|
 	/if (!${Me.Buff[${SelfRune1}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
 			/call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE

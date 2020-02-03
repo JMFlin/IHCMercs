@@ -78,7 +78,7 @@ Sub var_setup
 	/declare petFollow 			int outer 0
 	/declare illusionItem 		string outer "Bone Mask of Horror"
 
-	/declare AutoCampRadius 	int outer 20
+	/declare AutoCampRadius 	int outer 5
 |- Rezzing
 	/declare setCombatRadius	int outer 50
 	/declare setMaxRezRange 	int outer 150
@@ -456,6 +456,7 @@ Sub afk_pull
 		/return
 	}
 
+	
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 
 		/if (!${Me.Song[${elixirSpell}].ID}) {
@@ -469,7 +470,7 @@ Sub afk_pull
 			/delay ${elixirCastTime}s
 			/delay 1s
 		}
-
+	|**
 		/if (!${Me.Buff[${promisedSpell}].ID}) {
 			
 			DEBUG Begging for ${promisedSpell}
@@ -479,7 +480,9 @@ Sub afk_pull
 			/squelch /dex ${Group.Cleric.Name.Lower} /cast "${promisedSpell}"
 			/delay 2s
 		}
+		**|
 	}
+	
 	
 	/while (!${Me.XTarget}) {
 		/call set_pull_target
@@ -783,63 +786,6 @@ Sub Bind_Campfire
     }
 
 **|
-|----------------------------------------------------------------------------
-|- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
-|----------------------------------------------------------------------------
-Sub check_campfire
-    /declare FellowCount int local 0
-    /declare i int local
-    /declare j int local
-
-	/if (${Me.XTarget}) /return
-	/if (${Navigation.Active}) /return
-	/if (${Me.ID} != ${Group.Leader.ID}) /return
-	/if (${Zone.ID} == 202) /return
-	/if (${Zone.ID} == 344) /return
-	/if (${Zone.ID} == 345) /return
-	/if (${Zone.Name.Equal[${Me.Fellowship.CampfireZone}]} && ${Me.Fellowship.CampfireDuration} > 600) /return
-
-	/for i 1 to ${SpawnCount[pc radius 50]}
-        /for j 1 to ${Me.Fellowship.Members}
-            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
-        /next j
-    /next i
-
-    /if (${FellowCount} < 3) /return
-
-	/if (${Me.Fellowship.Campfire}) {
-		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 1s
-		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
-		/delay 1s
-	}
-	
-	/delay 1s
-
-	/if (!${Me.Fellowship.Campfire}) {
-		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
-		/delay 5s ${Me.Fellowship.Campfire}
-		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
-		/windowstate FellowshipWnd close
-    }
-
-/return
 |----------------------------------------------------------------------------
 |- SUB: Load Ini
 |----------------------------------------------------------------------------
@@ -1209,14 +1155,14 @@ Sub get_target
 	| if there is only one target on xtarget then target that
 	/if (!${Me.XTarget[2].ID}) {
 		/target id ${Me.XTarget[1].ID}
-		/delay 5
+		/delay 1s ${Target.ID} == ${Me.XTarget[1].ID}
 		/return
 	}
 
 	| if I am not the main tank or ma assist then assist the MA
 	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
 		/assist ${Group.MainAssist.Name}
-		/delay 5
+		/delay 8
 		/return
 	}
 
@@ -1506,8 +1452,8 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	} else /if (${_type.Equal[pulse]}) {
 		/varset _spell ${Spell[${_spell}].RankName}
 		/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
-		|/if (${Me.Buff[${_spell}].Duration.Seconds} > 20) /return FALSE
-		|/if (${Me.Song[${_spell}].Duration.Seconds} > 20) /return FALSE
+		|/if (${Me.Buff[${_spell}].Duration.TotalSeconds} > 20) /return FALSE
+		|/if (${Me.Song[${_spell}].Duration.TotalSeconds} > 20) /return FALSE
 		|/if (!${Spell[${_spell}].NewStacks}) /return FALSE
 	}
 /return TRUE
@@ -2521,7 +2467,7 @@ sub setup_skill_melee(bool _debug)
 	}
 
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
-		/varset AutoAssistAt 99
+		/varset AutoAssistAt 100
 		/varset AssistRange 150
 	}
 
@@ -2860,8 +2806,13 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 
 	| Is there something to mez or debuff?
 	/if (${Me.XTarget} < 2) /return FALSE
-	
+	/if (!(${Me.Gem[${_mezAE}]} || ${Me.Gem[${_mezSingle}]})) /return
+
 	/call get_target
+
+	/while (${Target.Distance3D} > 150 && !${Spawn[id ${Target.ID}].LineOfSight}) {
+		/delay 5
+	}
 
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
 		/varset _mezAERange ${Spell[${_mezAE}].AERange}
@@ -2870,42 +2821,46 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		/varcalc _mezAERange ${_mezAERange} + 20
 	}
 
-	| How many mobs are there?
-	/if (${SpawnCount[npc targetable noalert 1 radius ${_mezAERange} zradius ${_mezAERange}]} > 1) {
-		
-		/if (${Select[${Me.Class.ShortName},BRD]}) {
-			/if (${Me.Casting.Name.NotEqual[${_mezAERange}]}) /call pulse_stop 18
-		}
-
-		/for x 1 to ${Me.XTarget}
-
-			| If xtarget is not mezzed, add it to count
-			/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
-				/varcalc numberOfSpawn ${numberOfSpawn}+1
+	/if (${Me.Gem[${_mezAE}]}) {
+		| How many mobs are there?
+		/if (${SpawnCount[npc targetable noalert 1 radius ${_mezAERange} zradius ${_mezAERange}]} > 1) {
+			
+			/if (${Select[${Me.Class.ShortName},BRD]}) {
+				/if (${Me.Casting.Name.NotEqual[${_mezAERange}]}) /call pulse_stop 18
 			}
 
-		/next x
-		
-		| If there are more than 1 mobs counted then aoe mez
-		/if (${numberOfSpawn} > 1) {
-			/if (${Me.CombatState.Equal[COMBAT]}) /attack off
-			/delay 1s
+			/for x 1 to ${Me.XTarget}
 
-			/if (${Select[${Me.Class.ShortName},ENC]}) {
-				/if (${validate_cast[FALSE, spell, "${_mezAE}", ${Target.ID}]}) {
-					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
-					/call core_cast2 "${_mezAE}" spell ${Target.ID} FALSE
+				| If xtarget is not mezzed, add it to count
+				/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
+					/varcalc numberOfSpawn ${numberOfSpawn}+1
 				}
-			} else /if (${Select[${Me.Class.ShortName},BRD]}) {
-				/if (${validate_cast[FALSE, pulse, "${_mezAE}", ${Target.ID}]}) {
-					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
-					/call core_cast2 "${_mezAE}" pulse ${Target.ID} FALSE
+
+			/next x
+			
+			| If there are more than 1 mobs counted then aoe mez
+			/if (${numberOfSpawn} > 1) {
+				/if (${Me.CombatState.Equal[COMBAT]}) /attack off
+				/delay 1s
+
+				/if (${Select[${Me.Class.ShortName},ENC]}) {
+					/if (${validate_cast[FALSE, spell, "${_mezAE}", ${Target.ID}]}) {
+						/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
+						/call core_cast2 "${_mezAE}" spell ${Target.ID} FALSE
+					}
+				} else /if (${Select[${Me.Class.ShortName},BRD]}) {
+					/if (${validate_cast[FALSE, pulse, "${_mezAE}", ${Target.ID}]}) {
+						/if (${verbose${Me.Class.ShortName}}) /docommand /dgt AoE mezzing with =>> \ag ${_mezAE} \ax <<=
+						/call core_cast2 "${_mezAE}" pulse ${Target.ID} FALSE
+					}
 				}
 			}
 		}
 	}
 	
-	/if (${validate_cast[FALSE, spell, "${_mezSingle}", ${Target.ID}]}) {
+	
+	/if (${Me.Gem[${_mezSingle}]}) {
+
 		/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 
 		| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
@@ -2983,9 +2938,9 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			/delay 1s
 
 		/next x
+		/if (${Defined[MATargetID]}) /deletevar MATargetID
+		/if (${Defined[MTTargetID]}) /deletevar MTTargetID
 	}
-	/if (${Defined[MATargetID]}) /deletevar MATargetID
-	/if (${Defined[MTTargetID]}) /deletevar MTTargetID
 
 	/call get_target
 

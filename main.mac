@@ -155,6 +155,64 @@ sub misc
 	}
 /return
 
+|----------------------------------------------------------------------------
+|- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
+|----------------------------------------------------------------------------
+Sub check_campfire
+    /declare FellowCount int local 0
+    /declare i int local
+    /declare j int local
+
+	/if (${Me.XTarget}) /return
+	/if (${Navigation.Active}) /return
+	/if (${Me.ID} != ${Group.Leader.ID}) /return
+	/if (${Zone.ID} == 202) /return
+	/if (${Zone.ID} == 344) /return
+	/if (${Zone.ID} == 345) /return
+	/if (${Zone.Name.Equal[${Me.Fellowship.CampfireZone}]} && ${Me.Fellowship.CampfireDuration} > 600) /return
+
+	/for i 1 to ${SpawnCount[pc radius 50]}
+        /for j 1 to ${Me.Fellowship.Members}
+            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
+        /next j
+    /next i
+
+    /if (${FellowCount} < 3) /return
+
+	/if (${Me.Fellowship.Campfire}) {
+		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
+		/delay 1s
+		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
+		/delay 1s
+	}
+	
+	/delay 1s
+
+	/if (!${Me.Fellowship.Campfire}) {
+		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
+		/delay 1s
+		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/delay 5s ${Me.Fellowship.Campfire}
+		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/windowstate FellowshipWnd close
+    }
+
+/return
+
 
 Sub check_state(bool _debug)
 

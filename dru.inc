@@ -77,6 +77,7 @@ Sub dru_main
 			}
 		} else /if (${Me.PctMana} < ${HybridManaLimit}) {
 			/call get_target
+			/delay 5
 			/if (!${Target.Buff[${NBW}].ID}) {
 				/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
 			}
@@ -98,6 +99,7 @@ Sub dru_main
 			}
 		} else /if (${Me.PctMana} < ${HybridManaLimit}) {
 			/call get_target
+			/delay 5
 			/if (!${Target.Buff[${Cyclonic}].ID}) {
 				/if (${validate_cast[FALSE, spell, "${Cyclonic}", ${Target.ID}]}) /call core_cast2 "${Cyclonic}" spell ${Target.ID} FALSE
 			}
