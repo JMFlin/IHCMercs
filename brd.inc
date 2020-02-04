@@ -95,7 +95,6 @@ Sub brd_main
 				/call core_cast2 "${StormBladeSong}" pulse 0 FALSE
 			}
 		}
-
 	}
 
 |	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc

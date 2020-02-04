@@ -424,7 +424,7 @@ Sub brd_abilities
 		/varset RecklessSong ${Spell[Ryken's Reckless Renewal].RankName}
 	}
 
-|- RecklessSong
+|- FateSong
  	/if (${Me.Level}>=112 && ${Me.Book[${Spell[Fatesong of Radiwol].RankName}]})  {
 		/varset FateSong ${Spell[Fatesong of Radiwol].RankName}
 	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Fatesong of Dekloaz].RankName}]})  {

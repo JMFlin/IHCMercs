@@ -1456,6 +1456,7 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		|/if (${Me.Song[${_spell}].Duration.TotalSeconds} > 20) /return FALSE
 		|/if (!${Spell[${_spell}].NewStacks}) /return FALSE
 	}
+	
 /return TRUE
 	| epic clicks
 |	else /if (${_type.Equal[epicitem]}) {
