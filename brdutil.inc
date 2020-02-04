@@ -85,7 +85,7 @@ Sub brd_load_spellbar
 	/call LoadSpellGem "${StormBladeSong}" 5
 	/call LoadSpellGem "${ArcaneSong}" 6
 	/call LoadSpellGem "${ChorusRegenSong}" 7
-	/call LoadSpellGem "${AEMezSong}" 8
+	/call LoadSpellGem "${InsultSong1}" 8
 
 
 |**
@@ -424,7 +424,7 @@ Sub brd_abilities
 		/varset RecklessSong ${Spell[Ryken's Reckless Renewal].RankName}
 	}
 
-|- RecklessSong
+|- FateSong
  	/if (${Me.Level}>=112 && ${Me.Book[${Spell[Fatesong of Radiwol].RankName}]})  {
 		/varset FateSong ${Spell[Fatesong of Radiwol].RankName}
 	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Fatesong of Dekloaz].RankName}]})  {

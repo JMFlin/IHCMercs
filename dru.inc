@@ -6,48 +6,105 @@ Sub dru_main
 |	/call check_for_corpse FALSE
 	/call dru_group_buffs
 	/call dru_self_buffs
-	/call dru_single_target_heals
+	
+	/call get_heal_target 70
+	/varset WorstHurtId ${Macro.Return}
+	/if (${WorstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
+			/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+		}
+	}
 	
 	/while (${Me.XTarget}) {
 		
-		/call dru_single_target_heals
+		/call get_heal_target 70
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		/call get_heal_target 55
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Adrenaline}" spell ${WorstHurtId} FALSE
+			}
+		}
 
 		/call get_target
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
-		
-		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-				/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
-			}
-		}
-
-		/call dru_single_target_heals
-		/call get_target
 
 		/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
 		}
+		
+		/call get_heal_target 70
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+			}
+		} else /if (${Me.PctMana} < ${HybridManaLimit}) {
+			/call get_target
+			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
+				/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+					/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
+				}
+			}
+		}
+
+		/call dru_group_heals
+
+		/call get_heal_target 55
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Adrenaline}" spell ${WorstHurtId} FALSE
+			}
+		}
 
 		/call dru_debuff_xtarget
 
-		/if (${Me.PctMana} < ${HybridManaLimit}) /continue
-
-		/call dru_single_target_heals
-		/call get_target
-
-		/if (!${Target.Buff[${NBW}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
+		/call get_heal_target 70
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+			}
+		} else /if (${Me.PctMana} < ${HybridManaLimit}) {
+			/call get_target
+			/delay 5
+			/if (!${Target.Buff[${NBW}].ID}) {
+				/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
+			}
+		}
+		
+		/call get_heal_target 70
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+			}
 		}
 
-		/if (${Me.PctMana} < ${HybridManaLimit}) /continue
-		
-		/call dru_single_target_heals
-		/call get_target
-
-		/if (${validate_cast[FALSE, spell, "${NukeSpell1}", ${Target.ID}]}) /call core_cast2 "${NukeSpell1}" spell ${Target.ID} FALSE
-		
+		/call get_heal_target 55
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Adrenaline}" spell ${WorstHurtId} FALSE
+			}
+		} else /if (${Me.PctMana} < ${HybridManaLimit}) {
+			/call get_target
+			/delay 5
+			/if (!${Target.Buff[${Cyclonic}].ID}) {
+				/if (${validate_cast[FALSE, spell, "${Cyclonic}", ${Target.ID}]}) /call core_cast2 "${Cyclonic}" spell ${Target.ID} FALSE
+			}
+		}
+		/call dru_group_heals
 		/call dru_combat_tank_buffs
 	}
 
@@ -134,12 +191,30 @@ Sub dru_debuff_xtarget
 Sub dru_self_buffs
 	/declare CastCheck			int local 0
 
-	/if (!${Me.Buff[${Mask}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${Mask}", ${Me.ID}]}) {
-			/call core_cast2 "${Mask}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
+
+	/if (!${Me.Book[${SelfUnity}]}) {
+		/if (!${Me.Buff[${Mask}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${Mask}", ${Me.ID}]}) {
+				/call core_cast2 "${Mask}" spell ${Me.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
+
+		/if (!${Me.Buff[${SelfDamageShield}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${SelfDamageShield}", ${Me.ID}]}) {
+				/call core_cast2 "${SelfDamageShield}" spell ${Me.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
+	} else {
+		/if (!${Me.Buff[${SelfDamageShield}].ID} || !${Me.Buff[${Mask}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${SelfUnity}", ${Me.ID}]}) {
+				/call core_cast2 "${SelfUnity}" spell ${Me.ID} FALSE
+				/varset CastCheck 1
+			}
 		}
 	}
+
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
@@ -308,25 +383,8 @@ Sub dru_group_buffs
 |- SUB: Single Heal
 |---------------------------------------------------------------------------- 
 Sub dru_single_target_heals
-	/declare _worstHurtId int local 0
 
-	/call get_heal_target 55
-	/varset _worstHurtId ${Macro.Return}
 	
-	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Curavida}", ${_worstHurtId}]}) {
-			/call core_cast2 "${Curavida}" spell ${_worstHurtId} FALSE
-		}
-	}
-
-	/call get_heal_target 90
-	/varset _worstHurtId ${Macro.Return}
-	
-	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${_worstHurtId}]}) {
-			/call core_cast2 "${Adrenaline}" spell ${_worstHurtId} FALSE
-		}
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: HealGroup

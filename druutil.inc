@@ -22,6 +22,9 @@ Sub dru_setup
 	/declare SunflashBlessing 	string outer NULL
 	/declare RemoteMoon			string outer NULL
 	/declare RemoteSun			string outer NULL
+	/declare Cyclonic 			string outer NULL
+	/declare SelfDamageShield 	string outer NULL
+	/declare SelfUnity 			string outer NULL
 
 	/declare Revitalization 	string outer NULL
 	/declare Curavida 			string outer NULL
@@ -52,7 +55,8 @@ Sub dru_load_spellbar
 	/call LoadSpellGem "${Revitalization}" 1
 	/call LoadSpellGem "${Adrenaline}" 2
 	/call LoadSpellGem "${Curavida}" 3
-	/call LoadSpellGem "${Lunasalve}" 4
+	/call LoadSpellGem "${Cyclonic}" 4
+	|/call LoadSpellGem "${Lunasalve}" 4
 	/call LoadSpellGem "${Survival}" 5
 	/call LoadSpellGem "${Reptile}" 6
 
@@ -100,7 +104,42 @@ BALANCED:
 13-   Cyclonic Roar (Cycle with the spell Frostreave Aura or Wildspark Aura for extra cold/fire burst procs for your group)
 **|
 
-	
+	/if (${Me.Level}>=${Spell[Typhonic Roar].Level} && ${Me.Book[${Spell[Typhonic Roar].RankName}]}) {
+		/varset Cyclonic ${Spell[Typhonic Roar].RankName}
+	} else /if (${Me.Level}>=${Spell[Cyclonic Roar].Level} && ${Me.Book[${Spell[Cyclonic Roar].RankName}]}) {
+		/varset Cyclonic ${Spell[Cyclonic Roar].RankName}
+	} else /if (${Me.Level}>=${Spell[Anabatic Roar].Level} && ${Me.Book[${Spell[Anabatic Roar].RankName}]}) {
+		/varset Cyclonic ${Spell[Anabatic Roar].RankName}
+	} else /if (${Me.Level}>=${Spell[Katabatic Roar].Level} && ${Me.Book[${Spell[Katabatic Roar].RankName}]}) {
+		/varset Cyclonic ${Spell[Katabatic Roar].RankName}
+	} else /if (${Me.Level}>=${Spell[Roar of Kolos].Level} && ${Me.Book[${Spell[Roar of Kolos].RankName}]}) {
+		/varset Cyclonic ${Spell[Roar of Kolos].RankName}
+	} else /if (${Me.Level}>=${Spell[Cyclone of the Stormborn].Level} && ${Me.Book[${Spell[Cyclone of the Stormborn].RankName}]}) {
+		/varset Cyclonic ${Spell[Cyclone of the Stormborn].RankName}
+	} else /if (${Me.Level}>=${Spell[Shear of the Stormborn].Level} && ${Me.Book[${Spell[Shear of the Stormborn].RankName}]}) {
+		/varset Cyclonic ${Spell[Shear of the Stormborn].RankName}
+	} else /if (${Me.Level}>=${Spell[Squall of the Stormborn].Level} && ${Me.Book[${Spell[Squall of the Stormborn].RankName}]}) {
+		/varset Cyclonic ${Spell[Squall of the Stormborn].RankName}
+	} else /if (${Me.Level}>=${Spell[Tempest of the Stormborn].Level} && ${Me.Book[${Spell[Tempest of the Stormborn].RankName}]}) {
+		/varset Cyclonic ${Spell[Tempest of the Stormborn].RankName}
+	} else /if (${Me.Level}>=${Spell[Gale of the Stormborn].Level} && ${Me.Book[${Spell[Gale of the Stormborn].RankName}]}) {
+		/varset Cyclonic ${Spell[Gale of the Stormborn].RankName}
+	} else /if (${Me.Level}>=${Spell[Stormwatch].Level} && ${Me.Book[${Spell[Stormwatch].RankName}]}) {
+		/varset Cyclonic ${Spell[Stormwatch].RankName}
+	} else /if (${Me.Level}>=${Spell[Storm's Fury].Level} && ${Me.Book[${Spell[Storm's Fury].RankName}]}) {
+		/varset Cyclonic ${Spell[Storm's Fury].RankName}
+	} else /if (${Me.Level}>=${Spell[Breath of Karana].Level} && ${Me.Book[${Spell[Breath of Karana].RankName}]}) {
+		/varset Cyclonic ${Spell[Breath of Karana].RankName}
+	} else /if (${Me.Level}>=${Spell[Dustdevil].Level} && ${Me.Book[${Spell[Dustdevil].RankName}]}) {
+		/varset Cyclonic ${Spell[Dustdevil].RankName}
+	} else /if (${Me.Level}>=${Spell[Fury of Air].Level} && ${Me.Book[${Spell[Fury of Air].RankName}]}) {
+		/varset Cyclonic ${Spell[Fury of Air].RankName}
+	} else /if (${Me.Level}>=${Spell[Dizzying Wind].Level} && ${Me.Book[${Spell[Dizzying Wind].RankName}]}) {
+		/varset Cyclonic ${Spell[Dizzying Wind].RankName}
+	} else /if (${Me.Level}>=${Spell[Whirling Wind].Level} && ${Me.Book[${Spell[Whirling Wind].RankName}]}) {
+		/varset Cyclonic ${Spell[Whirling Wind].RankName}
+	}
+
 
 	/if (${Me.Level}>=${Spell[Remote Sunshock].Level} && ${Me.Book[${Spell[Remote Sunshock].RankName}]}) {
 		/varset RemoteSun ${Spell[Remote Sunshock].RankName}
@@ -129,8 +168,6 @@ BALANCED:
 		/varset RemoteMoon ${Spell[Remote Moonfire].RankName}
 	}
 
-	
-		
 
 	/if (${Me.Level}>=${Spell[Sunrake Blessing].Level} && ${Me.Book[${Spell[Sunrake Blessing].RankName}]}) {
 		/varset SunflashBlessing ${Spell[Sunrake Blessing].RankName}
@@ -391,18 +428,34 @@ BALANCED:
 		/varset TwincastSpell ${Spell[Twincast].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Legacy of Brierbloom].Level} && ${Me.Book[${Spell[Legacy of Brierbloom].RankName}]}) {
+
+
+	/if (${Me.Level}>=${Spell[Legacy of Icebriars].Level} && ${Me.Book[${Spell[Legacy of Icebriars].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Icebriars].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Daggerspikes].Level} && ${Me.Book[${Spell[Legacy of Daggerspikes].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Daggerspikes].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Daggerspurs].Level} && ${Me.Book[${Spell[Legacy of Daggerspurs].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Daggerspurs].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Spikethistles].Level} && ${Me.Book[${Spell[Legacy of Spikethistles].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Spikethistles].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Spineburrs].Level} && ${Me.Book[${Spell[Legacy of Spineburrs].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Spineburrs].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Bonebriar].Level} && ${Me.Book[${Spell[Legacy of Bonebriar].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Bonebriar].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Brierbloom].Level} && ${Me.Book[${Spell[Legacy of Brierbloom].RankName}]}) {
 		/varset DamageShield ${Spell[Legacy of Brierbloom].RankName}
 	} else /if (${Me.Level}>=${Spell[Legacy of Viridithorns].Level} && ${Me.Book[${Spell[Legacy of Viridithorns].RankName}]}) {
 		/varset DamageShield ${Spell[Legacy of Viridithorns].RankName}
 	} else /if (${Me.Level}>=${Spell[Legacy of Viridiflora].Level} && ${Me.Book[${Spell[Legacy of Viridiflora].RankName}]}) {
 		/varset DamageShield ${Spell[Legacy of Viridiflora].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Nettles].Level} && ${Me.Book[${Spell[Legacy of Nettles].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Nettles].RankName}
+	} else /if (${Me.Level}>=${Spell[Legacy of Bracken].Level} && ${Me.Book[${Spell[Legacy of Bracken].RankName}]}) {
+		/varset DamageShield ${Spell[Legacy of Bracken].RankName}
 	} else /if (${Me.Level}>=${Spell[Ancient Legacy of Blades].Level} && ${Me.Book[${Spell[Ancient Legacy of Blades].RankName}]}) {
 		/varset DamageShield ${Spell[Ancient Legacy of Blades].RankName}
 	} else /if (${Me.Level}>=${Spell[Legacy of Thorn].Level} && ${Me.Book[${Spell[Legacy of Thorn].RankName}]}) {
 		/varset DamageShield ${Spell[Legacy of Thorn].RankName}
-	} else /if (${Me.Level}>=${Spell[Shield of Blades].Level} && ${Me.Book[${Spell[Shield of Blades].RankName}]}) {
-		/varset DamageShield ${Spell[Shield of Blades].RankName}
 	} else /if (${Me.Level}>=${Spell[Legacy of Spike].Level} && ${Me.Book[${Spell[Legacy of Spike].RankName}]}) {
 		/varset DamageShield ${Spell[Legacy of Spike].RankName}
 	} else /if (${Me.Level}>=${Spell[Shield of Thorns].Level} && ${Me.Book[${Spell[Shield of Thorns].RankName}]}) {
@@ -417,6 +470,50 @@ BALANCED:
 		/varset DamageShield ${Spell[Shield of Thistles].RankName}
 	}
 
+
+	/if (${Me.Level}>=${Spell[Icebriar Coat].Level} && ${Me.Book[${Spell[Icebriar Coat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Icebriar Coat].RankName}
+	} else /if (${Me.Level}>=${Spell[Daggerspike Coat].Level} && ${Me.Book[${Spell[Daggerspike Coat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Daggerspike Coat].RankName}
+	} else /if (${Me.Level}>=${Spell[Daggerspur Coat].Level} && ${Me.Book[${Spell[Daggerspur Coat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Daggerspur Coat].RankName}
+	} else /if (${Me.Level}>=${Spell[Spikethistle Coat].Level} && ${Me.Book[${Spell[Spikethistle Coat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Spikethistle Coat].RankName}
+	} else /if (${Me.Level}>=${Spell[Spineburr Coat].Level} && ${Me.Book[${Spell[Spineburr Coat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Spineburr Coat].RankName}
+	} else /if (${Me.Level}>=${Spell[Bonebriar Coat].Level} && ${Me.Book[${Spell[Bonebriar Coat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Bonebriar Coat].RankName}
+	} else /if (${Me.Level}>=${Spell[Brierbloom Coat].Level} && ${Me.Book[${Spell[Brierbloom Coat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Brierbloom Coat].RankName}
+	} else /if (${Me.Level}>=${Spell[Viridithorn Coat].Level} && ${Me.Book[${Spell[Viridithorn Coat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Viridithorn Coat].RankName}
+	} else /if (${Me.Level}>=${Spell[Viridicoat].Level} && ${Me.Book[${Spell[Viridicoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Viridicoat].RankName}
+	} else /if (${Me.Level}>=${Spell[Nettlecoat].Level} && ${Me.Book[${Spell[Nettlecoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Nettlecoat].RankName}
+	} else /if (${Me.Level}>=${Spell[Brackencoat].Level} && ${Me.Book[${Spell[Brackencoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Brackencoat].RankName}
+	} else /if (${Me.Level}>=${Spell[Bladecoat].Level} && ${Me.Book[${Spell[Bladecoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Bladecoat].RankName}
+	} else /if (${Me.Level}>=${Spell[Thorncoat].Level} && ${Me.Book[${Spell[Thorncoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Thorncoat].RankName}
+	} else /if (${Me.Level}>=${Spell[Spikecoat].Level} && ${Me.Book[${Spell[Spikecoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Spikecoat].RankName}
+	} else /if (${Me.Level}>=${Spell[Bramblecoat].Level} && ${Me.Book[${Spell[Bramblecoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Bramblecoat].RankName}
+	} else /if (${Me.Level}>=${Spell[Barbcoat].Level} && ${Me.Book[${Spell[Barbcoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Barbcoat].RankName}
+	} else /if (${Me.Level}>=${Spell[Thistlecoat].Level} && ${Me.Book[${Spell[Thistlecoat].RankName}]}) {
+		/varset SelfDamageShield ${Spell[Thistlecoat].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Wildtender's Unity].Level} && ${Me.Book[${Spell[Wildtender's Unity].RankName}]}) {
+		/varset SelfUnity ${Spell[Wildtender's Unity].RankName}
+	} else /if (${Me.Level}>=${Spell[Copsetender's Unity].Level} && ${Me.Book[${Spell[Copsetender's Unity].RankName}]}) {
+		/varset SelfUnity ${Spell[Copsetender's Unity].RankName}
+	} else /if (${Me.Level}>=${Spell[Natural Unity].Level} && ${Me.Book[${Spell[Natural Unity].RankName}]}) {
+		/varset SelfUnity ${Spell[Natural Unity].RankName}
+	}
 
 	/if (${Me.Level}>=${Spell[Restless Frost].Level} && ${Me.Book[${Spell[Restless Frost].RankName}]}) {
 		/varset SingleFrostAtkDebuff ${Spell[Restless Frost].RankName}

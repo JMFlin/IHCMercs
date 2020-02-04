@@ -8,9 +8,11 @@ Sub war_main
 
 		/call get_target
 		/call check_add_aggro
+		/call war_get_aggro
 
 		/if (!${validate_combat[${Target.ID}]} ) /return
-	
+
+		/call war_get_aggro
 		/if (!${Me.Song[Battle Leap].ID}) {
 			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 		}
@@ -213,9 +215,8 @@ Sub war_get_aggro
 	
 	/if (${validate_cast[FALSE, disc, "${insult}", ${Target.ID}]}) /call core_cast2 "${insult}" disc ${Target.ID} FALSE
 	
-	/if (${Me.SecondaryPctAggro}>=30) {
-		/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${roar}" disc ${Target.ID} FALSE
-	}
+	/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${roar}" disc ${Target.ID} FALSE
+	
 	
 	/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
 
@@ -223,21 +224,18 @@ Sub war_get_aggro
 
 	/if (${validate_cast[FALSE, alt, "Gut Punch", ${Target.ID}]}) /call core_cast2 "Gut Punch" alt ${Target.ID} FALSE
 
+|**
 	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
-		/if (${validate_cast[FALSE, alt, "Rage of the Forsaken", ${Target.ID}]}) {
-			/call core_cast2 "Rage of the Forsaken" alt ${Target.ID} FALSE
-			/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) {
-				/call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE
-			}
-		}
+
 	}
 
-	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
-		/if (${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]}) /call core_cast2 "Warlord's Fury" alt ${Target.ID} FALSE
-		/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) /call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE
+	${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]} is always false
+**|
+	/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) {
+			/call core_cast2 "Warlord's Fury" alt 0 FALSE
+			/call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE
 	}
 
-	
 /return
 |----------------------------------------------------------------------------
 |- SUB: AoEAggro   

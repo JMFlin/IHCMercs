@@ -2,15 +2,105 @@
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub clr_main
-	/if (!${Me.XTarget}) /call check_for_corpse FALSE
+	
+	/call get_heal_target 90
+	/varset WorstHurtId ${Macro.Return}
+	/if (${WorstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${WorstHurtId}]}) {
+			/call core_cast2 "${Remedy1}" spell ${WorstHurtId} FALSE
+		}
+	}
+
+	/call get_heal_target 90
+	/varset WorstHurtId ${Macro.Return}
+	/if (${WorstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${WorstHurtId}]}) {
+			/call core_cast2 "${Remedy2}" spell ${WorstHurtId} FALSE
+		}
+	}
+
+	/call check_for_corpse FALSE
 	/call clr_group_buffs
 	/call clr_self_buffs
 	/call clr_combat_tank_buffs
-	/call clr_single_target_heals
 
 	/while (${Me.XTarget}) {
-		/call clr_single_target_heals
-		/call clr_group_heals
+		/call get_heal_target ${patchhealpoint}
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${patchheal}", ${WorstHurtId}]}) {
+				/call core_cast2 "${patchheal}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		/call get_heal_target 90
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Remedy1}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Remedy1}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		/call get_heal_target 90
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Remedy2}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Remedy2}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		
+
+		/call get_heal_target 75
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Intervention1}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		/call get_heal_target 75
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Intervention2}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Intervention2}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		/call get_heal_target 75
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Intervention3}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Intervention3}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		/if (${Target.ID} != ${Group.MainTank.ID}) {
+			/target id ${Group.MainTank.ID}
+			/delay 1s ${Target.ID} == ${Group.MainTank.ID}
+		}
+
+		/if (!${Target.Buff[${PromisedHeal}].ID}) {
+			/if (${validate_pre_heal_target[70]}) {
+				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
+					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
+				}
+			}
+		}
+		
+		/if (${check_hurt[FALSE, group, 85]} >= 3) {
+			/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
+		}
+
+		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
+		
+		/if (!${elixirHeal}) {
+			/if (${validate_pre_heal_target[95]}) {
+				/if (${validate_cast[FALSE, spell, "${SingleElixirSpell}", ${Group.MainTank.ID}]}) {
+					/call core_cast2 "${SingleElixirSpell}" spell ${Group.MainTank.ID} FALSE
+				}
+			}
+		}
 	}
 	
 |	/call cures
@@ -21,14 +111,10 @@ Sub clr_main
 Sub clr_self_buffs
 	/declare CastCheck			int local 0
 
-	/if (${Me.XTarget}) /return
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
+	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 
-	/if (!${Me.Buff[${GroupHPBuff}].ID} && !${Me.Buff[${GroupHPBuffName}].ID}) {
-		/if (${validate_cast[FALSE, spell, ${GroupHPBuff}, ${Me.ID}]}) {
-			/call core_cast2 "${GroupHPBuff}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
-	}
+	/if (${Me.XTarget}) /return
 
 	/if (!${Me.Buff[${SelfBuff}].ID}) {
 		/if (${validate_cast[FALSE, spell, ${SelfBuff}, ${Me.ID}]}) {
@@ -44,8 +130,6 @@ Sub clr_self_buffs
 		}
 	}
 
-	
-	
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/docommand /dgt \aw Done Buffing
@@ -117,7 +201,6 @@ Sub clr_group_buffs
 
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
-	/if (${Me.Casting.ID}) /return
 
 	/if (${Me.XTarget}) /return
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
@@ -292,86 +375,8 @@ Sub clr_combat_tank_buffs
 |- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
 Sub clr_single_target_heals
-	/declare _worstHurtId int local 0
+	
 
-	/call get_heal_target ${patchhealpoint}
-	/varset _worstHurtId ${Macro.Return}
-	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${patchheal}", ${_worstHurtId}]}) {
-			/call core_cast2 "${patchheal}" spell ${_worstHurtId} FALSE
-		}
-	}
-
-	/call get_heal_target 90
-	/varset _worstHurtId ${Macro.Return}
-	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${_worstHurtId}]}) {
-			/call core_cast2 "${Remedy1}" spell ${_worstHurtId} FALSE
-		}
-	}
-
-	/call get_heal_target 90
-	/varset _worstHurtId ${Macro.Return}
-	/if (${_worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${_worstHurtId}]}) {
-			/call core_cast2 "${Remedy2}" spell ${_worstHurtId} FALSE
-		}
-	}
-
-	/if (${Me.XTarget}) {
-
-		| /call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Buff[${PromisedHeal}].ID" "promisedHeal" "int"
-		
-
-		/call get_heal_target 75
-		/varset _worstHurtId ${Macro.Return}
-		/if (${_worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${_worstHurtId}]}) {
-				/call core_cast2 "${Intervention1}" spell ${_worstHurtId} FALSE
-			}
-		}
-
-		/call get_heal_target 75
-		/varset _worstHurtId ${Macro.Return}
-		/if (${_worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention2}", ${_worstHurtId}]}) {
-				/call core_cast2 "${Intervention2}" spell ${_worstHurtId} FALSE
-			}
-		}
-
-		/call get_heal_target 75
-		/varset _worstHurtId ${Macro.Return}
-		/if (${_worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention3}", ${_worstHurtId}]}) {
-				/call core_cast2 "${Intervention3}" spell ${_worstHurtId} FALSE
-			}
-		}
-
-		/if (${Target.ID} != ${Group.MainTank.ID}) {
-			/target id ${Group.MainTank.ID}
-			/delay 1s ${Target.ID} == ${Group.MainTank.ID}
-		}
-
-		/if (!${Target.Buff[${PromisedHeal}].ID}) {
-			/if (${validate_pre_heal_target[70]}) {
-				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
-					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
-				}
-			}
-		}
-		|**
-		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
-		
-
-		/if (!${elixirHeal}) {
-			/if (${validate_pre_heal_target[95]}) {
-				/if (${validate_cast[FALSE, spell, "${SingleElixirSpell}", ${Group.MainTank.ID}]}) {
-					/call core_cast2 "${SingleElixirSpell}" spell ${Group.MainTank.ID} FALSE
-				}
-			}
-		}
-		**|
-	}
 
 /return
 |----------------------------------------------------------------------------
@@ -379,9 +384,6 @@ Sub clr_single_target_heals
 |---------------------------------------------------------------------------- 
 Sub clr_group_heals
 
-	/if (${check_hurt[FALSE, group, 85]} >= 3) {
-		/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
-	}
 
 /return
 	
