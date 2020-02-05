@@ -98,6 +98,7 @@ Sub var_setup
 	/declare PullAutoCampZ		int outer 0
 	/declare PullDistance 		int outer 0
 	/declare PullDistance3 		int outer 0
+	/declare ChainPullLimit 	int outer 20
 	/declare ResourceChecker 	int outer 1
 	/declare Limit 				int outer 50
 	/declare DummyTime        	int outer 10
@@ -190,6 +191,9 @@ Sub var_setup
 
 |- 
 	/declare WorstHurtId 		int outer 0
+
+	/declare PowerLevel 		bool outer FALSE
+	/declare HaveSold 			int outer 0
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion
@@ -487,29 +491,14 @@ Sub afk_pull
 	/while (!${Me.XTarget}) {
 		/call set_pull_target
 		/varset _pullTargetID ${Macro.Return}
-		/if (!${_pullTargetID}) /return
-
-		/call get_pull_target ${_pullTargetID}
-		/varset _pullTargetID ${Macro.Return}
-		/if (!${_pullTargetID}) /return
-
-		/if (${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
-				/attack on
-				/if (!${Stick.Active}) /stick 12 front loose
-				/delay 1s ${Stick.Active}
-				/delay 7s ${Target.Distance} <= ${PullDistance}
-				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
-				/if (!${Stick.Active} && ${Me.XTarget}) /stick off
-				/delay 1s ${Me.XTarget}
-
-		} else /if (!${PullAbility.Equal[Melee]} && !${Me.XTarget} && ${Target.ID}) {
-
-			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_pullTargetID}]}) {
-				/call core_cast2 "${PullAbility}" FIND ${_pullTargetID} FALSE
-				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_pullTargetID}
-				/delay 3s ${Me.XTarget}
-			}
+		/if (!${_pullTargetID}) {
+			/if (${Navigation.Active}) /nav stop
+			/return
 		}
+
+		/if (!${PullAbility.Equal[Melee]}) /call get_pull_target ${_pullTargetID}
+		/if (${PullAbility.Equal[Melee]}) /call get_pull_target_melee_range ${_pullTargetID}
+	
 		/delay 1
 	}
 
@@ -529,6 +518,88 @@ Sub afk_pull
 	/delay 5
  /return
 
+
+ Sub chain_pull
+	/declare _pullTargetID 	int local 0
+
+
+	/if (${Me.XTarget[1].Distance} > 200) /nav id ${Me.XTarget[1].ID}
+	/if (${Me.XTarget}) /return
+	/if (${Me.Casting.ID}) /return
+	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
+	/if (!${Navigation.MeshLoaded}) /return
+	/if (${Me.PctEndurance} < ${ChainPullLimit}) {
+		/varset ChainPullLimit 80
+		/return
+	} else {
+		/varset ChainPullLimit 20
+	}
+	
+	/while (!${Me.XTarget}) {
+		/call set_pull_target
+		/varset _pullTargetID ${Macro.Return}
+		/if (!${_pullTargetID}) {
+			/if (${Navigation.Active}) /nav stop
+			/return
+		}
+
+		/if (!${PullAbility.Equal[Melee]}) /call get_pull_target ${_pullTargetID}
+		/if (${PullAbility.Equal[Melee]}) /call get_pull_target_melee_range ${_pullTargetID}
+	
+		/delay 1
+	}
+
+    /nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
+	
+	/while (${Navigation.Active}) {
+		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
+		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} < 10 && ${Navigation.Active}) /nav stop
+		/delay 1
+	}
+	
+	/if (!${Me.XTarget}) /target clear
+    /if (${Target.ID} && ${Me.XTarget}) /face fast
+	/if (${Defined[_pullTargetID]}) /deletevar _pullTargetID
+	/if (${Me.XTarget}) /call ${Me.Class.ShortName.Lower}_combat_buffs
+	/delay 5
+ /return
+
+
+Sub get_pull_target_melee_range
+	/if (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight}) {
+		
+		/nav id ${_tmpID}
+		/while (${Navigation.Active}) {
+			/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 100)) /continue
+
+			/target id ${_tmpID}
+			/delay 1s ${Target.ID} == ${_tmpID}
+
+			/if (!${Me.XTarget} && ${Target.ID}) {
+				/attack on
+				/if (!${Stick.Active}) /stick 12 front loose
+				/delay 1s ${Stick.Active}
+				/delay 7s ${Target.Distance} <= ${PullDistance}
+				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
+				/if (!${Stick.Active} && ${Me.XTarget}) /stick off
+				/delay 1s ${Me.XTarget}
+
+			} 
+
+
+			/if (${Navigation.Active} && ${Me.XTarget}) {
+				/if (${_tmpID} != ${Me.XTarget[1].ID}) {
+					/target id ${Me.XTarget[1].ID}
+					/nav stop
+					/return
+				}
+			}
+
+			/delay 1
+		}
+	}
+/return
+
 Sub get_pull_target(int _tmpID)
 
 	/if (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight}) {
@@ -537,50 +608,70 @@ Sub get_pull_target(int _tmpID)
 
 		/while (${Navigation.Active}) {
 
-			/if (${Spawn[id ${_tmpID}].LineOfSight}) {
+			/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 100)) /continue
 
-				/if (${Spawn[id ${_tmpID}].Distance} < (${PullDistance} + 50)) {
-					/target id ${_tmpID}
-					/delay 1s ${Target.ID} == ${_tmpID}
+			/target id ${_tmpID}
+			/delay 1s ${Target.ID} == ${_tmpID}
+
+			/if (${Spell[${PullAbility}].MyCastTime.Float} < 1) {
+				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
+					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
+					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
+					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
+					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
+					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
+					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
+					/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+					/delay 3s ${Me.XTarget}
+					/return
 				}
-
-				/if (${Target.ID} == ${_tmpID}) {
-
-					| DEBUG los: ${Spawn[id ${_tmpID}].LineOfSight} pc: ${validate_no_pc[${_tmpID}]} npc: ${validate_single_pull[${_tmpID}]}
-
-					/if (!${validate_no_pc[${_tmpID}]} || !${validate_single_pull[${_tmpID}]}) {
-						/nav stop
-						/return 0
-					}
+			} else {
+				/if (${Navigation.Active}) /nav stop
+				/delay 3s !${Me.Moving}
+				/delay 5
+				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
+					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
 				}
+				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+				/return
 			}
+		
 			
 			/if (${Navigation.Active} && ${Me.XTarget}) {
-				/if (${Target.ID} != ${Me.XTarget[1].ID}) {
+				/if (${_tmpID} != ${Me.XTarget[1].ID}) {
 					/target id ${Me.XTarget[1].ID}
 					/nav stop
-					/return ${Me.XTarget[1].ID}
+					/return
 				}
 			}
 
-			/if (${Navigation.Active} && ${Target.ID} == ${_tmpID} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
+			
+			| /if (${Navigation.Active} && ${Target.ID} == ${_tmpID} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
 			/delay 1
 			/if (!${Navigation.Active} && (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight})) /nav id ${_tmpID}
+			
 		}
 
 	} else {
 		/target id ${_tmpID}
+		/delay 1s ${Target.ID} == ${_tmpID}
+		/if (${Spell[${PullAbility}].MyCastTime.Float} > 1) /delay 3s !${Me.Moving}
+		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
+			/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+		}
+		/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
 	}
-	/delay 3s !${Me.Moving}
+	
 	/if (!${Me.XTarget}) /delay 1s
-/return ${_tmpID}
+/return
 
 Sub validate_no_pc(int _tmpID)
 	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
 	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
 	/declare locZ			int	local	${Spawn[id ${_tmpID}].Z}
-	/declare _groupCount	int local	${SpawnCount[loc ${locX} ${locY} radius 75 zradius 20 pc group notid ${Me.ID}]}
-	/declare _pcCount		int local 	${SpawnCount[loc ${locX} ${locY} radius 75 zradius 20 pc notid ${Me.ID}]}
+	/declare _groupCount	int local	${SpawnCount[loc ${locX} ${locY} radius 15 zradius 10 pc group notid ${Me.ID} noalert 1]}
+	/declare _pcCount		int local 	${SpawnCount[loc ${locX} ${locY} radius 15 zradius 10 pc notid ${Me.ID} noalert 1]}
 	
 	/varcalc _pcCount ${_pcCount} - ${_groupCount}
 
@@ -610,13 +701,16 @@ Sub set_pull_target
 		/return ${_pullTargetID}
 	}
 
-	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
+	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 loc ${PullAutoCampX} ${PullAutoCampY} radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
 	
-	DEBUG 
-	DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
-	DEBUG 
+	|DEBUG 
+	|DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
+	|DEBUG 
 
-	/if (${_mobsInRadius} == 0) /return 0
+	/if (${_mobsInRadius} == 0) {
+		DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
+		/return 0
+	}
 
 	/while (${_count} <= ${_mobsInRadius}) {
 
@@ -624,27 +718,25 @@ Sub set_pull_target
 
 		/varset _pullMob ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
 
-		/if (!${_pullMob}) /return 0
-		
-		DEBUG Does Navigation.Path exist to ${Spawn[id ${_pullMob}].DisplayName}: ${Navigation.PathExists[id ${_pullMob}]}
+		|DEBUG Does Navigation.Path exist to ${Spawn[id ${_pullMob}].DisplayName}: ${Navigation.PathExists[id ${_pullMob}]}
 		/if (!${Navigation.PathExists[id ${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
 		}
 		
-		DEBUG Are there no PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
-		/if (!${validate_no_pc[${_pullMob}]}) {
-			/varcalc _count ${_count}+1
-			/continue
-		}
+		|DEBUG Are there no PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
+		|/if (!${validate_no_pc[${_pullMob}]}) {
+		|	/varcalc _count ${_count}+1
+		|	/continue
+		|}
 		
-		DEBUG Are there no adds close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_single_pull[${_pullMob}]}
+		|DEBUG Are there no adds close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_single_pull[${_pullMob}]}
 		/if (!${validate_single_pull[${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
 		}
 		
-		DEBUG How does the Path Length compare for ${Spawn[id ${_pullMob}].DisplayName}: ${Int[${Navigation.PathLength[id ${_pullMob}]}]} vs ${_pathLength}
+		|DEBUG How does the Path Length compare for ${Spawn[id ${_pullMob}].DisplayName}: ${Int[${Navigation.PathLength[id ${_pullMob}]}]} vs ${_pathLength}
 		/if (${_pathLength} > ${Int[${Navigation.PathLength[id ${_pullMob}]}]}) {
 			/varset _pullTargetID ${_pullMob}
 			/varset _pathLength ${Int[${Navigation.PathLength[id ${_pullMob}]}]}
@@ -652,9 +744,9 @@ Sub set_pull_target
 
 		/varcalc _count ${_count} + 1
 	}
-	DEBUG 
+	|DEBUG 
 	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as pull target
-	DEBUG 
+	|DEBUG 
 
 /return ${_pullTargetID}
 |----------------------------------------------------------------------------
@@ -1135,8 +1227,8 @@ Sub WelcomeMsg
 |- SUB: get_target  
 |---------------------------------------------------------------------------- 
 Sub get_target
-	/declare x 						int local 0
 	/declare npcIDontHaveAggroOnID 	int local 0
+	/declare _tmpID 				int local 0
 
 	| is there a target to be had?
 	|/echo Checking xtarget
@@ -1169,9 +1261,18 @@ Sub get_target
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		| if there is an xtarget close then target the one with lowest hp
-		/if (${SpawnSort[1,asc,PathLength,xtarhater].Distance}) {
+		/if ((${SpawnSort[1,asc,PathLength,xtarhater].Distance} - ${SpawnSort[1,asc,PctHPs,xtarhater].Distance}) < 40) {
 			/target id ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
+		} else {
+			/target id ${SpawnSort[1,asc,PathLength,xtarhater].ID}
 		}
+
+
+		|/for _count 1 to ${Me.XTarget}
+
+
+
+		|/next _count
 	}
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
@@ -1236,14 +1337,14 @@ sub validate_combat(int _tmpID)
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 
 
-	/if (${Select[${Me.Class.ShortName},BER,ROG,BRD,MNK]}) {
+	/if (${Select[${Me.Class.ShortName},BER,ROG,BRD]}) {
 		/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange}) {
 			/if (${Stick.Active}) /stick off
 			/nav id ${_tmpID}
 		}
 	}
 
-	/if (!${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
+	/if (${Group.MainTank.ID} != ${Me.ID}) {
 		/if (${Target.PctHPs} > ${AutoAssistAt}) /return FALSE
 		/if (${Target.Mezzed.ID}) /return FALSE
 		/if (${Group.MainTank.ID} && ${Group.MainTank.ID} != ${Me.ID}) {
@@ -1255,9 +1356,9 @@ sub validate_combat(int _tmpID)
 		}
 	}
 
-	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${_tmpID}]} < 65) || ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange}) {
-		
-		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK]}) {
+	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${_tmpID}]} < 65 && ${Spawn[id ${_tmpID}].LineOfSight}) || ${Navigation.PathLength[id ${_tmpID}]} < ${AssistRange}) {
+
+		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK,WAR,PAL,SHD]}) {
 			/if (${Group.MainTank.ID} != ${Me.ID}) {
 				/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
 			}
@@ -2454,22 +2555,42 @@ sub setup_skill_melee(bool _debug)
 	|}
 
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
-		/varset AutoAssistAt 100
-		/varset AssistRange 55
+		/if (${PowerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+			/varset AutoAssistAt 20
+			/varset AssistRange 55
+		} else {
+			/varset AutoAssistAt 100
+			/varset AssistRange 55
+		}
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
-		/varset AutoAssistAt 100
-		/varset AssistRange 55
+		/if (${PowerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+			/varset AutoAssistAt 20
+			/varset AssistRange 55
+		} else {
+			/varset AutoAssistAt 100
+			/varset AssistRange 55
+		}
 	}
 
 	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM]}) {
-		/varset AutoAssistAt 99
-		/varset AssistRange 150
+		/if (${PowerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+			/varset AutoAssistAt 60
+			/varset AssistRange 55
+		} else {
+			/varset AutoAssistAt 100
+			/varset AssistRange 55
+		}
 	}
 
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
-		/varset AutoAssistAt 100
-		/varset AssistRange 150
+		/if (${PowerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+			/varset AutoAssistAt 60
+			/varset AssistRange 55
+		} else {
+			/varset AutoAssistAt 100
+			/varset AssistRange 55
+		}
 	}
 
 /return
@@ -2634,6 +2755,8 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 	/doevents ${_event}
 
 	/if (!${Select[${castReturn},${_event}]}) /return
+	
+	DEBUG Doing event ${_event}
 
 	/if (${_event.Equal[CAST_IMMUNE]}) {
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is IMMUNE to =>> \ag ${_spell} \ax <<=
@@ -2646,6 +2769,19 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 	/if (${_event.Equal[CAST_CANNOTCAST]}) {
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is \ar UNPULLABLE \ax with =>> \ag ${_spell} \ax <<=
 		/squelch /alert add 1 id ${_tmpID}
+	}
+
+	/if (${_event.Equal[CAST_PULLERCANNOTSEE]}) {
+		/if (${Spawn[id ${Target.ID}].Distance} > 30) {
+			/echo RETRYING FROM CAST_PULLERCANNOTSEE
+			/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+		} else {
+			/if (${Navigation.Active}) /nav stop
+			/stick 12 moveback loose
+			/attack on
+			/delay 3s ${Me.XTarget}
+			/stick off
+		}
 	}
 
 /return

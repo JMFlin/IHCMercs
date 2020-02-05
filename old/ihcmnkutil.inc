@@ -6,15 +6,6 @@
 |--------------------------------------------------------------------------------------
 Sub MnkSetup
 |-Create Alias's
-	|-Toggles
-	/squelch /alias /tglalliance 	/setvarint Toggle UseAlliance
-	/squelch /alias /tglaoe			/setvarint Toggle UseAoE
-	/squelch /alias /tglbp			/setvarint Toggle ChestCombatCast
-	/squelch /alias /tglforce		/setvarint Toggle ForceAlliance
-	/squelch /alias /tglintim		/setvarint Toggle UseIntimidate
-	/squelch /alias /tglmezbreak	/setvarint Toggle AllowMezBreak
-	/squelch /alias /tglpoison		/setvarint Toggle UsePoisons	
-	/squelch /alias /tgldrive		/setvarint Toggle Drive
 |-Declare AA's and Discs
 	/declare endregen				string outer NULL
 	/declare mnkaura				string outer NULL
@@ -29,6 +20,7 @@ Sub MnkSetup
 	/declare Synergy				string outer NULL
 	/declare Alliance				string outer NULL
 	/declare Storm					string outer NULL
+	
 
 |-Defensives
 	/declare EarthForce				string outer NULL
@@ -50,59 +42,15 @@ Sub MnkSetup
 |-	/declare HHEBuff				string outer NULL
 
 |-Config Options
-	/call LoadCommonConfig
-	/call LoadIni Combat AllowMezBreak		 	int 0
-	/call LoadIni Combat ForceAlliance		 	int 0
-	/call LoadIni Combat StickHow				string behind
-	/call LoadIni Combat UseAlliance		 	int 1
-	/call LoadIni Combat UseIntimidate		 	int 1
-	/call LoadIni Combat UseMelee		 		int 1
-	/call LoadIni Item ChestItemName			string "${Me.Inventory[17].Name}"
-	/call LoadIni Item ChestCombatCast			int 0
-	/call LoadIni Item PoisonName				string NULL
-	/call LoadIni Item PoisonBuffName			string NULL
-	/call LoadIni Item UsePoisons		 		int 0
-	/call LoadIni General Drive		 			int 0
-	
-	/declare MonkCount				int outer 1
-	/declare epicfists				string outer NULL
-	/declare UseEpic				int outer 0
-	/declare CastResult             string outer
 |- Check for epic
-	/if (${FindItem[Transcended Fistwraps of Immortality].ID}) {
-		/varset epicfists		Transcended Fistwraps of Immortality
-		/varset UseEpic 1
-	}
-	/varset ChestItemName		"${Me.Inventory[17].Name}"
+	
 /return 
-|----------------------------------------------------------------------------
-|- SUB: INIChanges
-|---------------------------------------------------------------------------- 
-Sub INIChanges
-	/varset changetoini 0
-	/call SaveCommonConfig
-	/call SetIni Combat AllowMezBreak		int ${AllowMezBreak}
-	/call SetIni Combat ForceAlliance		int ${ForceAlliance}
-	/call SetIni Combat UseAlliance		 	int ${UseAlliance}
-	/call SetIni Combat UseIntimidate		int ${UseIntimidate}
-	/call SetIni Combat UseMelee		 	int ${UseMelee}
-	/call SetIni Item ChestCombatCast		int ${ChestCombatCast}
-	/call SetIni Item UsePoisons		 	int ${UsePoisons}
-	/call SetIni General Drive		 		int ${Drive}
-/return
-|----------------------------------------------------------------------------
-|- SUB: PullAbilitySetup
-|----------------------------------------------------------------------------
-Sub PullAbilitySetup
-	/varset PullAbility 376
-	/if (${FindItem[Staff of Viral Flux].ID}) /varset PullAbility2 ${FindItem[Staff of Viral Flux]}
-	/varset PullDistance 190
-/return
 |----------------------------------------------------------------------------
 |- SUB: SetupDiscs
 |---------------------------------------------------------------------------- 
 Sub SetupDiscs
 
+	/varset PullAbility "Distant Strike"
 |--RejectDeath line
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Reject Death].RankName}]}) {
 		/varset RejectDeath ${Spell[Reject Death].RankName}
@@ -216,97 +164,3 @@ Sub SetupDiscs
 	}
 	
 /return
-|----------------------------------------------------------------------------
-|-SUB: Bind Change Var Int resets various interger settings from ini file
-|----------------------------------------------------------------------------
-Sub Bind_SetVarInt(string ISection, string IName, int IVar)
-    /docommand /varset changetoini 1
- |-Toggles
-	/if (${ISection.Equal[Toggle]}) {
-  |--Alliance
-		/if (${IName.Equal[UseAlliance]}) {
-			/if (!${UseAlliance}) {
-				/echo \aw Setting UseAlliance to \ag ON
-				/varset UseAlliance 1
-				/call AllianceCheck
-			} else {
-				/echo \aw Resetting UseAlliance to \ar OFF
-				/varset UseAlliance 0
-			}
-  |--LootOn
-		} else /if (${IName.Equal[LootOn]}) {
-			/if (!${LootOn}) {
-				/echo \aw Setting LootOn to \ag ON
-				/varset LootOn 1
-			} else {
-				/echo \aw Resetting LootOn to \ar OFF
-				/varset LootOn 0
-			}
-  |--Intimidate
-		} else /if (${IName.Equal[UseIntimidate]}) {
-			/if (!${UseIntimidate}) {
-				/echo \aw Setting UseIntimidate to \ag ON
-				/varset UseIntimidate 1
-			} else {
-				/echo \aw Resetting UseIntimidate to \ar OFF
-				/varset UseIntimidate 0
-			}
-  |--Allow MezBreak
-		} else /if (${IName.Equal[AllowMezBreak]}) {
-			/if (!${AllowMezBreak}) {
-				/echo \aw Setting AllowMezBreak to \ag ON
-				/varset AllowMezBreak 1
-			} else {
-				/echo \aw Resetting AllowMezBreak to \ar OFF
-				/varset AllowMezBreak 0
-			}
-  |--Force Alliance
-		} else /if (${IName.Equal[ForceAlliance]}) {
-			/if (!${ForceAlliance}) {
-				/echo \aw Setting ForceAlliance to \ag ON
-				/varset ForceAlliance 1
-			} else {
-				/echo \aw Resetting ForceAlliance to \ar OFF
-				/varset ForceAlliance 0
-			}
-  |--Chest Combat Cast
-		} else /if (${IName.Equal[ChestCombatCast]}) {
-			/if (!${ChestCombatCast}) {
-				/echo \aw Setting ChestCombatCast to \ag ON
-				/varset ChestCombatCast 1
-			} else {
-				/echo \aw Resetting ChestCombatCast to \ar OFF
-				/varset ChestCombatCast 0
-			}
-  |--Use Poisons
-		} else /if (${IName.Equal[UsePoisons]}) {
-			/if (!${UsePoisons}) {
-				/echo \aw Setting UsePoisons to \ag ON
-				/varset UsePoisons 1
-			} else {
-				/echo \aw Resetting UsePoisons to \ar OFF
-				/varset UsePoisons 0
-			}
-		}
-	}
-/return
-|----------------------------------------------------------------------------
-|-SUB: BIND CmdList - 
-|----------------------------------------------------------------------------
-Sub Bind_CmdList
-/call CommonHelp
-/echo \ag===${MacroName} Commands=== 
-/echo \ag/tglalliance\aw - Use mnk alliance? there still needs to be >=3 monks for it to fire
-/echo \ag/tglaoe\aw - Turn the use of AE abilities on/off
-/echo \ag/tglautoaxe\aw - Turn the Auto Axe summoning feature on/off
-/echo \ag/tglautoaxe2\aw - Turn the Auto Axe 2 summoning feature on/off
-/echo \ag/tglbp\aw - Turn on/off the use of a Chest piece defined in the ini
-/echo \ag/tglforce\aw - Force Alliance Use. Use when other Zerkers are present but not in the same group 
-/echo \ag/tglintim\aw - Use Intimidation skill?
-/echo \ag/tglloot\aw - Turn auto looting on/off
-/echo \ag/tglmezbreak\aw - Allow attacking mez'd mobs if below assistat % - Ignores waiting for MA
-/echo \ag/tglopener\aw - Toggle ${cheapshot} ability ON/OFF
-/echo \ag/tglpet\aw - Pet toggle...cause sometimes they arent allowed
-/echo \ag/tglpoison\aw - Turn on/off the use of poison buffs
-/echo \ag/tgldrive\aw - Turn editing dirve
-/return 

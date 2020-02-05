@@ -2,6 +2,9 @@
 |- SUB: shm_main
 |----------------------------------------------------------------------------
 Sub shm_main
+
+	/call shm_group_buffs
+
 	/call get_heal_target 90
 	/varset WorstHurtId ${Macro.Return}
 	
@@ -43,7 +46,6 @@ Sub shm_main
 				}
 			}
 		}
-		/call shm_group_buffs
 	}
 /return
 |----------------------------------------------------------------------------
@@ -255,7 +257,6 @@ Sub shm_group_buffs
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpfocusid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SingleFocusSpell}]" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SingleFocusSpell}].Stacks" "tmpstackcheck" "bool"
-				/echo FOCUS: ${tmpstackcheck} && !${tmpbuffid}
 				/if (${tmpstackcheck} && !${tmpbuffid} && !${tmpfocusid}) {
 					/if (${validate_cast[FALSE, spell, ${SingleFocusSpell}, ${Group.Member[${_count}].ID}]}) {
 						/call core_cast2 "${SingleFocusSpell}" spell ${Group.Member[${_count}].ID} FALSE
@@ -312,36 +313,25 @@ Sub shm_group_buffs
 			}
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${CasterSpeedBuff}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${CasterSpeedBuff}].Stacks" "tmpstackcheck" "bool"
-				/if (${tmpstackcheck} && !${tmpbuffid} && !${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
-					/if (${validate_cast[FALSE, spell, ${CasterSpeedBuff}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${CasterSpeedBuff}" spell ${Group.Member[${_count}].ID} FALSE
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${HasteSpell}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${HasteSpell}].Stacks" "tmpstackcheck" "bool"
+				/if (${tmpstackcheck} && !${tmpbuffid}) {
+					/if (${validate_cast[FALSE, spell, ${HasteSpell}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${HasteSpell}" spell ${Group.Member[${_count}].ID} FALSE
 					/varset CastCheck 1
+				}
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${HasteSpell}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${HasteSpell}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${HasteSpell}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
 				}
 			}
 
 			/if (${Group.Member[${_count}].ID} != ${Group.MainTank.ID}) /continue
 			
-
-			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${LowLevelTalisman}].ID" "tmpbuffid" "int"
-					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${LowLevelTalisman}].Stacks" "tmpstackcheck" "bool"
-					/if (!${tmpbuffid} && !${tmpstackcheck}) {
-						/if (${validate_cast[FALSE, spell, ${LowLevelTalisman}, ${Group.Member[${_count}].ID}]}) /call core_cast2 "${LowLevelTalisman}" spell ${Group.Member[${_count}].ID} FALSE
-						/varset CastCheck 1
-					}
-				
-			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
-				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
-				/delay 1s
-				/if (!${Target.Buff[${LowLevelTalisman}].ID}) {
-					/if (${validate_cast[FALSE, spell, ${LowLevelTalisman}, ${Group.Member[${_count}].ID}]}) {
-						/call core_cast2 "${LowLevelTalisman}" spell ${Group.Member[${_count}].ID} FALSE
-						/varset CastCheck 1
-					}
-				}
-			}
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
 				

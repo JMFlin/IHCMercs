@@ -39,7 +39,7 @@ Sub war_main
 		
 		/call war_get_aggro
 
-		/if (${Me.CombatAbilityReady[${singlehealhate}]} && ${Me.SecondaryPctAggro} > 10) {
+		/if (${Me.SecondaryPctAggro} > 10) {
 			/if (${validate_cast[FALSE, disc, "${phantom}", ${Target.ID}]}) /call core_cast2 "${phantom}" disc ${Target.ID} FALSE
 		}
 
@@ -203,6 +203,7 @@ Sub war_disc
 |---------------------------------------------------------------------------- 
 Sub war_get_aggro
 
+	/if (${Group.MainTank.ID} != ${Me.ID}) /return
 	/if (!${validate_combat[${Target.ID}]} ) /return
 	
 	/call engage
@@ -244,6 +245,7 @@ Sub war_aoe_aggro
 	/declare x				 int local 1
 	/declare numberOfSpawn 	 int local 0
 
+	/if (${Group.MainTank.ID} != ${Me.ID}) /return
 	/if (!${validate_combat[${Target.ID}]} ) /return
 	
 	/call engage
