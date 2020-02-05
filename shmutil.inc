@@ -63,6 +63,7 @@ Sub shm_setup
 	/declare Spell13				string outer NULL
 	/declare TravelSpell 			string outer NULL
 
+	/declare HasteSpell 			string outer NULL
 	/declare WasStickOn				int	outer 0
 	/declare PatchHealPoint			int outer 44
 	/declare PatchHeal2Point		int outer 34
@@ -191,6 +192,10 @@ Sub shm_abilities
 	} else /if (${Me.Level}>=${Spell[Ancestral Obligation].Level} && ${Me.Book[${Spell[Ancestral Obligation].RankName}]}) {
 		/varset CanniSpell ${Spell[Ancestral Obligation].RankName}
 	}
+
+	/if (${Me.Level}>=${Spell[Alacrity].Level} && ${Me.Book[${Spell[Alacrity].RankName}]}) {
+		/varset HasteSpell ${Spell[Alacrity].RankName}
+	}
 |- ShamanAura
 	/if (${Me.AltAbility[Pact of the Wolf].ID}) {
 		/varset Aura1 Pact of the Wolf
@@ -210,7 +215,9 @@ Sub shm_abilities
 		/varset FocusSpell ${Spell[Talisman of Unity].RankName}
 	}
 	
-	/if (${Me.Level}>=${Spell[Inner Fire].Level} && ${Me.Book[${Spell[Inner Fire].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Harnessing of Spirit].Level} && ${Me.Book[${Spell[Harnessing of Spirit].RankName}]}) {
+		/varset SingleFocusSpell ${Spell[Harnessing of Spirit].RankName}
+	} else /if (${Me.Level}>=${Spell[Inner Fire].Level} && ${Me.Book[${Spell[Inner Fire].RankName}]}) {
 		/varset SingleFocusSpell ${Spell[Inner Fire].RankName}
 	}
 |- RunSpeedBuff

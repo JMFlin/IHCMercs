@@ -230,6 +230,13 @@ sub Event_CAST_CANNOTCAST(string line)
   /doevents flush CAST_CANNOTCAST
 /return ${castReturn}
 
+#event CAST_PULLERCANNOTSEE              "You cannot see your target#*#"
+sub Event_CAST_PULLERCANNOTSEE(string line)
+	/varset castReturn CAST_PULLERCANNOTSEE
+  /doevents flush CAST_PULLERCANNOTSEE
+/return ${castReturn}
+
+
 | #event CAST_CANNOTSEE              "You cannot see your target#*#"
 sub Event_CAST_CANNOTSEE(string line)
 	/varset castReturn CAST_CANNOTSEE

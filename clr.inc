@@ -3,6 +3,28 @@
 |---------------------------------------------------------------------------- 
 Sub clr_main
 	
+	/if (${PowerLevel}) {
+		/call check_for_corpse FALSE
+		/call clr_group_buffs
+		/call clr_self_buffs
+		/call clr_combat_tank_buffs
+		/call get_heal_target 40
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Remedy1}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Remedy1}" spell ${WorstHurtId} FALSE
+			}
+		}
+		/call get_heal_target 40
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${WorstHurtId}]}) {
+				/call core_cast2 "${Intervention1}" spell ${WorstHurtId} FALSE
+			}
+		}
+		/return
+	} 
+
 	/call get_heal_target 90
 	/varset WorstHurtId ${Macro.Return}
 	/if (${WorstHurtId} > 0) {
@@ -126,6 +148,13 @@ Sub clr_self_buffs
 	/if (!${Me.Buff[${Retaliation}].ID}) {
 		/if (${validate_cast[FALSE, spell, ${Retaliation}, ${Me.ID}]}) {
 			/call core_cast2 "${Retaliation}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
+	}
+
+	/if (!${Me.Buff[${TankBuff}].ID}) {
+		/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Me.ID}]}) {
+			/call core_cast2 "${TankBuff}" spell ${Me.ID} FALSE
 			/varset CastCheck 1
 		}
 	}

@@ -50,6 +50,9 @@ TODO:
 #include IHCMercs\shmutil.inc
 #include IHCMercs\shm.inc
 
+#include IHCMercs\mnkutil.inc
+#include IHCMercs\mnk.inc
+
 #Chat group
 #Chat tell
 #Chat raid
@@ -74,7 +77,6 @@ Sub Main
 
 	/call WelcomeMsg
 
-	/call setup_skill_melee FALSE
 	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
 	/if (${Group.Puller.ID} == ${Me.ID}) {
 		/delay 3s
@@ -96,6 +98,7 @@ Sub Main
 |- SUB: AFKRadiusCamping 
 |---------------------------------------------------------------------------- 
 Sub AFKRadiusCamping
+	/call setup_skill_melee FALSE
     /call MakeCamp
     /call RemoveTravelBuffs
 	/target clear
@@ -107,12 +110,36 @@ Sub AFKRadiusCamping
 		| /delay 1s
 		| DEBUG CYCLE START
 
-		/call afk_pull
-		/call get_target
+
+		/if (!${PowerLevel}) {
+			/call afk_pull
+		} else /if (${PowerLevel}) {
+			/if (${Select[${Me.Class.ShortName},MNK]}) {
+				/if (${npcRadiusCheck} != 1) /varset npcRadiusCheck 1
+				/call chain_pull
+			}
+		}
+
+		/if (!${PowerLevel}) {
+			/if (${Select[${Me.Class.ShortName},ENC,WIZ,MAG,MNK,ROG,BER,BST]}) {
+				/call get_target
+			}
+		} else /if (${PowerLevel}) {
+			/if (${Select[${Me.Class.ShortName},ENC,WIZ,MAG,MNK]}) {
+				/call get_target
+			}
+		}
+		
 		/call check_state FALSE
 		/call balance_hp
 		/call move_to_camp
-		/call ${Me.Class.ShortName.Lower}_main
+		/if (${PowerLevel}) {
+			/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,MNK]}) {
+				/call ${Me.Class.ShortName.Lower}_main
+			}
+		} else {
+			/call ${Me.Class.ShortName.Lower}_main
+		}
 		/call misc
 		/call dummy_mode
 		/doevents
@@ -153,6 +180,16 @@ sub misc
 			}
 		}
 	}
+|**
+	/if (${Window[MerchantWnd].Open}) {
+		/if (!${HaveSold}) {
+			/Autoloot sell
+			/varset HaveSold 1
+		}
+	} else {
+		/varset HaveSold 0
+	}
+	**|
 /return
 
 |----------------------------------------------------------------------------
