@@ -273,8 +273,8 @@ sub Event_CAST_FDFAIL(string line, string _name)
 /return ${castReturn}
 
 
-| #event CAST_FIZZLE                 "Your spell fizzles#*#"
-| #event CAST_FIZZLE                 "You miss a note, bringing your song to a close#*#"
+#event CAST_FIZZLE                 "Your spell fizzles#*#"
+#event CAST_FIZZLE                 "You miss a note, bringing your song to a close#*#"
 sub Event_CAST_FIZZLE(string line)
 	/varset castReturn CAST_FIZZLE
 /return ${castReturn}

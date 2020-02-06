@@ -5,7 +5,11 @@ TODO:
 	Aura combat cast.
 	All to core_cast2.
 	Fix names of warrior discs.
-	Bard to cast song names, not positions in list
+
+	spawn	RaidAssistTarget[#]	Current raid assist target (1-3)
+	spawn	RaidMarkNPC[#]	Current raid marked NPC (1-3)
+	int	SecondaryPctAggro	Secondary Percentage aggro
+spawn	SecondaryPctAggroPlayer	spawninfo for secondary aggro player
 **|
 
 #turbo 80

@@ -242,8 +242,8 @@ Sub war_get_aggro
 |- SUB: AoEAggro   
 |---------------------------------------------------------------------------- 
 Sub war_aoe_aggro
-	/declare x				 int local 1
-	/declare numberOfSpawn 	 int local 0
+	/declare _count				 int local 1
+	/declare _numberOfSpawn 	 int local 0
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
 	/if (!${validate_combat[${Target.ID}]} ) /return
@@ -257,23 +257,23 @@ Sub war_aoe_aggro
 	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2 && ${Me.XTarget} > 2) {
 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
 	}
-
+|**
 	| How many mobs are there?
 	/if (${SpawnCount[npc radius 50 zradius 50]} > 1 && ${Me.XTarget} > 1) {
 		
-		/for x 1 to ${Me.XTarget}
+		/for _count 1 to ${Me.XTarget}
 
 			| If xtarget is not mezzed, add it to count
-			/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
-				/varcalc numberOfSpawn ${numberOfSpawn}+1
+			/if (${If[${Select[${Me.XTarget[${_count}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
+				/varcalc _numberOfSpawn ${_numberOfSpawn}+1
 			}
 
-		/next x
+		/next _count
 
 		| If no mob is yet mezzed hit them all
-		/if (${numberOfSpawn} > 1) {
+		/if (${_numberOfSpawn} > 1) {
 		|	/if (${validate_cast[FALSE, disc, "${aehitall}", ${Target.ID}]}) /call core_cast2 "${aehitall}" disc ${Target.ID} FALSE
 		}
 	}
-
+**|
 /return
