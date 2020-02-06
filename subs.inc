@@ -632,13 +632,21 @@ Sub get_pull_target(int _tmpID)
 
 		/if (${Spell[${PullAbility}].MyCastTime.Float} < 1) {
 				
-				:get_target
+				:tag_target
 				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
 					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
 					/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
 				}
-				/if (!${Me.XTarget}) /goto :get_target
-				
+				/if (!${Me.XTarget}) {
+					/if (${Spawn[id ${Target.ID}].Distance} < 20) {
+						/if (${Navigation.Active}) /nav stop
+						/stick 12 moveback loose
+						/attack on
+						/delay 3s ${Me.XTarget}
+						/stick off
+					}
+					/if (!${Me.XTarget}) /goto :tag_target
+				}
 
 				|**
 				/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
@@ -1251,13 +1259,6 @@ Sub get_target
 		/return
 	}
 
-	| if I am not the main tank or ma assist then assist the MA
-	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
-		/assist ${Group.MainAssist.Name}
-		/delay 8
-		/return
-	}
-
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		| if there is an xtarget close then target the one with lowest hp
@@ -1266,13 +1267,6 @@ Sub get_target
 		} else {
 			/target id ${SpawnSort[1,asc,PathLength,xtarhater].ID}
 		}
-
-
-		|/for _count 1 to ${Me.XTarget}
-
-
-
-		|/next _count
 	}
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
@@ -1298,10 +1292,14 @@ Sub get_target
 				/call engage
 				/call ${Me.Class.ShortName.Lower}_get_aggro
 			}
-		} else {
-			/assist ${Group.MainAssist.Name}
-			/delay 5
 		}
+	}
+
+	| if I am not the main tank or ma assist then assist the MA
+	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
+		/assist ${Group.MainAssist.Name}
+		/delay 1s ${Me.AssistComplete} == TRUE
+		/return
 	}
 
 /return
