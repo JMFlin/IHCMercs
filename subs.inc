@@ -575,7 +575,7 @@ Sub get_pull_target_melee_range
 			/target id ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
 
-			/if (!${Me.XTarget} && ${Target.ID}) {
+			/if (!${Me.XTarget} && ${Target.ID} && ${Spawn[id ${_tmpID}].Distance} < ${PullDistance}) {
 				/attack on
 				/if (!${Stick.Active}) /stick 12 front loose
 				/delay 1s ${Stick.Active}
@@ -598,72 +598,72 @@ Sub get_pull_target_melee_range
 			/delay 1
 		}
 	}
+
 /return
 
 Sub get_pull_target(int _tmpID)
 
-	/if (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight}) {
-		
-		/nav id ${_tmpID}
-
-		/while (${Navigation.Active}) {
-
-			/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 100)) /continue
-
-			/target id ${_tmpID}
-			/delay 1s ${Target.ID} == ${_tmpID}
-
-			/if (${Spell[${PullAbility}].MyCastTime.Float} < 1) {
-				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
-					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
-					/delay 3s ${Me.XTarget}
-					/return
-				}
-			} else {
-				/if (${Navigation.Active}) /nav stop
-				/delay 3s !${Me.Moving}
-				/delay 5
-				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
-					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
-				}
-				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
-				/return
-			}
-		
-			
-			/if (${Navigation.Active} && ${Me.XTarget}) {
-				/if (${_tmpID} != ${Me.XTarget[1].ID}) {
-					/target id ${Me.XTarget[1].ID}
-					/nav stop
-					/return
-				}
-			}
-
-			
-			| /if (${Navigation.Active} && ${Target.ID} == ${_tmpID} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
-			/delay 1
-			/if (!${Navigation.Active} && (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight})) /nav id ${_tmpID}
-			
-		}
-
-	} else {
+	/if (${Spawn[id ${_tmpID}].Distance} < ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) {
 		/target id ${_tmpID}
 		/delay 1s ${Target.ID} == ${_tmpID}
+		
 		/if (${Spell[${PullAbility}].MyCastTime.Float} > 1) /delay 3s !${Me.Moving}
+
 		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
 			/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+			/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
 		}
-		/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+		/delay 1s ${Me.XTarget}
+		/return
 	}
 	
-	/if (!${Me.XTarget}) /delay 1s
+	/nav id ${_tmpID}
+
+	/while (${Navigation.Active}) {
+
+		/if (${Navigation.Active} && ${Me.XTarget}) {
+			/if (${_tmpID} != ${Me.XTarget[1].ID}) {
+				/target id ${Me.XTarget[1].ID}
+			}
+			/return
+		}
+
+		/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 100)) /continue
+
+		/if (${Spell[${PullAbility}].MyCastTime.Float} < 1) {
+				
+				:get_target
+				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
+					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+					/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+				}
+				/if (!${Me.XTarget}) /goto :get_target
+				
+
+				|**
+				/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
+				**|
+			
+		} else {
+			/if (${Navigation.Active}) /nav stop
+			/if (${Me.XTarget}) /return
+			/delay 3s !${Me.Moving}
+			/delay 5
+			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
+				/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+			}
+			/return
+		}
+
+		/if (!${Navigation.Active}) {
+			/if (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight}) {
+				/if (!${Me.XTarget}) /nav id ${_tmpID}
+			}
+		}
+		/delay 1
+	}
+
 /return
 
 Sub validate_no_pc(int _tmpID)
@@ -1427,8 +1427,12 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		| global cooldown? is this shit broke?
 		/if (${Me.SpellInCooldown}) /return FALSE
 		
-		| are we moving?
-		/if (${Me.Moving}) /return FALSE
+		| if not instant cast spell
+		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
+			| are we moving?
+			/if (${Me.Moving}) /return FALSE
+		}
+		
 		
 		| /if (${Stick.Status.Equal[ON]}) /stick off
 
@@ -1499,6 +1503,12 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			/if (${Me.Buff[${_spell}].ID}) /return FALSE
 			/if (${Me.Song[${_spell}].ID}) /return FALSE		
 		}
+
+		| if not instant cast spell
+		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
+			| are we moving?
+			/if (${Me.Moving}) /return FALSE
+		}
 	
 	| check disc
 	} else /if (${_type.Equal[disc]}) {
@@ -1541,6 +1551,12 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		/if (${_tmpID} == ${Me.ID}) {
 			/if (${Me.Buff[${FindItem[=${_spell}].Spell}].ID}) /return FALSE
 			/if (${Me.Song[${FindItem[=${_spell}].Spell}].ID}) /return FALSE
+		}
+
+		| if not instant cast spell
+		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
+			| are we moving?
+			/if (${Me.Moving}) /return FALSE
 		}
 					
 		| stacking
