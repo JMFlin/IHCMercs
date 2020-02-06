@@ -111,7 +111,7 @@ Sub shm_load_spellbar
 	/call LoadSpellGem "${RecklessHeal3}" 3
 	/call LoadSpellGem "${RecourseHeal}" 4
 	/call LoadSpellGem "${InterventionHeal}" 5
-	/call LoadSpellGem "${AESpiritualHeal}" 6
+	/call LoadSpellGem "${Malo}" 6
 
 	/if (${Me.AltAbility[Turgur's Swarm].ID}) {
 		/call LoadSpellGem "${GroupRenewalHoT}" 7
@@ -215,7 +215,9 @@ Sub shm_abilities
 		/varset FocusSpell ${Spell[Talisman of Unity].RankName}
 	}
 	
-	/if (${Me.Level}>=${Spell[Harnessing of Spirit].Level} && ${Me.Book[${Spell[Harnessing of Spirit].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Infusion of Spirit].Level} && ${Me.Book[${Spell[Infusion of Spirit].RankName}]}) {
+		/varset SingleFocusSpell ${Spell[Infusion of Spirit].RankName}
+	} else /if (${Me.Level}>=${Spell[Harnessing of Spirit].Level} && ${Me.Book[${Spell[Harnessing of Spirit].RankName}]}) {
 		/varset SingleFocusSpell ${Spell[Harnessing of Spirit].RankName}
 	} else /if (${Me.Level}>=${Spell[Inner Fire].Level} && ${Me.Book[${Spell[Inner Fire].RankName}]}) {
 		/varset SingleFocusSpell ${Spell[Inner Fire].RankName}
@@ -235,6 +237,8 @@ Sub shm_abilities
 		/varset DichoSpell ${Spell[Dissident Roar].RankName}
 	} else /if (${Me.Level}>=${Spell[Roar of the Lion].Level} && ${Me.Book[${Spell[Roar of the Lion].RankName}]}) {
 		/varset DichoSpell ${Spell[Roar of the Lion].RankName}
+	} /if (${Me.Level}>=${Spell[Spirit of the Puma].Level} && ${Me.Book[${Spell[Spirit of the Puma].RankName}]}) {
+		/varset DichoSpell ${Spell[Spirit of the Puma].RankName}
 	}
 |- PetSpell
 	/if (${Me.Level}>=${Spell[Mirtuk's Faithful].Level} && ${Me.Book[${Spell[Mirtuk's Faithful].RankName}]}) {
@@ -311,6 +315,10 @@ Sub shm_abilities
 |- Malo
 	/if (${Me.Level}>=${Spell[Malosinata].Level} && ${Me.Book[${Spell[Malosinata].RankName}]}) {
 		/varset Malo ${Spell[Malosinata].RankName}
+	} else /if (${Me.Level}>=${Spell[Malosi].Level} && ${Me.Book[${Spell[Malosi].RankName}]}) {
+		/varset Malo ${Spell[Malosi].RankName}
+	} else /if (${Me.Level}>=${Spell[Malaise].Level} && ${Me.Book[${Spell[Malaise].RankName}]}) {
+		/varset Malo ${Spell[Malaise].RankName}
 	}
 
 |- InterventionHeal

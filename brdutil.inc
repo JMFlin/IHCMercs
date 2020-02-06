@@ -150,6 +150,8 @@ Sub brd_abilities
 		/varset MainAriaSong ${Spell[Aria of the Composer].RankName}
 	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Battlecry of the Vah Shir].RankName}]})  {
 		/varset MainAriaSong ${Spell[Battlecry of the Vah Shir].RankName}
+	} else /if (${Me.Level}>=50 && ${Me.Book[${Spell[Verses of Victory].RankName}]})  {
+		/varset MainAriaSong ${Spell[Verses of Victory].RankName}
 	} 
 |- CasterAriaSong
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Qunard's Aria].RankName}]})  {
@@ -182,6 +184,8 @@ Sub brd_abilities
 		/varset WarMarchSong ${Spell[War March of the Mastruq].RankName}
 	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[McVaxius' Rousing Rondo].RankName}]})  {
 		/varset WarMarchSong ${Spell[McVaxius' Rousing Rondo].RankName}
+	} else /if (${Me.Level}>=42 && ${Me.Book[${Spell[McVaxius' Berserker Crescendo].RankName}]})  {
+		/varset WarMarchSong ${Spell[McVaxius' Berserker Crescendo].RankName}
 	} else /if (${Me.Level}>=10 && ${Me.Book[${Spell[Anthem de Arms].RankName}]})  {
 		/varset WarMarchSong ${Spell[Anthem de Arms].RankName}
 	} 
@@ -378,6 +382,8 @@ Sub brd_abilities
 		/varset SlowSong ${Spell[Requiem of Time].RankName}
 	} else /if (${Me.Level}>=54 && ${Me.Book[${Spell[Selo's Assonant Strain].RankName}]})  {
 		/varset SlowSong ${Spell[Selo's Assonant Strain].RankName}
+	} else /if (${Me.Level}>=54 && ${Me.Book[${Spell[Selo's Chords of Cessation].RankName}]})  {
+		/varset SlowSong ${Spell[Selo's Chords of Cessation].RankName}
 	}
 |- AESlowSong
 	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Dekloaz's Melodic Binding].RankName}]})  {

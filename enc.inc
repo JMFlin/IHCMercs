@@ -90,24 +90,21 @@ Sub enc_main
 |- SUB: enc_debuff_xtarget
 |---------------------------------------------------------------------------- 
 Sub enc_debuff_xtarget
-	/declare x int local 1
+	/declare _count int local 1
 
 	| Is there something to mez?
 	/if (!${Me.XTarget}) /return
 	/if (${Me.XTarget} < 2) /return
 
-	/for x 1 to ${Me.XTarget}
+	/for _count 1 to ${Me.XTarget}
 
-		/if (${debuffSet.Contains[${Me.XTarget[${x}].ID}]}) /continue
+		/if (${debuffSet.Contains[${Me.XTarget[${_count}].ID}]}) /continue
 
-		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		/if (${Me.XTarget[${_count}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${_count}].ID}
+			/delay 1s ${Me.XTarget[${_count}].ID} == ${Target.ID}
+			/delay 5
 		}
-		
-		/delay 1s
-
-		
 
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
@@ -171,7 +168,7 @@ Sub enc_debuff_xtarget
 |			/if (${DoBlurr} && ${Me.PctAggro}>=${BlurrAggroPct}) /call ManageAggro "BlrFlg"
 |		/delay 5s !${Me.Casting.ID}
 		/delay 7
-	/next x
+	/next _count
 
 	/call get_target
 

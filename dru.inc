@@ -155,18 +155,19 @@ Sub dru_combat
 |- SUB: debuff_xtarget
 |---------------------------------------------------------------------------- 
 Sub dru_debuff_xtarget
-	/declare x int local 1
+	/declare _count int local 1
 
 	/if (!${Me.XTarget}) /return
 	/if (${Me.XTarget} < 2) /return
 
-	/for x 1 to ${Me.XTarget}
+	/for _count 1 to ${Me.XTarget}
 
-		/if (${immuneSet.Contains[${Me.XTarget[${x}].ID}]}) /continue
+		/if (${immuneSet.Contains[${Me.XTarget[${_count}].ID}]}) /continue
 
-		/if (${Me.XTarget[${x}].ID} != ${Target.ID}) {
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 1s ${Me.XTarget[${x}].ID} == ${Target.ID}
+		/if (${Me.XTarget[${_count}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${_count}].ID}
+			/delay 1s ${Me.XTarget[${_count}].ID} == ${Target.ID}
+			/delay 5
 		}
 
 		/if (${Target.Distance} > 200) /return
@@ -183,7 +184,7 @@ Sub dru_debuff_xtarget
 		}
 
 		/delay 1s
-	/next x
+	/next _count
 /return
 |----------------------------------------------------------------------------
 |- SUB: group_buffs

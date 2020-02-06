@@ -103,6 +103,7 @@ Sub var_setup
 	/declare Limit 				int outer 50
 	/declare DummyTime        	int outer 10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
+	/declare cannotCast 		bool outer FALSE
 |	/declare PCRadiusCheck 		int outer 10
 
 |- Balance events
@@ -172,6 +173,7 @@ Sub var_setup
 	/declare verboseBRD 		bool outer TRUE
 	/declare verboseCLR 		bool outer FALSE
 	/declare verboseMAG 		bool outer FALSE
+	/declare verboseMNK 		bool outer TRUE
 
 |- classes
 	/declare casterCasting 		int outer 0
@@ -522,8 +524,6 @@ Sub afk_pull
  Sub chain_pull
 	/declare _pullTargetID 	int local 0
 
-
-	/if (${Me.XTarget[1].Distance} > 200) /nav id ${Me.XTarget[1].ID}
 	/if (${Me.XTarget}) /return
 	/if (${Me.Casting.ID}) /return
 	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
@@ -576,16 +576,8 @@ Sub get_pull_target_melee_range
 			/delay 1s ${Target.ID} == ${_tmpID}
 
 			/if (!${Me.XTarget} && ${Target.ID} && ${Spawn[id ${_tmpID}].Distance} < ${PullDistance}) {
-				/attack on
-				/if (!${Stick.Active}) /stick 12 front loose
-				/delay 1s ${Stick.Active}
-				/delay 7s ${Target.Distance} <= ${PullDistance}
-				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
-				/if (!${Stick.Active} && ${Me.XTarget}) /stick off
-				/delay 1s ${Me.XTarget}
-
+				/if (${Spawn[id ${_tmpID}].Distance} < 20) /call get_close_target
 			} 
-
 
 			/if (${Navigation.Active} && ${Me.XTarget}) {
 				/if (${_tmpID} != ${Me.XTarget[1].ID}) {
@@ -604,14 +596,16 @@ Sub get_pull_target_melee_range
 Sub get_pull_target(int _tmpID)
 
 	/if (${Spawn[id ${_tmpID}].Distance} < ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) {
-		/target id ${_tmpID}
-		/delay 1s ${Target.ID} == ${_tmpID}
 		
 		/if (${Spell[${PullAbility}].MyCastTime.Float} > 1) /delay 3s !${Me.Moving}
 
 		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
 			/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
 			/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+			/if (${cannotCast}) {
+				/varset cannotCast FALSE
+				/return
+			}
 		}
 		/delay 1s ${Me.XTarget}
 		/return
@@ -629,29 +623,20 @@ Sub get_pull_target(int _tmpID)
 		}
 
 		/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 100)) /continue
-
 		/if (${Spell[${PullAbility}].MyCastTime.Float} < 1) {
-				
-				:tag_target
-				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
-					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
-					/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+			:tag_target
+			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
+				/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+				/if (${cannotCast}) {
+					/varset cannotCast FALSE
+					/return
 				}
-				/if (!${Me.XTarget}) {
-					/if (${Spawn[id ${Target.ID}].Distance} < 20) {
-						/if (${Navigation.Active}) /nav stop
-						/stick 12 moveback loose
-						/attack on
-						/delay 3s ${Me.XTarget}
-						/stick off
-					}
-					/if (!${Me.XTarget}) /goto :tag_target
-				}
-
-				|**
-				/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-				**|
-			
+			}
+			/if (!${Me.XTarget}) {
+				/if (${Spawn[id ${_tmpID}].Distance} < 20) /call get_close_target
+				/if (!${Me.XTarget}) /goto :tag_target
+			}
 		} else {
 			/if (${Navigation.Active}) /nav stop
 			/if (${Me.XTarget}) /return
@@ -660,6 +645,10 @@ Sub get_pull_target(int _tmpID)
 			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
 				/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
 				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+				/if (${cannotCast}) {
+					/varset cannotCast FALSE
+					/return
+				}
 			}
 			/return
 		}
@@ -671,6 +660,16 @@ Sub get_pull_target(int _tmpID)
 		}
 		/delay 1
 	}
+
+/return
+
+Sub get_close_target(int _tmpID)
+
+	/if (${Navigation.Active}) /nav stop
+	/stick 12 moveback loose
+	/attack on
+	/delay 3s ${Me.XTarget}
+	/stick off
 
 /return
 
@@ -1435,7 +1434,11 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		
 		| /if (${Stick.Status.Equal[ON]}) /stick off
 
-		/if (${Navigation.Active}) /return FALSE
+		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
+			| are we moving?
+			/if (${Navigation.Active}) /return FALSE
+		}
+		
 		/if (${AdvPath.Following}) /return FALSE
 		
 		| correct rank name
@@ -2751,6 +2754,8 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 	/if (${_event.Equal[CAST_CANNOTCAST]}) {
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is \ar UNPULLABLE \ax with =>> \ag ${_spell} \ax <<=
 		/squelch /alert add 1 id ${_tmpID}
+		/varset cannotCast TRUE
+
 	}
 
 	/if (${_event.Equal[CAST_FIZZLE]}) {

@@ -19,6 +19,7 @@ Sub shm_main
 		/call get_target
 		/if (!${validate_combat[${Target.ID}]}) /return
 
+		/delay 5
 		/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
 			/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
 		}
@@ -40,12 +41,24 @@ Sub shm_main
 			}
 		} else {
 			/call get_target
+			/delay 5
 			/if (!${Target.Buff[${FastDiseaseDoT}].ID}) {		
 				/if (${validate_cast[FALSE, spell, "${FastDiseaseDoT}", ${Target.ID}]}) {
 					/call core_cast2 "${FastDiseaseDoT}" spell ${Target.ID} FALSE
 				}
 			}
 		}
+		/call shm_debuff_xtarget
+		
+		/call get_heal_target 85
+		/varset WorstHurtId ${Macro.Return}
+		/if (${WorstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${WorstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal1}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		/call shm_aa_and_disc
 	}
 /return
 |----------------------------------------------------------------------------
@@ -64,6 +77,45 @@ Sub shm_health_to_mana
 			/call core_cast2 "Cannibalization" alt 0 FALSE
 		}
 	}
+/return
+|----------------------------------------------------------------------------
+|- SUB: debuff_xtarget
+|---------------------------------------------------------------------------- 
+Sub shm_debuff_xtarget
+	/declare _count int local 1
+
+	/if (!${Me.XTarget}) /return
+	/if (${Me.XTarget} < 2) /return
+
+	/for _count 1 to ${Me.XTarget}
+
+		/if (${immuneSet.Contains[${Me.XTarget[${_count}].ID}]}) /continue
+
+		/if (${Me.XTarget[${_count}].ID} != ${Target.ID}) {
+			/target id ${Me.XTarget[${_count}].ID}
+			/delay 1s ${Me.XTarget[${_count}].ID} == ${Target.ID}
+			/delay 5
+		}
+
+		/if (${Target.Distance} > 200) /return
+		/if (!${Target.Type.Equal[NPC]}) /return
+		
+		/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
+			/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
+		}
+
+		| How will you handle the AA?
+		/if (!${Target.Buff[${SlowSpell}].ID}) {
+			
+			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
+			}
+		}
+
+		/delay 1s
+	/next _count
 /return
 |----------------------------------------------------------------------------
 |- SUB: DoNamed
@@ -205,9 +257,18 @@ Sub shm_aa_and_disc
 	|	/useitem "${EpicSpiritStaff}"
 	|	/delay 5
 	|}
-	/if (!${Me.Buff[Roar of the Lion].ID} && !${Me.Buff[Dissident Roar].ID} && ${Me.CurrentMana}>${Spell[${DichoSpell}].Mana} && !${Me.Casting.ID} && ${Me.SpellReady[${DichoSpell}]} && ${Me.XTarget[1].Distance}<=75) {
-		/call SpellQueue "${DichoSpell}" ${Me.ID}
+
+	/call get_target
+
+	/if (${Target.Distance} <= 75) {
+		/target id ${Group.MainTank.ID}
+		/delay 1s ${Target.ID} == ${Group.MainTank.ID}
 		/delay 5
+		/if (!${Target.Buff[${DichoSpell}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Group.MainTank.ID}]}) {
+				/call core_cast2 "${DichoSpell}" spell ${Group.MainTank.ID} FALSE
+			}
+		}
 	}
 
 	/if (${Me.AltAbilityReady[Spirit Guardian]}) {
@@ -255,7 +316,7 @@ Sub shm_group_buffs
 			
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Focus.ID" "tmpfocusid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SingleFocusSpell}]" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SingleFocusSpell}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SingleFocusSpell}].Stacks" "tmpstackcheck" "bool"
 				/if (${tmpstackcheck} && !${tmpbuffid} && !${tmpfocusid}) {
 					/if (${validate_cast[FALSE, spell, ${SingleFocusSpell}, ${Group.Member[${_count}].ID}]}) {
