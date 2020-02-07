@@ -121,6 +121,7 @@ Sub var_setup
 |- core_cast2
 	/declare castReturn 		string outer NULL
 	/declare castBreak 			bool outer TRUE
+	/declare allowedFizzleCount int outer 3
 
 |- timers
 	/declare TimeForMez					timer outer	0
@@ -1671,6 +1672,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
 		|DEBUG ${dep}spell${dep}${_spell}
 		/declare _fizzle bool local FALSE
+		/declare _fizzleCount int local 0
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
@@ -1709,8 +1711,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			| give this a try
 			/while (${_castLoop}) {
 				/varset _fizzle FALSE
-
-				/if (${Me.Invis} || ${Select[${Me.Class.ShortName},ROG]}) /return FALSE
 			
 				| can we say no MQ2Cast ???
 				/cast ${Me.Gem[${_spell}]}
@@ -1730,12 +1730,14 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
 				/varset _fizzle ${Macro.Return}
 				
-				/if (!${_fizzle}) /varcalc _castLoop ${_castLoop}-1
+				/if (!${_fizzle} || ${_fizzleCount} == ${allowedFizzleCount}) {
+					/varcalc _castLoop ${_castLoop} - 1
+				} else {
+					/varcalc _fizzleCount ${_fizzleCount} + 1
+				}
 			}
 		}
-
 		/return
-
 
 	| AA
 	} else /if (${Select[${_type},alt]}) {
@@ -1744,10 +1746,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
-		
-		|/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call engage
-		
-		
+
 		| delay for aa casting
 		/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
 		
@@ -1755,14 +1754,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		
 		| is the spell memed
 		/if (${Me.AltAbilityReady[${_spell}]}) {
-
-			| echos
-			|/if (${_tmpID} == 0) {
-			|	VALT AA ${sep} ${csp}${_spell}\ax
-			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
-			|	VALT AA ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
-			|}
-			|VBC Alt "${_spell}" ${_tmpID} 0
 
 			| gonna try this 3 times.
 			/while (${_castLoop}) {
@@ -1825,7 +1816,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				
 				| spell is not ready
 				/if (${Select[${castReturn},CAST_NOTREADY]}) {
-					/varcalc _castLoop ${_castLoop}-1
+					/varcalc _castLoop ${_castLoop} - 1
 					/delay 2
 				}
 
@@ -1854,7 +1845,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	| bard song	
 	} else /if (${Select[${_type},pulse]}) {
 	|	DEBUG ${dep}pulse${dep}${_spell}
-
+		/declare _fizzle bool local FALSE
+		/declare _fizzleCount int local 0
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset _spell ${Spell[${_spell}].RankName}
@@ -1867,26 +1859,47 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/if (${Me.Gem[${_spell}]}) {	
 
 			| gonna try this 2 times.
+
+			/while (${_castLoop}) {
+				/varset _fizzle FALSE
+			
+				| can we say no MQ2Cast ???
+				/cast ${Me.Gem[${_spell}]}
+
+				:cast_in_progress
+				| cast global cooldown spells
+				/if (!${Spawn[id ${_tmpID}].ID}) {
+					/if (${Me.Casting.ID}) /call pulse_stop core_cast_pulsestop
+					/delay 1s !${Me.Casting.ID}
+					/return
+				} else {
+					/call get_target
+					/call engage
+				}
+				
+				/if (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) /goto :cast_in_progress
+
+				| check fizzle
+				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
+				/varset _fizzle ${Macro.Return}
+				
+				/if (!${_fizzle} || ${_fizzleCount} == ${allowedFizzleCount}) {
+					/varcalc _castLoop ${_castLoop} - 1
+				} else {
+					/varcalc _fizzleCount ${_fizzleCount} + 1
+				}
+			}
+		
+		|**
 			/while (${_castLoop}) {
 				
 				/cast ${Me.Gem[${_spell}]}
-
-				/call get_target
-				/call engage
-				/call move_to_camp
 
 				| adjust delay for Metronome AA (fuck bards)
 				/if (${Me.AltAbility[Metronome]}) {
 					/delay ${Spell[${_spell}].CastTime.Seconds}s
 				} else {
 					/delay ${Math.Calc[${Spell[${_spell}].CastTime.Seconds}+${Math.Calc[${Spell[${_spell}].CastTime.Seconds}*.05]}]}s
-				}
-
-				/while (${Window[CastingWindow].Open}) {
-					/call get_target
-					/call engage
-					/call move_to_camp
-					/delay 3
 				}
  				
  				|CHECKINPUTS
@@ -1900,6 +1913,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				}
 
 			}
+		**|
 			
 		}
 		/return

@@ -123,8 +123,10 @@ Sub shm_load_spellbar
 		/call LoadSpellGem "${DichoSpell}" 8
 	} else /if (${MeleeProcBuff.NotEqual[NULL]}) {
 		/call LoadSpellGem "${MeleeProcBuff}" 8
-	} else {
+	} else /if (${FastPoisonDoT.NotEqual[NULL]}) {
 		/call LoadSpellGem "${FastDiseaseDoT}" 8
+	} else {
+		/call LoadSpellGem "${FastPoisonDoT}" 8
 	}
 
 	/if (${spellmisc}>8) {
@@ -259,13 +261,24 @@ Sub shm_abilities
 		/varset PetBuffSpell ${Spell[Spirit Quickening].RankName}
 	}
 |- RecklessHeal1
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Reckless Rejuvenation].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Reckless Rejuvenation].Level} && ${Me.Book[${Spell[Reckless Rejuvenation].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Reckless Rejuvenation].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Reckless Regeneration].RankName}]}) {
+		/varset RecklessHeal2 ${Spell[Reckless Regeneration].RankName}
+		/varset RecklessHeal3 ${Spell[Reckless Restoration].RankName}
+	} else /if (${Me.Level}>=${Spell[Reckless Regeneration].Level} && ${Me.Book[${Spell[Reckless Regeneration].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Reckless Regeneration].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Reckless Restoration].RankName}]}) {
+		/varset RecklessHeal2 ${Spell[Reckless Restoration].RankName}
+		/varset RecklessHeal3 ${Spell[Reckless Remedy].RankName}
+	} else /if (${Me.Level}>=${Spell[Reckless Restoration].Level} && ${Me.Book[${Spell[Reckless Restoration].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Reckless Restoration].RankName}
-	} /if (${Me.Level}>=${Spell[Superior Healing].Level} && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
+		/varset RecklessHeal2 ${Spell[Reckless Remedy].RankName}
+		/varset RecklessHeal3 ${Spell[Reckless Mending].RankName}
+	} else /if (${Me.Level}>=${Spell[Reckless Remedy].Level} && ${Me.Book[${Spell[Reckless Remedy].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Reckless Remedy].RankName}
+		/varset RecklessHeal2 ${Spell[Reckless Mending].RankName}
+	} else /if (${Me.Level}>=${Spell[Reckless Mending].Level} && ${Me.Book[${Spell[Reckless Mending].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Reckless Mending].RankName}
+	} else /if (${Me.Level}>=${Spell[Superior Healing].Level} && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Superior Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Greater Healing].Level} && ${Me.Book[${Spell[Greater Healing].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Greater Healing].RankName}
@@ -275,22 +288,6 @@ Sub shm_abilities
 		/varset RecklessHeal1 ${Spell[Light Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Minor Healing].Level} && ${Me.Book[${Spell[Minor Healing].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Minor Healing].RankName}
-	}
-|- RecklessHeal2
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Reckless Regeneration].RankName}]}) {
-		/varset RecklessHeal2 ${Spell[Reckless Regeneration].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Reckless Restoration].RankName}]}) {
-		/varset RecklessHeal2 ${Spell[Reckless Restoration].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Reckless Remedy].RankName}]}) {
-		/varset RecklessHeal2 ${Spell[Reckless Remedy].RankName}
-	}
-|- RecklessHeal3
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Reckless Restoration].RankName}]}) {
-		/varset RecklessHeal3 ${Spell[Reckless Restoration].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Reckless Remedy].RankName}]}) {
-		/varset RecklessHeal3 ${Spell[Reckless Remedy].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Reckless Mending].RankName}]}) {
-		/varset RecklessHeal3 ${Spell[Reckless Mending].RankName}
 	}
 |- AESpiritualHeal
 	/if (${Me.Level}>=${Spell[Spiritual Squall].Level} && ${Me.Book[${Spell[Spiritual Squall].RankName}]}) {
@@ -332,7 +329,12 @@ Sub shm_abilities
 		/varset InterventionHeal ${Spell[Progenitor's Intervention].RankName}
 	} else /if (${Me.Level}>=${Spell[Ascendant's Intervention].Level} && ${Me.Book[${Spell[Ascendant's Intervention].RankName}]}) {
 		/varset InterventionHeal ${Spell[Ascendant's Intervention].RankName}
+	} else /if (${Me.Level}>=${Spell[Antecedent's Intervention].Level} && ${Me.Book[${Spell[Antecedent's Intervention].RankName}]}) {
+		/varset InterventionHeal ${Spell[Antecedent's Intervention].RankName}
+	} else /if (${Me.Level}>=${Spell[Ancestral Intervention].Level} && ${Me.Book[${Spell[Ancestral Intervention].RankName}]}) {
+		/varset InterventionHeal ${Spell[Ancestral Intervention].RankName}
 	}
+	
 |- GroupRenewalHoT
 	/if (${Me.Level}>=${Spell[Cloud of Renewal].Level} && ${Me.Book[${Spell[Cloud of Renewal].RankName}]}) {
 		/varset GroupRenewalHoT ${Spell[Cloud of Renewal].RankName}
@@ -346,7 +348,14 @@ Sub shm_abilities
 		/varset GroupRenewalHoT ${Spell[Penumbra of Renewal].RankName}
 	} else /if (${Me.Level}>=${Spell[Shadow of Renewal].Level} && ${Me.Book[${Spell[Shadow of Renewal].RankName}]}) {
 		/varset GroupRenewalHoT ${Spell[Shadow of Renewal].RankName}
+	} else /if (${Me.Level}>=${Spell[Shade of Renewal].Level} && ${Me.Book[${Spell[Shade of Renewal].RankName}]}) {
+		/varset GroupRenewalHoT ${Spell[Shade of Renewal].RankName}
+	} else /if (${Me.Level}>=${Spell[Specter of Renewal].Level} && ${Me.Book[${Spell[Specter of Renewal].RankName}]}) {
+		/varset GroupRenewalHoT ${Spell[Specter of Renewal].RankName}
+	} else /if (${Me.Level}>=${Spell[Ghost of Renewal].Level} && ${Me.Book[${Spell[Ghost of Renewal].RankName}]}) {
+		/varset GroupRenewalHoT ${Spell[Ghost of Renewal].RankName}
 	}
+
 	/varset SetHoTDurationTimer ${Math.Calc[((${Spell[${GroupRenewalHoT}].Duration}*6)*${DurationMod})+(${Me.AltAbility[Prolonged Salve].Rank}*6)].Int}
 |- CurseDoT1
 	/if (${Me.Level}>=${Spell[Erogo's Curse].Level} && ${Me.Book[${Spell[Erogo's Curse].RankName}]}) {
@@ -379,7 +388,30 @@ Sub shm_abilities
 		/varset FastPoisonDoT ${Spell[Stranglefang's Venom].RankName}
 	} else /if (${Me.Level}>=${Spell[Undaleen's Venom].Level} && ${Me.Book[${Spell[Undaleen's Venom].RankName}]}) {
 		/varset FastPoisonDoT ${Spell[Undaleen's Venom].RankName}
+	} else /if (${Me.Level}>=${Spell[Nectar of the Slitheren].Level} && ${Me.Book[${Spell[Nectar of the Slitheren].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Nectar of the Slitheren].RankName}
+	} else /if (${Me.Level}>=${Spell[Nectar of Rancor].Level} && ${Me.Book[${Spell[Nectar of Rancor].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Nectar of Rancor].RankName}
+	} else /if (${Me.Level}>=${Spell[Nectar of Agony].Level} && ${Me.Book[${Spell[Nectar of Agony].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Nectar of Agony].RankName}
+	} else /if (${Me.Level}>=${Spell[Blood of Yoppa].Level} && ${Me.Book[${Spell[Blood of Yoppa].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Blood of Yoppa].RankName}
+	} else /if (${Me.Level}>=${Spell[Blood of Saryrn].Level} && ${Me.Book[${Spell[Blood of Saryrn].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Blood of Saryrn].RankName}
+	} else /if (${Me.Level}>=${Spell[Ancient: Scourge of Nife].Level} && ${Me.Book[${Spell[Ancient: Scourge of Nife].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Ancient: Scourge of Nife].RankName}
+	} else /if (${Me.Level}>=${Spell[Bane of Nife].Level} && ${Me.Book[${Spell[Bane of Nife].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Bane of Nife].RankName}
+	} else /if (${Me.Level}>=${Spell[Envenomed Bolt].Level} && ${Me.Book[${Spell[Envenomed Bolt].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Envenomed Bolt].RankName}
+	} else /if (${Me.Level}>=${Spell[Venom of the Snake].Level} && ${Me.Book[${Spell[Venom of the Snake].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Venom of the Snake].RankName}
+	} else /if (${Me.Level}>=${Spell[Envenomed Breath].Level} && ${Me.Book[${Spell[Envenomed Breath].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Envenomed Breath].RankName}
+	} else /if (${Me.Level}>=${Spell[Tainted Breath].Level} && ${Me.Book[${Spell[Tainted Breath].RankName}]}) {
+		/varset FastPoisonDoT ${Spell[Tainted Breath].RankName}
 	}
+
 |- FastDiseaseDoT
 	/if (${Me.Level}>=${Spell[Hoshkar's Malady].Level} && ${Me.Book[${Spell[Hoshkar's Malady].RankName}]}) {
 		/varset FastDiseaseDoT ${Spell[Hoshkar's Malady].RankName}
@@ -394,6 +426,9 @@ Sub shm_abilities
 	} else /if (${Me.Level}>=${Spell[Affliction].Level} && ${Me.Book[${Spell[Affliction].RankName}]}) {
 		/varset FastDiseaseDoT ${Spell[Affliction].RankName}
 	}
+
+
+
 |- TwinHealNuke
 	/if (${Me.Level}>=${Spell[Frostbitten Gift].Level} && ${Me.Book[${Spell[Frostbitten Gift].RankName}]}) {
 		/varset TwinHealNuke ${Spell[Frostbitten Gift].RankName}
@@ -485,11 +520,7 @@ Sub shm_abilities
 	} else /if (${Me.Level}>=${Spell[Drowsy].Level} && ${Me.Book[${Spell[Drowsy].RankName}]}) {
 		/varset SlowSpell ${Spell[Drowsy].RankName}
 	}
-	/if (${Me.Level}>=${Spell[Talisman of the Beast].Level} && ${Me.Book[${Spell[Talisman of the Beast].RankName}]}) {
-		/varset LowLevelTalisman ${Spell[Talisman of the Beast].RankName}
-	}
 		
-
 |- AESlowSpell
 	/if (${Me.AltAbility[Turgur's Virulent Swarm].ID}) {
 		/varset AESlowSpell Turgur's Virulent Swarm
