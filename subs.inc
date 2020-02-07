@@ -2454,31 +2454,30 @@ Sub get_heal_target(int _hpLimit)
 
 /return ${_worstHurtId}
 
-Sub validate_pre_heal_target(int _hpLimit)
+Sub validate_tank_heal(int _hpLimit)
 
-	/declare _count		     	int local 0
+	/if (${Group.MaintTank.Type.Equal[Mercenary]}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return FALSE
+	}
+
+	/if (${Spawn[id ${Group.MainTank.ID} pccorpse radius 150].ID}) /return FALSE
+
+	/if (${Spawn[id ${Group.MainTank.ID}].Type.Equal[Corpse]}) /return FALSE
+
+	/if (${Target.ID} != ${Group.MainTank.ID}) {
+		/target id ${Group.MainTank.ID}
+		/delay 1s ${Target.ID} == ${Group.MainTank.ID}
+		/delay 5
+	}
+
+	/if (${Target.Distance} > 200) /return FALSE
+
+	/if (${Target.PctHPs} >= ${_hpLimit}) {
+		/return TRUE
+	} else {
+		/return FALSE
+	}
 	
-	/for _count 0 to ${Group}
-	
-		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
-		/if (${Group.Member.OtherZone}) /continue
-		/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
-			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
-		}
-
-		/if (${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
-			
-			/if (${Group.Member[${_count}].Distance} > 200) /return FALSE
-
-			/if (${Group.Member[${_count}].PctHPs} >= ${_hpLimit}) {
-				/return TRUE
-			} else {
-				/return FALSE
-			}
-		}
-
-	/next _count
-
 /return FALSE
 
 

@@ -47,13 +47,13 @@ Sub clr_main
 	/call clr_combat_tank_buffs
 
 	/while (${Me.XTarget}) {
-		/call get_heal_target ${patchhealpoint}
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${patchheal}", ${WorstHurtId}]}) {
-				/call core_cast2 "${patchheal}" spell ${WorstHurtId} FALSE
+
+		/if (${validate_tank_heal[70]}) {
+			/if (${validate_cast[FALSE, spell, "${WardSpell}", ${Group.MainTank.ID}]}) {
+				/call core_cast2 "${WardSpell}" spell ${Group.MainTank.ID} FALSE
 			}
 		}
+		
 
 		/call get_heal_target 90
 		/varset WorstHurtId ${Macro.Return}
@@ -79,14 +79,8 @@ Sub clr_main
 			}
 		}
 
-		/if (${Target.ID} != ${Group.MainTank.ID}) {
-			/target id ${Group.MainTank.ID}
-			/delay 1s ${Target.ID} == ${Group.MainTank.ID}
-			/delay 5
-		}
-
 		/if (!${Target.Buff[${PromisedHeal}].ID}) {
-			/if (${validate_pre_heal_target[70]}) {
+			/if (${validate_tank_heal[70]}) {
 				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
 					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
 				}
@@ -94,7 +88,7 @@ Sub clr_main
 		}
 
 		/if (!${Target.Buff[${WardSpell}].ID}) {
-			/if (${validate_pre_heal_target[70]}) {
+			/if (${validate_tank_heal[70]}) {
 				/if (${validate_cast[FALSE, spell, "${WardSpell}", ${Group.MainTank.ID}]}) {
 					/call core_cast2 "${WardSpell}" spell ${Group.MainTank.ID} FALSE
 				}
@@ -124,7 +118,7 @@ Sub clr_main
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
 		
 		/if (!${elixirHeal}) {
-			/if (${validate_pre_heal_target[95]}) {
+			/if (${validate_tank_heal[95]}) {
 				/if (${validate_cast[FALSE, spell, "${SingleElixirSpell}", ${Group.MainTank.ID}]}) {
 					/call core_cast2 "${SingleElixirSpell}" spell ${Group.MainTank.ID} FALSE
 				}
