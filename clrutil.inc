@@ -8,7 +8,7 @@ Sub clr_setup
 |-Declare spell variables
 	/declare promgem				int             outer 0
 	/declare divinegem				int             outer 0
-	/declare wardspell		        string          outer NULL
+	/declare WardSpell		        string          outer NULL
 	/declare Remedy1	        string          outer NULL
 	/declare Remedy2	        string          outer NULL
 	/declare Remedy3	        string          outer NULL
@@ -109,7 +109,7 @@ Sub clr_load_spellbar
 	/call LoadSpellGem "${PromisedHeal}" 2
 	/call LoadSpellGem "${Remedy1}" 3
 	/call LoadSpellGem "${Remedy2}" 4
-	/call LoadSpellGem "${patchheal}" 5
+	/call LoadSpellGem "${WardSpell}" 5
 	/call LoadSpellGem "${Intervention1}" 6
 	/call LoadSpellGem "${Intervention2}" 7
 	/call LoadSpellGem "${Intervention3}" 8
@@ -125,13 +125,13 @@ Sub clr_abilities
 	|---Ward Spell Slot 1 or Heal over time for low level
 	
 	/if (${Me.Level}>=112 && ${Me.Book[${Spell[Ward of Righteousness].RankName}]})  {
-		/varset wardspell ${Spell[Ward of Assurance].RankName}
+		/varset WardSpell ${Spell[Ward of Assurance].RankName}
 	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Ward of Assurance].RankName}]})  {
-		/varset wardspell ${Spell[Ward of Assurance].RankName}
+		/varset WardSpell ${Spell[Ward of Assurance].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Ward of Surety].RankName}]})  {
-		/varset wardspell ${Spell[Ward of Surety].RankName}
+		/varset WardSpell ${Spell[Ward of Surety].RankName}
 	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Ward of Certitude].RankName}]})  {
-		/varset wardspell ${Spell[Ward of Certitude].RankName}
+		/varset WardSpell ${Spell[Ward of Certitude].RankName}
 	}
 
 

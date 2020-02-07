@@ -71,13 +71,33 @@ Sub clr_main
 			}
 		}
 
-		
-
 		/call get_heal_target 75
 		/varset WorstHurtId ${Macro.Return}
 		/if (${WorstHurtId} > 0) {
 			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${WorstHurtId}]}) {
 				/call core_cast2 "${Intervention1}" spell ${WorstHurtId} FALSE
+			}
+		}
+
+		/if (${Target.ID} != ${Group.MainTank.ID}) {
+			/target id ${Group.MainTank.ID}
+			/delay 1s ${Target.ID} == ${Group.MainTank.ID}
+			/delay 5
+		}
+
+		/if (!${Target.Buff[${PromisedHeal}].ID}) {
+			/if (${validate_pre_heal_target[70]}) {
+				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
+					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
+				}
+			}
+		}
+
+		/if (!${Target.Buff[${WardSpell}].ID}) {
+			/if (${validate_pre_heal_target[70]}) {
+				/if (${validate_cast[FALSE, spell, "${WardSpell}", ${Group.MainTank.ID}]}) {
+					/call core_cast2 "${WardSpell}" spell ${Group.MainTank.ID} FALSE
+				}
 			}
 		}
 
@@ -97,19 +117,6 @@ Sub clr_main
 			}
 		}
 
-		/if (${Target.ID} != ${Group.MainTank.ID}) {
-			/target id ${Group.MainTank.ID}
-			/delay 1s ${Target.ID} == ${Group.MainTank.ID}
-		}
-
-		/if (!${Target.Buff[${PromisedHeal}].ID}) {
-			/if (${validate_pre_heal_target[70]}) {
-				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
-					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
-				}
-			}
-		}
-		
 		/if (${check_hurt[FALSE, group, 85]} >= 3) {
 			/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
 		}
