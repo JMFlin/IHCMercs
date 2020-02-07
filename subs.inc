@@ -103,6 +103,7 @@ Sub var_setup
 	/declare Limit 				int outer 50
 	/declare DummyTime        	int outer 10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
+	/declare cannotCast 		bool outer FALSE
 |	/declare PCRadiusCheck 		int outer 10
 
 |- Balance events
@@ -120,6 +121,7 @@ Sub var_setup
 |- core_cast2
 	/declare castReturn 		string outer NULL
 	/declare castBreak 			bool outer TRUE
+	/declare allowedFizzleCount int outer 3
 
 |- timers
 	/declare TimeForMez					timer outer	0
@@ -172,6 +174,7 @@ Sub var_setup
 	/declare verboseBRD 		bool outer TRUE
 	/declare verboseCLR 		bool outer FALSE
 	/declare verboseMAG 		bool outer FALSE
+	/declare verboseMNK 		bool outer TRUE
 
 |- classes
 	/declare casterCasting 		int outer 0
@@ -522,8 +525,6 @@ Sub afk_pull
  Sub chain_pull
 	/declare _pullTargetID 	int local 0
 
-
-	/if (${Me.XTarget[1].Distance} > 200) /nav id ${Me.XTarget[1].ID}
 	/if (${Me.XTarget}) /return
 	/if (${Me.Casting.ID}) /return
 	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
@@ -575,17 +576,9 @@ Sub get_pull_target_melee_range
 			/target id ${_tmpID}
 			/delay 1s ${Target.ID} == ${_tmpID}
 
-			/if (!${Me.XTarget} && ${Target.ID}) {
-				/attack on
-				/if (!${Stick.Active}) /stick 12 front loose
-				/delay 1s ${Stick.Active}
-				/delay 7s ${Target.Distance} <= ${PullDistance}
-				/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
-				/if (!${Stick.Active} && ${Me.XTarget}) /stick off
-				/delay 1s ${Me.XTarget}
-
+			/if (!${Me.XTarget} && ${Target.ID} && ${Spawn[id ${_tmpID}].Distance} < ${PullDistance}) {
+				/if (${Spawn[id ${_tmpID}].Distance} < 20) /call get_close_target
 			} 
-
 
 			/if (${Navigation.Active} && ${Me.XTarget}) {
 				/if (${_tmpID} != ${Me.XTarget[1].ID}) {
@@ -598,72 +591,87 @@ Sub get_pull_target_melee_range
 			/delay 1
 		}
 	}
+
 /return
 
 Sub get_pull_target(int _tmpID)
 
-	/if (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight}) {
+	/if (${Spawn[id ${_tmpID}].Distance} < ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) {
 		
-		/nav id ${_tmpID}
-
-		/while (${Navigation.Active}) {
-
-			/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 100)) /continue
-
-			/target id ${_tmpID}
-			/delay 1s ${Target.ID} == ${_tmpID}
-
-			/if (${Spell[${PullAbility}].MyCastTime.Float} < 1) {
-				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
-					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_PULLERCANNOTSEE ${_tmpID}
-					/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
-					/delay 3s ${Me.XTarget}
-					/return
-				}
-			} else {
-				/if (${Navigation.Active}) /nav stop
-				/delay 3s !${Me.Moving}
-				/delay 5
-				/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
-					/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
-				}
-				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
-				/return
-			}
-		
-			
-			/if (${Navigation.Active} && ${Me.XTarget}) {
-				/if (${_tmpID} != ${Me.XTarget[1].ID}) {
-					/target id ${Me.XTarget[1].ID}
-					/nav stop
-					/return
-				}
-			}
-
-			
-			| /if (${Navigation.Active} && ${Target.ID} == ${_tmpID} && ${Spawn[id ${_tmpID}].Distance} <= ${PullDistance} && ${Spawn[id ${_tmpID}].LineOfSight}) /nav stop
-			/delay 1
-			/if (!${Navigation.Active} && (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight})) /nav id ${_tmpID}
-			
-		}
-
-	} else {
-		/target id ${_tmpID}
-		/delay 1s ${Target.ID} == ${_tmpID}
 		/if (${Spell[${PullAbility}].MyCastTime.Float} > 1) /delay 3s !${Me.Moving}
+
 		/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
 			/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+			/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+			/if (${cannotCast}) {
+				/varset cannotCast FALSE
+				/return
+			}
 		}
-		/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+		/delay 1s ${Me.XTarget}
+		/return
 	}
 	
-	/if (!${Me.XTarget}) /delay 1s
+	/nav id ${_tmpID}
+
+	/while (${Navigation.Active}) {
+
+		/if (${Navigation.Active} && ${Me.XTarget}) {
+			/if (${_tmpID} != ${Me.XTarget[1].ID}) {
+				/target id ${Me.XTarget[1].ID}
+			}
+			/return
+		}
+
+		/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${PullDistance} + 100)) /continue
+		/if (${Spell[${PullAbility}].MyCastTime.Float} < 1) {
+			:tag_target
+			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
+				/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+				/if (${cannotCast}) {
+					/varset cannotCast FALSE
+					/return
+				}
+			}
+			/if (!${Me.XTarget}) {
+				/if (${Spawn[id ${_tmpID}].Distance} < 20) /call get_close_target
+				/if (!${Me.XTarget}) /goto :tag_target
+			}
+		} else {
+			/if (${Navigation.Active}) /nav stop
+			/if (${Me.XTarget}) /return
+			/delay 3s !${Me.Moving}
+			/delay 5
+			/if (${validate_cast[FALSE, FIND, ${PullAbility}, ${_tmpID}]}) {
+				/call core_cast2 "${PullAbility}" FIND ${_tmpID} FALSE
+				/call check_cast_events "${PullAbility}" CAST_CANNOTCAST ${_tmpID}
+				/if (${cannotCast}) {
+					/varset cannotCast FALSE
+					/return
+				}
+			}
+			/return
+		}
+
+		/if (!${Navigation.Active}) {
+			/if (${Spawn[id ${_tmpID}].Distance} > ${PullDistance} || !${Spawn[id ${_tmpID}].LineOfSight}) {
+				/if (!${Me.XTarget}) /nav id ${_tmpID}
+			}
+		}
+		/delay 1
+	}
+
+/return
+
+Sub get_close_target(int _tmpID)
+
+	/if (${Navigation.Active}) /nav stop
+	/stick 12 moveback loose
+	/attack on
+	/delay 3s ${Me.XTarget}
+	/stick off
+
 /return
 
 Sub validate_no_pc(int _tmpID)
@@ -1251,13 +1259,6 @@ Sub get_target
 		/return
 	}
 
-	| if I am not the main tank or ma assist then assist the MA
-	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
-		/assist ${Group.MainAssist.Name}
-		/delay 8
-		/return
-	}
-
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		| if there is an xtarget close then target the one with lowest hp
@@ -1266,13 +1267,6 @@ Sub get_target
 		} else {
 			/target id ${SpawnSort[1,asc,PathLength,xtarhater].ID}
 		}
-
-
-		|/for _count 1 to ${Me.XTarget}
-
-
-
-		|/next _count
 	}
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
@@ -1298,10 +1292,15 @@ Sub get_target
 				/call engage
 				/call ${Me.Class.ShortName.Lower}_get_aggro
 			}
-		} else {
-			/assist ${Group.MainAssist.Name}
-			/delay 5
 		}
+	}
+
+	| if I am not the main tank or ma assist then assist the MA
+	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
+		| /if (${GroupAssistTarget}) 
+		/assist ${Group.MainAssist.Name}
+		/delay 1s ${Me.AssistComplete} == TRUE
+		/return
 	}
 
 /return
@@ -1427,12 +1426,20 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		| global cooldown? is this shit broke?
 		/if (${Me.SpellInCooldown}) /return FALSE
 		
-		| are we moving?
-		/if (${Me.Moving}) /return FALSE
+		| if not instant cast spell
+		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
+			| are we moving?
+			/if (${Me.Moving}) /return FALSE
+		}
+		
 		
 		| /if (${Stick.Status.Equal[ON]}) /stick off
 
-		/if (${Navigation.Active}) /return FALSE
+		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
+			| are we moving?
+			/if (${Navigation.Active}) /return FALSE
+		}
+		
 		/if (${AdvPath.Following}) /return FALSE
 		
 		| correct rank name
@@ -1499,6 +1506,12 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			/if (${Me.Buff[${_spell}].ID}) /return FALSE
 			/if (${Me.Song[${_spell}].ID}) /return FALSE		
 		}
+
+		| if not instant cast spell
+		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
+			| are we moving?
+			/if (${Me.Moving}) /return FALSE
+		}
 	
 	| check disc
 	} else /if (${_type.Equal[disc]}) {
@@ -1541,6 +1554,12 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		/if (${_tmpID} == ${Me.ID}) {
 			/if (${Me.Buff[${FindItem[=${_spell}].Spell}].ID}) /return FALSE
 			/if (${Me.Song[${FindItem[=${_spell}].Spell}].ID}) /return FALSE
+		}
+
+		| if not instant cast spell
+		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
+			| are we moving?
+			/if (${Me.Moving}) /return FALSE
 		}
 					
 		| stacking
@@ -1647,12 +1666,13 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		|	DEBUG FIND${dep}\arFAIL\ax${dep}${_spell}${dep}\a-wnot found or not ready\az
 			/return FALSE
 		}
-	} 	
-
+	}
 
 	| spell
 	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
 		|DEBUG ${dep}spell${dep}${_spell}
+		/declare _fizzle bool local FALSE
+		/declare _fizzleCount int local 0
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
@@ -1685,54 +1705,39 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 
 		| mem spell if needed
 		/if (!${Me.Gem[${_spell}]}) /call mem_spell FALSE TRUE "${_spell}" ${_type} TRUE
-		| ${_type.Equal[${buffGem}]} && 
-		| is the spell memed
-		/if (${Me.Gem[${_spell}]}) {
 
-			| echos
-			|/if (${_tmpID} == 0) {
-			|	VSPELL Spell ${sep} ${csp}${_spell}\ax
-			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
-			|	VSPELL Spell ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
-			|}
-			|VBC Spell "${_spell}" ${_tmpID} 0 		
+		/if (${Me.Gem[${_spell}]}) {
 
 			| give this a try
 			/while (${_castLoop}) {
-			
-				/if (${Me.Invis} || ${Select[${Me.Class.ShortName},ROG]}) /return FALSE
+				/varset _fizzle FALSE
 			
 				| can we say no MQ2Cast ???
 				/cast ${Me.Gem[${_spell}]}
 
-				| set delays for casting. GTFO out of this as fast as possible
-				/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
-
-				|/while (${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s || !${Me.Casting.ID})
-				/if (${Me.SpellInCooldown}) /call global_cooldown_spells
-
-				| delay for longer casts if there is any, cooldowns or open spell cast windows
-				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) {
-					/delay 3
+				:cast_in_progress
+				| cast global cooldown spells
+				/if (!${Spawn[id ${_tmpID}].ID}) {
+					/if (${Me.Casting.ID}) /stopcast
+					/delay 1s !${Me.Casting.ID}
+					/return
 				}
+				/if (${Me.SpellInCooldown}) /call global_cooldown_spells ${_tmpID}
 
- 				|CHECKINPUTS
- 			| /call check_cast_events 1
-						
-				| good cast
-				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
+				/if (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) /goto :cast_in_progress
+
+				| check fizzle
+				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
+				/varset _fizzle ${Macro.Return}
 				
-				| spell is not ready
-				/if (${Select[${castReturn},CAST_NOTREADY]}) {
-					/varcalc _castLoop ${_castLoop}-1
-					/delay 2
+				/if (!${_fizzle} || ${_fizzleCount} == ${allowedFizzleCount}) {
+					/varcalc _castLoop ${_castLoop} - 1
+				} else {
+					/varcalc _fizzleCount ${_fizzleCount} + 1
 				}
-
 			}
-
 		}
 		/return
-
 
 	| AA
 	} else /if (${Select[${_type},alt]}) {
@@ -1741,10 +1746,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset castBreak FALSE
-		
-		|/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call engage
-		
-		
+
 		| delay for aa casting
 		/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
 		
@@ -1752,14 +1754,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		
 		| is the spell memed
 		/if (${Me.AltAbilityReady[${_spell}]}) {
-
-			| echos
-			|/if (${_tmpID} == 0) {
-			|	VALT AA ${sep} ${csp}${_spell}\ax
-			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
-			|	VALT AA ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
-			|}
-			|VBC Alt "${_spell}" ${_tmpID} 0
 
 			| gonna try this 3 times.
 			/while (${_castLoop}) {
@@ -1796,18 +1790,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 
-		|/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call engage
-
 		| is the item ready?
-		/if (${Me.ItemReady[${_spell}]}) {
-
-			| echos
-			|/if (${_tmpID} == 0) {
-			|	VITEM Item ${sep} ${citem}${_spell}\ax
-			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
-			|	VITEM Item ${sep} ${citem}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]	
-			|}
-			|VBC Item "${_spell}" ${_tmpID} 0 		
+		/if (${Me.ItemReady[${_spell}]}) {	
 
 
 			| try this 2 times
@@ -1832,7 +1816,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				
 				| spell is not ready
 				/if (${Select[${castReturn},CAST_NOTREADY]}) {
-					/varcalc _castLoop ${_castLoop}-1
+					/varcalc _castLoop ${_castLoop} - 1
 					/delay 2
 				}
 
@@ -1861,7 +1845,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	| bard song	
 	} else /if (${Select[${_type},pulse]}) {
 	|	DEBUG ${dep}pulse${dep}${_spell}
-
+		/declare _fizzle bool local FALSE
+		/declare _fizzleCount int local 0
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 		/varset _spell ${Spell[${_spell}].RankName}
@@ -1871,37 +1856,50 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/if (!${Me.Gem[${_spell}]}) /call mem_spell FALSE TRUE "${_spell}" ${_type} TRUE
 
 		| is the gem ready?
-		/if (${Me.Gem[${_spell}]}) {
-
-			| echos
-			|/if (${_tmpID} == 0) {
-			|	VPULSE Pulse ${sep} ${csp}${_spell}\ax
-			|} else /if (${_tmpID} != 0 && ${Target.ID}) {
-			|	VPULSE Pulse ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
-			|}
-			|VBC Pulse "${_spell}" ${_tmpID} 0 		
+		/if (${Me.Gem[${_spell}]}) {	
 
 			| gonna try this 2 times.
+
+			/while (${_castLoop}) {
+				/varset _fizzle FALSE
+			
+				| can we say no MQ2Cast ???
+				/cast ${Me.Gem[${_spell}]}
+
+				:cast_in_progress
+				| cast global cooldown spells
+				/if (!${Spawn[id ${_tmpID}].ID}) {
+					/if (${Me.Casting.ID}) /call pulse_stop core_cast_pulsestop
+					/delay 1s !${Me.Casting.ID}
+					/return
+				} else {
+					/call get_target
+					/call engage
+				}
+				
+				/if (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) /goto :cast_in_progress
+
+				| check fizzle
+				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
+				/varset _fizzle ${Macro.Return}
+				
+				/if (!${_fizzle} || ${_fizzleCount} == ${allowedFizzleCount}) {
+					/varcalc _castLoop ${_castLoop} - 1
+				} else {
+					/varcalc _fizzleCount ${_fizzleCount} + 1
+				}
+			}
+		
+		|**
 			/while (${_castLoop}) {
 				
 				/cast ${Me.Gem[${_spell}]}
-
-				/call get_target
-				/call engage
-				/call move_to_camp
 
 				| adjust delay for Metronome AA (fuck bards)
 				/if (${Me.AltAbility[Metronome]}) {
 					/delay ${Spell[${_spell}].CastTime.Seconds}s
 				} else {
 					/delay ${Math.Calc[${Spell[${_spell}].CastTime.Seconds}+${Math.Calc[${Spell[${_spell}].CastTime.Seconds}*.05]}]}s
-				}
-
-				/while (${Window[CastingWindow].Open}) {
-					/call get_target
-					/call engage
-					/call move_to_camp
-					/delay 3
 				}
  				
  				|CHECKINPUTS
@@ -1915,6 +1913,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				}
 
 			}
+		**|
 			
 		}
 		/return
@@ -1926,18 +1925,18 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 |----------------------------------------------------------------------------
 |- SUB: global_cooldown_spells - Cast between spell casts (Weave)
 |---------------------------------------------------------------------------- 
-Sub global_cooldown_spells
+Sub global_cooldown_spells(int _tmpID)
 | ${Me.AltAbility[Force of Flame].Rank} >= 1
 
-	/if (${validate_cast[FALSE, alt, "Force of Flame", ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Flame", ${_tmpID}]}) {
 		/alt act ${Me.AltAbility[Force of Flame].ID}
 		/return
 	}
-	/if (${validate_cast[FALSE, alt, "Force of Ice", ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Ice", ${_tmpID}]}) {
 		/alt act ${Me.AltAbility[Force of Ice].ID}
 		/return
 	}
-	/if (${validate_cast[FALSE, alt, "Force of Will", ${Target.ID}]}) {
+	/if (${validate_cast[FALSE, alt, "Force of Will", ${_tmpID}]}) {
 		/alt act ${Me.AltAbility[Force of Will].ID}
 		/return
 	}
@@ -2455,31 +2454,30 @@ Sub get_heal_target(int _hpLimit)
 
 /return ${_worstHurtId}
 
-Sub validate_pre_heal_target(int _hpLimit)
+Sub validate_tank_heal(int _hpLimit)
 
-	/declare _count		     	int local 0
+	/if (${Group.MaintTank.Type.Equal[Mercenary]}) {
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return FALSE
+	}
+
+	/if (${Spawn[id ${Group.MainTank.ID} pccorpse radius 150].ID}) /return FALSE
+
+	/if (${Spawn[id ${Group.MainTank.ID}].Type.Equal[Corpse]}) /return FALSE
+
+	/if (${Target.ID} != ${Group.MainTank.ID}) {
+		/target id ${Group.MainTank.ID}
+		/delay 1s ${Target.ID} == ${Group.MainTank.ID}
+		/delay 5
+	}
+
+	/if (${Target.Distance} > 200) /return FALSE
+
+	/if (${Target.PctHPs} >= ${_hpLimit}) {
+		/return TRUE
+	} else {
+		/return FALSE
+	}
 	
-	/for _count 0 to ${Group}
-	
-		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
-		/if (${Group.Member.OtherZone}) /continue
-		/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
-			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
-		}
-
-		/if (${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
-			
-			/if (${Group.Member[${_count}].Distance} > 200) /return FALSE
-
-			/if (${Group.Member[${_count}].PctHPs} >= ${_hpLimit}) {
-				/return TRUE
-			} else {
-				/return FALSE
-			}
-		}
-
-	/next _count
-
 /return FALSE
 
 
@@ -2769,7 +2767,12 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 	/if (${_event.Equal[CAST_CANNOTCAST]}) {
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \ar ${Target.Name} \ax is \ar UNPULLABLE \ax with =>> \ag ${_spell} \ax <<=
 		/squelch /alert add 1 id ${_tmpID}
-		
+		/varset cannotCast TRUE
+
+	}
+
+	/if (${_event.Equal[CAST_FIZZLE]}) {
+		/return TRUE
 	}
 
 	/if (${_event.Equal[CAST_PULLERCANNOTSEE]}) {
@@ -2937,9 +2940,8 @@ Sub Bind_ad(string Command)
 |- SUB: mezz_xtarget
 |---------------------------------------------------------------------------- 
 Sub mezz_xtarget(string _mezAE, string _mezSingle)
-	/declare x				 	int local 1
-	/declare numberOfSpawn 	 	int local 0
-	/declare closestMezzTarget 	int local 0
+	/declare _count				 	int local 1
+	/declare _numberOfSpawn 	 	int local 0
 	/declare _mezAERange		int local 0
 
 	| Is there something to mez or debuff?
@@ -2947,6 +2949,8 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/if (!(${Me.Gem[${_mezAE}]} || ${Me.Gem[${_mezSingle}]})) /return
 
 	/call get_target
+	
+	/attack off
 
 	/while (${Target.Distance3D} > 150 && !${Spawn[id ${Target.ID}].LineOfSight}) {
 		/delay 5
@@ -2967,17 +2971,17 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 				/if (${Me.Casting.Name.NotEqual[${_mezAERange}]}) /call pulse_stop 18
 			}
 
-			/for x 1 to ${Me.XTarget}
+			/for _count 1 to ${Me.XTarget}
 
 				| If xtarget is not mezzed, add it to count
-				/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
-					/varcalc numberOfSpawn ${numberOfSpawn}+1
+				/if (${If[${Select[${Me.XTarget[${_count}].Animation},110,26,32,71,72,111]}, 0, 1]} == 1) {
+					/varcalc _numberOfSpawn ${_numberOfSpawn}+1
 				}
 
-			/next x
+			/next _count
 			
 			| If there are more than 1 mobs counted then aoe mez
-			/if (${numberOfSpawn} > 1) {
+			/if (${_numberOfSpawn} > 1) {
 				/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 				/delay 1s
 
@@ -3002,22 +3006,22 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 		/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 
 		| Loop through xtarget if we should mezz adds, even if we just did aoe mezz
-		/for x 1 to ${Me.XTarget}
+		/for _count 1 to ${Me.XTarget}
 
-			/if (${immuneSet.Contains[${Me.XTarget[${x}].ID}]}) /continue
+			/if (${immuneSet.Contains[${Me.XTarget[${_count}].ID}]}) /continue
 
 			| If target is too far away then skip
-			/if (${Me.XTarget[${x}].Distance} > 200) /continue
+			/if (${Me.XTarget[${_count}].Distance} > 200) /continue
 
 			| If the xtarget is already mezzed then skip
-			/if (${If[${Select[${Me.XTarget[${x}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
+			/if (${If[${Select[${Me.XTarget[${_count}].Animation},110,26,32,71,72,111]}, 0, 1]} == 0) /continue
 
 			| Query MA and MT on what is currently being killed
 			/call Gquery ${Group.MainAssist.Name.Lower} "Target.ID" "MATargetID" "int"
 			/call Gquery ${Group.MainTank.Name.Lower} "Target.ID" "MTTargetID" "int"
 
 			| If xtarget is being targetted by MA or MT then skip
-			/if (${Me.XTarget[${x}].ID} == ${MATargetID} || ${Me.XTarget[${x}].ID} == ${MTTargetID}) /continue
+			/if (${Me.XTarget[${_count}].ID} == ${MATargetID} || ${Me.XTarget[${_count}].ID} == ${MTTargetID}) /continue
 
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MA Target is \ar${MATargetID}
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MT Target is \ar${MTTargetID}
@@ -3029,8 +3033,8 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			/delay 2s !${Stick.Active}
 			/attack off
 			| If not then target it
-			/target id ${Me.XTarget[${x}].ID}
-			/delay 2s ${Me.XTarget[${x}].ID} == ${Target.ID}
+			/target id ${Me.XTarget[${_count}].ID}
+			/delay 2s ${Me.XTarget[${_count}].ID} == ${Target.ID}
 
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.Name} - ${Target.ID}
 			/delay 1s
@@ -3075,7 +3079,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 
 			/delay 1s
 
-		/next x
+		/next _count
 		/if (${Defined[MATargetID]}) /deletevar MATargetID
 		/if (${Defined[MTTargetID]}) /deletevar MTTargetID
 	}

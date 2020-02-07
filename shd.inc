@@ -33,6 +33,8 @@ Sub shd_main
 				}
 			}
 		}
+
+		/call check_add_aggro
 	
 		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
 			/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
@@ -243,28 +245,32 @@ Sub shd_get_aggro
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {
 		/call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
 	}
-	
+
 	/if (${validate_cast[FALSE, spell, "${Terror2}", ${Target.ID}]}) {
 		/call core_cast2 "${Terror2}" spell ${Target.ID} FALSE
 	}
+	
 
 	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
 		/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]}) /call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
 	}
 	
-
-	/if (${validate_cast[FALSE, alt, "Projection of Doom", ${Target.ID}]} && ${Me.SecondaryPctAggro} >= 30) {
-		/call core_cast2 "Projection of Doom" alt ${Target.ID} FALSE
+	/if (${Me.SecondaryPctAggro} > 30) {
+		/if (${validate_cast[FALSE, alt, "Projection of Doom", ${Target.ID}]} && ${Me.SecondaryPctAggro} >= 30) {
+			/call core_cast2 "Projection of Doom" alt ${Target.ID} FALSE
+		}
 	}
 
 	/if (${validate_cast[FALSE, alt, "Hate's Attraction", ${Target.ID}]}) {
 		/call core_cast2 "Hate's Attraction" alt ${Target.ID} FALSE
 	}
 	
-	/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${Target.ID}]}) /call core_cast2 "Explosion of Hatred" alt ${Target.ID} FALSE
-	
-	/if (${validate_cast[FALSE, alt, "Explosion of Spite", ${Target.ID}]}) /call core_cast2 "Explosion of Spite" alt ${Target.ID} FALSE
-
+	/if (${Me.SecondaryPctAggro} > 30) {
+		/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${Target.ID}]}) /call core_cast2 "Explosion of Hatred" alt ${Target.ID} FALSE
+	}
+	/if (${Me.SecondaryPctAggro} > 30) {
+		/if (${validate_cast[FALSE, alt, "Explosion of Spite", ${Target.ID}]}) /call core_cast2 "Explosion of Spite" alt ${Target.ID} FALSE
+	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: aoe_aggro   
