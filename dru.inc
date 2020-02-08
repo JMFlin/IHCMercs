@@ -34,7 +34,6 @@ Sub dru_main
 		}
 
 		/call get_target
-
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
@@ -91,6 +90,7 @@ Sub dru_main
 			}
 		}
 
+		DEBUG At NBW
 		/call get_heal_target 55
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
