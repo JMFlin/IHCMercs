@@ -4,7 +4,6 @@
 |---------------------------------------------------------------------------- 
 Sub ber_main
 
-	/call engage
 	/call ber_aa_and_disc
 	/call ber_combat
 	
@@ -22,7 +21,7 @@ Sub ber_main
 Sub ber_aa_and_disc
 
 	/call get_target
-
+	/call engage
 	/if (!${validate_combat[${Target.ID}]} ) /return
 	/if (${Target.Distance3D} > 50) /return
 	/doevents
@@ -250,6 +249,7 @@ Avenging Flurry Discipline
 Sub ber_combat
 
 	/call get_target
+	/call engage
 	/if (!${validate_combat[${Target.ID}]} ) /return
 
 |	/doevents BerStunRotation

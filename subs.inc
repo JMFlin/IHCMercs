@@ -594,7 +594,7 @@ Sub get_pull_target(int _tmpID)
 		/if (${validate_cast[FALSE, FIND, ${pullAbility}, ${_tmpID}]}) {
 			/call core_cast2 "${pullAbility}" FIND ${_tmpID} FALSE
 			/call check_cast_events "${pullAbility}" CAST_CANNOTCAST ${_tmpID}
-			/call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
+			/if (!${Me.XTarget}) /call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
 			/if (${cannotCast}) {
 				/varset cannotCast FALSE
 				/return
@@ -621,7 +621,7 @@ Sub get_pull_target(int _tmpID)
 			/if (${validate_cast[FALSE, FIND, ${pullAbility}, ${_tmpID}]}) {
 				/call core_cast2 "${pullAbility}" FIND ${_tmpID} FALSE
 				/call check_cast_events "${pullAbility}" CAST_CANNOTCAST ${_tmpID}
-				/call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
+				/if (!${Me.XTarget}) /call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
 				/if (${cannotCast}) {
 					/varset cannotCast FALSE
 					/return
@@ -639,7 +639,7 @@ Sub get_pull_target(int _tmpID)
 			/if (${validate_cast[FALSE, FIND, ${pullAbility}, ${_tmpID}]}) {
 				/call core_cast2 "${pullAbility}" FIND ${_tmpID} FALSE
 				/call check_cast_events "${pullAbility}" CAST_CANNOTCAST ${_tmpID}
-				/call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
+				/if (!${Me.XTarget}) /call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
 				/if (${cannotCast}) {
 					/varset cannotCast FALSE
 					/return
@@ -1289,6 +1289,8 @@ Sub get_target
 		/assist ${Group.MainAssist.Name}
 		/delay 1s ${Me.AssistComplete} == TRUE
 		/delay 5
+		/if (${Navigation.Active}) /nav stop
+		/if (${Stick.Active}) /stick off
 		/return
 	}
 
@@ -2769,7 +2771,7 @@ Sub check_cast_events(string _spell, string _event, int _tmpID)
 	}
 
 	/if (${_event.Equal[CAST_PULLERCANNOTSEE]}) {
-		/if (${Spawn[id ${Target.ID}].Distance} > 15) {
+		/if (${Spawn[id ${_tmpID}].Distance} > 15) {
 			/call core_cast2 "${pullAbility}" FIND ${_tmpID} FALSE
 		} else {
 			/call core_cast2 "${pullAbility}" FIND ${_tmpID} FALSE
