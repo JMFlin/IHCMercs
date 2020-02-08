@@ -47,6 +47,10 @@ Sub shm_setup
 	/declare SelfHealProcBuff		string outer NULL
 	/declare Malo 					string outer NULL
 	/declare LowLevelTalisman 		string outer NULL
+	/declare CrippleSpell 			string outer NULL
+	/declare RezSpell 				string outer NULL
+	/declare MassRezSpell			string outer NULL
+
 |- Misc Variables
 	/declare Spell1					string outer NULL
 	/declare Spell2					string outer NULL
@@ -111,7 +115,8 @@ Sub shm_load_spellbar
 
 	/call LoadSpellGem "${RecklessHeal1}" 1
 	/call LoadSpellGem "${RecklessHeal2}" 2
-	/call LoadSpellGem "${RecklessHeal3}" 3
+	|/call LoadSpellGem "${RecklessHeal3}" 3
+	/call LoadSpellGem "${CrippleSpell}" 3
 	/call LoadSpellGem "${RecourseHeal}" 4
 	/call LoadSpellGem "${InterventionHeal}" 5
 	/call LoadSpellGem "${Malo}" 6
@@ -198,7 +203,9 @@ Sub shm_abilities
 		/varset CanniSpell ${Spell[Ancestral Obligation].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Alacrity].Level} && ${Me.Book[${Spell[Alacrity].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Celerity].Level} && ${Me.Book[${Spell[Celerity].RankName}]}) {
+		/varset HasteSpell ${Spell[Celerity].RankName}
+	} else /if (${Me.Level}>=${Spell[Alacrity].Level} && ${Me.Book[${Spell[Alacrity].RankName}]}) {
 		/varset HasteSpell ${Spell[Alacrity].RankName}
 	}
 |- ShamanAura
@@ -218,6 +225,8 @@ Sub shm_abilities
 		/varset FocusSpell ${Spell[Talisman of Soul's Unity].RankName}
 	} else /if (${Me.Level}>=${Spell[Talisman of Unity].Level} && ${Me.Book[${Spell[Talisman of Unity].RankName}]}) {
 		/varset FocusSpell ${Spell[Talisman of Unity].RankName}
+	} else /if (${Me.Level}>=${Spell[Khura's Focusing].Level} && ${Me.Book[${Spell[Khura's Focusing].RankName}]}) {
+		/varset FocusSpell ${Spell[Khura's Focusing].RankName}
 	}
 	
 	/if (${Me.Level}>=${Spell[Infusion of Spirit].Level} && ${Me.Book[${Spell[Infusion of Spirit].RankName}]}) {
@@ -242,9 +251,20 @@ Sub shm_abilities
 		/varset DichoSpell ${Spell[Dissident Roar].RankName}
 	} else /if (${Me.Level}>=${Spell[Roar of the Lion].Level} && ${Me.Book[${Spell[Roar of the Lion].RankName}]}) {
 		/varset DichoSpell ${Spell[Roar of the Lion].RankName}
-	} /if (${Me.Level}>=${Spell[Spirit of the Puma].Level} && ${Me.Book[${Spell[Spirit of the Puma].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Spirit of the Jaguar].Level} && ${Me.Book[${Spell[Spirit of the Jaguar].RankName}]}) {
+		/varset DichoSpell ${Spell[Spirit of the Jaguar].RankName}
+	} else /if (${Me.Level}>=${Spell[Spirit of the Puma].Level} && ${Me.Book[${Spell[Spirit of the Puma].RankName}]}) {
 		/varset DichoSpell ${Spell[Spirit of the Puma].RankName}
 	}
+	| Cripple
+	/if (${Me.Level}>=${Spell[Cripple].Level} && ${Me.Book[${Spell[Cripple].RankName}]}) {
+		/varset CrippleSpell ${Spell[Cripple].RankName}
+	}
+
+	
+	/if (${Me.Level}>=${Spell[Incarnate Anew].Level} && ${Me.Book[${Spell[Incarnate Anew].RankName}]}) {
+		/varset RezSpell ${Spell[Incarnate Anew].RankName}
+	} 
 |- PetSpell
 	/if (${Me.Level}>=${Spell[Mirtuk's Faithful].Level} && ${Me.Book[${Spell[Mirtuk's Faithful].RankName}]}) {
 		/varset PetSpell ${Spell[Mirtuk's Faithful].RankName}
@@ -256,6 +276,8 @@ Sub shm_abilities
 		/varset PetSpell ${Spell[Hilnaah's Faithful].RankName}
 	} else /if (${Me.Level}>=${Spell[Wurt's Faithful].Level} && ${Me.Book[${Spell[Wurt's Faithful].RankName}]}) {
 		/varset PetSpell ${Spell[Wurt's Faithful].RankName}
+	} else /if (${Me.Level}>=${Spell[Spirit of the Howler].Level} && ${Me.Book[${Spell[Spirit of the Howler].RankName}]}) {
+		/varset PetSpell ${Spell[Spirit of the Howler].RankName}
 	}
 |- PetBuffSpell
 	/if (${Me.Level}>=${Spell[Spirit Bolstering].Level} && ${Me.Book[${Spell[Spirit Bolstering].RankName}]}) {
@@ -281,6 +303,8 @@ Sub shm_abilities
 		/varset RecklessHeal2 ${Spell[Reckless Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Reckless Mending].Level} && ${Me.Book[${Spell[Reckless Mending].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Reckless Mending].RankName}
+	} else /if (${Me.Level}>=${Spell[Kragg's Mending].Level} && ${Me.Book[${Spell[Kragg's Mending].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Kragg's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Superior Healing].Level} && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Superior Healing].RankName}
 	} else /if (${Me.Level}>=${Spell[Greater Healing].Level} && ${Me.Book[${Spell[Greater Healing].RankName}]}) {
@@ -315,6 +339,8 @@ Sub shm_abilities
 |- Malo
 	/if (${Me.Level}>=${Spell[Malosinata].Level} && ${Me.Book[${Spell[Malosinata].RankName}]}) {
 		/varset Malo ${Spell[Malosinata].RankName}
+	} else /if (${Me.Level}>=${Spell[Malo].Level} && ${Me.Book[${Spell[Malo].RankName}]}) {
+		/varset Malo ${Spell[Malo].RankName}
 	} else /if (${Me.Level}>=${Spell[Malosi].Level} && ${Me.Book[${Spell[Malosi].RankName}]}) {
 		/varset Malo ${Spell[Malosi].RankName}
 	} else /if (${Me.Level}>=${Spell[Malaise].Level} && ${Me.Book[${Spell[Malaise].RankName}]}) {
@@ -520,6 +546,8 @@ Sub shm_abilities
 |- SlowSpell
 	/if (${Me.AltAbility[Turgur's Swarm].ID}) {
 		/varset SlowSpell Turgur's Swarm
+	} else /if (${Me.Level}>=${Spell[Turgur's Insects].Level} && ${Me.Book[${Spell[Turgur's Insects].RankName}]}) {
+		/varset SlowSpell ${Spell[Turgur's Insects].RankName}
 	} else /if (${Me.Level}>=${Spell[Drowsy].Level} && ${Me.Book[${Spell[Drowsy].RankName}]}) {
 		/varset SlowSpell ${Spell[Drowsy].RankName}
 	}
@@ -527,6 +555,8 @@ Sub shm_abilities
 |- AESlowSpell
 	/if (${Me.AltAbility[Turgur's Virulent Swarm].ID}) {
 		/varset AESlowSpell Turgur's Virulent Swarm
+	} else /if (${Me.Level}>=${Spell[Tigir's Insects].Level} && ${Me.Book[${Spell[Tigir's Insects].RankName}]}) {
+		/varset AESlowSpell  ${Spell[Tigir's Insects].RankName}
 	}
 |- MaloSpell
 	/if (${Me.AltAbility[Malaise].ID}) {

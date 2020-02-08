@@ -107,86 +107,88 @@ Sub brd_load_spellbar
 |---------------------------------------------------------------------------- 
 Sub brd_abilities
 |- BardDPSAura
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Aura of Begalru].RankName}]})  {
+	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Aura of Begalru].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of Begalru].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Aura of Maetanrus].RankName}]})  {
+	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Aura of Maetanrus].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of Maetanrus].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Aura of Va'Ker].RankName}]})  {
+	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Aura of Va'Ker].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of Va'Ker].RankName}
-	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Aura of the Orator].RankName}]})  {
+	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Aura of the Orator].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of the Orator].RankName}
-	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Aura of the Composer].RankName}]})  {
+	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Aura of the Composer].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of the Composer].RankName}
-	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Aura of the Poet].RankName}]})  {
+	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Aura of the Poet].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of the Poet].RankName}
-	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Aura of the Artist].RankName}]})  {
+	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Aura of the Artist].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of the Artist].RankName}
-	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Aura of the Muse].RankName}]})  {
+	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Aura of the Muse].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of the Muse].RankName}
 	}
 
 |- BardRegenAura
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Aura of Xigam].RankName}]})  {
+	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Aura of Xigam].RankName}]}) {
 		/varset Aura2 ${Spell[Aura of Xigam].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Aura of Sionachie].RankName}]})  {
+	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Aura of Sionachie].RankName}]}) {
 		/varset Aura2 ${Spell[Aura of Sionachie].RankName}
-	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Aura of Salarra].RankName}]})  {
+	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Aura of Salarra].RankName}]}) {
 		/varset Aura2 ${Spell[Aura of Salarra].RankName}
-	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Aura of Lunanyn].RankName}]})  {
+	} else /if (${Me.Level}>=92 && ${Me.Book[${Spell[Aura of Lunanyn].RankName}]}) {
 		/varset Aura2 ${Spell[Aura of Lunanyn].RankName}
-	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Aura of Renewal].RankName}]})  {
+	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Aura of Renewal].RankName}]}) {
 		/varset Aura2 ${Spell[Aura of Renewal].RankName}
 	}
 |- MainAriaSong
-	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Aria of Begalru].RankName}]})  {
+	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Aria of Begalru].RankName}]}) {
 		/varset MainAriaSong ${Spell[Aria of Begalru].RankName}
-	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Aria of Maetanrus].RankName}]})  {
+	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Aria of Maetanrus].RankName}]}) {
 		/varset MainAriaSong ${Spell[Aria of Maetanrus].RankName}
-	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Aria of Va'Ker].RankName}]})  {
+	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Aria of Va'Ker].RankName}]}) {
 		/varset MainAriaSong ${Spell[Aria of Va'Ker].RankName}
-	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Aria of the Orator].RankName}]})  {
+	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Aria of the Orator].RankName}]}) {
 		/varset MainAriaSong ${Spell[Aria of the Orator].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Aria of the Composer].RankName}]})  {
+	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Aria of the Composer].RankName}]}) {
 		/varset MainAriaSong ${Spell[Aria of the Composer].RankName}
-	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Battlecry of the Vah Shir].RankName}]})  {
+	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Warsong of the Vah Shir].RankName}]}) {
+		/varset MainAriaSong ${Spell[Warsong of the Vah Shir].RankName}
+	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Battlecry of the Vah Shir].RankName}]}) {
 		/varset MainAriaSong ${Spell[Battlecry of the Vah Shir].RankName}
-	} else /if (${Me.Level}>=50 && ${Me.Book[${Spell[Verses of Victory].RankName}]})  {
+	} else /if (${Me.Level}>=50 && ${Me.Book[${Spell[Verses of Victory].RankName}]}) {
 		/varset MainAriaSong ${Spell[Verses of Victory].RankName}
 	} 
 |- CasterAriaSong
-	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Qunard's Aria].RankName}]})  {
+	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Qunard's Aria].RankName}]}) {
 		/varset CasterAriaSong ${Spell[Qunard's Aria].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Nilsara's Aria].RankName}]})  {
+	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Nilsara's Aria].RankName}]}) {
 		/varset CasterAriaSong ${Spell[Nilsara's Aria].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Gosik's Aria].RankName}]})  {
+	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Gosik's Aria].RankName}]}) {
 		/varset CasterAriaSong ${Spell[Gosik's Aria].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Daevan's Aria].RankName}]})  {
+	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Daevan's Aria].RankName}]}) {
 		/varset CasterAriaSong ${Spell[Daevan's Aria].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Sotor's Aria].RankName}]})  {
+	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Sotor's Aria].RankName}]}) {
 		/varset CasterAriaSong ${Spell[Sotor's Aria].RankName}
 	}
 |- WarMarchSong
-	/if (${Me.Level}>=109 && ${Me.Book[${Spell[War March of Dekloaz].RankName}]})  {
+	/if (${Me.Level}>=109 && ${Me.Book[${Spell[War March of Dekloaz].RankName}]}) {
 		/varset WarMarchSong ${Spell[War March of Dekloaz].RankName}
-	} else /if (${Me.Level}>=104 && ${Me.Book[${Spell[War March of Jocelyn].RankName}]})  {
+	} else /if (${Me.Level}>=104 && ${Me.Book[${Spell[War March of Jocelyn].RankName}]}) {
 		/varset WarMarchSong ${Spell[War March of Jocelyn].RankName}
-	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[War March of Protan].RankName}]})  {
+	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[War March of Protan].RankName}]}) {
 		/varset WarMarchSong ${Spell[War March of Protan].RankName}
-	} else /if (${Me.Level}>=94 && ${Me.Book[${Spell[War March of Illdaera].RankName}]})  {
+	} else /if (${Me.Level}>=94 && ${Me.Book[${Spell[War March of Illdaera].RankName}]}) {
 		/varset WarMarchSong ${Spell[War March of Illdaera].RankName}
-	} else /if (${Me.Level}>=89 && ${Me.Book[${Spell[War March of Dagda].RankName}]})  {
+	} else /if (${Me.Level}>=89 && ${Me.Book[${Spell[War March of Dagda].RankName}]}) {
 		/varset WarMarchSong ${Spell[War March of Dagda].RankName}
-	} else /if (${Me.Level}>=84 && ${Me.Book[${Spell[War March of Brekt].RankName}]})  {
+	} else /if (${Me.Level}>=84 && ${Me.Book[${Spell[War March of Brekt].RankName}]}) {
 		/varset WarMarchSong ${Spell[War March of Brekt].RankName}
-	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[War March of Meldrath].RankName}]})  {
+	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[War March of Meldrath].RankName}]}) {
 		/varset WarMarchSong ${Spell[War March of Meldrath].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[War March of Mastruq].RankName}]})  {
+	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[War March of Mastruq].RankName}]}) {
 		/varset WarMarchSong ${Spell[War March of the Mastruq].RankName}
-	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[McVaxius' Rousing Rondo].RankName}]})  {
+	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[McVaxius' Rousing Rondo].RankName}]}) {
 		/varset WarMarchSong ${Spell[McVaxius' Rousing Rondo].RankName}
-	} else /if (${Me.Level}>=42 && ${Me.Book[${Spell[McVaxius' Berserker Crescendo].RankName}]})  {
+	} else /if (${Me.Level}>=42 && ${Me.Book[${Spell[McVaxius' Berserker Crescendo].RankName}]}) {
 		/varset WarMarchSong ${Spell[McVaxius' Berserker Crescendo].RankName}
-	} else /if (${Me.Level}>=10 && ${Me.Book[${Spell[Anthem de Arms].RankName}]})  {
+	} else /if (${Me.Level}>=10 && ${Me.Book[${Spell[Anthem de Arms].RankName}]}) {
 		/varset WarMarchSong ${Spell[Anthem de Arms].RankName}
 	} 
 

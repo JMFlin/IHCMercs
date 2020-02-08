@@ -25,6 +25,8 @@ Sub dru_setup
 	/declare Cyclonic 			string outer NULL
 	/declare SelfDamageShield 	string outer NULL
 	/declare SelfUnity 			string outer NULL
+	/declare RezSpell 				string outer NULL
+	/declare MassRezSpell			string outer NULL
 
 	/declare Revitalization 	string outer NULL
 	/declare Curavida 			string outer NULL

@@ -137,6 +137,8 @@ Sub shd_abilities
 		/varset Touch1 ${Spell[Touch of the Wailing Three].RankName}
 	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Touch of Inruku].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of Inruku].RankName}
+	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Drain Soul].RankName}]}) {
+		/varset Touch1 ${Spell[Drain Soul].RankName}
 	} else /if (${Me.Level}>=47 && ${Me.Book[${Spell[Life Leech].RankName}]}) {
 		/varset Touch1 ${Spell[Life Leech].RankName}
 	} 
@@ -170,9 +172,11 @@ Sub shd_abilities
 		/varset Touch3 ${Spell[Touch of Volatis].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Touch of Draygun].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Draygun].RankName}
+	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[Drain Spirit].RankName}]}) {
+		/varset Touch3 ${Spell[Drain Spirit].RankName}
 	} else /if (${Me.Level}>=29 && ${Me.Book[${Spell[Lifedraw].RankName}]}) {
 		/varset Touch3 ${Spell[Lifedraw].RankName}
-	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifespike].RankName}]}) {
+	}  else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifespike].RankName}]}) {
 		/varset Touch3 ${Spell[Lifespike].RankName}
 	} else /if (${Me.Level}>=8 && ${Me.Book[${Spell[Lifetap].RankName}]}) {
 		/varset Touch3 ${Spell[Lifetap].RankName}

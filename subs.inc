@@ -2088,7 +2088,7 @@ sub check_for_corpse(bool _debug)
 		/declare _rezNEC						string	local "Convergence"
 	}
 	
-	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]} > 2) {
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]} > 2 && ${MassRezSpell.NotEqual[NULL]}) {
 		/call cast_rez ${Me.ID} "${MassRezSpell}"
 		/return
 	}
