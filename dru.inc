@@ -78,6 +78,7 @@ Sub dru_main
 		} else /if (${Me.PctMana} < ${hybridManaLimit}) {
 			/call get_target
 			/delay 1s
+			DEBUG Target has NBW: ${Target.Buff[${NBW}].ID}
 			/if (!${Target.Buff[${NBW}].ID}) {
 				/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
 			}
