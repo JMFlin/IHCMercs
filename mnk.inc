@@ -10,7 +10,14 @@ Sub mnk_main
 		/call CombatdpsItems
 		/call CombatdpsMash
 		/call DoNamed
-		
+		/if (${Me.XTarget}) {
+			/if (${Me.XTarget[1].Distance} > 170 && !${Me.XTarget[2].ID}) {
+				/nav id ${Me.XTarget[1].ID}
+				/while (${Navigation.Active}) {
+					/delay 5
+				}
+			}
+		}
 	}
 
 	/call mnk_self_buffs
@@ -59,16 +66,33 @@ sub mnk_self_buffs
 |- SUB: Defense
 |----------------------------------------------------------------------------
 Sub Defense
-	/if (!${Me.AbilityReady[Mend]} && ${Me.CombatAbilityReady[${EarthForce}]} && ${Me.PctHPs}<45) {
+	/if (!${Me.AbilityReady[Mend]} && ${Me.CombatAbilityReady[${EarthForce}]} && ${Me.PctHPs} < 45) {
 		/Disc ${EarthForce}
 		/delay 1
-	} else /if (!${Me.AbilityReady[Mend]} && !${Me.CombatAbilityReady[${EarthForce}]} && ${Me.CombatAbilityReady[${RejectDeath}]} && ${Me.PctHPs}<45) {
+	} else /if (!${Me.AbilityReady[Mend]} && ${Me.CombatAbilityReady[${RejectDeath}]} && ${Me.PctHPs} < 45) {
 		/Disc ${RejectDeath}
 		/delay 1
-	} else /if (${Me.AbilityReady[Mend]} && ${Me.PctHPs}<50) {
+	} else /if (${Me.AbilityReady[Mend]} && ${Me.PctHPs} < 50) {
 		/doability Mend
 		/delay 1
 	}
+	/if (${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) {
+		/if (${validate_cast[FALSE, alt, "Purify Body", ${Me.ID}]}) /call core_cast2 "Purify Body" alt 0 FALSE
+	}
+	/if (${FindItem[Diplomatic Papers].Timer.TotalSeconds}==0 && ${Target.PctHPs}>10 && !${Me.Casting.ID} && !${Me.Moving} && ${Me.PctHPs} < 55) { 
+		/useitem "Diplomatic Papers"
+		/delay 5
+	}
+	/if (${FindItem[Overflowing Urn of Life].Timer.TotalSeconds}==0 && !${Me.Casting.ID} && !${Me.Moving} && ${Me.PctHPs} < 70) { 
+		/useitem "Overflowing Urn of Life"
+		/delay 5
+	}
+	/if (${FindItem[Blood Drinker's Coating].Timer.TotalSeconds}==0 && ${Target.PctHPs}>10 && !${Me.Casting.ID} && !${Me.Moving} && ${Me.PctHPs} < 60) { 
+		/useitem "Blood Drinker's Coating"
+		/delay 5
+	}
+
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: Combatdps Discs
@@ -80,10 +104,9 @@ Sub CombatdpsDiscs
 	}
 	/if (${Me.AltAbilityReady[Five Point Palm]} && !${Target.Buff[Sarnak Finesse].ID} && ${Target.PctHPs}>50 && ${Target.PctHPs}<95) {
 		/if (!${Me.ActiveDisc.ID} && !${Target.Named} && ${Me.CombatAbilityReady[${Iron}]}) {
-			/if (${Me.AltAbilityReady[Swift Tails' Chant]} && ${Me.PctEndurance}<80) {
-				/call AANow ${Me.AltAbility[Swift Tails' Chant].ID}
-				/delay 2
-			}
+			
+			/if (${validate_cast[FALSE, alt, "Swift Tails' Chant", ${Me.ID}]}) /call core_cast2 "Swift Tails' Chant" alt 0 FALSE
+			
 			/Disc ${Iron}
 			/delay 5
 			/doability "${DichoSpell}"
@@ -92,18 +115,16 @@ Sub CombatdpsDiscs
 			/delay 6
 			/alt act 1012
 		} else /if (!${Me.ActiveDisc.ID} && !${Target.Named} && ${Me.CombatAbilityReady[${Palm}]} && ${Me.AltAbilityReady[Five Point Palm]}) {
-			/if (${Me.AltAbilityReady[Focused Destructive Force]}) {
-				/call AANow ${Me.AltAbility[Focused Destructive Force].ID}
-				/delay 2
-			}
+			
+			/if (${validate_cast[FALSE, alt, "Focused Destructive Force", ${Me.ID}]}) /call core_cast2 "Focused Destructive Force" alt 0 FALSE
+			
 			/if (${Me.CombatAbilityReady[${Poise}]}) {
 				/Disc ${Poise}
 				/delay 3
 			}
-			/if (${Me.AltAbilityReady[Swift Tails' Chant]} && ${Me.PctEndurance}<80) {
-				/call AANow ${Me.AltAbility[Swift Tails' Chant].ID}
-				/delay 2
-			}
+			
+			/if (${validate_cast[FALSE, alt, "Swift Tails' Chant", ${Me.ID}]}) /call core_cast2 "Swift Tails' Chant" alt 0 FALSE
+			
 			/Disc ${Palm}
 			/delay 5
 			/doability "${DichoSpell}"
@@ -144,6 +165,7 @@ Sub CombatdpsItems
 		/useitem "Miniature Horn of Unity"
 		/delay 5
 	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: Combatdps Mash
@@ -202,30 +224,18 @@ Sub CombatdpsMash
 |---------------------------------------------------------------------------- 
 Sub DoNamed
 
-	/if (${Me.AltAbilityReady[Silent Strikes]}) {
-		/call AANow ${Me.AltAbility[Silent Strikes].ID}
-		/delay 1
-	}
-	/if (${Me.AltAbilityReady[Swift Tails' Chant]}) {
-		/call AANow ${Me.AltAbility[Swift Tails' Chant].ID}
-		/delay 1
-	}
+	/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
 
-
+	/if (${validate_cast[FALSE, alt, "Swift Tails' Chant", ${Me.ID}]}) /call core_cast2 "Swift Tails' Chant" alt 0 FALSE
 
 	/if (${Me.CombatAbilityReady[${Heel}]} && !${Me.ActiveDisc.ID}) {
-		/if (${Me.AltAbilityReady[Infusion of Thunder]}) {
-			/call AANow ${Me.AltAbility[Infusion of Thunder].ID}
-			/delay 2
-		}
-		/if (${Me.AltAbilityReady[Spire of the Sensei]}) {
-			/call AANow ${Me.AltAbility[Spire of the Sensei].ID}
-			/delay 3
-		}
-		/if (${Me.CombatAbilityReady[${DichoSpell}]}) {
-			/doability "${DichoSpell}"
-			/delay 8
-		}
+	
+		/if (${validate_cast[FALSE, alt, "Infusion of Thunder", ${Target.ID}]}) /call core_cast2 "Infusion of Thunder" alt ${Target.ID} FALSE
+
+		/if (${validate_cast[FALSE, alt, "Spire of the Sensei", ${Me.ID}]}) /call core_cast2 "Spire of the Sensei" alt 0 FALSE
+	
+		/if (${validate_cast[FALSE, alt, "${DichoSpell}", ${Me.ID}]}) /call core_cast2 "${DichoSpell}" alt 0 FALSE
+
 		/if (${Me.CombatAbilityReady[${Crane}]}) {
 			/Disc ${Crane}
 			/delay 6
@@ -238,10 +248,9 @@ Sub DoNamed
 		/Disc ${Heel}
 		/delay 5
 	} else /if (!${Me.CombatAbilityReady[${Heel}]} && ${Me.CombatAbilityReady[${Palm}]} && !${Me.ActiveDisc.ID}) {
-		/if (${Me.AltAbilityReady[Focused Destructive Force]}) {
-			/call AANow ${Me.AltAbility[Focused Destructive Force].ID}
-			/delay 2
-		}
+
+		/if (${validate_cast[FALSE, alt, "Focused Destructive Force", ${Me.ID}]}) /call core_cast2 "Focused Destructive Force" alt 0 FALSE
+		
 		/if (${Me.CombatAbilityReady[${Poise}]}) {
 			/Disc ${Poise}
 			/delay 3
@@ -254,25 +263,20 @@ Sub DoNamed
 			/Disc ${Crane}
 			/delay 2
 		}
-		/if (${Me.AltAbilityReady[Five Point Palm]}) {
-			/alt act 1012
-			/delay 2
-		}
+
+		/if (${validate_cast[FALSE, alt, "Five Point Palm", ${Target.ID}]}) /call core_cast2 "Five Point Palm" alt ${Target.ID} FALSE
+
 		/Disc ${Palm}
 		/delay 5
 	} else /if (!${Me.CombatAbilityReady[${Heel}]} && !${Me.CombatAbilityReady[${Palm}]} && ${Me.CombatAbilityReady[${Speed}]} && !${Me.ActiveDisc.ID}) {
-		/if (${Me.AltAbilityReady[Infusion of Thunder]}) {
-			/call AANow ${Me.AltAbility[Infusion of Thunder].ID}
-			/delay 2
-		}
-		/if (${Me.AltAbilityReady[Spire of the Sensei]}) {
-			/call AANow ${Me.AltAbility[Spire of the Sensei].ID}
-			/delay 3
-		}
-		/if (${Me.AltAbilityReady[Ton Po's Stance]}) {
-			/call AANow ${Me.AltAbility[Ton Po's Stance].ID}
-			/delay 3
-		}
+		
+		/if (${validate_cast[FALSE, alt, "Infusion of Thunder", ${Me.ID}]}) /call core_cast2 "Infusion of Thunder" alt ${Target.ID} FALSE
+
+		/if (${validate_cast[FALSE, alt, "Spire of the Sensei", ${Me.ID}]}) /call core_cast2 "Spire of the Sensei" alt 0 FALSE
+
+		
+		/if (${validate_cast[FALSE, alt, "Ton Po's Stance", ${Me.ID}]}) /call core_cast2 "Ton Po's Stance" alt 0 FALSE
+
 		/if (${Me.CombatAbilityReady[${DichoSpell}]}) {
 			/doability "${DichoSpell}"
 			/delay 8
@@ -281,29 +285,22 @@ Sub DoNamed
 			/Disc ${Crane}
 			/delay 2
 		}
-		/if (${Me.AltAbilityReady[Five Point Palm]}) {
-			/alt act 1012
-			/delay 2
-		}
+
+		/if (${validate_cast[FALSE, alt, "Five Point Palm", ${Target.ID}]}) /call core_cast2 "Five Point Palm" alt ${Target.ID} FALSE
+
 		/Disc ${Speed}
 		/delay 5
 	} else /if (!${Me.ActiveDisc.ID}) {
-		/if (${Me.AltAbilityReady[Focused Destructive Force]}) {
-			/call AANow ${Me.AltAbility[Focused Destructive Force].ID}
-			/delay 2
-		}
+
+		/if (${validate_cast[FALSE, alt, "Focused Destructive Force", ${Me.ID}]}) /call core_cast2 "Focused Destructive Force" alt 0 FALSE
+
 		/if (${Me.CombatAbilityReady[${Poise}]}) {
 			/Disc ${Poise}
 			/delay 3
 		}
-		/if (${Me.AltAbilityReady[Infusion of Thunder]}) {
-			/call AANow ${Me.AltAbility[Infusion of Thunder].ID}
-			/delay 2
-		}
-		/if (${Me.AltAbilityReady[Spire of the Sensei]}) {
-			/call AANow ${Me.AltAbility[Spire of the Sensei].ID}
-			/delay 3
-		}
+		/if (${validate_cast[FALSE, alt, "Infusion of Thunder", ${Me.ID}]}) /call core_cast2 "Infusion of Thunder" alt 0 FALSE
+
+		/if (${validate_cast[FALSE, alt, "Spire of the Sensei", ${Me.ID}]}) /call core_cast2 "Spire of the Sensei" alt 0 FALSE
 		/Disc ${Storm}
 		/delay 5
 	}

@@ -95,6 +95,9 @@ Sub shm_setup
 	/declare groupbufftimer		timer outer 0
 	/declare CCTimer			timer outer 0
 	
+	/declare GoMNuke				string outer NULL
+	/declare GoMNuke2				string outer NULL
+
 /return 
 
 |* ------------------------------------------------------------------------------------------

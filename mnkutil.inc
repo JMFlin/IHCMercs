@@ -37,6 +37,7 @@ Sub mnk_setup
 	/declare Poise 					string outer NULL
 	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
 	/declare CastResult             	string outer
+	/declare PullTowards 	string outer NULL
 
 |-Config Options
 |- Check for epic
@@ -47,12 +48,17 @@ Sub mnk_setup
 |---------------------------------------------------------------------------- 
 Sub mnk_abilities
 
+	/if (${Me.AltAbilityReady[Moving Mountains]}) {
+		/varset PullTowards Moving Mountains
+	}
+	
+
 	/if (${Me.AltAbilityReady[Distant Strike]}) {
-		/varset PullAbility Distant Strike
-		/varset PullDistance 150
+		/varset pullAbility Distant Strike
+		/varset pullDistance 150
 	} else {
-		/varset PullAbility ${Spell[Throw Stone].RankName}
-		/varset PullDistance 55
+		/varset pullAbility ${Spell[Throw Stone].RankName}
+		/varset pullDistance 55
 	}
 |--RejectDeath line
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Reject Death].RankName}]}) {

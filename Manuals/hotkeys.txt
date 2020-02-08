@@ -27,7 +27,7 @@ AFK Pull
 /dgga /varset Mode 3
 /varset AggressiveRadius 100
 /mapfilter CastRadius 100
-/varset AssistRangeZ 80
+/varset assistRangeZ 80
 
 
 

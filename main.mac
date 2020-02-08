@@ -114,7 +114,12 @@ Sub AFKRadiusCamping
 		| /delay 1s
 		| DEBUG CYCLE START
 
-
+		/if (!${PowerLevel}) {
+			/call move_to_camp
+		} else /if (${PowerLevel}) {
+			/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} > 70) /call move_to_camp
+		}
+		
 		/if (!${PowerLevel}) {
 			/call afk_pull
 		} else /if (${PowerLevel}) {
@@ -123,6 +128,8 @@ Sub AFKRadiusCamping
 				/call chain_pull
 			}
 		}
+
+		/call check_state FALSE
 
 		/if (!${PowerLevel}) {
 			/if (${Select[${Me.Class.ShortName},ENC,WIZ,MAG,MNK,ROG,BER,BST]}) {
@@ -134,9 +141,7 @@ Sub AFKRadiusCamping
 			}
 		}
 		
-		/call check_state FALSE
 		/call balance_hp
-		/call move_to_camp
 		/if (${PowerLevel}) {
 			/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,MNK]}) {
 				/call ${Me.Class.ShortName.Lower}_main
@@ -194,6 +199,47 @@ sub misc
 		/varset HaveSold 0
 	}
 	**|
+	/if (${goSell}) /call vendor_items
+
+
+	/if (${Posse.Strangers} > 0 && !${Me.XTarget}) {
+
+		/varset Mode 0
+
+		/if (${Select[${Me.Class.ShortName},DRU,WIZ]}) {
+				
+				/for _count 0 to ${Group}
+
+					/if (${Group.Member[${_count}].OtherZone}) /continue
+
+					/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+
+					/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) /continue
+					
+					/if (${Group.Member[${_count}].Distance} >= 100) /squelch /dex ${Group.Member[${_count}].Name.Lower} /nav id ${Me.ID}
+
+				/next _count
+
+				/if (${validate_cast[FALSE, spell, "${PosseSpell}", ${Me.ID}]}) {
+					/call core_cast2 "${PosseSpell}" spell ${Me.ID} FALSE
+				}
+			}
+		}
+	
+/return
+
+
+sub vendor_items
+	/if (${Spawn[merchant radius 50].ID}) {
+		/nav target id ${${Spawn[merchant radius 50].ID}
+
+		/while (${Navigation.Active}) {
+			/delay 1s
+		}
+		 
+		/target ${Spawn[merchant radius 50]}
+		/autoloot sell
+	}
 /return
 
 |----------------------------------------------------------------------------
@@ -354,15 +400,15 @@ Sub move_to_camp
 	| if casting return
 	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
 
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} < ${AutoCampRadius}) /return
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} < ${autoCampRadius}) /return
 
 	/if (${Navigation.Active}) /return
 
 	/if (${Stick.Status.Equal[ON]}) /stick off
 	
-	/nav locxyz ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ}
+	/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
 
-	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]} > ${AutoCampRadius} && ${Navigation.Active}) {
+	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} > ${autoCampRadius} && ${Navigation.Active}) {
 		/if (${Mode} == 0) {
 			/nav stop
 			/return
@@ -443,7 +489,7 @@ Sub dummy_mode
 				/if (${Mode} == 0) /return
 				/delay 1s
 				/if (${Me.XTarget}) /return
-				/call move_to_camp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+				/call move_to_camp ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ} ${autoCampRadius}
 			/next _count
 			/delay 1s 
 		}

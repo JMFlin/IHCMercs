@@ -48,7 +48,11 @@ Sub shd_setup
 	/declare MPShroud 		string outer NULL
 
 	/declare Recourse 		string outer NONE 
-	
+	/declare PullTowards 	string outer NULL
+
+	/declare GoMNuke				string outer NULL
+	/declare GoMNuke2				string outer NULL
+
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 /return 
 |----------------------------------------------------------------------------
@@ -402,19 +406,23 @@ Sub shd_abilities
 		/varset WithstandID ${Spell[Withstand].ID}
 	}
 
+	/if (${Me.AltAbilityReady[Hate's Attraction]}) {
+		/varset PullTowards Hate's Attraction
+	}
+
 	| Pull ability
 	/if (${Me.Level}>=42) {
-		/varset PullAbility ${Terror1}
-		/varset PullDistance 190
+		/varset pullAbility ${Terror1}
+		/varset pullDistance 190
 	} else /if (${Me.Level}>=33) {
-		/varset PullAbility ${Terror2}
-		/varset PullDistance 190
+		/varset pullAbility ${Terror2}
+		/varset pullDistance 190
 	} else /if (${Me.Level}>=8) {
-		/varset PullAbility ${Touch3}
-		/varset PullDistance 190
+		/varset pullAbility ${Touch3}
+		/varset pullDistance 190
 	} else {
-		/varset PullAbility Melee
-		/varset PullDistance 5
+		/varset pullAbility Melee
+		/varset pullDistance 5
 	}
 
 	/call shd_load_spellbar

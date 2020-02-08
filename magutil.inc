@@ -42,6 +42,9 @@ Sub mag_setup
     /declare PetToysWeps			string 	outer	NULL
 	/declare PetToysFace 			string 	outer 	NULL
 
+	/declare GoMNuke				string outer NULL
+	/declare GoMNuke2				string outer NULL
+
 
 /return
 |* ------------------------------------------------------------------------------------------

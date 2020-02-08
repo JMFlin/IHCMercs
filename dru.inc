@@ -8,28 +8,28 @@ Sub dru_main
 	/call dru_self_buffs
 	
 	/call get_heal_target 70
-	/varset WorstHurtId ${Macro.Return}
-	/if (${WorstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
-			/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Curavida}", ${worstHurtId}]}) {
+			/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 		}
 	}
 	
 	/while (${Me.XTarget}) {
 		
 		/call get_heal_target 70
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Curavida}", ${worstHurtId}]}) {
+				/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 			}
 		}
 
 		/call get_heal_target 55
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Adrenaline}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${worstHurtId}]}) {
+				/call core_cast2 "${Adrenaline}" spell ${worstHurtId} FALSE
 			}
 		}
 
@@ -42,12 +42,12 @@ Sub dru_main
 		}
 		
 		/call get_heal_target 70
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Curavida}", ${worstHurtId}]}) {
+				/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 			}
-		} else /if (${Me.PctMana} < ${HybridManaLimit}) {
+		} else /if (${Me.PctMana} < ${hybridManaLimit}) {
 			/call get_target
 			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
@@ -60,22 +60,22 @@ Sub dru_main
 		/call dru_group_heals
 
 		/call get_heal_target 55
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Adrenaline}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${worstHurtId}]}) {
+				/call core_cast2 "${Adrenaline}" spell ${worstHurtId} FALSE
 			}
 		}
 
 		/call dru_debuff_xtarget
 
 		/call get_heal_target 70
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Curavida}", ${worstHurtId}]}) {
+				/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 			}
-		} else /if (${Me.PctMana} < ${HybridManaLimit}) {
+		} else /if (${Me.PctMana} < ${hybridManaLimit}) {
 			/call get_target
 			/delay 5
 			/if (!${Target.Buff[${NBW}].ID}) {
@@ -84,20 +84,20 @@ Sub dru_main
 		}
 		
 		/call get_heal_target 70
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Curavida}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Curavida}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Curavida}", ${worstHurtId}]}) {
+				/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 			}
 		}
 
 		/call get_heal_target 55
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Adrenaline}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${worstHurtId}]}) {
+				/call core_cast2 "${Adrenaline}" spell ${worstHurtId} FALSE
 			}
-		} else /if (${Me.PctMana} < ${HybridManaLimit}) {
+		} else /if (${Me.PctMana} < ${hybridManaLimit}) {
 			/call get_target
 			/delay 5
 			/if (!${Target.Buff[${Cyclonic}].ID}) {

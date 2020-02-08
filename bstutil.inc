@@ -57,6 +57,11 @@ Sub bst_setup
 	/declare spellmisc 			int outer 8
 	/declare miscspellremem		string outer NULL
 	/declare CastResult         string outer
+	/declare PullTowards 		string outer NULL
+
+	/declare GoMNuke				string outer NULL
+	/declare GoMNuke2				string outer NULL
+
 /return 
 |* ------------------------------------------------------------------------------------------
 | SUB: ${Me.Class.ShortName.Lower}_load_spellbar
@@ -797,14 +802,14 @@ Sub bst_abilities
 
 	| Pull ability
 	/if (${Me.Book[${BloodDoT}]} && !${Me.Book[${SlowSpell}]}) {
-		/varset PullAbility ${BloodDoT}
-		/varset PullDistance 150
+		/varset pullAbility ${BloodDoT}
+		/varset pullDistance 150
 	} else /if (${Me.Book[${SlowSpell}]}) {
-		/varset PullAbility ${SlowSpell}
-		/varset PullDistance 150
+		/varset pullAbility ${SlowSpell}
+		/varset pullDistance 150
 	} else {
-		/varset PullAbility Melee
-		/varset PullDistance 5
+		/varset pullAbility Melee
+		/varset pullDistance 5
 	}
 
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
