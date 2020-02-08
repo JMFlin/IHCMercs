@@ -191,7 +191,7 @@ Sub Event_Camping
 |- SUB: Event Zoned
 |----------------------------------------------------------------------------
 #Event Zoned             "LOADING, PLEASE WAIT#*#"
-#Event Zoned             "You have entered#*#"
+| #Event Zoned             "You have entered#*#"
 Sub Event_Zoned(Message)
 	/call Zoning
 /return
@@ -208,7 +208,7 @@ Sub Zoning
 #Event ZonePoK	"#*#You have entered The Guild Lobby.#*#"
 #Event ZonePoK	"#*#You have entered The Guild Hall.#*#"
 Sub Event_ZonePoK(string line)
-	/if (${posseZone}) {
+	/if (${posseZone} || ${Mode} == 7) {
     /varset Mode 7
   } else {
     /varset Mode 0
