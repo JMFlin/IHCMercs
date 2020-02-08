@@ -234,6 +234,8 @@ Sub brd_abilities
 	
 	/if (${Me.Level}>=69 && ${Me.Book[${Spell[Storm Blade].RankName}]})  {
 		/varset StormBladeSong ${Spell[Storm Blade].RankName}
+	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Song of the Storm].RankName}]})  {
+		/varset StormBladeSong ${Spell[Song of the Storm].RankName}
 	}
 
 |- PulseRegenSong

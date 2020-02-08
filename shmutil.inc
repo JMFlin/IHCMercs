@@ -303,6 +303,10 @@ Sub shm_abilities
 		/varset RecklessHeal2 ${Spell[Reckless Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Reckless Mending].Level} && ${Me.Book[${Spell[Reckless Mending].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Reckless Mending].RankName}
+	} else /if (${Me.Level}>=${Spell[Daluda's Mending].Level} && ${Me.Book[${Spell[Daluda's Mending].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Daluda's Mending].RankName}
+	} else /if (${Me.Level}>=${Spell[Tnarg's Mending].Level} && ${Me.Book[${Spell[Tnarg's Mending].RankName}]}) {
+		/varset RecklessHeal1 ${Spell[Tnarg's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Kragg's Mending].Level} && ${Me.Book[${Spell[Kragg's Mending].RankName}]}) {
 		/varset RecklessHeal1 ${Spell[Kragg's Mending].RankName}
 	} else /if (${Me.Level}>=${Spell[Superior Healing].Level} && ${Me.Book[${Spell[Superior Healing].RankName}]}) {
@@ -339,6 +343,10 @@ Sub shm_abilities
 |- Malo
 	/if (${Me.Level}>=${Spell[Malosinata].Level} && ${Me.Book[${Spell[Malosinata].RankName}]}) {
 		/varset Malo ${Spell[Malosinata].RankName}
+	} else /if (${Me.Level}>=${Spell[Malos].Level} && ${Me.Book[${Spell[Malos].RankName}]}) {
+		/varset Malo ${Spell[Malos].RankName}
+	} else /if (${Me.Level}>=${Spell[Malosinia].Level} && ${Me.Book[${Spell[Malosinia].RankName}]}) {
+		/varset Malo ${Spell[Malosinia].RankName}
 	} else /if (${Me.Level}>=${Spell[Malo].Level} && ${Me.Book[${Spell[Malo].RankName}]}) {
 		/varset Malo ${Spell[Malo].RankName}
 	} else /if (${Me.Level}>=${Spell[Malosi].Level} && ${Me.Book[${Spell[Malosi].RankName}]}) {
@@ -546,6 +554,8 @@ Sub shm_abilities
 |- SlowSpell
 	/if (${Me.AltAbility[Turgur's Swarm].ID}) {
 		/varset SlowSpell Turgur's Swarm
+	} else /if (${Me.Level}>=${Spell[Balance of the Nihil].Level} && ${Me.Book[${Spell[Balance of the Nihil].RankName}]}) {
+		/varset SlowSpell ${Spell[Balance of the Nihil].RankName}
 	} else /if (${Me.Level}>=${Spell[Turgur's Insects].Level} && ${Me.Book[${Spell[Turgur's Insects].RankName}]}) {
 		/varset SlowSpell ${Spell[Turgur's Insects].RankName}
 	} else /if (${Me.Level}>=${Spell[Drowsy].Level} && ${Me.Book[${Spell[Drowsy].RankName}]}) {
