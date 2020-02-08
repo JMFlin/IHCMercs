@@ -46,7 +46,7 @@ Sub dru_main
 			/if (${validate_cast[FALSE, spell, "${Curavida}", ${worstHurtId}]}) {
 				/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 			}
-		} else /if (${Me.PctMana} < ${hybridManaLimit}) {
+		} else /if (${Me.PctMana} > ${hybridManaLimit}) {
 			/call get_target
 			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
@@ -96,7 +96,7 @@ Sub dru_main
 			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${worstHurtId}]}) {
 				/call core_cast2 "${Adrenaline}" spell ${worstHurtId} FALSE
 			}
-		} else /if (${Me.PctMana} < ${hybridManaLimit}) {
+		} else /if (${Me.PctMana} > ${hybridManaLimit}) {
 			/call get_target
 			/if (!${Target.Buff[${Cyclonic}].ID}) {
 				/if (${validate_cast[FALSE, spell, "${Cyclonic}", ${Target.ID}]}) /call core_cast2 "${Cyclonic}" spell ${Target.ID} FALSE
