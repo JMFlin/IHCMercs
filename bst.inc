@@ -30,12 +30,14 @@ Sub bst_self_buff_check
 				/varset CastCheck 1
 			}
 		}
-		|/if (!${Me.Pet.Buff[${FocusSpell}]}) {
-		|	/if (${validate_cast[FALSE, spell, "${FocusSpell}", ${Me.Pet.ID}]}) {
-		|		/call core_cast2 "${FocusSpell}" spell ${Me.Pet.ID} FALSE
-		|		/varset CastCheck 1
-		|	}
-		|}
+		|**
+		/if (!${Me.Pet.Buff[${PetDefenseBuff}]}) {
+			/if (${validate_cast[FALSE, spell, "${PetDefenseBuff}", ${Me.Pet.ID}]}) {
+				/call core_cast2 "${PetDefenseBuff}" spell ${Me.Pet.ID} FALSE
+				/varset CastCheck 1
+			}
+		}
+		**|
 		/if (!${Me.Pet.Buff[${PetHaste}]}) {
 			/if (${validate_cast[FALSE, spell, "${PetHaste}", ${Me.Pet.ID}]}) {
 				/call core_cast2 "${PetHaste}" spell ${Me.Pet.ID} FALSE
@@ -110,9 +112,9 @@ Sub bst_combat
 
 	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		
-		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+		/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-			/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+			/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
 			/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 		}
 	}
@@ -166,9 +168,9 @@ Sub bst_debuff_xtarget
 		
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar${Target.Name} \ax with =>> \ag${SlowSpell} \ax <<=
-				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
