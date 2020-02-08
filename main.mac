@@ -200,13 +200,16 @@ sub misc
 	}
 	**|
 	/if (${goSell}) /call vendor_items
-
-
 	
-	/if (${Posse.Strangers} > 0 && !${Me.XTarget}) {
+	
+	/if (${Zone.ID} == 202) /return
+	/if (${Zone.ID} == 344) /return
+	/if (${Zone.ID} == 345) /return
+
+	/if (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) {
 
 		/if (!${Select[${Me.Class.ShortName},DRU,WIZ]}) {
-			
+
 			/if (!${port_class_checker[FALSE]}) /call dummy_mode
 
 		} else /if (${Select[${Me.Class.ShortName},DRU,WIZ]}) {
