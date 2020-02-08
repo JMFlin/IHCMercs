@@ -1244,13 +1244,6 @@ Sub get_target
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 	}
 
-	| if there is only one target on xtarget then target that
-	/if (!${Me.XTarget[2].ID}) {
-		/target id ${Me.XTarget[1].ID}
-		/delay 1s ${Target.ID} == ${Me.XTarget[1].ID}
-		/return
-	}
-
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		| if there is an xtarget close then target the one with lowest hp
