@@ -174,8 +174,8 @@ Sub wiz_load_spellbar
 |------------------------------------------------------------------------------------------ *|
 Sub wiz_abilities
 
-	/if (${Me.Level} >= ${Spell[Knowledge Gate].Level} && ${Me.Book[${Spell[Knowledge Gate].RankName}]}) {
-		/varset PosseSpell ${Spell[Knowledge Gate].RankName}
+	/if (${Me.Level} >= ${Spell[Knowledge Portal].Level} && ${Me.Book[${Spell[Knowledge Portal].RankName}]}) {
+		/varset PosseSpell ${Spell[Knowledge Portal].RankName}
 	}
 	
 
