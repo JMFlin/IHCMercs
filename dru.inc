@@ -70,14 +70,14 @@ Sub dru_main
 
 		/call get_heal_target 70
 		/varset worstHurtId ${Macro.Return}
-		DEBUG At NBW: ${worstHurtId}, ${Me.PctMana} < ${hybridManaLimit}
 		/if (${worstHurtId} > 0) {
 			/if (${validate_cast[FALSE, spell, "${Curavida}", ${worstHurtId}]}) {
 				/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 			}
-		} else /if (${Me.PctMana} < ${hybridManaLimit}) {
+		}
+		
+		/if (${Me.PctMana} < ${hybridManaLimit}) {
 			/call get_target
-			/delay 1s
 			DEBUG Target has NBW: ${Target.Buff[${NBW}].ID}
 			/if (!${Target.Buff[${NBW}].ID}) {
 				/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) /call core_cast2 "${NBW}" spell ${Target.ID} FALSE
@@ -99,9 +99,10 @@ Sub dru_main
 			/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${worstHurtId}]}) {
 				/call core_cast2 "${Adrenaline}" spell ${worstHurtId} FALSE
 			}
-		} else /if (${Me.PctMana} < ${hybridManaLimit}) {
+		}
+		
+		/if (${Me.PctMana} < ${hybridManaLimit}) {
 			/call get_target
-			/delay 5
 			/if (!${Target.Buff[${Cyclonic}].ID}) {
 				/if (${validate_cast[FALSE, spell, "${Cyclonic}", ${Target.ID}]}) /call core_cast2 "${Cyclonic}" spell ${Target.ID} FALSE
 			}
