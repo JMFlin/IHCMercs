@@ -75,7 +75,7 @@ Sub dru_main
 				/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 			}
 		}
-		
+		DEBUG ${Me.PctMana} < ${hybridManaLimit}
 		/if (${Me.PctMana} < ${hybridManaLimit}) {
 			/call get_target
 			DEBUG Target has NBW: ${Target.Buff[${NBW}].ID}
