@@ -70,7 +70,7 @@ Sub dru_main
 
 		/call get_heal_target 70
 		/varset worstHurtId ${Macro.Return}
-		DEBUG At NBW: ${worstHurtId}
+		DEBUG At NBW: ${worstHurtId}, ${Me.PctMana} < ${hybridManaLimit}
 		/if (${worstHurtId} > 0) {
 			/if (${validate_cast[FALSE, spell, "${Curavida}", ${worstHurtId}]}) {
 				/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
