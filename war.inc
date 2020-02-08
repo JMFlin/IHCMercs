@@ -4,9 +4,9 @@
 Sub war_main
 	
 	/while (${Me.XTarget}) {
-		/call engage
-
+		
 		/call get_target
+		/call engage
 		/call check_add_aggro
 		/call war_get_aggro
 
