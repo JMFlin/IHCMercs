@@ -424,6 +424,7 @@ Sub pre_pull_group_healer_spells
 
 Sub afk_pull
 	/declare _pullTargetID 	int local 0
+	/if (${Posse.Strangers} > 0) /return
 	/if (${Select[${Me.Class.ShortName},BST]}) {
 		/if (!${Me.Pet.ID}) /return
 	}
@@ -514,6 +515,7 @@ Sub afk_pull
  Sub chain_pull
 	/declare _pullTargetID 	int local 0
 
+	/if (${Posse.Strangers} > 0) /return
 	/if (${Me.XTarget}) /return
 	/if (${Me.Casting.ID}) /return
 	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
@@ -1286,6 +1288,7 @@ Sub get_target
 		| /if (${GroupAssistTarget}) 
 		/assist ${Group.MainAssist.Name}
 		/delay 1s ${Me.AssistComplete} == TRUE
+		/delay 5
 		/return
 	}
 
@@ -1856,16 +1859,18 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 
 				:cast_in_progress
 				| cast global cooldown spells
-				/if (!${Spawn[id ${_tmpID}].ID}) {
-					/if (${Me.Casting.ID}) /call pulse_stop core_cast_pulsestop
-					/delay 1s !${Me.Casting.ID}
-					/return
-				} else {
-					/call get_target
-					/call engage
+				/if (${_tmpID} != 0) {
+					/if (!${Spawn[id ${_tmpID}].ID}) {
+						/if (${Me.Casting.ID}) /call pulse_stop core_cast_pulsestop
+						/delay 1s !${Me.Casting.ID}
+						/return
+					} else {
+						/call get_target
+						/call engage
+					}
 				}
 				
-				/if (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) /goto :cast_in_progress
+				/if (${Window[CastingWindow].Open}) /goto :cast_in_progress
 
 				| check fizzle
 				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}

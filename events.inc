@@ -107,15 +107,15 @@ Sub Event_GroupChange(string line)
 Sub hybrid_healer_limit(bool _debug)
   /declare _groupsize int local ${Group.GroupSize}-1
   /declare _clrclasscount int local 0
-  /declare i int local
+  /declare _count int local
 
   /if (${Raid.Members}) /return 50
 
-	/for i 1 to ${_groupsize}
-		/if (${Select[${Group.Member[${i}].Class.ShortName},CLR]}) {
-			/varcalc _clrclasscount ${_clrclasscount}+1
+	/for _count 1 to ${_groupsize}
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR]}) {
+			/varcalc _clrclasscount ${_clrclasscount} + 1
 		}
-	/next i
+	/next _count
 
 	/if (${_clrclasscount} >= 1) {
 		/echo CLRs found \ag ${_clrclasscount} \aw. Setting DPS mana limit to 40.
