@@ -39,13 +39,13 @@ Sub Main
 	/if (${assistid}==${Me.ID}) {
 		/echo \aw I am Main Assist
 	} else {
-		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${AutoAssistAt}%
+		/echo \aw Assisting \ay >> \ag ${assistname} \ay << \aw at \ag ${autoAssistAt}%
 	}
 	/if (${UseZoneLogic}) {
 		/call ZoneEventChk
 	}
 	/delay 2s
-	/call PullAbilitySetup
+	/call pullAbilitySetup
 	/delay 2s
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
 	
@@ -69,9 +69,9 @@ Sub Raid
     /while (${Mode}==6) {
 		/if (${Me.Hovering}) /call DeathSub
 		/if (${Me.State.Equal[FEIGN]}) /stand
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /attack on
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Target.Distance}<${assistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /attack on
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${UseItems}) /call CombatdpsItems
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && ${Target.Distance}<${assistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
 		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget} && (${Me.ActiveDisc.ID}==${Spell[${Heel}].ID} || ${Me.ActiveDisc.ID}==${Spell[${Speed}].ID} || ${Me.ActiveDisc.ID}==${Spell[${Palm}].ID}) && ${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Firewalker's Covenant Trigger].ID} && !${Target.Buff[Doomwalker's Alliance Trigger].ID}) /Disc ${Alliance}
 		/if (${Me.PctHPs}<45) /call Defense
 		/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -95,7 +95,7 @@ Sub ManualPullCamping
 
 		
 		/if (${State}==0) {
-			/if (${Me.ID}!=${Group.Puller.ID}) /call move_to_camp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+			/if (${Me.ID}!=${Group.Puller.ID}) /call move_to_camp ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ} ${autoCampRadius}
 			/if (!${Me.Moving} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) /call IllusionCheck
 			/if (${Me.ID}!=${Group.Puller.ID} && ${DoMed}) /call AutoMed
 			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
@@ -105,8 +105,8 @@ Sub ManualPullCamping
 
 		/if (${State}==1) {
 			/if (${Me.ID}==${Group.Puller.ID}) {
-				/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange}) /assist ${Group.MainAssist.Name}
-				/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}-10) && ${Me.XTarget[1].ID}) /varset State 2
+				/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]}<${assistRange}) /assist ${Group.MainAssist.Name}
+				/if (${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]}<(${assistRange}-10) && ${Me.XTarget[1].ID}) /varset State 2
 			} else {
 				/if (${Me.XTarget[1].ID}) /assist ${Group.MainAssist.Name}
 				/if (${Target.Distance}<50 && ${Target.Type.Equal[NPC]}) {
@@ -123,22 +123,22 @@ Sub ManualPullCamping
 
 			/if (${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Target.Type.Equal[NPC]} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID}) /call CombatdpsItems
 
-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call engage
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${assistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call engage
 
-			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsDiscs
+			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${autoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${assistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsDiscs
 
-			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
+			/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${autoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${assistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
 
 			/if (${Me.PctEndurance}>=5 && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<98 && (${Target.Named} || ${Me.XTarget[1].Named})) /call DoNamed
 
 			/if (${Me.PctHPs}<45) /call Defense
 
-			/if (${Me.XTarget[1].ID} || ${Me.ID}!=${Group.Puller.ID}) /call move_to_camp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AssistRange}
+			/if (${Me.XTarget[1].ID} || ${Me.ID}!=${Group.Puller.ID}) /call move_to_camp ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ} ${assistRange}
 
 			/if (${Target.PctAggro}>85) /doability "Feign Death"
 			/if (${Me.State.Equal[FEIGN]}) /stand
 
-			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call engage
+			/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${assistRange} && ${Target.ID}!=${Me.ID} && ${Target.Type.Equal[NPC]}) /call engage
 			
 			/if (${Target.Type.Equal[Corpse]}) /target clear
 			/if (!${Me.XTarget[1].ID}) /call PostCombat
@@ -165,10 +165,10 @@ Sub ManualRunAndGun
 
 		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /assist ${Group.MainAssist.Name}
 		/if (${Me.XTarget[1].ID} && ${Spawn[${Group.Leader.Name}].Distance}<40 && ${Target.ID}) /attack on
-		/if (${Me.XTarget[1].ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${AssistRange} && ${Group.Leader.ID}!=${Me.ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call engage
+		/if (${Me.XTarget[1].ID} && ${Target.ID}!=${Me.ID} && ${Target.Distance}<=${assistRange} && ${Group.Leader.ID}!=${Me.ID} && ${Spawn[${Group.Leader.Name}].Distance}<40) /call engage
 		/if (${Me.ActiveDisc.ID}!=${Spell[${Heel}].ID} && ${Target.Type.Equal[NPC]} && ${Me.ActiveDisc.ID}!=${Spell[${Speed}].ID} && ${Me.ActiveDisc.ID}!=${Spell[${Palm}].ID} && ${Target.Type.Equal[NPC]} && ${Me.XTarget[1].ID}) /call CombatdpsItems
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsDiscs
-		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${AutoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${autoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${assistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsDiscs
+		/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.PctHPs}<=${autoAssistAt} && ${Target.Type.Equal[NPC]} && ${Target.Distance}<${assistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call CombatdpsMash
 		/if (${Me.PctEndurance}>=5 && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<98 && (${Target.Named} || ${Me.XTarget[1].Named})) /call DoNamed
 		
 		/if (!${Me.XTarget[1].ID} || ${Spawn[${Group.Leader.Name}].Distance}>40) /call Travel
@@ -198,18 +198,18 @@ Sub AFKRadiusCamping
 		/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${KillTargetID}) /call DowntimeDiscs
 
 		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID}) /call PullerCheckGroupManaEnd 
-		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20 && (${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[Distant Strike]} || (!${FindItem[${PullAbility2}].TimerReady} && ${PullAbility2}))) /call AFKPull
+		/if (!${Me.XTarget[1].ID} && ${Group.Puller.ID}==${Me.ID} && !${Me.Casting.ID} && ${Me.PctEndurance}>20 && (${Me.CombatAbilityReady[${pullAbility}]} || ${Me.AltAbilityReady[Distant Strike]} || (!${FindItem[${pullAbility2}].TimerReady} && ${pullAbility2}))) /call AFKPull
 
 		/if (${Me.XTarget[1].ID} && ${Me.ID}!=${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
 
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<(${AssistRange}+25)) /call CombatdpsItems
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<=${AutoCampRadius} && ${Target.PctAggro}<100) /call engage
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100) /call CombatdpsDiscs
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100) /call CombatdpsMash
-		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${PullAutoCampY},${PullAutoCampX},${PullAutoCampZ}]}<${AssistRange} && ${Target.PctAggro}<100 && (${Target.Named} || ${Me.XTarget[1].Named})) /call DoNamed
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]}<(${assistRange}+25)) /call CombatdpsItems
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]}<=${autoCampRadius} && ${Target.PctAggro}<100) /call engage
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]}<${assistRange} && ${Target.PctAggro}<100) /call CombatdpsDiscs
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]}<${assistRange} && ${Target.PctAggro}<100) /call CombatdpsMash
+		/if (${Target.ID} && ${Target.Type.Equal[NPC]} && ${Math.Distance[${Target.Y},${Target.X},${Target.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]}<${assistRange} && ${Target.PctAggro}<100 && (${Target.Named} || ${Me.XTarget[1].Named})) /call DoNamed
 
 		/if (${Target.Type.Equal[Corpse]}) /target clear
-		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call move_to_camp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+		/if ((${Target.PctAggro}>=100 || !${Target.ID}) && !${Target.Rooted.ID} && !${Navigation.Active}) /call move_to_camp ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ} ${autoCampRadius}
 		/if (!${Me.XTarget[1].ID} && !${Target.ID}) /call PostCombat
 
 		/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure

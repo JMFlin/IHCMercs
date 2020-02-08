@@ -513,7 +513,7 @@ Sub CharmCheck
 			/if (${MezCheckElements}>=${CharmMinMobs}) {
 				/for nArray 1 to ${MezCheckElements}
 					/if (${Defined[CCTarget${nArray}Info]}) {
-						/if (${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].ID} && ${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].ID}!=${Me.GroupAssistTarget.ID} && ${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].Distance}<=${AssistRange} && ${CCTarget${nArray}Info.Arg[2,|]}>=${CharmMinLvl} && ${CCTarget${nArray}Info.Arg[2,|]}<=${CharmMaxLvl}) {
+						/if (${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].ID} && ${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].ID}!=${Me.GroupAssistTarget.ID} && ${Spawn[${CCTarget${nArray}Info.Arg[1,|]}].Distance}<=${assistRange} && ${CCTarget${nArray}Info.Arg[2,|]}>=${CharmMinLvl} && ${CCTarget${nArray}Info.Arg[2,|]}<=${CharmMaxLvl}) {
 							/squelch /target ID ${CCTarget${nArray}Info.Arg[1,|]}
 							/varset CharmedID ${CCTarget${nArray}Info.Arg[1,|]}
 						}

@@ -1,7 +1,7 @@
 Current IHC Mercs Commands as of 6/1/2019 - Most but not all commands work. Commands are subject to change at any time
 General Commands
-/assistrange - set how far away from character a mob can be before being considered in camp and attackable
-/autoassistat - Mob HP% to start attacking at
+/assistRange - set how far away from character a mob can be before being considered in camp and attackable
+/autoAssistAt - Mob HP% to start attacking at
 /backoff - Turns off combat (melee and dps spells), autotargeting, engaging and clears current target
 /burnit - Use burns on this one Mob ID then stop using burns
 /burncount - Sets number of mobs in Assist range that will trigger an Auto burn

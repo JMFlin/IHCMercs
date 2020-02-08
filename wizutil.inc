@@ -8,42 +8,42 @@
 Sub wiz_setup
 |-Declare AA and Spell variables
   |-Buffs
-	/declare SelfHPBuff				string	outer	"NULL"
-	/declare ACPyromancy			string	outer	"NULL"
-	/declare FamiliarBuff			string	outer	"NULL"
-	/declare SelfRune1				string	outer	"NULL"
+	/declare SelfHPBuff				string	outer	NULL
+	/declare ACPyromancy			string	outer	NULL
+	/declare FamiliarBuff			string	outer	NULL
+	/declare SelfRune1				string	outer	NULL
   |-Debuff
-	/declare StripBuffSpell			string	outer	"NULL"
+	/declare StripBuffSpell			string	outer	NULL
   |-DPS
   	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
 	/declare DPSRecastTimer			timer 	outer	0
-	/declare AllianceSpell			string	outer	"NULL"
-	/declare DichoSpell				string 	outer	"NULL"
-	/declare ClawNuke				string 	outer	"NULL"
-	/declare CloudburstNuke			string 	outer	"NULL"
-	/declare FuseNuke				string 	outer	"NULL"
-	/declare FireEtherealNuke		string 	outer	"NULL"
-	/declare MagmaticAENuke			string 	outer	"NULL"
-	/declare ChaosNuke				string 	outer	"NULL"
-	/declare VortexNuke				string 	outer	"NULL"
-	/declare TwincastSpell			string 	outer	"NULL"
-	/declare ColdEtherealNuke		string 	outer	"NULL"
-	/declare GambitSpell			string 	outer	"NULL"
-	/declare WildNuke				string 	outer	"NULL"
-	/declare FastNuke1				string 	outer	"NULL"
-	/declare GeneralNuke1			string 	outer	"NULL"
+	/declare AllianceSpell			string	outer	NULL
+	/declare DichoSpell				string 	outer	NULL
+	/declare ClawNuke				string 	outer	NULL
+	/declare CloudburstNuke			string 	outer	NULL
+	/declare FuseNuke				string 	outer	NULL
+	/declare FireEtherealNuke		string 	outer	NULL
+	/declare MagmaticAENuke			string 	outer	NULL
+	/declare ChaosNuke				string 	outer	NULL
+	/declare VortexNuke				string 	outer	NULL
+	/declare TwincastSpell			string 	outer	NULL
+	/declare ColdEtherealNuke		string 	outer	NULL
+	/declare GambitSpell			string 	outer	NULL
+	/declare WildNuke				string 	outer	NULL
+	/declare FastNuke1				string 	outer	NULL
+	/declare GeneralNuke1			string 	outer	NULL
   |-Pet
-	/declare PetSpell				string	outer	"NULL"
+	/declare PetSpell				string	outer	NULL
 	/declare PetAssistTimer			timer 	outer	0
   |-Utility
-	/declare RootSpell				string	outer	"NULL" 
-	/declare SnareSpell				string	outer	"NULL"
-	/declare EvacSpell				string	outer	"NULL"
-	/declare HarvestSpell1			string 	outer	"NULL"
-	/declare StunSpell				string 	outer	"NULL"
-	/declare JoltSpell				string 	outer	"NULL"
-	/declare RuneGuardSpell 		string  outer 	"NULL"
+	/declare RootSpell				string	outer	NULL 
+	/declare SnareSpell				string	outer	NULL
+	/declare EvacSpell				string	outer	NULL
+	/declare HarvestSpell1			string 	outer	NULL
+	/declare StunSpell				string 	outer	NULL
+	/declare JoltSpell				string 	outer	NULL
+	/declare RuneGuardSpell 		string  outer 	NULL
 	
 	/declare AANukeRecasttimer		timer outer 0
 	/declare SpellSet				string outer auto
@@ -52,6 +52,11 @@ Sub wiz_setup
 	/declare CastResult             string outer
 	/declare miscspellremem			string outer NULL
 	/declare spellrememtimer		timer outer 0
+
+	/declare PosseSpell				string outer NULL
+
+	/declare GoMNuke				string outer NULL
+	/declare GoMNuke2				string outer NULL
 /return
 |* ------------------------------------------------------------------------------------------
 | SUB: load_spellbar
@@ -168,6 +173,11 @@ Sub wiz_load_spellbar
 | SUB: SetWizSpells
 |------------------------------------------------------------------------------------------ *|
 Sub wiz_abilities
+
+	/if (${Me.Level} >= ${Spell[Knowledge Gate].Level} && ${Me.Book[${Spell[Knowledge Gate].RankName}]}) {
+		/varset PosseSpell ${Spell[Knowledge Gate].RankName}
+	}
+	
 
 |-Familiar Buff
 	/if (${Me.AltAbility[Kerafyrm's Prismatic Familiar].Rank} >= 1) {
@@ -332,7 +342,7 @@ Sub wiz_abilities
 		/varset HarvestSpell1 ${Spell[Patient Harvest].RankName}
 	} else /if (${Me.Level}>=32 && ${Me.Book[${Spell[Harvest].RankName}]}) {
 		/varset HarvestSpell1 ${Spell[Harvest].RankName}
-	}	
+	}
 |-GambitSpell
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Musing Gambit].RankName}]}) {
 		/varset GambitSpell ${Spell[Musing Gambit].RankName}
@@ -652,6 +662,9 @@ Sub wiz_abilities
 	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Sothgar's Flame].RankName}]}) {
 		/varset GeneralNuke1 ${Spell[Sothgar's Flame].RankName}
 	}
+
+	/varset GoMNuke ${DichoSpell}
+	|/varset GoMNuke2 ${Alliance}
 
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12

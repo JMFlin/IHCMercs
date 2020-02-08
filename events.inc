@@ -127,8 +127,8 @@ Sub hybrid_healer_limit(bool _debug)
 /return
 
 Sub Event_HybridHealerLimit(string line)
-  /if (${hybrid_healer_limit[FALSE]}) /varset HybridManaLimit 80
-/return ${HybridManaLimit}
+  /if (${hybrid_healer_limit[FALSE]}) /varset hybridManaLimit 80
+/return ${hybridManaLimit}
 |----------------------------------------------------------------------------
 |- SUB: AllianceCheck - check for others in raid
 |---------------------------------------------------------------------------- 
@@ -247,6 +247,13 @@ sub Event_CAST_CANNOTSEE(string line)
 sub Event_CAST_COLLAPSE(string line)
 	/varset castReturn CAST_COLLAPSE
 /return ${castReturn}
+
+#event CANNOT_HIT               "You can't hit them from here.#*#"
+sub Event_CANNOT_HIT(string line)
+	/varset castReturn CANNOT_HIT
+  /doevents flush CANNOT_HIT
+/return ${castReturn}
+
 
 
 | #event CAST_COMPONENTS             "You are missing some required components#*#"

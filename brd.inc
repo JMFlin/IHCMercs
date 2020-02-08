@@ -97,7 +97,7 @@ Sub brd_main
 		}
 	}
 
-|	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${AssistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
+|	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${assistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	
 	/doevents

@@ -50,7 +50,7 @@ Sub MnkSetup
 |---------------------------------------------------------------------------- 
 Sub SetupDiscs
 
-	/varset PullAbility "Distant Strike"
+	/varset pullAbility "Distant Strike"
 |--RejectDeath line
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Reject Death].RankName}]}) {
 		/varset RejectDeath ${Spell[Reject Death].RankName}

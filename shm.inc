@@ -6,11 +6,11 @@ Sub shm_main
 	/call shm_group_buffs
 
 	/call get_heal_target 90
-	/varset WorstHurtId ${Macro.Return}
+	/varset worstHurtId ${Macro.Return}
 	
-	/if (${WorstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${WorstHurtId}]}) {
-			/call core_cast2 "${RecklessHeal1}" spell ${WorstHurtId} FALSE
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
+			/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
 		}
 	}
 
@@ -33,11 +33,11 @@ Sub shm_main
 		}
 		
 		/call get_heal_target 85
-		/varset WorstHurtId ${Macro.Return}
+		/varset worstHurtId ${Macro.Return}
 		
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${WorstHurtId}]}) {
-				/call core_cast2 "${RecklessHeal1}" spell ${WorstHurtId} FALSE
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
 			}
 		} else {
 			/call get_target
@@ -51,10 +51,10 @@ Sub shm_main
 		/call shm_debuff_xtarget
 		
 		/call get_heal_target 85
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${WorstHurtId}]}) {
-				/call core_cast2 "${RecklessHeal1}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
 			}
 		}
 
@@ -213,10 +213,10 @@ Sub shm_cc
 Sub shm_debuff
 	/declare x int local 0
 |**
-	/if (${SpawnCount[npc radius ${AssistRange} zradius ${AssistRangeZ}]}>2 && ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}) {
+	/if (${SpawnCount[npc radius ${assistRange} zradius ${assistRangeZ}]}>2 && ${NearestSpawn[los npc radius ${assistRange} zradius ${assistRangeZ}].ID}) {
 
-		/target id ${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
-		/delay 1s ${Target.ID}==${NearestSpawn[los npc radius ${AssistRange} zradius ${AssistRangeZ}].ID}
+		/target id ${NearestSpawn[los npc radius ${assistRange} zradius ${assistRangeZ}].ID}
+		/delay 1s ${Target.ID}==${NearestSpawn[los npc radius ${assistRange} zradius ${assistRangeZ}].ID}
 
 		/if (${Me.AltAbilityReady[Wind of Malaise]} && !${Target.Buff[${Malo}].ID} && !${Target.Maloed.ID}) {
 			/alt act ${Me.AltAbility[Wind of Malaise].ID}

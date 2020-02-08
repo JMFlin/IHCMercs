@@ -43,6 +43,11 @@ Sub dru_setup
 	/declare Survival 			string outer NULL
 	/declare Mask 				string outer NULL
 	/declare TwincastSpell 		string outer NULL
+
+	/declare PosseSpell				string outer NULL
+
+	/declare GoMNuke				string outer NULL
+	/declare GoMNuke2				string outer NULL
 /return 
 |* ------------------------------------------------------------------------------------------
 | SUB: ${Me.Class.ShortName.Lower}_load_spellbar
@@ -103,6 +108,11 @@ BALANCED:
 12-   Pearlescent Moonbeam (Cycle with the spell Bosquetener’s Fortitude for a short-burn event) OR Overwhelming Sunray (Cycle with the spell Twincast for extra Twin burn)
 13-   Cyclonic Roar (Cycle with the spell Frostreave Aura or Wildspark Aura for extra cold/fire burst procs for your group)
 **|
+
+	/if (${Me.Level} >= ${Spell[Circle of Knowledge].Level} && ${Me.Book[${Spell[Circle of Knowledge].RankName}]}) {
+		/varset PosseSpell ${Spell[Circle of Knowledge].RankName}
+	}
+	
 
 	/if (${Me.Level}>=${Spell[Typhonic Roar].Level} && ${Me.Book[${Spell[Typhonic Roar].RankName}]}) {
 		/varset Cyclonic ${Spell[Typhonic Roar].RankName}

@@ -108,6 +108,9 @@ Sub enc_setup
 	/declare spellrememtimer		timer outer 0
 	/declare groupbufftimer		timer outer 0
 	/declare DeBuffTimer		timer outer 0
+
+	/declare GoMNuke				string outer NULL
+	/declare GoMNuke2				string outer NULL
 |- Below Code is only needed for using ihcxtenchmez.inc
 |-	/declare MezCount[13]           			int         outer 	0
 |-	/declare MezArray[50,3]			            string      outer       NULL

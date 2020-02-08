@@ -196,14 +196,14 @@ Sub bst_aoe_aggro
 |- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
 Sub bst_single_target_heals
-	/declare worsthurtid 		int local 0
+	/declare worstHurtId 		int local 0
 
 	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 50) {
 
-		/varset worsthurtid ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
+		/varset worstHurtId ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
 
-		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${worsthurtid}]}) {
-			/call core_cast2 "${HealSpell1}" spell ${worsthurtid} FALSE
+		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${worstHurtId}]}) {
+			/call core_cast2 "${HealSpell1}" spell ${worstHurtId} FALSE
 			/return
 		}
 	}
@@ -215,7 +215,7 @@ Sub bst_buff_group
 	/declare _count			int local 0
 	/declare CastCheck			int local 0
 	
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${AutoCampRadius}) /call move_to_camp ${PullAutoCampX} ${PullAutoCampY} ${PullAutoCampZ} ${AutoCampRadius}
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${Yloc},${Xloc},${Zloc}]} > ${autoCampRadius}) /call move_to_camp ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ} ${autoCampRadius}
 
 	/for _count 0 to ${Group}
 
@@ -289,14 +289,14 @@ Sub bst_disc
 			/call SpellQueue "${AtkBuff}" ${Me.ID}
 	}
 	
-	/if ( ${Target.CurrentHPs}<=${AutoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<=${AssistRange} && ${Ok2Assist}) {
+	/if ( ${Target.CurrentHPs}<=${autoAssistAt} && ${Target.ID}==${autotargetid} && ${Target.Distance}<=${assistRange} && ${Ok2Assist}) {
 		|- Pet Attack
-		/if ((!${Me.Pet.Combat} || ${Pet.Target.ID}!=${autotargetid}) && ${Me.Pet.ID} && ${Target.Type.Equal[NPC]} && ${Target.ID} && ${Target.CurrentHPs}<=${AutoAssistAt} && ${UsePet}) {
+		/if ((!${Me.Pet.Combat} || ${Pet.Target.ID}!=${autotargetid}) && ${Me.Pet.ID} && ${Target.Type.Equal[NPC]} && ${Target.ID} && ${Target.CurrentHPs}<=${autoAssistAt} && ${UsePet}) {
 			/pet attack 
 			/pet swarm
 		}
 		|- Slow
-		/if (${DoSlow} && ${Target.CurrentHPs}<=${AutoAssistAt} && !${Me.Casting.ID} && ${Target.LineOfSight} && !${Me.Moving} && !${Target.Slowed.ID} && !${Target.Type.Equal[Corpse]}) {
+		/if (${DoSlow} && ${Target.CurrentHPs}<=${autoAssistAt} && !${Me.Casting.ID} && ${Target.LineOfSight} && !${Me.Moving} && !${Target.Slowed.ID} && !${Target.Type.Equal[Corpse]}) {
 			/if (${Me.AltAbilityReady[Sha's Reprisal]}) {
 				/call AANow ${Me.AltAbility[Sha's Reprisal].ID} ${autotargetid}
 			} else /if (${Me.SpellReady[${SlowSpell}]}) {

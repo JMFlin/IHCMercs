@@ -5,39 +5,23 @@ Sub clr_main
 	
 	/if (${PowerLevel}) {
 		/call check_for_corpse FALSE
-		/call clr_group_buffs
-		/call clr_self_buffs
-		/call clr_combat_tank_buffs
-		/call get_heal_target 40
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Remedy1}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Remedy1}" spell ${WorstHurtId} FALSE
-			}
-		}
-		/call get_heal_target 40
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Intervention1}" spell ${WorstHurtId} FALSE
-			}
-		}
+		/if (!${Me.XTarget}) /call clr_combat_tank_buffs
 		/return
 	} 
 
 	/call get_heal_target 90
-	/varset WorstHurtId ${Macro.Return}
-	/if (${WorstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${WorstHurtId}]}) {
-			/call core_cast2 "${Remedy1}" spell ${WorstHurtId} FALSE
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${worstHurtId}]}) {
+			/call core_cast2 "${Remedy1}" spell ${worstHurtId} FALSE
 		}
 	}
 
 	/call get_heal_target 90
-	/varset WorstHurtId ${Macro.Return}
-	/if (${WorstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${WorstHurtId}]}) {
-			/call core_cast2 "${Remedy2}" spell ${WorstHurtId} FALSE
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${worstHurtId}]}) {
+			/call core_cast2 "${Remedy2}" spell ${worstHurtId} FALSE
 		}
 	}
 
@@ -56,26 +40,26 @@ Sub clr_main
 		
 
 		/call get_heal_target 90
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Remedy1}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Remedy1}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Remedy1}", ${worstHurtId}]}) {
+				/call core_cast2 "${Remedy1}" spell ${worstHurtId} FALSE
 			}
 		}
 
 		/call get_heal_target 90
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Remedy2}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Remedy2}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Remedy2}", ${worstHurtId}]}) {
+				/call core_cast2 "${Remedy2}" spell ${worstHurtId} FALSE
 			}
 		}
 
 		/call get_heal_target 75
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Intervention1}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${worstHurtId}]}) {
+				/call core_cast2 "${Intervention1}" spell ${worstHurtId} FALSE
 			}
 		}
 
@@ -96,18 +80,18 @@ Sub clr_main
 		}
 
 		/call get_heal_target 75
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention2}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Intervention2}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Intervention2}", ${worstHurtId}]}) {
+				/call core_cast2 "${Intervention2}" spell ${worstHurtId} FALSE
 			}
 		}
 
 		/call get_heal_target 75
-		/varset WorstHurtId ${Macro.Return}
-		/if (${WorstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention3}", ${WorstHurtId}]}) {
-				/call core_cast2 "${Intervention3}" spell ${WorstHurtId} FALSE
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Intervention3}", ${worstHurtId}]}) {
+				/call core_cast2 "${Intervention3}" spell ${worstHurtId} FALSE
 			}
 		}
 
@@ -438,7 +422,7 @@ Sub clr_group_heals
 |		/call HealQueue ${assistid}
 |	} else /if ((${Group.Member[${worsthurtname}]${GrPCond}Distance}<=${healspellrange}) && (${worsthp}<=${grouphealpoint} || ${petworsthp}<=${grouphealpoint}) && ${Group.Member[${worsthurtname}]${GrPCond}PctHPs}>=1) {
 |		/varset healpoint ${grouphealpoint}
-|		/call HealQueue ${worsthurtid}
+|		/call HealQueue ${worstHurtId}
 |	} else /if ((${Me.Corrupted.ID} || ${Me.Snared.ID}) && ${NoCures}!=1 && (${Me.AltAbilityReady[Purify Soul]} || ${Me.AltAbilityReady[Group Purify Soul ]} || ${Me.AltAbilityReady[Purified Spirits]}) && ${CureTimer}==0 && !${Me.Casting.ID} && ${CureOther}) {
 |		/call OtherCure ${Me.ID}
 |	} else /if (${Target.Type.Equal[PC]} && ${Target.BuffsPopulated}==TRUE && ${NoCures}!=1 && (${Target.Corrupted.ID} || ${Target.Snared.ID} || ${Target.Mezzed.ID} || ${Target.Charmed.ID}) && (${Me.AltAbilityReady[Purify Soul]} || ${Me.AltAbilityReady[Group Purify Soul ]}) && ${CureTimer}==0 && !${Me.Casting.ID} && ${CureOther}) {

@@ -39,6 +39,7 @@ Sub war_setup
 	/declare FortitudeDiscID		int outer 0
 	/declare CulminatingStandID 	int outer 0
 	/declare ACDiscID				int outer 0
+	/declare PullTowards 	string outer NULL
 
 	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
 	/declare CastResult             	string outer
@@ -313,11 +314,11 @@ Sub war_abilities
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 
 	/if (${Me.CombatAbility[${insult}]}) {
-		/varset PullAbility ${insult}
-		/varset PullDistance 85
+		/varset pullAbility ${insult}
+		/varset pullDistance 85
 	} else {
-		/varset PullAbility ${Spell[Throw Stone].RankName}
-		/varset PullDistance 55
+		/varset pullAbility ${Spell[Throw Stone].RankName}
+		/varset pullDistance 55
 	}
 /return
 |----------------------------------------------------------------------------

@@ -74,7 +74,7 @@ Avenging Flurry Discipline
 
 **|
 	/if (!${Me.ActiveDisc.ID}) {
-		/if (${BurnRotation} == 1) {
+		/if (${burnRotation} == 1) {
 			
 			/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
 				/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
@@ -88,53 +88,53 @@ Avenging Flurry Discipline
 				/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
 				/if (${validate_cast[FALSE, alt, "Focused Rampage", ${Me.ID}]}) /call core_cast2 "Focused Rampage" alt 0 FALSE
 			}
-			/varset InBetween 1
+			/varset inBetween 1
 		}
 	}
 
 	/if (!${Me.ActiveDisc.ID}) {
-		/if (${BurnRotation} == 2) {
+		/if (${burnRotation} == 2) {
 			/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) {
 				/if (${validate_cast[FALSE, alt, "Reckless Abandon", ${Me.ID}]}) /call core_cast2 "Reckless Abandon" alt 0 FALSE
 				/call core_cast2 "${CleavingDisc}" disc 0 FALSE
 				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
 			}
-			/varset InBetween 1
+			/varset inBetween 1
 		}
 	}
 
 	/if (!${Me.ActiveDisc.ID}) {
-		/if (${BurnRotation} == 3) {
+		/if (${burnRotation} == 3) {
 			/if (${validate_cast[FALSE, disc, "${ResolveDisc}", ${Me.ID}]}) {
 				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
 				/call core_cast2 "${ResolveDisc}" disc 0 FALSE
 			}
-			/varset InBetween 1
+			/varset inBetween 1
 		}
 	}
 
 	/if (!${Me.ActiveDisc.ID}) {
-		/if (${BurnRotation} == 4) {
+		/if (${burnRotation} == 4) {
 			/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) {
 				/call core_cast2 "${FlurryDisc}" disc 0 FALSE
 			}
-			/varset BurnRotation 0
-			/varset InBetween 1
+			/varset burnRotation 0
+			/varset inBetween 1
 		}
 	}
 
 	/if (!${Me.ActiveDisc.ID}) {
 		
-		/if (${InBetween} == 1) {
+		/if (${inBetween} == 1) {
 			/if (${Me.CombatAbility[${Spell[Disconcerting Discipline].RankName}]}) {
 				/if (${validate_cast[FALSE, disc, "${DisconDisc}", ${Me.ID}]}) {
 					/call core_cast2 "${DisconDisc}" disc 0 FALSE
-					/varcalc BurnRotation ${BurnRotation} + 1
-					/varset InBetween 0
+					/varcalc burnRotation ${burnRotation} + 1
+					/varset inBetween 0
 				}
 			} else {
-				/varcalc BurnRotation ${BurnRotation} + 1
-				/varset InBetween 0
+				/varcalc burnRotation ${burnRotation} + 1
+				/varset inBetween 0
 			}
 		}
 	}

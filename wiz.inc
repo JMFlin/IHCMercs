@@ -8,8 +8,8 @@ Sub wiz_main
 
 	/call get_target
 |-	/call PetAttack
-|-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${AssistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
-|-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<${AssistRange}) /call AANDisc
+|-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${assistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
+|-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<${assistRange}) /call AANDisc
 	/call wiz_combat
 
 |-	/if (${UseModRods}) /call ClickModRoD
