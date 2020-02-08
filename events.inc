@@ -191,7 +191,7 @@ Sub Event_Camping
 |- SUB: Event Zoned
 |----------------------------------------------------------------------------
 #Event Zoned             "LOADING, PLEASE WAIT#*#"
-#Event Zoned             "You have entered#*#"
+| #Event Zoned             "You have entered#*#"
 Sub Event_Zoned(Message)
 	/call Zoning
 /return
