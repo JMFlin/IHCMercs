@@ -3,6 +3,13 @@
 |---------------------------------------------------------------------------- 
 Sub dru_main
 
+	/if (${PowerLevel}) {
+		/call dru_group_buffs
+		/call dru_self_buffs
+		/call check_for_corpse FALSE
+		/if (!${Me.XTarget}) /call dru_combat_tank_buffs
+		/return
+	} 
 |	/call check_for_corpse FALSE
 	/call dru_group_buffs
 	/call dru_self_buffs

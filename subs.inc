@@ -1864,9 +1864,10 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 						/call engage
 					}
 				}
-				
+				/delay 5
 				/if (${Window[CastingWindow].Open}) /goto :cast_in_progress
-
+				/delay 5
+				
 				| check fizzle
 				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
 				/varset _fizzle ${Macro.Return}
