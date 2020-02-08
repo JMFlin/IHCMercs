@@ -1232,6 +1232,7 @@ Sub WelcomeMsg
 |---------------------------------------------------------------------------- 
 Sub get_target
 	/declare _npcIDontHaveAggroOnID 	int local 0
+	/declare _currentTarget 			int local 0
 	/declare _tmpID 				int local 0
 
 	| is there a target to be had?
@@ -1248,13 +1249,19 @@ Sub get_target
 		/if (${Target.Type.Equal[Corpse]}) /target clear
 	}
 
+	/varset _currentTarget ${Target.ID}
+
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		| if there is an xtarget close then target the one with lowest hp
-		/if (${SpawnSort[1,asc,PathLength,xtarhater].Distance} < 200) {
-			/if (${Navigation.Active}) /nav stop
-			/if (${Stick.Active}) /stick off
-			/target id ${SpawnSort[1,asc,PathLength,xtarhater].ID}
+		/if (${SpawnSort[1,asc,PctHPs,xtarhater].Distance} < 200) {
+			/target id ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
+
+			/if (${_currentTarget} != ${Target.ID}) {
+				/if (${Navigation.Active}) /nav stop
+				/if (${Stick.Active}) /stick off
+			}
+
 			/delay 5
 		}
 	}
@@ -1291,8 +1298,12 @@ Sub get_target
 		/assist ${Group.MainAssist.Name}
 		/delay 1s ${Me.AssistComplete} == TRUE
 		/delay 5
-		/if (${Navigation.Active}) /nav stop
-		/if (${Stick.Active}) /stick off
+
+		/if (${_currentTarget} != ${Target.ID}) {
+			/if (${Navigation.Active}) /nav stop
+			/if (${Stick.Active}) /stick off
+		}
+
 		/return
 	}
 

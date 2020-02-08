@@ -6,6 +6,7 @@ Sub bst_main
 	/call bst_self_buff_check
 
 	/while (${Me.XTarget}) {
+		
 		/call get_target
 		/call engage
 		/call pet_attack
