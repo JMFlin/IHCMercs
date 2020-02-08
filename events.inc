@@ -248,7 +248,7 @@ sub Event_CAST_COLLAPSE(string line)
 	/varset castReturn CAST_COLLAPSE
 /return ${castReturn}
 
-#event CANNOT_HIT               "You can't hit them from here.#*#"
+#event CANNOT_HIT               "You can't hit them from here#*#"
 sub Event_CANNOT_HIT(string line)
 	/varset castReturn CANNOT_HIT
 /return ${castReturn}

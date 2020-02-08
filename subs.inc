@@ -661,8 +661,10 @@ Sub get_pull_target(int _tmpID)
 Sub get_close_target(int _tmpID)
 
 	/if (${Navigation.Active}) /nav stop
+	/call check_cast_events "${pullAbility}" CAST_CANNOTCAST ${_tmpID}
 	/stick 12 moveback loose
 	/attack on
+	/if (!${Me.XTarget}) /call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
 	/delay 3s ${Me.XTarget}
 	/stick off
 
