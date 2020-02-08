@@ -3,9 +3,48 @@
 |---------------------------------------------------------------------------- 
 Sub bst_main
 
-	/call engage
 	/call bst_self_buff_check
-	/call bst_combat
+
+	/while (${Me.XTarget}) {
+		/call get_target
+		/call engage
+		/call pet_attack
+	
+		/if (!${validate_combat[${Target.ID}]} ) /return
+
+		/call use_skill_melee ${Target.ID} FALSE
+
+		/if (!${Target.Buff[${BloodDoT}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${BloodDoT}", ${Target.ID}]}) /call core_cast2 "${BloodDoT}" spell ${Target.ID} FALSE
+		}
+
+		/if (${Target.PctHPs} > 30) {
+			/if (${validate_cast[FALSE, spell, "${SwarmPet}", ${Target.ID}]}) /call core_cast2 "${SwarmPet}" spell ${Target.ID} FALSE
+		}
+
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			
+			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
+			}
+		}
+
+		/if (${Me.CombatAbilityReady[${Maul}]}) {
+			/if (${validate_cast[FALSE, disc, ${Maul}, ${Target.ID}]}) /call core_cast2 ${Maul} disc ${Target.ID} FALSE
+		}
+
+		/if (!${Target.Buff[${FrozenNuke}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${FrozenNuke}", ${Target.ID}]}) /call core_cast2 "${FrozenNuke}" spell ${Target.ID} FALSE
+		}
+		
+		/if (!${Target.Buff[${MaelstromNuke}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${MaelstromNuke}", ${Target.ID}]}) /call core_cast2 "${MaelstromNuke}" spell ${Target.ID} FALSE
+		}
+
+	}
+	
 
 /return
 |----------------------------------------------------------------------------
@@ -93,57 +132,7 @@ Sub bst_combat_buffs
 |---------------------------------------------------------------------------- 
 Sub bst_combat
 
-	/if (!${validate_combat[${Target.ID}]} ) /return
-
-	/call get_target
-	/call engage
-	/call pet_attack
-	/squelch /attack on
-
-	/call use_skill_melee ${Target.ID} FALSE
-
-	/if (!${Target.Buff[${BloodDoT}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${BloodDoT}", ${Target.ID}]}) /call core_cast2 "${BloodDoT}" spell ${Target.ID} FALSE
-	}
-
-	/if (${Target.PctHPs} > 30) {
-		/if (${validate_cast[FALSE, spell, "${SwarmPet}", ${Target.ID}]}) /call core_cast2 "${SwarmPet}" spell ${Target.ID} FALSE
-	}
-
-	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
-		
-		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-			/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-			/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
-		}
-	}
-
-	/if (${Me.CombatAbilityReady[${Maul}]}) {
-		/if (${validate_cast[FALSE, disc, ${Maul}, ${Target.ID}]}) /call core_cast2 ${Maul} disc ${Target.ID} FALSE
-	}
-
-	/if (${Me.AltAbilityReady[Warlord's Fury]} && ${Me.SecondaryPctAggro}>=60) {
-		/call AANow ${Me.AltAbility[Warlord's Fury].ID}
-	}
-
-
-
-	|/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell1}].ID} && !${Target.Buff[Mental Contortion].ID}) {
-	|	/if (${validate_cast[FALSE, spell, "${CrippleSpell1}", ${Target.ID}]}) {
-	|		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell1} \ax <<=
-	|		/call core_cast2 "${CrippleSpell1}" spell ${Target.ID} FALSE
-	|	}
-	|} 
 	
-
-	/if (!${Target.Buff[${FrozenNuke}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${FrozenNuke}", ${Target.ID}]}) /call core_cast2 "${FrozenNuke}" spell ${Target.ID} FALSE
-	}
-	
-	/if (!${Target.Buff[${MaelstromNuke}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${MaelstromNuke}", ${Target.ID}]}) /call core_cast2 "${MaelstromNuke}" spell ${Target.ID} FALSE
-	}
 
 /return
 |----------------------------------------------------------------------------

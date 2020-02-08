@@ -10,7 +10,7 @@ Sub war_main
 		/call check_add_aggro
 		/call war_get_aggro
 
-		/if (!${validate_combat[${Target.ID}]} ) /return
+		/if (!${validate_combat[${Target.ID}]}) /return
 
 		/call war_get_aggro
 		/if (!${Me.Song[Battle Leap].ID}) {
