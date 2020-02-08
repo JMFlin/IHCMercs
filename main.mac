@@ -202,32 +202,51 @@ sub misc
 	/if (${goSell}) /call vendor_items
 
 
+	
 	/if (${Posse.Strangers} > 0 && !${Me.XTarget}) {
 
-		/varset Mode 0
+		/if (!${Select[${Me.Class.ShortName},DRU,WIZ]}) {
+			
+			/if (!${port_class_checker[FALSE]}) /call dummy_mode
 
-		/if (${Select[${Me.Class.ShortName},DRU,WIZ]}) {
+		} else /if (${Select[${Me.Class.ShortName},DRU,WIZ]}) {
 				
-				/for _count 0 to ${Group}
+			/for _count 0 to ${Group}
 
-					/if (${Group.Member[${_count}].OtherZone}) /continue
+				/if (${Group.Member[${_count}].OtherZone}) /continue
 
-					/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+				/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 
-					/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) /continue
-					
-					/if (${Group.Member[${_count}].Distance} >= 100) /squelch /dex ${Group.Member[${_count}].Name.Lower} /nav id ${Me.ID}
+				/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) /continue
+				
+				/if (${Group.Member[${_count}].Distance} >= 100) /squelch /dex ${Group.Member[${_count}].Name.Lower} /nav id ${Me.ID}
 
-				/next _count
+			/next _count
 
-				/if (${validate_cast[FALSE, spell, "${PosseSpell}", ${Me.ID}]}) {
-					/call core_cast2 "${PosseSpell}" spell ${Me.ID} FALSE
-				}
+			/if (${validate_cast[FALSE, spell, "${PosseSpell}", ${Me.ID}]}) {
+				/call core_cast2 "${PosseSpell}" spell ${Me.ID} FALSE
 			}
 		}
+	}
+	
 	
 /return
 
+sub port_class_checker(bool _debug)
+
+	/for _count 0 to ${Group}
+
+		/if (${Group.Member[${_count}].OtherZone}) /continue
+
+		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
+
+		/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) /continue
+		
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},WIZ,DRU]}) /return TRUE
+
+	/next _count
+
+/return FALSE
 
 sub vendor_items
 	/if (${Spawn[merchant radius 50].ID}) {
