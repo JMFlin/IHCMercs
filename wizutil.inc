@@ -436,7 +436,7 @@ Sub wiz_abilities
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Ethereal Weave].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Weave].RankName}
 	}
-|-WildNuke
+|-WildNuke: Kizant uss Wildether barrage and wild spark barrage in TBL with fury of gods
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Wildflash Strike].RankName}]}) {
 		/varset WildNuke ${Spell[Wildflash Strike].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Wildflash Barrage].RankName}]}) {

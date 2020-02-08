@@ -31,6 +31,9 @@ Sub bst_main
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
+		/call get_target
+		/call engage
+		/call pet_attack
 
 		/if (${Me.CombatAbilityReady[${Maul}]}) {
 			/if (${validate_cast[FALSE, disc, ${Maul}, ${Target.ID}]}) /call core_cast2 ${Maul} disc ${Target.ID} FALSE
@@ -39,9 +42,21 @@ Sub bst_main
 		/if (!${Target.Buff[${FrozenNuke}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${FrozenNuke}", ${Target.ID}]}) /call core_cast2 "${FrozenNuke}" spell ${Target.ID} FALSE
 		}
+
+		/call get_target
+		/call engage
+		/call pet_attack
 		
 		/if (!${Target.Buff[${MaelstromNuke}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${MaelstromNuke}", ${Target.ID}]}) /call core_cast2 "${MaelstromNuke}" spell ${Target.ID} FALSE
+		}
+
+		/call get_heal_target 40
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${Mending}", ${worstHurtId}]}) {
+				/call core_cast2 "${Mending}" spell ${worstHurtId} FALSE
+			}
 		}
 
 	}
@@ -188,17 +203,10 @@ Sub bst_aoe_aggro
 |- SUB: single_target_heals
 |---------------------------------------------------------------------------- 
 Sub bst_single_target_heals
-	/declare worstHurtId 		int local 0
+	
 
-	/if (${Spawn[${WorstHurt[group,1,200,FALSE]}].Type.NotEqual[Corpse]} && ${Spawn[${WorstHurt[group,1,200,FALSE]}].PctHPs} < 50) {
+	
 
-		/varset worstHurtId ${Spawn[${WorstHurt[group,1,200,FALSE]}].ID}
-
-		/if (${validate_cast[FALSE, spell, "${HealSpell1}", ${worstHurtId}]}) {
-			/call core_cast2 "${HealSpell1}" spell ${worstHurtId} FALSE
-			/return
-		}
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: BuffGroup
