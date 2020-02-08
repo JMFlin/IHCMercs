@@ -290,7 +290,9 @@ Sub bst_abilities
 	/varset DichoSpell ${Spell[Dichotomic Fury].RankName}
 	}
 |-Slow Spell*
-	/if (${Me.Level}>=${Spell[Sha's Reprisal].Level} && ${Me.Book[${Spell[Sha's Reprisal].RankName}]}) {
+	/if (${Me.AltAbility[Sha's Reprisal].Rank} >= 1) {
+		/varset SlowSpell "Sha's Reprisal"
+	} /if (${Me.Level}>=${Spell[Sha's Reprisal].Level} && ${Me.Book[${Spell[Sha's Reprisal].RankName}]}) {
 		/varset SlowSpell ${Spell[Sha's Reprisal].RankName}
 	} else /if (${Me.Level}>=${Spell[Sha's Legacy].Level} && ${Me.Book[${Spell[Sha's Legacy].RankName}]}) {
 		/varset SlowSpell ${Spell[Sha's Legacy].RankName}
@@ -615,6 +617,7 @@ Sub bst_abilities
 	} else /if (${Me.Level}>=${Spell[Neivr's Aggression].Level} && ${Me.Book[${Spell[Neivr's Aggression].RankName}]}) {
 		/varset PetOffenseBuff ${Spell[Neivr's Aggression].RankName}
 	}
+	
  |-Pet Tanking buff*
 	/if (${Me.Level}>=${Spell[Virzak's Protection].Level} && ${Me.Book[${Spell[Virzak's Protection].RankName}]}) {
 		/varset PetDefenseBuff ${Spell[Virzak's Protection].RankName}

@@ -1710,12 +1710,14 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 
 				:cast_in_progress
 				| cast global cooldown spells
-				/if (!${Spawn[id ${_tmpID}].ID}) {
-					/if (${Me.Casting.ID}) /stopcast
-					/delay 1s !${Me.Casting.ID}
-					/return
+				/if (${_tmpID} != 0) {
+					/if (!${Spawn[id ${_tmpID}].ID}) {
+						/if (${Me.Casting.ID}) /stopcast
+						/delay 1s !${Me.Casting.ID}
+						/return
+					}
 				}
-				/if (${Me.SpellInCooldown}) /call global_cooldown_spells ${_tmpID}
+				/if (${Me.SpellInCooldown} && ${_tmpID} != 0 && !${Spell[${_spell}].SpellType.Equal[Beneficial]}) /call global_cooldown_spells ${_tmpID}
 
 				/if (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) /goto :cast_in_progress
 
