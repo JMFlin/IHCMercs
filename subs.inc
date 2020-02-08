@@ -793,7 +793,6 @@ Sub pet_attack
 	/if (!${Me.Pet.ID}) /return
 	/if (${petFollow}) /varset petFollow 0
 	/if (!${validate_combat[${Target.ID}]} ) /return
-	/if (${Target.Distance3D} > ${assistRange}) /return
 	
 	|- Spirit call
 	/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
