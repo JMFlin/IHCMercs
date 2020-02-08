@@ -155,7 +155,8 @@ Sub AFKRadiusCamping
 /return
 
 sub misc
-
+	/declare _count int local 0 
+	
 	| Close windows trying to get you to buy
 	/if (${Window[AlertWnd].Open}) /notify AlertWnd ALW_Dismiss_Button leftmouseup
 	/if (${Window[LargeDialogWindow].Open}) /notify LargeDialogWindow LDW_YesButton leftmouseup
@@ -201,6 +202,7 @@ sub misc
 	/if (${goSell}) /call vendor_items
 	
 	
+	/if (${Mode} == 0) /return
 	/if (${Zone.ID} == 202) /return
 	/if (${Zone.ID} == 344) /return
 	/if (${Zone.ID} == 345) /return
@@ -235,6 +237,7 @@ sub misc
 /return
 
 sub port_class_checker(bool _debug)
+	/declare _count int local 0
 
 	/for _count 0 to ${Group}
 

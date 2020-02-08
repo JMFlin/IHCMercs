@@ -112,9 +112,9 @@ Sub bst_combat
 
 	/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 		
-		/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+		/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing\ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-			/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
+			/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 			/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 		}
 	}
@@ -168,9 +168,9 @@ Sub bst_debuff_xtarget
 		
 		| How will you handle the AA?
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar${Target.Name} \ax with =>> \ag${SlowSpell} \ax <<=
-				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
+				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
