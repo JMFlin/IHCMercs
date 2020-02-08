@@ -25,13 +25,13 @@ Sub shm_main
 		/delay 5
 		/call pet_attack
 		/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
-			/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" spell ${Target.ID} FALSE
 		}
 		
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
-			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
+				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
@@ -46,9 +46,9 @@ Sub shm_main
 
 		/call get_target
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
-			/if (${validate_cast[FALSE, FIND, "${CrippleSpell}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, spell, "${CrippleSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell} \ax <<=
-				/call core_cast2 "${CrippleSpell}" FIND ${Target.ID} FALSE
+				/call core_cast2 "${CrippleSpell}" spell ${Target.ID} FALSE
 				/call check_cast_events "${CrippleSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
@@ -130,7 +130,7 @@ Sub shm_debuff_xtarget
 		/if (!${Target.Type.Equal[NPC]}) /return
 		
 		/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
-			/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" spell ${Target.ID} FALSE
 		}
 
 		| How will you handle the AA?
