@@ -292,7 +292,7 @@ Sub bst_abilities
 |-Slow Spell*
 	/if (${Me.AltAbility[Sha's Reprisal].Rank} >= 1) {
 		/varset SlowSpell "Sha's Reprisal"
-	} /if (${Me.Level}>=${Spell[Sha's Reprisal].Level} && ${Me.Book[${Spell[Sha's Reprisal].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Sha's Reprisal].Level} && ${Me.Book[${Spell[Sha's Reprisal].RankName}]}) {
 		/varset SlowSpell ${Spell[Sha's Reprisal].RankName}
 	} else /if (${Me.Level}>=${Spell[Sha's Legacy].Level} && ${Me.Book[${Spell[Sha's Legacy].RankName}]}) {
 		/varset SlowSpell ${Spell[Sha's Legacy].RankName}

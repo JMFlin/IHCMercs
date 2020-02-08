@@ -235,7 +235,7 @@ Sub dru_group_buffs
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
 
 	/if (${useMerc}) {
-		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
+		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return
 	}
 	
 	/for _count 0 to ${Group}

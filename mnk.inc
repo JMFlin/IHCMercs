@@ -83,7 +83,7 @@ Sub Defense
 		/useitem "Diplomatic Papers"
 		/delay 5
 	}
-	/if (${FindItem[Overflowing Urn of Life].Timer.TotalSeconds}==0 && !${Me.Casting.ID} && !${Me.Moving} && ${Me.PctHPs} < 70) { 
+	/if (${FindItem[Overflowing Urn of Life].Timer.TotalSeconds}==0 && !${Me.Casting.ID} && !${Me.Moving} && ${Me.PctHPs} < 70 && !${Me.Buff[${RejectDeath}]} && !${Me.Song[${RejectDeath}]}) { 
 		/useitem "Overflowing Urn of Life"
 		/delay 5
 	}
