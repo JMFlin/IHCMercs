@@ -208,7 +208,11 @@ Sub Zoning
 #Event ZonePoK	"#*#You have entered The Guild Lobby.#*#"
 #Event ZonePoK	"#*#You have entered The Guild Hall.#*#"
 Sub Event_ZonePoK(string line)
-	/varset Mode 0
+	/if (${posseZone}) {
+    /varset Mode 7
+  } else {
+    /varset Mode 0
+  }
 /return
 
     

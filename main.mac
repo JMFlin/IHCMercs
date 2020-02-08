@@ -89,14 +89,15 @@ Sub Main
 	/call misc
 
  :mainloop
-	/call ModeSet
-	/if (${Mode}==0) /call Travel
-	/if (${Mode}==1) /call ManualPullCamping
-	/if (${Mode}==2) /call ManualRunAndGun
-	/if (${Mode}==3) /call AFKRadiusCamping
-	/if (${Mode}==4) /call AFKRunAndGun
-	/if (${Mode}==5) /call DoEvent
-/goto :mainloop
+	/call set_mode
+	/if (${Mode} == 0) /call Travel
+	/if (${Mode} == 1) /call ManualPullCamping
+	/if (${Mode} == 2) /call ManualRunAndGun
+	/if (${Mode} == 3) /call AFKRadiusCamping
+	/if (${Mode} == 4) /call AFKRunAndGun
+	/if (${Mode} == 5) /call DoEvent
+	/if (${Mode} == 7) /call mode_posse_afk
+/goto :mainloop 
 /return
 |----------------------------------------------------------------------------
 |- SUB: AFKRadiusCamping 
@@ -154,6 +155,33 @@ Sub AFKRadiusCamping
 	}
 /return
 
+Sub set_mode
+
+	/if (${PreviousMode} == ${Mode}) /return
+
+	/if (${PreviousMode} == 0) /varset PreviousModeName Travel
+	/if (${PreviousMode} == 1) /varset PreviousModeName ManualPullCamping
+	/if (${PreviousMode} == 2) /varset PreviousModeName ManualRunAndGun
+	/if (${PreviousMode} == 3) /varset PreviousModeName AFKPullCamping
+	/if (${PreviousMode} == 4) /varset PreviousModeName AFKRunAndGun
+	/if (${PreviousMode} == 5) /varset PreviousModeName DoEvent
+	/if (${PreviousMode} == 6) /varset PreviousModeName Raid
+	/if (${PreviousMode} == 7) /varset PreviousModeName PosseAFK
+
+	/if (${Mode} == 0) /varset ModeName Travel
+	/if (${Mode} == 1) /varset ModeName ManualPullCamping
+	/if (${Mode} == 2) /varset ModeName ManualRunAndGun
+	/if (${Mode} == 3) /varset ModeName AFKPullCamping
+	/if (${Mode} == 4) /varset ModeName AFKRunAndGun
+	/if (${Mode} == 5) /varset ModeName DoEvent
+	/if (${Mode} == 6) /varset ModeName Raid
+	/if (${Mode} == 7) /varset ModeName PosseAFK
+
+ 	/docommand /dgt  Previous mode \ar ${PreviousModeName} \ax Current mode \ag ${ModeName}
+	/varset PreviousMode ${Mode}
+	
+/return
+
 sub misc
 	/declare _count int local 0 
 	
@@ -208,10 +236,14 @@ sub misc
 	/if (${Zone.ID} == 345) /return
 
 	/if (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) {
+		
+		/varset Mode 7
+		/varset goSell TRUE
+		/varset posseZone TRUE
 
 		/if (!${Select[${Me.Class.ShortName},DRU,WIZ]}) {
 
-			/if (!${port_class_checker[FALSE]}) /call dummy_mode
+			/call dummy_mode
 
 		} else /if (${Select[${Me.Class.ShortName},DRU,WIZ]}) {
 				
@@ -233,7 +265,56 @@ sub misc
 		}
 	}
 	
+/return
+
+sub mode_posse_afk
+	/declare _haveSold 			bool local FALSE
+	/declare _nearestMerchant 	int local 0
 	
+	/call set_timers
+	/while (${Mode} == 7) {
+
+		/if (${Stick.Status.Equal[ON]}) /stick off
+		/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+		/attack off
+
+		/if (${pullAutoCampY} != 0) /varset pullAutoCampY 0
+		/if (${pullAutoCampX} != 0) /varset pullAutoCampX 0
+		/if (${pullAutoCampZ} != 0) /varset pullAutoCampZ 0
+
+		/if (${Zone.ID} != 202 || ${Zone.ID} != 344 || ${Zone.ID} != 345) {
+			/varset Mode 0	
+			/return
+		}
+
+		/if (!${_haveSold}) {
+
+			/if (${Spawn[merchant radius 700].ID}) {
+				
+				/varset _nearestMerchant ${NearestSpawn[1, merchant radius 700].ID}
+				
+				/nav id ${_nearestMerchant}
+
+				/while (${Navigation.Active}) {
+					/delay 1s
+				}
+				
+				/target id ${_nearestMerchant}
+				/autoloot sell
+			}
+		} else {
+			/varset _haveSold TRUE
+		}
+
+		/if (${returnToFellowshipTimer} == 0) {
+			/useitem "Fellowship Registration Insignia"
+			/delay 1s
+			/delay 1m !${Me.Zoning}
+			/varset Mode 3
+		}
+		/delay 1s
+	}
+
 /return
 
 sub port_class_checker(bool _debug)
@@ -252,6 +333,7 @@ sub port_class_checker(bool _debug)
 	/next _count
 
 /return FALSE
+
 
 sub vendor_items
 	/if (${Spawn[merchant radius 50].ID}) {
@@ -502,18 +584,24 @@ Sub dummy_mode
 
 	/if (${Me.XTarget}) /return
 
-	/if (${Spawn[gm].ID} || (${SpawnCount[pc noalert 2 radius ${pullRadiusXY}]} > 6)) { 
+	/if (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
+		
+		/call move_to_camp
+
+		/while (${Navigation.Active}) { 
+			/delay 5
+		}
+
 		/echo Entering Dummy Mode...
 		/delay 1s 
 		/echo PC nearby! 
 		
-		/while (${Spawn[gm].ID} || (${SpawnCount[pc noalert 2 radius ${pullRadiusXY}]} > 6)) { 
+		/while (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
 			/for _count 1 to ${DummyTime}
 				/echo (${_count}/${DummyTime})
 				/if (${Mode} == 0) /return
 				/delay 1s
 				/if (${Me.XTarget}) /return
-				/call move_to_camp ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ} ${autoCampRadius}
 			/next _count
 			/delay 1s 
 		}

@@ -50,7 +50,7 @@ Sub Main
 	/if (${Select[${Me.Class.ShortName},WAR,SK,MNK]}) /call AddToAlert
 	
 :mainloop
-	/call ModeSet
+	/call set_mode
     /if (${Mode}==0) /call Travel
     /if (${Mode}==1) /call ManualPullCamping
     /if (${Mode}==2) /call ManualRunAndGun

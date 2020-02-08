@@ -97,6 +97,7 @@ Sub var_setup
 	/declare PreviousMode 		int outer 0
 	/declare ModeName 			string outer NULL
 	/declare PreviousModeName 	string outer NULL
+	/declare posseZone 			bool outer FALSE
 	
 |- core_cast2
 	/declare castReturn 		string outer NULL
@@ -106,7 +107,8 @@ Sub var_setup
 |- timers
 	/declare TimeForMez					timer outer	0
 	/declare TimeForMezVariable			int outer 0
-	/declare checkResourcesTimer  		timer outer 0 
+	/declare checkResourcesTimer  		timer outer 0
+	/declare returnToFellowshipTimer	timer outer 0
 	
 
 |- melee skills
@@ -177,7 +179,7 @@ Sub var_setup
 	/declare worstHurtId 		int outer 0
 
 	/declare PowerLevel 		bool outer FALSE
-	/declare goSell 			int outer 0
+	/declare goSell 			bool outer FALSE
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion
@@ -207,33 +209,12 @@ Sub set_timers
 		}
 	}
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: ModeSet
-|----------------------------------------------------------------------------
-Sub ModeSet
-	/if (${PreviousMode}!=${Mode}) {
-
-		/if (${PreviousMode}==0) /varset PreviousModeName Travel
-		/if (${PreviousMode}==1) /varset PreviousModeName ManualPullCamping
-		/if (${PreviousMode}==2) /varset PreviousModeName ManualRunAndGun
-		/if (${PreviousMode}==3) /varset PreviousModeName AFKPullCamping
-		/if (${PreviousMode}==4) /varset PreviousModeName AFKRunAndGun
-		/if (${PreviousMode}==5) /varset PreviousModeName DoEvent
-		/if (${PreviousMode}==6) /varset PreviousModeName Raid
-
-		/if (${Mode}==0) /varset ModeName Travel
-		/if (${Mode}==1) /varset ModeName ManualPullCamping
-		/if (${Mode}==2) /varset ModeName ManualRunAndGun
-		/if (${Mode}==3) /varset ModeName AFKPullCamping
-		/if (${Mode}==4) /varset ModeName AFKRunAndGun
-		/if (${Mode}==5) /varset ModeName DoEvent
-		/if (${Mode}==6) /varset ModeName Raid
-
- 		/docommand /dgt  Previous mode \ar ${PreviousModeName} \ax Current mode \ag ${ModeName}
-		/varset PreviousMode ${Mode}
+	/if (${Mode} == 7) {
+		/varset returnToFellowshipTimer 900s
 	}
+
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: MakeCamp
 |----------------------------------------------------------------------------
