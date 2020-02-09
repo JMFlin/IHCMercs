@@ -323,7 +323,6 @@ Sub check_add_aggro
 
 	/if (${Balance}) /return
 	/if (!${Me.XTarget[2].ID}) /return
-	DEBUG Time until I check add aggro: ${timeForMez}
 	/if (${timeForMez} != 0) /return
 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
@@ -601,6 +600,7 @@ Sub get_pull_target(int _tmpID)
 		}
 
 		/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${pullDistance} + 100)) /continue
+
 		/if (${Spell[${pullAbility}].MyCastTime.Float} < 1 && ${pullDistance} >= 100) {
 			:tag_target
 			/if (${validate_cast[FALSE, FIND, ${pullAbility}, ${_tmpID}]}) {
@@ -616,7 +616,7 @@ Sub get_pull_target(int _tmpID)
 				/if (${Spawn[id ${_tmpID}].Distance} < 20) /call get_close_target
 				/if (!${Me.XTarget}) /goto :tag_target
 			}
-		} else {
+		} else /if (${Spawn[id ${_tmpID}].LineOfSight} && ${Spawn[id ${_tmpID}].Distance} < ${pullDistance}) {
 			/if (${Navigation.Active}) /nav stop
 			/if (${Me.XTarget}) /return
 			/delay 3s !${Me.Moving}
@@ -630,7 +630,6 @@ Sub get_pull_target(int _tmpID)
 					/return
 				}
 			}
-			/return
 		}
 
 		/if (!${Navigation.Active}) {

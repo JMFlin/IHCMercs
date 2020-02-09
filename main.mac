@@ -217,16 +217,12 @@ sub misc
 			}
 		}
 	}
-|**
-	/if (${Window[MerchantWnd].Open}) {
-		/if (!${HaveSold}) {
-			/Autoloot sell
-			/varset HaveSold 1
-		}
-	} else {
-		/varset HaveSold 0
-	}
-	**|
+
+
+
+	/call dummy_mode
+
+	|**
 	/if (${goSell}) /call vendor_items
 	
 	/if (${Mode} == 0) /return
@@ -265,7 +261,7 @@ sub misc
 			}
 		}
 	}
-	
+	**|
 /return
 
 sub mode_posse_afk
