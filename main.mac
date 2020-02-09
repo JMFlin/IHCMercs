@@ -275,7 +275,7 @@ sub mode_posse_afk
 	/declare _returnToFellowshipTimer	timer local 0
 	
 	/varset _returnToFellowshipTimer 900s
-	DEBUG Made it
+	
 	/while (${Mode} == 7) {
 
 		/if (${Stick.Status.Equal[ON]}) /stick off
