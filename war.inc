@@ -16,11 +16,14 @@ Sub war_main
 		/if (!${Me.Song[Battle Leap].ID}) {
 			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 		}
-
+		/call war_aoe_aggro
 		/call use_skill_melee FALSE ${Target.ID}
 		
 		/call war_get_aggro
 		/call check_add_aggro
+		/call war_aoe_aggro
+		
+		/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
 
 		/if (${Target.Named} || ${Me.PctHPs} < 61) {
 			/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
@@ -218,7 +221,7 @@ Sub war_get_aggro
 	
 	/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${roar}" disc ${Target.ID} FALSE
 	
-	
+
 	/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, alt, "Knee Strike", ${Target.ID}]}) /call core_cast2 "Knee Strike" alt ${Target.ID} FALSE
