@@ -179,6 +179,10 @@ Sub var_setup
 
 	/declare PowerLevel 		bool outer FALSE
 	/declare goSell 			bool outer FALSE
+
+	/declare newPosse			int outer 100
+	/declare oldPosse			int outer 100
+
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion

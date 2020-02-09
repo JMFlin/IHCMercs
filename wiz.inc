@@ -3,7 +3,9 @@
 |----------------------------------------------------------------------------
 Sub wiz_main
 
-	
+	/if (${PowerLevel}) {
+		/return
+	} 
 	/call wiz_self_buff_check FALSE
 
 	/while (${Me.XTarget}) {

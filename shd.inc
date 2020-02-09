@@ -228,6 +228,7 @@ Sub shd_disc
 				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
 			}
 		}
+	}
 	
 /return
 |----------------------------------------------------------------------------

@@ -86,7 +86,6 @@ Sub Main
 		/delay 3s
 		/call pre_pull_group_healer_spells
 	}
-	/call misc
 
  :mainloop
 	/call set_mode
@@ -114,6 +113,8 @@ Sub AFKRadiusCamping
 
 		| /delay 1s
 		| DEBUG CYCLE START
+
+		/call misc
 
 		/if (!${PowerLevel}) {
 			/call move_to_camp
@@ -150,7 +151,7 @@ Sub AFKRadiusCamping
 		} else {
 			/call ${Me.Class.ShortName.Lower}_main
 		}
-		/call misc
+		
 		/doevents
 	}
 /return
@@ -184,7 +185,16 @@ Sub set_mode
 
 sub misc
 	/declare _count int local 0 
-	
+	/varset newPosse ${pullRadiusXY}
+
+	/if (${newPosse} != ${oldPosse}) {
+		/posse radius ${pullRadiusXY} 
+		/posse zradius ${pullRadiusZ}
+		/posse save
+		/varset oldPosse ${newPosse}
+		DEBUG Set MQ2Posse radius: ${Posse.Radius}
+	}
+
 	| Close windows trying to get you to buy
 	/if (${Window[AlertWnd].Open}) /notify AlertWnd ALW_Dismiss_Button leftmouseup
 	/if (${Window[LargeDialogWindow].Open}) /notify LargeDialogWindow LDW_YesButton leftmouseup
