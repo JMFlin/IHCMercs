@@ -9,20 +9,23 @@ Sub war_main
 		/call engage
 		/call check_add_aggro
 		/call war_get_aggro
-
+		/call war_combat_buffs
 		/if (!${validate_combat[${Target.ID}]}) /return
 
 		/call war_get_aggro
 		/if (!${Me.Song[Battle Leap].ID}) {
 			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 		}
+		/if (!${Target.Stunned}) {
+			/if (${validate_cast[FALSE, alt, "Press the Attack", ${Target.ID}]}) /call core_cast2 "Press the Attack" alt ${Target.ID} FALSE
+		}
+		/if (!${Me.ActiveDisc.ID}) {
+			/if (${validate_cast[FALSE, disc, "${defenseac}", ${Me.ID}]}) /call core_cast2 "${defenseac}" disc 0 FALSE
+		}
+
 		/call war_aoe_aggro
-		/call use_skill_melee FALSE ${Target.ID}
-		
-		/call war_get_aggro
 		/call check_add_aggro
-		/call war_aoe_aggro
-		
+
 		/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
 
 		/if (${Target.Named} || ${Me.PctHPs} < 61) {
@@ -35,7 +38,6 @@ Sub war_main
 		/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]} < 2) {
 			/if (${validate_cast[FALSE, alt, "Rampage", ${Target.ID}]}) /call core_cast2 "Rampage" alt ${Target.ID} FALSE
 		}
-
 		/if (${Me.SecondaryPctAggro} > 10) {
 			/if (${validate_cast[FALSE, disc, "${singlehealhate}", ${Target.ID}]}) /call core_cast2 "${singlehealhate}" disc ${Target.ID} FALSE
 		}
@@ -46,6 +48,7 @@ Sub war_main
 			/if (${validate_cast[FALSE, disc, "${phantom}", ${Target.ID}]}) /call core_cast2 "${phantom}" disc ${Target.ID} FALSE
 		}
 
+		/call war_aoe_aggro
 		/call war_combat_buffs
 		/call check_add_aggro
 		/call war_disc
@@ -56,7 +59,6 @@ Sub war_main
 		/if (${Me.SecondaryPctAggro} > 50) {
 			/if (${validate_cast[FALSE, alt, "Warlord's Grasp", ${Target.ID}]}) /call core_cast2 "Warlord's Grasp" alt ${Target.ID} FALSE
 		}
-		
 		/call war_get_aggro
 
 		/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
@@ -160,26 +162,28 @@ Sub war_disc
 
 	/if (${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
-				/stopdisc
-				/delay 1s !${Me.ActiveDisc.ID}
-				/disc ${missall}
-				/if (${validate_cast[FALSE, disc, "${missall}", ${Me.ID}]}) /call core_cast2 "${missall}" disc 0 FALSE
+		/if (${validate_cast[FALSE, disc, "${missall}", ${Me.ID}]}) {
+			/if (${Me.ActiveDisc.ID}) {
+				/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
+					/stopdisc
+					/delay 1s !${Me.ActiveDisc.ID}
+					/call core_cast2 "${missall}" disc 0 FALSE
+				}
+			} else {
+				/call core_cast2 "${missall}" disc 0 FALSE
 			}
-		} else {
-			/if (${validate_cast[FALSE, disc, "${missall}", ${Me.ID}]}) /call core_cast2 "${missall}" disc 0 FALSE
 		}
-	
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
-				/stopdisc
-				/delay 1s !${Me.ActiveDisc.ID}
-				/if (${validate_cast[FALSE, disc, "${meleemit}", ${Me.ID}]}) /call core_cast2 "${meleemit}" disc 0 FALSE
+
+		/if (${validate_cast[FALSE, disc, "${meleemit}", ${Me.ID}]}) {
+			/if (${Me.ActiveDisc.ID}) {
+				/if (${Me.ActiveDisc.ID} != ${FortitudeDiscID} && ${Me.ActiveDisc.ID} != ${CulminatingStandID}) {
+					/stopdisc
+					/delay 1s !${Me.ActiveDisc.ID}
+					/call core_cast2 "${meleemit}" disc 0 FALSE
+				}
+			} else {
+				/call core_cast2 "${meleemit}" disc 0 FALSE
 			}
-		} else {
-			/disc ${meleemit}
-			/if (${validate_cast[FALSE, disc, "${meleemit}", ${Me.ID}]}) /call core_cast2 "${meleemit}" disc 0 FALSE
 		}
 	}
 
@@ -221,6 +225,7 @@ Sub war_get_aggro
 	
 	/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${roar}" disc ${Target.ID} FALSE
 	
+	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
 
@@ -235,6 +240,7 @@ Sub war_get_aggro
 
 	${validate_cast[FALSE, alt, "Warlord's Fury", ${Target.ID}]} is always false
 **|
+	/call use_skill_melee FALSE ${Target.ID}
 	/if (${validate_cast[FALSE, alt, "Blast of Anger", ${Target.ID}]}) {
 			/call core_cast2 "Warlord's Fury" alt 0 FALSE
 			/call core_cast2 "Blast of Anger" alt ${Target.ID} FALSE

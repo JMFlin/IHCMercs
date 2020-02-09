@@ -275,7 +275,7 @@ sub mode_posse_afk
 	/declare _returnToFellowshipTimer	timer local 0
 	
 	/varset _returnToFellowshipTimer 900s
-	
+
 	/while (${Mode} == 7) {
 
 		/if (${Stick.Status.Equal[ON]}) /stick off
@@ -340,15 +340,16 @@ sub port_class_checker(bool _debug)
 
 
 sub vendor_items
-	/if (${Spawn[merchant radius 50].ID}) {
-		/nav target id ${${Spawn[merchant radius 50].ID}
+	/if (${Spawn[merchant radius 500].ID}) {
+		/nav target id ${${Spawn[merchant radius 500].ID}
 
 		/while (${Navigation.Active}) {
 			/delay 1s
 		}
 		 
-		/target ${Spawn[merchant radius 50]}
+		/target ${Spawn[merchant radius 500]}
 		/autoloot sell
+		/delay 1m  ${Window[MerchantWnd].Open}
 	}
 /return
 

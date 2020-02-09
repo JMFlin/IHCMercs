@@ -31,10 +31,12 @@ Sub brd_main
 				/call check_cast_events "${SlowSong}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-
+		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
-			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
-				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			/if (${Me.Gem[${InsultSong1}]}) {
+				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+					/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+				}
 			}
 			/if (${validate_cast[FALSE, pulse, "${MainAriaSong}", ${Me.ID}]}) {
 				/call core_cast2 "${MainAriaSong}" pulse 0 FALSE
@@ -45,8 +47,10 @@ Sub brd_main
 		}
 		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
-			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
-				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			/if (${Me.Gem[${InsultSong1}]}) {
+				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+					/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+				}
 			}
 			/if (${Me.Gem[${SufferingSong}]}) {
 				/if (${validate_cast[FALSE, pulse, "${SufferingSong}", ${Me.ID}]}) {
@@ -59,8 +63,10 @@ Sub brd_main
 		}
 		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
-			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
-				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			/if (${Me.Gem[${InsultSong1}]}) {
+				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+					/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+				}
 			}
 			/if (${validate_cast[FALSE, pulse, "${StormBladeSong}", ${Me.ID}]}) {
 				/call core_cast2 "${StormBladeSong}" pulse 0 FALSE
@@ -71,8 +77,10 @@ Sub brd_main
 		}
 		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
-			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
-				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			/if (${Me.Gem[${InsultSong1}]}) {
+				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+					/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+				}
 			}
 			/if (${validate_cast[FALSE, pulse, "${WarMarchSong}", ${Me.ID}]}) {
 				/call core_cast2 "${WarMarchSong}" pulse 0 FALSE
@@ -85,8 +93,10 @@ Sub brd_main
 		}
 		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
-			/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
-				/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			/if (${Me.Gem[${InsultSong1}]}) {
+				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
+					/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+				}
 			}
 			/if (${validate_cast[FALSE, pulse, "${ArcaneSong}", ${Me.ID}]}) {
 				/call core_cast2 "${ArcaneSong}" pulse 0 FALSE
