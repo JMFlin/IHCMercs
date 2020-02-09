@@ -274,8 +274,8 @@ sub mode_posse_afk
 	/declare _nearestMerchant 			int local 0
 	/declare _returnToFellowshipTimer	timer local 0
 	
-	/varset returnToFellowshipTimer 900s
-	
+	/varset _returnToFellowshipTimer 900s
+	DEBUG Made it
 	/while (${Mode} == 7) {
 
 		/if (${Stick.Status.Equal[ON]}) /stick off
@@ -286,7 +286,7 @@ sub mode_posse_afk
 		/if (${pullAutoCampX} != 0) /varset pullAutoCampX 0
 		/if (${pullAutoCampZ} != 0) /varset pullAutoCampZ 0
 
-		/if (${Zone.ID} != 202 || ${Zone.ID} != 344 || ${Zone.ID} != 345) {
+		/if (!(${Zone.ID} == 202 || ${Zone.ID} == 344 || ${Zone.ID} == 345)) {
 			/varset Mode 0	
 			/return
 		}
@@ -305,8 +305,8 @@ sub mode_posse_afk
 				
 				/target id ${_nearestMerchant}
 				/autoloot sell
+				/delay 1m  ${Window[MerchantWnd].Open}
 			}
-		} else {
 			/varset _haveSold TRUE
 		}
 

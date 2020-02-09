@@ -309,11 +309,13 @@ Sub Travel
 
 	/call misc
 
+	DEBUG Going in ${posseZone} && ${goSell}
 	/if (${posseZone} && ${goSell}) {
-		/if (${Zone.ID} != 202) /return
-		/if (${Zone.ID} != 344) /return
-		/if (${Zone.ID} != 345) /return	
-		/varset Mode 7
+		DEBUG ${Zone.ID} == 202 or ${Zone.ID} == 344 or ${Zone.ID} == 345
+		/if (${Zone.ID} == 202 || ${Zone.ID} == 344 || ${Zone.ID} == 345) {
+			/varset Mode 7
+			DEBUG Mode: ${Mode}
+		}
 	}
 
 /return
