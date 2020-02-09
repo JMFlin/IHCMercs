@@ -20,7 +20,7 @@ Sub brd_main
 		/call get_target
 		/call engage
 
-		/if (!${validate_combat[${Target.ID}]} ) /return
+		/if (!${validate_combat[${Target.ID}]} ) /continue
 		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/call brd_combat
 		

@@ -229,7 +229,6 @@ sub misc
 	**|
 	/if (${goSell}) /call vendor_items
 	
-	
 	/if (${Mode} == 0) /return
 	/if (${Zone.ID} == 202) /return
 	/if (${Zone.ID} == 344) /return
@@ -340,14 +339,14 @@ sub port_class_checker(bool _debug)
 
 
 sub vendor_items
-	/if (${Spawn[merchant radius 500].ID}) {
-		/nav target id ${${Spawn[merchant radius 500].ID}
+	/if (${Spawn[merchant radius 50].ID}) {
+		/nav target id ${${Spawn[merchant radius 50].ID}
 
 		/while (${Navigation.Active}) {
 			/delay 1s
 		}
 		 
-		/target ${Spawn[merchant radius 500]}
+		/target ${Spawn[merchant radius 50]}
 		/autoloot sell
 		/delay 1m  ${Window[MerchantWnd].Open}
 	}
@@ -465,7 +464,7 @@ Sub check_state(bool _debug)
 
 	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
 		| check aura one
-		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
+		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !(${Me.Aura[1].Name.Equal[${Aura1}]} || ${Me.Aura[1].Name.Equal[Mana Rev. Aura]})) {
 			
 			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) {
 				/call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE

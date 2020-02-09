@@ -315,7 +315,7 @@ Sub war_abilities
 
 	/if (${Me.CombatAbility[${insult}]}) {
 		/varset pullAbility ${insult}
-		/varset pullDistance 85
+		/varset pullDistance 90
 	} else {
 		/varset pullAbility ${Spell[Throw Stone].RankName}
 		/varset pullDistance 55

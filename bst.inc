@@ -11,7 +11,7 @@ Sub bst_main
 		/call engage
 		/call pet_attack
 	
-		/if (!${validate_combat[${Target.ID}]} ) /return
+		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		/call use_skill_melee ${Target.ID} FALSE
 

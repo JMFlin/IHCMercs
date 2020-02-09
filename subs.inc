@@ -422,13 +422,10 @@ Sub afk_pull
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return
 	/if (${checkResourcesTimer} != 0) /return
-	|**
+	
 	/if (!${pullAbility.Equal[Melee]}) {
-
 		/if (!(${Me.CombatAbilityReady[${pullAbility}]} || ${Me.AbilityReady[${pullAbility}]} || ${Me.AltAbilityReady[${pullAbility}]} || ${Me.SpellReady[${pullAbility}]})) /return
 	}
-	**|
-	
 	
 	/call puller_check_group_resources
 	
@@ -437,7 +434,6 @@ Sub afk_pull
 		/return
 	}
 
-	
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 		
 		/if (!${Me.Song[${elixirSpell}].ID}) {
@@ -605,7 +601,7 @@ Sub get_pull_target(int _tmpID)
 		}
 
 		/if (!${Spawn[id ${_tmpID}].LineOfSight} || ${Spawn[id ${_tmpID}].Distance} > (${pullDistance} + 100)) /continue
-		/if (${Spell[${pullAbility}].MyCastTime.Float} < 1) {
+		/if (${Spell[${pullAbility}].MyCastTime.Float} < 1 && ${pullDistance} >= 100) {
 			:tag_target
 			/if (${validate_cast[FALSE, FIND, ${pullAbility}, ${_tmpID}]}) {
 				/call core_cast2 "${pullAbility}" FIND ${_tmpID} FALSE

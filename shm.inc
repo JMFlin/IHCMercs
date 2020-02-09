@@ -20,7 +20,16 @@ Sub shm_main
 
 		/call get_target
 		/call pet_attack
-		/if (!${validate_combat[${Target.ID}]}) /return
+		
+		/call get_heal_target 85
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
+			}
+		}
+
+		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		/delay 5
 		/call pet_attack

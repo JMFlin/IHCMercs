@@ -6,13 +6,99 @@ Sub wiz_main
 	
 	/call wiz_self_buff_check FALSE
 
-	/call get_target
-|-	/call PetAttack
-|-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<=${assistRange} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight} && ${Target.Type.Equal[NPC]} && ${Target.PctHPs}<=${AutoDebuffAt}) /call DebuffMobs
-|-	/if (${Me.XTarget[1].ID} && ${Target.Distance}<${assistRange}) /call AANDisc
-	/call wiz_combat
+	/while (${Me.XTarget}) {
 
-|-	/if (${UseModRods}) /call ClickModRoD
+	| if mana is below the puller check limit
+		/if ((${Me.XTarget} && ${Me.PctMana} < 20) || (!${Me.XTarget} && ${Me.PctMana} < ${Limit})) {
+
+			| If my corpse is near then don't waste harvest
+			/if (!${Spawn[${Me.Name} pccorpse radius 50].ID}) {
+				
+				| Trigger first harvest
+				/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
+			}
+		}
+
+		/call get_target
+		/if (!${validate_combat[${Target.ID}]} ) /continue
+
+		/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
+			}
+		} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
+				/call check_cast_events "${RootSpell}" CAST_IMMUNE ${Target.ID}
+			}
+		}
+
+		|/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
+		|	/call core_cast2 "${SelfRune1}" spell 0 FALSE
+		|}
+
+		/if (${Target.PctHPs} >= 100) /continue
+
+		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
+		}
+
+		/if (${Me.Buff[Improved Twincast].ID}) {
+
+			/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
+			}
+			
+			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${ColdEtherealNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${ColdEtherealNuke}" spell ${Target.ID} FALSE
+			}
+
+		} else /if (${Me.Buff[Twincast].ID} && ${Me.Buff[Fury of the Gods].ID}) {
+
+			/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+			}
+
+		} else {
+		
+			/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
+			}
+
+			/call wiz_manage_aggro
+
+			/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
+			}
+
+			/call wiz_manage_aggro
+		}
+	}
 	
 |-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0) /call BegForCure
 	/doevents
@@ -116,96 +202,7 @@ sub wiz_get_aggro
 |- SUB: combat
 |---------------------------------------------------------------------------- 
 Sub wiz_combat
-	| if mana is below the puller check limit
-	/if ((${Me.XTarget} && ${Me.PctMana} < 20) || (!${Me.XTarget} && ${Me.PctMana} < ${Limit})) {
-
-		| If my corpse is near then don't waste harvest
-		/if (!${Spawn[${Me.Name} pccorpse radius 50].ID}) {
-			
-			| Trigger first harvest
-			/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
-		}
-	}
-
-	/call get_target
-	/if (!${validate_combat[${Target.ID}]} ) /return
-
-	/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
-		/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-			/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-			/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
-		}
-	} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
-		/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) {
-			/call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
-			/call check_cast_events "${RootSpell}" CAST_IMMUNE ${Target.ID}
-		}
-	}
-
-	|/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
-	|	/call core_cast2 "${SelfRune1}" spell 0 FALSE
-	|}
-
-	/if (${Target.PctHPs} >= 100) /return
-
-	/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
-		/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
-	}
-
-	/if (${Me.Buff[Improved Twincast].ID}) {
-
-		/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
-		}
-		
-		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
-			/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
-		}
-
-		/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
-		}
-
-		/if (${validate_cast[FALSE, spell, "${ColdEtherealNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${ColdEtherealNuke}" spell ${Target.ID} FALSE
-		}
-
-	} else /if (${Me.Buff[Twincast].ID} && ${Me.Buff[Fury of the Gods].ID}) {
-
-		/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
-		}
-
-		/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
-		}
-
-		/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
-		}
-
-	} else {
 	
-		/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
-		}
-
-		/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
-		}
-
-		/call wiz_manage_aggro
-
-		/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
-		}
-
-		/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
-			/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
-		}
-
-		/call wiz_manage_aggro
-	}
 /return
 
 

@@ -13,7 +13,7 @@ Sub shd_main
 	
 		/call shd_combat_buffs
 		
-		/if (!${validate_combat[${Target.ID}]}) /return
+		/if (!${validate_combat[${Target.ID}]}) /continue
 		
 		/call engage
 		

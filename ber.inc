@@ -1,34 +1,4 @@
 
-|----------------------------------------------------------------------------
-|- SUB: ber_main
-|---------------------------------------------------------------------------- 
-Sub ber_main
-
-	/call ber_aa_and_disc
-	/call ber_combat
-	
-	/call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
-	/call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
-	/call make_axes "${StunAxeName}" "${StunAxeComponent}"
-
-|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
-	/doevents
-	
-/return
-|----------------------------------------------------------------------------
-|- SUB: AANDisc
-|---------------------------------------------------------------------------- 
-Sub ber_aa_and_disc
-
-	/call get_target
-	/call engage
-	/if (!${validate_combat[${Target.ID}]} ) /return
-	/if (${Target.Distance3D} > 50) /return
-	/doevents
-	
-	/if (!${Me.Combat}) {
-		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
-	}
 |**
 Main burn- 
 Disconcerting - 
@@ -72,174 +42,167 @@ Fourth Burn:
 Avenging Flurry Discipline
 
 **|
-	/if (!${Me.ActiveDisc.ID}) {
-		/if (${burnRotation} == 1) {
-			
-			/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
-				/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
-				/call core_cast2 "${BrutalDisc}" disc 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}) /call core_cast2 "Juggernaut Surge" alt 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}) /call core_cast2 "Blood Pact" alt 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}) /call core_cast2 "Blinding Fury" alt 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Focused Rampage", ${Me.ID}]}) /call core_cast2 "Focused Rampage" alt 0 FALSE
-			}
-			/varset inBetween 1
-		}
-	}
 
-	/if (!${Me.ActiveDisc.ID}) {
-		/if (${burnRotation} == 2) {
-			/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) {
-				/if (${validate_cast[FALSE, alt, "Reckless Abandon", ${Me.ID}]}) /call core_cast2 "Reckless Abandon" alt 0 FALSE
-				/call core_cast2 "${CleavingDisc}" disc 0 FALSE
-				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
-			}
-			/varset inBetween 1
-		}
-	}
+|----------------------------------------------------------------------------
+|- SUB: ber_main
+|---------------------------------------------------------------------------- 
+Sub ber_main
 
-	/if (!${Me.ActiveDisc.ID}) {
-		/if (${burnRotation} == 3) {
-			/if (${validate_cast[FALSE, disc, "${ResolveDisc}", ${Me.ID}]}) {
-				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
-				/call core_cast2 "${ResolveDisc}" disc 0 FALSE
-			}
-			/varset inBetween 1
-		}
-	}
+	/while (${Me.XTarget}) {
+		/call get_target
+		/call engage
 
-	/if (!${Me.ActiveDisc.ID}) {
-		/if (${burnRotation} == 4) {
-			/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) {
-				/call core_cast2 "${FlurryDisc}" disc 0 FALSE
-			}
-			/varset burnRotation 0
-			/varset inBetween 1
-		}
-	}
-
-	/if (!${Me.ActiveDisc.ID}) {
+		/if (!${validate_combat[${Target.ID}]} ) /continue
 		
-		/if (${inBetween} == 1) {
-			/if (${Me.CombatAbility[${Spell[Disconcerting Discipline].RankName}]}) {
-				/if (${validate_cast[FALSE, disc, "${DisconDisc}", ${Me.ID}]}) {
-					/call core_cast2 "${DisconDisc}" disc 0 FALSE
+		/call use_skill_melee FALSE ${Target.ID}
+
+		/if (!${Me.Combat}) {
+			/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
+		}
+
+		/call use_skill_melee FALSE ${Target.ID}
+
+		/if (!${Me.ActiveDisc.ID}) {
+			/if (${burnRotation} == 1) {
+				
+				/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
+					/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
+					/call core_cast2 "${BrutalDisc}" disc 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}) /call core_cast2 "Juggernaut Surge" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}) /call core_cast2 "Blood Pact" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}) /call core_cast2 "Blinding Fury" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Focused Rampage", ${Me.ID}]}) /call core_cast2 "Focused Rampage" alt 0 FALSE
+				}
+				/varset inBetween 1
+			}
+		}
+
+		/if (!${Me.ActiveDisc.ID}) {
+			/if (${burnRotation} == 2) {
+				/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) {
+					/if (${validate_cast[FALSE, alt, "Reckless Abandon", ${Me.ID}]}) /call core_cast2 "Reckless Abandon" alt 0 FALSE
+					/call core_cast2 "${CleavingDisc}" disc 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
+				}
+				/varset inBetween 1
+			}
+		}
+
+		/if (!${Me.ActiveDisc.ID}) {
+			/if (${burnRotation} == 3) {
+				/if (${validate_cast[FALSE, disc, "${ResolveDisc}", ${Me.ID}]}) {
+					/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
+					/call core_cast2 "${ResolveDisc}" disc 0 FALSE
+				}
+				/varset inBetween 1
+			}
+		}
+
+		/if (!${Me.ActiveDisc.ID}) {
+			/if (${burnRotation} == 4) {
+				/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) {
+					/call core_cast2 "${FlurryDisc}" disc 0 FALSE
+				}
+				/varset burnRotation 0
+				/varset inBetween 1
+			}
+		}
+
+		/if (!${Me.ActiveDisc.ID}) {
+			
+			/if (${inBetween} == 1) {
+				/if (${Me.CombatAbility[${Spell[Disconcerting Discipline].RankName}]}) {
+					/if (${validate_cast[FALSE, disc, "${DisconDisc}", ${Me.ID}]}) {
+						/call core_cast2 "${DisconDisc}" disc 0 FALSE
+						/varcalc burnRotation ${burnRotation} + 1
+						/varset inBetween 0
+					}
+				} else {
 					/varcalc burnRotation ${burnRotation} + 1
 					/varset inBetween 0
 				}
-			} else {
-				/varcalc burnRotation ${burnRotation} + 1
-				/varset inBetween 0
 			}
 		}
-	}
-		
+			
+		/call use_skill_melee FALSE ${Target.ID}
 
-	/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
-		/alt act ${Me.AltAbility[Communion of Blood].ID}
-		/delay 5
-	}
-	/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap Warcry].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Me.Combat}) {
-		/alt act ${Me.AltAbility[Battle Leap].ID}
-	}
-	
-	/if (${Me.CombatAbilityReady[${Spell[${CryHavoc}].RankName}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${CryHavoc}].ID} && ${Me.ActiveDisc.ID}!=${CleavingDiscID}) {
-		/Disc ${Spell[${CryHavoc}].RankName}
-		/delay 5
-	}
-	/if (${Me.AltAbilityReady[Blood Pact]} && !${Me.Buff[Blood Pact].ID} && ${Target.PctHPs}>1) {
-		/alt act ${Me.AltAbility[Blood Pact].ID}
-		/delay 5
-	}
-	/if (${Me.CombatAbilityReady[${SappingStrike}]} && ${Target.PctHPs}>1 && ${Me.PctEndurance}<90) {
-		/disc ${SappingStrike}
-		/delay 5
-	}	
-	/if (${Me.CombatAbilityReady[${RageStrike}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
-		/Disc ${RageStrike}
-		/delay 5
-	}
-	/if (${Me.CombatAbilityReady[${SharedBuff}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${SharedBuffName}].ID} && ${Target.Aggressive}) {
-		/Disc ${SharedBuff}
-		/delay 5
-	}	
-	/if (${Me.CombatAbilityReady[${FrenzyBoost}]} && !${Me.Buff[${FrenzyBoostBuff}].ID}) {
-		/if (${Me.PctHPs}>80) {
-			/alt act 752
+		/if (!${Me.Casting.ID} && ${Me.PctEndurance}<=75 && ${Me.PctHPs}>=50 && ${Me.AltAbilityReady[Communion of Blood]} && !${Me.Song[${endregen}].ID} && !${Me.Moving} && !${Me.Invis}) {
+			/alt act ${Me.AltAbility[Communion of Blood].ID}
 			/delay 5
 		}
-		/Disc ${FrenzyBoost}
-		/delay 5
-	}
-
-	
-	
-	/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Untamed Rage]} && !${Me.Song[Quick Time V].ID}) {
-		/alt act ${Me.AltAbility[Untamed Rage].ID}
-		/delay 5
-	}	
-	
-
-	|/if (${Me.AltAbilityReady[Furious Rampage]} && ${Me.XTarget}>1) {
-	|	/alt act ${Me.AltAbility[Furious Rampage].ID}
-	|	/delay 5
-	|}	
-	
-
-	|**
-	/if ((${Me.XTarget} >= ${BurnMobCount} || ${Target.Named})) {
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${BrutalDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
-				/stopdisc
-				/delay 1s !${Me.ActiveDisc.ID}
-				/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) /call core_cast2 "${BrutalDisc}" disc 0 FALSE
-			}
-		} else {
-			/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) /call core_cast2 "${BrutalDisc}" disc 0 FALSE
+		/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap Warcry].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Me.Combat}) {
+			/alt act ${Me.AltAbility[Battle Leap].ID}
 		}
-
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${BrutalDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
-				/stopdisc
-				/delay 1s !${Me.ActiveDisc.ID}
-				/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) /call core_cast2 "${CleavingDisc}" disc 0 FALSE
-			}
-		} else {
-			/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) /call core_cast2 "${CleavingDisc}" disc 0 FALSE
+		
+		/if (${Me.CombatAbilityReady[${Spell[${CryHavoc}].RankName}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${CryHavoc}].ID} && ${Me.ActiveDisc.ID}!=${CleavingDiscID}) {
+			/Disc ${Spell[${CryHavoc}].RankName}
+			/delay 5
 		}
-
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${BrutalDisc} && ${Me.ActiveDisc.ID} != ${CleavingDisc} && ${Me.ActiveDisc.ID} != ${FlurryDisc}) {
-				/stopdisc
-				/delay 1s !${Me.ActiveDisc.ID}
-				/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) /call core_cast2 "${FlurryDisc}" disc 0 FALSE
-			}
-		} else {
-			/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) /call core_cast2 "${FlurryDisc}" disc 0 FALSE
+		/if (${Me.AltAbilityReady[Blood Pact]} && !${Me.Buff[Blood Pact].ID} && ${Target.PctHPs}>1) {
+			/alt act ${Me.AltAbility[Blood Pact].ID}
+			/delay 5
 		}
+		/if (${Me.CombatAbilityReady[${SappingStrike}]} && ${Target.PctHPs}>1 && ${Me.PctEndurance}<90) {
+			/disc ${SappingStrike}
+			/delay 5
+		}	
+		/if (${Me.CombatAbilityReady[${RageStrike}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
+			/Disc ${RageStrike}
+			/delay 5
+		}
+		/if (${Me.CombatAbilityReady[${SharedBuff}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${SharedBuffName}].ID} && ${Target.Aggressive}) {
+			/Disc ${SharedBuff}
+			/delay 5
+		}	
+		/if (${Me.CombatAbilityReady[${FrenzyBoost}]} && !${Me.Buff[${FrenzyBoostBuff}].ID}) {
+			/if (${Me.PctHPs}>80) {
+				/alt act 752
+				/delay 5
+			}
+			/Disc ${FrenzyBoost}
+			/delay 5
+		}
+		
+		/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Untamed Rage]} && !${Me.Song[Quick Time V].ID}) {
+			/alt act ${Me.AltAbility[Untamed Rage].ID}
+			/delay 5
+		}	
 
-	}
-	**|
+		/if (${Me.AltAbilityReady[Reckless Abandon]} && ${Me.ActiveDisc.ID}==${CleavingDiscID}) {
+			/alt act ${Me.AltAbility[Reckless Abandon].ID}
+			/delay 5
+		}
+		
+		
+		/if (${Me.CombatAbilityReady[${HHEBuff}]} && ${Me.Combat} && !${Me.Song[${HHEBuff}].ID} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${BrutalDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
+			/disc ${HHEBuff}
+			/delay 5
+		}	
+		/if (${Target.PctHPs}>1 && ${Me.ActiveDisc.ID}!=${DisconDiscID} && ${UseEpic}) { 
+			/useitem "${epicaxe}"
+			/delay 10
+		}
+		/call ber_combat
+		
+		/call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
+		/call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
+		/call make_axes "${StunAxeName}" "${StunAxeComponent}"
 
-
-	/if (${Me.AltAbilityReady[Reckless Abandon]} && ${Me.ActiveDisc.ID}==${CleavingDiscID}) {
-		/alt act ${Me.AltAbility[Reckless Abandon].ID}
-		/delay 5
+	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
+		/doevents
 	}
 	
+/return
+|----------------------------------------------------------------------------
+|- SUB: AANDisc
+|---------------------------------------------------------------------------- 
+Sub ber_aa_and_disc
+
 	
-	/if (${Me.CombatAbilityReady[${HHEBuff}]} && ${Me.Combat} && !${Me.Song[${HHEBuff}].ID} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${BrutalDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
-		/disc ${HHEBuff}
-		/delay 5
-	}	
-	/if (${Target.PctHPs}>1 && ${Me.ActiveDisc.ID}!=${DisconDiscID} && ${UseEpic}) { 
-		/useitem "${epicaxe}"
-		/delay 10
-	}
 	
 	
  /return
@@ -250,7 +213,6 @@ Sub ber_combat
 
 	/call get_target
 	/call engage
-	/if (!${validate_combat[${Target.ID}]} ) /return
 
 |	/doevents BerStunRotation
 
