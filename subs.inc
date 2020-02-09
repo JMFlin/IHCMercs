@@ -105,10 +105,9 @@ Sub var_setup
 	/declare allowedFizzleCount int outer 3
 
 |- timers
-	/declare TimeForMez					timer outer	0
-	/declare TimeForMezVariable			int outer 0
+	/declare timeForMez					timer outer	0
+	/declare timeForMezVariable			int outer 0
 	/declare checkResourcesTimer  		timer outer 0
-	/declare returnToFellowshipTimer	timer outer 0
 	
 
 |- melee skills
@@ -194,11 +193,11 @@ Sub check_illusion(bool _debug, string _illusionItem)
 Sub set_timers
 	/if (${Group.MainTank.ID} == ${Me.ID}) {
 
-		/if (${TimeForMezVariable} == 1 && !${Me.XTarget}) /varset TimeForMezVariable 0
+		/if (${timeForMezVariable} == 1 && !${Me.XTarget}) /varset timeForMezVariable 0
 			
-		/if (${Me.XTarget} && ${TimeForMezVariable} == 0) {
-			/varset TimeForMez 7s
-			/varset TimeForMezVariable 1
+		/if (${Me.XTarget} && ${timeForMezVariable} == 0) {
+			/varset timeForMez 7s
+			/varset timeForMezVariable 1
 		}
 	}
 
@@ -207,10 +206,6 @@ Sub set_timers
 		/if (${checkResourcesTimer} == 0) {
 			/varset checkResourcesTimer 20s
 		}
-	}
-
-	/if (${Mode} == 7) {
-		/varset returnToFellowshipTimer 900s
 	}
 
 /return
@@ -311,7 +306,16 @@ Sub Travel
 		/stopsong
 		/melody 1
 	}
+
 	/call misc
+
+	/if (${posseZone} && ${goSell}) {
+		/if (${Zone.ID} != 202) /return
+		/if (${Zone.ID} != 344) /return
+		/if (${Zone.ID} != 345) /return	
+		/varset Mode 7
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: check_add_aggro
@@ -320,7 +324,8 @@ Sub check_add_aggro
 
 	/if (${Balance}) /return
 	/if (!${Me.XTarget[2].ID}) /return
-	/if (${TimeForMez} != 0) /return
+	DEBUG Time until I check add aggro: ${timeForMez}
+	/if (${timeForMez} != 0) /return
 
 	/if (${Target.Type.Equal[Corpse]}) /target clear
 
@@ -419,8 +424,10 @@ Sub afk_pull
 	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return
 	/if (${checkResourcesTimer} != 0) /return
 	/if (!${pullAbility.Equal[Melee]}) {
+
 		/if (!(${Me.CombatAbilityReady[${pullAbility}]} || ${Me.AbilityReady[${pullAbility}]} || ${Me.AltAbilityReady[${pullAbility}]} || ${Me.SpellReady[${pullAbility}]})) /return
 	}
+	
 	/call puller_check_group_resources
 	
 	/if (${resourceChecker} == 0) {
@@ -430,7 +437,7 @@ Sub afk_pull
 
 	
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
-
+		
 		/if (!${Me.Song[${elixirSpell}].ID}) {
 			
 			DEBUG
@@ -454,7 +461,6 @@ Sub afk_pull
 		}
 		**|
 	}
-	
 	
 	/while (!${Me.XTarget}) {
 		/call set_pull_target
@@ -1382,8 +1388,9 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	
 	| what type is it?
 	/if (${_type.Equal[FIND]}) {
-|		DEBUG ${dep}FIND${dep}${_type}
-		/if (${Me.AltAbilityReady[${_spell}]}) {	
+		/if (${Me.Class.ShortName.Find[BRD]}) {
+			/varset _type pulse
+		} else /if (${Me.AltAbilityReady[${_spell}]}) {	
 			/varset _type alt
 		} else /if (${Me.Book[${Spell[${_spell}].RankName}]}) {
 			/varset _type spell
@@ -1867,7 +1874,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/delay 5
 				/if (${Window[CastingWindow].Open}) /goto :cast_in_progress
 				/delay 5
-				
+
 				| check fizzle
 				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
 				/varset _fizzle ${Macro.Return}
@@ -2445,7 +2452,7 @@ Sub get_heal_target(int _hpLimit)
 
 Sub validate_tank_heal(int _hpLimit)
 
-	/if (${Group.MaintTank.Type.Equal[Mercenary]}) {
+	/if (${Group.MainTank.Type.Equal[Mercenary]}) {
 		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return FALSE
 	}
 

@@ -237,9 +237,11 @@ sub misc
 
 	/if (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) {
 		
-		/varset Mode 7
-		/varset goSell TRUE
-		/varset posseZone TRUE
+		/if (${port_class_checker[FALSE]}) {
+			/varset Mode 7
+			/varset goSell TRUE
+			/varset posseZone TRUE
+		}
 
 		/if (!${Select[${Me.Class.ShortName},DRU,WIZ]}) {
 
@@ -268,10 +270,12 @@ sub misc
 /return
 
 sub mode_posse_afk
-	/declare _haveSold 			bool local FALSE
-	/declare _nearestMerchant 	int local 0
+	/declare _haveSold 					bool local FALSE
+	/declare _nearestMerchant 			int local 0
+	/declare _returnToFellowshipTimer	timer local 0
 	
-	/call set_timers
+	/varset returnToFellowshipTimer 900s
+	
 	/while (${Mode} == 7) {
 
 		/if (${Stick.Status.Equal[ON]}) /stick off
@@ -306,7 +310,7 @@ sub mode_posse_afk
 			/varset _haveSold TRUE
 		}
 
-		/if (${returnToFellowshipTimer} == 0) {
+		/if (${_returnToFellowshipTimer} == 0) {
 			/useitem "Fellowship Registration Insignia"
 			/delay 1s
 			/delay 1m !${Me.Zoning}
@@ -437,7 +441,6 @@ Sub check_state(bool _debug)
 	| am I casting?
 	/if (${Me.Casting.ID} && !${Me.Class.ShortName.Find[BRD]}) /return
 
-
 	| am I navigating?
 	/if (${Navigation.Active}) /return
 
@@ -460,13 +463,12 @@ Sub check_state(bool _debug)
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 
 	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
-		
 		| check aura one
 		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !${Me.Aura[1].Name.Equal[${Aura1}]}) {
-
+			
 			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) {
 				/call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
-					/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 				
 					| reload the spell if i just memmed aura
 					/call ${Me.Class.ShortName.Lower}_load_spellbar
@@ -483,7 +485,7 @@ Sub check_state(bool _debug)
 
 			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) {
 				/call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-					/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
 				
 					| reload the spell if i just memmed aura
 					/call ${Me.Class.ShortName.Lower}_load_spellbar
