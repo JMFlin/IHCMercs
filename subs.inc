@@ -410,32 +410,33 @@ Sub pre_pull_group_healer_spells
 	}
 /return
 
-Sub afk_pull
-	/declare _pullTargetID 	int local 0
-	/if (${Posse.Strangers} > 0) /return
+sub validate_pull_start(bool _debug)
 	/if (${Select[${Me.Class.ShortName},BST]}) {
-		/if (!${Me.Pet.ID}) /return
+		/if (!${Me.Pet.ID}) /return FALSE
 	}
-	/if (${Me.XTarget}) /return
-	/if (${Me.Casting.ID}) /return
-	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
-	/if (!${Navigation.MeshLoaded}) /return
-	/if (${Me.Snared.ID}) /return
-	/if (${Me.PctHPs} < 90) /return
-	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
-	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return
-	/if (${checkResourcesTimer} != 0) /return
-	
-	/if (!${pullAbility.Equal[Melee]}) {
-		/if (!(${Me.CombatAbilityReady[${pullAbility}]} || ${Me.AbilityReady[${pullAbility}]} || ${Me.AltAbilityReady[${pullAbility}]} || ${Me.SpellReady[${pullAbility}]})) /return
+	/if (${Me.XTarget}) /return FALSE
+	/if (${Me.Casting.ID}) /return FALSE
+	/if (!(${Group.Puller.ID} == ${Me.ID})) /return FALSE
+	/if (!${Navigation.MeshLoaded}) /return FALSE
+	/if (${Me.Snared.ID}) /return FALSE
+	/if (${Me.PctHPs} < 90) /return FALSE
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return FALSE
+	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return FALSE
+	/if (${checkResourcesTimer} != 0) /return FALSE
+	/if (!${PullAbility.Equal[Melee]}) {
+		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return FALSE
 	}
-	
 	/call puller_check_group_resources
 	
-	/if (${resourceChecker} == 0) {
+	/if (${ResourceChecker} == 0) {
 		/call set_timers
-		/return
+		/return FALSE
 	}
+
+/return TRUE
+
+Sub afk_pull
+	/declare _pullTargetID 	int local 0
 
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 		
@@ -499,21 +500,26 @@ Sub afk_pull
 	/delay 5
  /return
 
+sub validate_chain_pull_start(bool _debug)
+	/if (${Posse.Strangers} > 0) /return FALSE
+	/if (${Me.XTarget}) /return FALSE
+	/if (${Me.Casting.ID}) /return FALSE
+	/if (!(${Group.Puller.ID} == ${Me.ID})) /return FALSE
+	/if (!${Navigation.MeshLoaded}) /return FALSE
+	/if (${Me.PctEndurance} < ${chainPullLimit}) {
+		/varset chainPullLimit 80
+		/return FALSE
+	} else {
+		/varset chainPullLimit 20
+		/return TRUE
+	}
+
+/return TRUE
 
  Sub chain_pull
 	/declare _pullTargetID 	int local 0
 
-	/if (${Posse.Strangers} > 0) /return
-	/if (${Me.XTarget}) /return
-	/if (${Me.Casting.ID}) /return
-	/if (!(${Group.Puller.ID} == ${Me.ID})) /return
-	/if (!${Navigation.MeshLoaded}) /return
-	/if (${Me.PctEndurance} < ${chainPullLimit}) {
-		/varset chainPullLimit 80
-		/return
-	} else {
-		/varset chainPullLimit 20
-	}
+	
 	
 	/while (!${Me.XTarget}) {
 		/call set_pull_target
@@ -834,7 +840,7 @@ sub check_buffs_mgb(bool _debug)
 |- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
 |----------------------------------------------------------------------------
 Sub Bind_Campfire
-    /declare FellowCount int local 0
+    /declare _fellowCount int local 0
     /declare i int local
     /declare j int local
 
@@ -842,13 +848,13 @@ Sub Bind_Campfire
 
     /for i 1 to ${SpawnCount[pc radius 50]}
         /for j 1 to ${Me.Fellowship.Members}
-            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
+            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc _fellowCount ${_fellowCount}+1
         /next j
     /next i
 
 	/return
 	|**
-    /if (${FellowCount}>=3) {
+    /if (${_fellowCount}>=3) {
         /windowstate FellowshipWnd open
 		/delay 1s
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
@@ -1227,7 +1233,7 @@ Sub get_target
 	/if (!${Me.XTarget}) /return
 
 	| should we be balancing?
-	|/echo Checking balance
+	|/echo Checking Balance
 	/if (${Me.ID} == ${Group.MainAssist.ID} && ${Balance}) /return
 
 	| if I have a target: assist and get ready

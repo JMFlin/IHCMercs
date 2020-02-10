@@ -123,11 +123,11 @@ Sub AFKRadiusCamping
 		}
 		
 		/if (!${PowerLevel}) {
-			/call afk_pull
+			/if (${validate_pull_start[FALSE]}) /call afk_pull
 		} else /if (${PowerLevel}) {
 			/if (${Select[${Me.Class.ShortName},MNK]}) {
 				/if (${npcRadiusCheck} != 1) /varset npcRadiusCheck 1
-				/call chain_pull
+				/if (${validate_chain_pull_start[FALSE]}) /call chain_pull
 			}
 		}
 
@@ -143,7 +143,7 @@ Sub AFKRadiusCamping
 			}
 		}
 		
-		/call balance_hp
+		/if (${Balance}) /call Balance_hp
 		/if (${PowerLevel}) {
 			/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,MNK]}) {
 				/call ${Me.Class.ShortName.Lower}_main
@@ -184,7 +184,9 @@ Sub set_mode
 /return
 
 sub misc
-	/declare _count int local 0 
+	/declare _count 		int local 0 
+	/declare _portClassID 	int local 0
+
 	/varset newPosse ${pullRadiusXY}
 
 	/if (${newPosse} != ${oldPosse}) {
@@ -241,51 +243,62 @@ sub misc
 	/if (${Zone.ID} == 345) /return
 
 	/if (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) {
-		
-		/if (${port_class_checker[FALSE]}) {
+		/call port_class_checker
+		/varset _portClassID ${Macro.Return}
+
+		/if (${_portClassID}) {
 			/varset Mode 7
-			/varset goSell TRUE
 			/varset posseZone TRUE
-		}
-
-		/if (!${Select[${Me.Class.ShortName},DRU,WIZ]}) {
-
+			/call get_me_out ${_portClassID}
+		} else {
 			/call dummy_mode
-
-		} else /if (${Select[${Me.Class.ShortName},DRU,WIZ]}) {
-				
-			/for _count 0 to ${Group}
-
-				/if (${Group.Member[${_count}].OtherZone}) /continue
-
-				/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
-
-				/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) /continue
-				
-				/if (${Group.Member[${_count}].Distance} >= 100) /squelch /dex ${Group.Member[${_count}].Name.Lower} /nav id ${Me.ID}
-
-			/next _count
-
-			/if (${validate_cast[FALSE, spell, "${PosseSpell}", ${Me.ID}]}) {
-				/call core_cast2 "${PosseSpell}" spell ${Me.ID} FALSE
-			}
 		}
 	}
+	
 	**|
+/return
+
+sub get_me_out(int _tmpID)
+
+	/if (!${Me.ID} != ${_tmpID}) {
+
+		/if (${Navigation.Active}) /nav stop
+		/if (${Stick.Status.Equal[ON]}) /stick off
+		/if (${Spawn[id ${_tmpID}].Distance3D} > 190) /nav id ${_tmpID}
+
+		/while (${Navigation.Active}) {
+			/delay 1s
+		}
+		
+		/delay 2m ${Me.Zoning}
+		/delay 2m !${Me.Zoning}
+
+	} else /if (${Select[${Me.Class.ShortName},DRU,WIZ]}) {	
+
+		/if (${validate_cast[FALSE, spell, "${PosseSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${PosseSpell}" spell ${Me.ID} FALSE
+		}
+		/delay 2m ${Me.Zoning}
+		/delay 2m !${Me.Zoning}
+	}
+	
 /return
 
 sub mode_posse_afk
 	/declare _haveSold 					bool local FALSE
 	/declare _nearestMerchant 			int local 0
+	/declare _portClassID				int local 0
+	/declare _counter					int local 1
 	/declare _returnToFellowshipTimer	timer local 0
 	
-	/varset _returnToFellowshipTimer 900s
+	/varset _returnToFellowshipTimer 10m
 
 	/while (${Mode} == 7) {
 
+		/if (${Math.Calc[3000%${_counter}]} == 1) DEBUG ${_returnToFellowshipTimer}s left
+
 		/if (${Stick.Status.Equal[ON]}) /stick off
-		/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
-		/attack off
+		/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 
 		/if (${pullAutoCampY} != 0) /varset pullAutoCampY 0
 		/if (${pullAutoCampX} != 0) /varset pullAutoCampX 0
@@ -312,6 +325,7 @@ sub mode_posse_afk
 				/autoloot sell
 				/delay 1m  ${Window[MerchantWnd].Open}
 			}
+
 			/varset _haveSold TRUE
 		}
 
@@ -319,10 +333,79 @@ sub mode_posse_afk
 			/useitem "Fellowship Registration Insignia"
 			/delay 1s
 			/delay 1m !${Me.Zoning}
-			/varset Mode 3
+			/delay 5m ${SpawnCount[pc group radius 50]}>=3
+			/if (${Spawn[gm].ID} || ${Posse.Strangers} > 0) {
+				/call force_create_campfire
+				/call port_class_checker
+				/varset _portClassID ${Macro.Return}
+				/call get_me_out ${_portClassID}
+				/varset _returnToFellowshipTimer 30m
+
+			} else {
+				/varset Mode 3
+			}
 		}
+
+		/if (${goSell}) /varset goSell FALSE
+		/varcalc _counter ${_counter} + 1
 		/delay 1s
 	}
+
+/return
+
+
+sub force_create_campfire
+	/declare _fellowCount int local 0
+	/declare _notEnoughPeople bool local FALSE
+    /declare i int local
+    /declare j int local
+
+	/if (${Me.ID} != ${Group.Leader.ID}) {
+		/delay 30s
+		/return
+	}
+
+	/while (!${_notEnoughPeople}) {
+		/for i 1 to ${SpawnCount[pc group radius 50]}
+			/for j 1 to ${Me.Fellowship.Members}
+				/if (${NearestSpawn[${i},PC group radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc _fellowCount ${_fellowCount}+1
+			/next j
+		/next i
+	}
+
+    /if (${_fellowCount} < 3) /return
+
+	/while (${Me.Fellowship.Campfire}) {
+		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
+		/delay 5
+		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/delay 5
+		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		/delay 5
+		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
+		/delay 5
+		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
+		/delay 5
+		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
+		/delay 5
+	}
+	
+	/delay 1s
+
+	/while (!${Me.Fellowship.Campfire}) {
+		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
+		/delay 5
+		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/delay 5
+		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		/delay 5
+		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
+		/delay 5
+		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/delay 5 ${Me.Fellowship.Campfire}
+		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/windowstate FellowshipWnd close
+    }
 
 /return
 
@@ -337,11 +420,11 @@ sub port_class_checker(bool _debug)
 
 		/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) /continue
 		
-		/if (${Select[${Group.Member[${_count}].Class.ShortName},WIZ,DRU]}) /return TRUE
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},WIZ,DRU]}) /return ${Group.Member[${_count}].ID}
 
 	/next _count
 
-/return FALSE
+/return 0
 
 
 sub vendor_items
@@ -362,7 +445,7 @@ sub vendor_items
 |- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
 |----------------------------------------------------------------------------
 Sub check_campfire
-    /declare FellowCount int local 0
+    /declare _fellowCount int local 0
     /declare i int local
     /declare j int local
 
@@ -376,11 +459,11 @@ Sub check_campfire
 
 	/for i 1 to ${SpawnCount[pc radius 50]}
         /for j 1 to ${Me.Fellowship.Members}
-            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc FellowCount ${FellowCount}+1
+            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc _fellowCount ${_fellowCount}+1
         /next j
     /next i
 
-    /if (${FellowCount} < 3) /return
+    /if (${_fellowCount} < 3) /return
 
 	/if (${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
@@ -540,7 +623,7 @@ Sub move_to_camp
 
 
 Sub balance_hp
-	/if (!${Balance}) /return
+
 	/if (!${Me.XTarget}) /return
 	/if (!${Me.XTarget[2].ID}) /return
 	/if (${Me.ID} != ${Group.MainAssist.ID}) /return
@@ -590,6 +673,9 @@ Sub high_hp
 Sub dummy_mode 
 	/declare _count int local
 
+	/if (${Zone.ID} == 202) /return
+	/if (${Zone.ID} == 344) /return
+	/if (${Zone.ID} == 345) /return
 	/if (${Me.XTarget}) /return
 
 	/if (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
@@ -608,8 +694,11 @@ Sub dummy_mode
 			/for _count 1 to ${DummyTime}
 				/echo (${_count}/${DummyTime})
 				/if (${Mode} == 0) /return
-				/delay 1s
+				/if (${Zone.ID} == 202) /return
+				/if (${Zone.ID} == 344) /return
+				/if (${Zone.ID} == 345) /return
 				/if (${Me.XTarget}) /return
+				/delay 1s
 			/next _count
 			/delay 1s 
 		}
