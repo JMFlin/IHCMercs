@@ -353,27 +353,41 @@ sub mode_posse_afk
 
 /return
 
-
-sub force_create_campfire
+sub validate_fellowship_creation(bool _debug)
 	/declare _fellowCount int local 0
-	/declare _notEnoughPeople bool local FALSE
+	/declare _enoughPeople bool local FALSE
     /declare i int local
     /declare j int local
 
-	/if (${Me.ID} != ${Group.Leader.ID}) {
-		/delay 30s
-		/return
-	}
-
-	/while (!${_notEnoughPeople}) {
+	/for _count 1 to 10
 		/for i 1 to ${SpawnCount[pc group radius 50]}
 			/for j 1 to ${Me.Fellowship.Members}
 				/if (${NearestSpawn[${i},PC group radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc _fellowCount ${_fellowCount}+1
 			/next j
 		/next i
-	}
 
-    /if (${_fellowCount} < 3) /return
+		/if (${_fellowCount} < 3) {
+			/varset _fellowCount 0
+			/delay 10s
+		} else {
+			/break
+		}
+
+	/next _count
+
+    /if (${_fellowCount} < 3) /return FALSE
+
+/return TRUE
+
+sub force_create_campfire
+	
+
+	/if (${Me.ID} != ${Group.Leader.ID}) {
+		/delay 30s
+		/return
+	}
+	
+	/if (!${validate_fellowship_creation[FALSE]}) /return
 
 	/while (${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
@@ -445,9 +459,6 @@ sub vendor_items
 |- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
 |----------------------------------------------------------------------------
 Sub check_campfire
-    /declare _fellowCount int local 0
-    /declare i int local
-    /declare j int local
 
 	/if (${Me.XTarget}) /return
 	/if (${Navigation.Active}) /return
@@ -455,15 +466,12 @@ Sub check_campfire
 	/if (${Zone.ID} == 202) /return
 	/if (${Zone.ID} == 344) /return
 	/if (${Zone.ID} == 345) /return
+
+	/if (${Math.Distance[${pullAutoCampY}, ${pullAutoCampX}, ${pullAutoCampZ}:${CampfireY}, ${CampfireX}, ${CampfireZ}]} < 200) /return
+
 	/if (${Zone.Name.Equal[${Me.Fellowship.CampfireZone}]} && ${Me.Fellowship.CampfireDuration} > 600) /return
 
-	/for i 1 to ${SpawnCount[pc radius 50]}
-        /for j 1 to ${Me.Fellowship.Members}
-            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc _fellowCount ${_fellowCount}+1
-        /next j
-    /next i
-
-    /if (${_fellowCount} < 3) /return
+	/if (!${validate_fellowship_creation[FALSE]}) /return
 
 	/if (${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
