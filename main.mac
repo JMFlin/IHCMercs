@@ -404,6 +404,8 @@ sub force_create_campfire
 		/delay 5
 		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
 		/delay 5
+		/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox Yes_Button leftmouseup
+		/delay 5
 	}
 	
 	/delay 1s
