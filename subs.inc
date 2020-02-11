@@ -441,7 +441,7 @@ Sub afk_pull
 	}
 
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
-		
+		|**
 		/if (!${Me.Song[${elixirSpell}].ID}) {
 			
 			DEBUG
@@ -453,7 +453,7 @@ Sub afk_pull
 			/delay ${elixirCastTime}s
 			/delay 1s
 		}
-	|**
+	**|
 		/if (!${Me.Buff[${promisedSpell}].ID}) {
 			
 			DEBUG Begging for ${promisedSpell}
@@ -463,8 +463,9 @@ Sub afk_pull
 			/squelch /dex ${Group.Cleric.Name.Lower} /cast "${promisedSpell}"
 			/delay 2s
 		}
-		**|
+		
 	}
+	
 	
 	/while (!${Me.XTarget}) {
 		/call set_pull_target

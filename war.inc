@@ -16,9 +16,11 @@ Sub war_main
 		/if (!${Me.Song[Battle Leap].ID}) {
 			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 		}
+		|**
 		/if (!${Target.Stunned}) {
 			/if (${validate_cast[FALSE, alt, "Press the Attack", ${Target.ID}]}) /call core_cast2 "Press the Attack" alt ${Target.ID} FALSE
 		}
+		**|
 		/if (!${Me.ActiveDisc.ID}) {
 			/if (${validate_cast[FALSE, disc, "${defenseac}", ${Me.ID}]}) /call core_cast2 "${defenseac}" disc 0 FALSE
 		}

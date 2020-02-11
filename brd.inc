@@ -3,6 +3,12 @@
 |---------------------------------------------------------------------------- 
 Sub brd_main
 
+
+	/if (${powerLevel}) {
+		/return
+	} 
+
+	
 	/if (${Me.Song[${ChorusRegenSong}].Duration.TotalSeconds} < 6) {
 		/if (${validate_cast[FALSE, pulse, "${ChorusRegenSong}", ${Me.ID}]}) {
 			/call core_cast2 "${ChorusRegenSong}" pulse 0 FALSE

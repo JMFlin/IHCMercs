@@ -4,6 +4,10 @@
 Sub bst_main
 
 	/call bst_self_buff_check
+	
+	/if (${powerLevel}) {
+		/return
+	} 
 
 	/while (${Me.XTarget}) {
 		
