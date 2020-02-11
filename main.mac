@@ -213,7 +213,7 @@ sub misc
  	/if (${Window[ProgressionTemplateSelectWnd].Open}) /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
 	
 	| drop a campfire
-	/if (${Mode} != 0) /call check_campfire
+	/if (${Mode} != 0) /call create_campfire
 
 	| pop your merc
 	/if (${Mode} != 0) {
@@ -460,7 +460,7 @@ sub vendor_items
 |----------------------------------------------------------------------------
 |- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
 |----------------------------------------------------------------------------
-Sub check_campfire
+Sub create_campfire
 
 	/if (${Me.XTarget}) /return
 	/if (${Navigation.Active}) /return
