@@ -53,8 +53,8 @@ Sub enc_main
 		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 		/call enc_debuff_xtarget
 
-		/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Constriction}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${Constriction}", ${Target.ID}]}) /call core_cast2 "${Constriction}" spell ${Target.ID} FALSE
+		/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
 		}
 
 		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
@@ -74,9 +74,9 @@ Sub enc_main
 				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
 			}
 		}
+		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 		/call enc_debuff_xtarget
-		
 		/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
 	}
 |	/call CheckMana

@@ -177,7 +177,7 @@ Sub var_setup
 |- 
 	/declare worstHurtId 		int outer 0
 
-	/declare PowerLevel 		bool outer FALSE
+	/declare powerLevel 		bool outer FALSE
 	/declare goSell 			bool outer FALSE
 
 	/declare newPosse			int outer 100
@@ -411,6 +411,13 @@ Sub pre_pull_group_healer_spells
 /return
 
 sub validate_pull_start(bool _debug)
+	
+
+/return TRUE
+
+Sub afk_pull
+	/declare _pullTargetID 	int local 0
+
 	/if (${Select[${Me.Class.ShortName},BST]}) {
 		/if (!${Me.Pet.ID}) /return FALSE
 	}
@@ -423,20 +430,15 @@ sub validate_pull_start(bool _debug)
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return FALSE
 	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return FALSE
 	/if (${checkResourcesTimer} != 0) /return FALSE
-	/if (!${PullAbility.Equal[Melee]}) {
-		/if (!(${Me.CombatAbilityReady[${PullAbility}]} || ${Me.AbilityReady[${PullAbility}]} || ${Me.AltAbilityReady[${PullAbility}]} || ${Me.SpellReady[${PullAbility}]})) /return FALSE
+	/if (!${pullAbility.Equal[Melee]}) {
+		/if (!(${Me.CombatAbilityReady[${pullAbility}]} || ${Me.AbilityReady[${pullAbility}]} || ${Me.AltAbilityReady[${pullAbility}]} || ${Me.SpellReady[${pullAbility}]})) /return FALSE
 	}
 	/call puller_check_group_resources
 	
-	/if (${ResourceChecker} == 0) {
+	/if (${resourceChecker} == 0) {
 		/call set_timers
 		/return FALSE
 	}
-
-/return TRUE
-
-Sub afk_pull
-	/declare _pullTargetID 	int local 0
 
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 		
@@ -2556,7 +2558,7 @@ sub setup_skill_melee(bool _debug)
 	|}
 
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
-		/if (${PowerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 20
 			/varset assistRange 55
 		} else {
@@ -2565,17 +2567,17 @@ sub setup_skill_melee(bool _debug)
 		}
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
-		/if (${PowerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 20
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 55
+			/varset assistRange 67
 		}
 	}
 
 	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM]}) {
-		/if (${PowerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 60
 			/varset assistRange 55
 		} else {
@@ -2585,7 +2587,7 @@ sub setup_skill_melee(bool _debug)
 	}
 
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
-		/if (${PowerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 60
 			/varset assistRange 55
 		} else {

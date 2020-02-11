@@ -51,6 +51,8 @@ Sub ber_setup
 	/declare JoltAxeName			string outer NULL
 	/declare StunAxeName			string outer NULL
 	/declare StunAxeComponent		string outer NULL
+	/declare DichoAxeComponent	 	string outer NULL
+	/declare DichoAxeName 			string outer NULL
 	
 	/declare ChestItemName		string outer "${Me.Inventory[17].Name}"
 	/declare ZerkerCount			int outer 1
@@ -343,9 +345,14 @@ Sub ber_abilities
 |-Dicho Spell*
 	/if (${Me.Level}>=${Spell[Dissident Rage].Level} && ${Me.CombatAbility[${Spell[Dissident Rage].RankName}]}) {
 		/varset DichoSpell ${Spell[Dissident Rage].RankName}
+		/varset DichoAxeName NULL
+		/varset DichoAxeComponent NULL
 	} else /if (${Me.Level}>=${Spell[Dichotomic Rage].Level} && ${Me.CombatAbility[${Spell[Dichotomic Rage].RankName}]}) {
 		/varset DichoSpell ${Spell[Dichotomic Rage].RankName}
+		/varset DichoAxeName Axe of the Demolisher
+		/varset DichoAxeComponent Masterwork Axe Components
 	}
+	
 |---Frenzy Combat Ability not normal Frenzy - Updated for RoS
 	/if (${Me.Level}>=111 && ${Me.CombatAbility[${Spell[Vindicating Frenzy].RankName}]}) {
 		/varset Dfrenzy ${Spell[Vindicating Frenzy].RankName}

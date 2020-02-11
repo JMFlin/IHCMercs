@@ -3,7 +3,7 @@
 |---------------------------------------------------------------------------- 
 Sub clr_main
 	
-	/if (${PowerLevel}) {
+	/if (${powerLevel}) {
 		/call check_for_corpse FALSE
 		/if (!${Me.XTarget}) /call clr_combat_tank_buffs
 		/return

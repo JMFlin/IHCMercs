@@ -128,10 +128,10 @@ Sub enc_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 	/call LoadSpellGem "${MezSpell}" 1
-	/call LoadSpellGem "${AEMezSpell}" 2
+	/call LoadSpellGem "${DichoSpell}" 2
 	/call LoadSpellGem "${TashSpell}" 3
 	/call LoadSpellGem "${SlowSpell}" 4
-	/call LoadSpellGem "${Constriction}" 5
+	/call LoadSpellGem "${Drown}" 5
 	/call LoadSpellGem "${MindNukeSub}" 6
 	/call LoadSpellGem "${MindNukeMain}" 7
 	/call LoadSpellGem "${SingleStunSpell1}" 8

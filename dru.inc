@@ -3,7 +3,7 @@
 |---------------------------------------------------------------------------- 
 Sub dru_main
 
-	/if (${PowerLevel}) {
+	/if (${powerLevel}) {
 		/return
 	} 
 |	/call check_for_corpse FALSE

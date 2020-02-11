@@ -47,6 +47,11 @@ Avenging Flurry Discipline
 |- SUB: ber_main
 |---------------------------------------------------------------------------- 
 Sub ber_main
+	
+	/if (!${Me.XTarget}) /call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
+	/if (!${Me.XTarget}) /call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
+	/if (!${Me.XTarget}) /call make_axes "${StunAxeName}" "${StunAxeComponent}"
+	/if (!${Me.XTarget}) /call make_axes "${DichoAxeName}" "${DichoAxeComponent}"
 
 	/while (${Me.XTarget}) {
 		/call get_target
@@ -187,10 +192,6 @@ Sub ber_main
 			/delay 10
 		}
 		/call ber_combat
-		
-		/call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
-		/call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
-		/call make_axes "${StunAxeName}" "${StunAxeComponent}"
 
 	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
@@ -258,8 +259,8 @@ Sub ber_combat
 	|	/if (${validate_cast[FALSE, disc, "${AEVicious}", ${Target.ID}]}) /call core_cast2 "${AEVicious}" disc ${Target.ID} FALSE
 	|	/delay 5
 	|}
-	/if (!${Target.Buff[Sarnak Finesse].ID} && ${Target.Type.Equal[npc]} && ${Me.Combat} && ${Me.AltAbilityReady[War Cry of the Braxi]} && ${Me.CombatAbilityReady[${DichoSpell}]}) {
-		/alt act 1013
+	/if (!${Target.Buff[Sarnak Finesse].ID} && ${Target.Type.Equal[npc]} && ${Me.Combat} && ${Me.CombatAbilityReady[${DichoSpell}]}) {
+		/if (${Me.AltAbilityReady[War Cry of the Braxi]}) /alt act 1013
 		/delay 5
 		/doability "${DichoSpell}"
 	}	

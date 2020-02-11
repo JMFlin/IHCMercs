@@ -3,7 +3,7 @@
 |----------------------------------------------------------------------------
 Sub wiz_main
 
-	/if (${PowerLevel}) {
+	/if (${powerLevel}) {
 		/return
 	} 
 	/call wiz_self_buff_check FALSE
@@ -88,7 +88,11 @@ Sub wiz_main
 				/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
 			}
 
-			/call wiz_manage_aggro
+			/if (${Target.PctHPs} >= 40) {
+				/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
+				}
+			}
 
 			/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
 				/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
@@ -98,8 +102,9 @@ Sub wiz_main
 				/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
 			}
 
-			/call wiz_manage_aggro
 		}
+
+		/call wiz_manage_aggro
 	}
 	
 |-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0) /call BegForCure

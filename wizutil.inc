@@ -85,7 +85,7 @@ Sub wiz_load_spellbar
 	}
 
 	/call LoadSpellGem "${FireEtherealNuke}" 6
-	/call LoadSpellGem "${ColdEtherealNuke}" 7
+	/call LoadSpellGem "${DichoSpell}" 7
 
 	/if (${GambitSpell.NotEqual[NULL]} && ${Me.Book[${GambitSpell}]}) {
 		/call LoadSpellGem "${GambitSpell}" 8
@@ -178,7 +178,6 @@ Sub wiz_abilities
 		/varset PosseSpell ${Spell[Knowledge Portal].RankName}
 	}
 	
-
 |-Familiar Buff
 	/if (${Me.AltAbility[Kerafyrm's Prismatic Familiar].Rank} >= 1) {
 		/varset FamiliarBuff "Kerafyrm's Prismatic Familiar"
@@ -436,7 +435,7 @@ Sub wiz_abilities
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Ethereal Weave].RankName}]}) {
 		/varset FuseNuke ${Spell[Ethereal Weave].RankName}
 	}
-|-WildNuke: Kizant uss Wildether barrage and wild spark barrage in TBL with fury of gods
+|-WildNuke: Kizant uses Wildether barrage and wild spark barrage in TBL with fury of gods
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Wildflash Strike].RankName}]}) {
 		/varset WildNuke ${Spell[Wildflash Strike].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Wildflash Barrage].RankName}]}) {

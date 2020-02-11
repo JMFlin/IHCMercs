@@ -116,15 +116,15 @@ Sub AFKRadiusCamping
 
 		/call misc
 
-		/if (!${PowerLevel}) {
+		/if (!${powerLevel}) {
 			/call move_to_camp
-		} else /if (${PowerLevel}) {
+		} else /if (${powerLevel}) {
 			/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} > 70) /call move_to_camp
 		}
 		
-		/if (!${PowerLevel}) {
+		/if (!${powerLevel}) {
 			/if (${validate_pull_start[FALSE]}) /call afk_pull
-		} else /if (${PowerLevel}) {
+		} else /if (${powerLevel}) {
 			/if (${Select[${Me.Class.ShortName},MNK]}) {
 				/if (${npcRadiusCheck} != 1) /varset npcRadiusCheck 1
 				/if (${validate_chain_pull_start[FALSE]}) /call chain_pull
@@ -133,18 +133,18 @@ Sub AFKRadiusCamping
 
 		/call check_state FALSE
 
-		/if (!${PowerLevel}) {
+		/if (!${powerLevel}) {
 			/if (${Select[${Me.Class.ShortName},ENC,WIZ,MAG,MNK,ROG,BER,BST]}) {
 				/call get_target
 			}
-		} else /if (${PowerLevel}) {
+		} else /if (${powerLevel}) {
 			/if (${Select[${Me.Class.ShortName},ENC,WIZ,MAG,MNK]}) {
 				/call get_target
 			}
 		}
 		
 		/if (${Balance}) /call Balance_hp
-		/if (${PowerLevel}) {
+		/if (${powerLevel}) {
 			/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,MNK]}) {
 				/call ${Me.Class.ShortName.Lower}_main
 			}
@@ -356,10 +356,12 @@ sub mode_posse_afk
 sub validate_fellowship_creation(bool _debug)
 	/declare _fellowCount int local 0
 	/declare _enoughPeople bool local FALSE
+	/declare _count int local 0
     /declare i int local
     /declare j int local
 
 	/for _count 1 to 10
+
 		/for i 1 to ${SpawnCount[pc group radius 50]}
 			/for j 1 to ${Me.Fellowship.Members}
 				/if (${NearestSpawn[${i},PC group radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc _fellowCount ${_fellowCount}+1
@@ -467,9 +469,13 @@ Sub check_campfire
 	/if (${Zone.ID} == 344) /return
 	/if (${Zone.ID} == 345) /return
 
-	/if (${Math.Distance[${pullAutoCampY}, ${pullAutoCampX}, ${pullAutoCampZ}:${CampfireY}, ${CampfireX}, ${CampfireZ}]} < 200) /return
-
-	/if (${Zone.Name.Equal[${Me.Fellowship.CampfireZone}]} && ${Me.Fellowship.CampfireDuration} > 600) /return
+	/if (${Zone.Name.Equal[${Me.Fellowship.CampfireZone}]}) {
+		/if (${Math.Distance[${pullAutoCampY}, ${pullAutoCampX}, ${pullAutoCampZ}:${Me.Fellowship.CampfireY}, ${Me.Fellowship.CampfireX}, ${Me.Fellowship.CampfireZ}]} < 200) {
+			/if (${Me.Fellowship.CampfireDuration} > 600) {
+				/return
+			}
+		}
+	}
 
 	/if (!${validate_fellowship_creation[FALSE]}) /return
 
