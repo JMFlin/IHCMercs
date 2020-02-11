@@ -1,6 +1,13 @@
 |----------------------------------------------------------------------------
 |- SUB: warrior 
 |---------------------------------------------------------------------------- 
+
+|**
+Figure out when to use Spire.
+
+**|
+
+
 Sub war_main
 	
 	/while (${Me.XTarget}) {
@@ -47,7 +54,7 @@ Sub war_main
 		/call war_get_aggro
 
 		/if (${Me.SecondaryPctAggro} > 10) {
-			/if (${validate_cast[FALSE, disc, "${phantom}", ${Target.ID}]}) /call core_cast2 "${phantom}" disc ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, disc, "${PhantomDisc}", ${Target.ID}]}) /call core_cast2 "${PhantomDisc}" disc ${Target.ID} FALSE
 		}
 
 		/call war_aoe_aggro
@@ -101,7 +108,7 @@ Sub war_combat_buffs
 		/if (${validate_cast[FALSE, disc, "${defenseac}", ${Me.ID}]}) /call core_cast2 "${defenseac}" disc 0 FALSE
 	}
 
-	/if (${validate_cast[FALSE, alt, "Brace for Impact", ${Me.ID}]}) /call core_cast2 "Brace for Impact" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Spire of the Warlord", ${Me.ID}]}) /call core_cast2 "Spire of the Warlord" alt 0 FALSE
 
 	|--DoAutoPDH: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/
 	|-- https://forums.daybreakgames.com/eq/index.php?threads/returning-warrior.253870/
@@ -111,32 +118,75 @@ Sub war_combat_buffs
 	|-- Rear Mitigation: Dichotomic > RoS BP > Warrior's Bastion
 	|-- Front Mitigation: Anguish BP > Warlord's Bravery
 
-	/if (!${Me.Buff[Diplomatic Immunity].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && ${Me.CombatAbilityReady[${Spell[Pain Doesn't Hurt].RankName}]}) {
-		/if (${validate_cast[FALSE, disc, "${absorball}", ${Me.ID}]}) /call core_cast2 "${absorball}" disc 0 FALSE
-	} else /if (!${Me.Song[Pain Doesn't Hurt].ID} && !${FindItem[${ItemDipPapers}].TimerReady}) {
-		/if (${validate_cast[FALSE, item, "${ItemDipPapers}", ${Me.ID}]}) /call core_cast2 "${ItemDipPapers}" item 0 FALSE
+	| Main rotation: Dicho -> PDH -> Guardian's Bravery -> Diplomatic Immunity
+
+
+	| Main rotation stacking check for Dicho
+	/if (${validate_cast[FALSE, disc, "${DichoDisc}", ${Me.ID}]}) {
+		/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Diplomatic Immunity].ID}) {
+
+			| SPA stacking check
+			/if (${Me.Buff[${BastionDisc}].ID} && !${Me.Buff[Roaring Shield].ID}) {
+				/call core_cast2 "${DichoDisc}" disc 0 FALSE
+			}
+
+		}
+	| Main rotation stacking check for PDH
+	} else /if (${validate_cast[FALSE, disc, "${PDHDisc}", ${Me.ID}]}) {
+		/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Diplomatic Immunity].ID}) {
+
+			| SPA check for PDH
+			/if (!${Me.Buff[Brace for Impact].ID}) {
+				/call core_cast2 "${PDHDisc}" disc 0 FALSE
+			}
+			
+		}
+	} else /if (${validate_cast[FALSE, item, "Gladiator's Plate Chestguard of War", ${Me.ID}]}) {
+		/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Diplomatic Immunity].ID}) {
+
+			| SPA check for Guardian's Bravery
+			/if (!${Me.Buff[Warlord's Bravery].ID}) {
+				/call core_cast2 "Gladiator's Plate Chestguard of War" item 0 FALSE
+			}
+			
+		}
+
+	} else /if (${validate_cast[FALSE, item, "Diplomatic Papers", ${Me.ID}]}) {
+		/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Diplomatic Immunity].ID}) {
+
+			| SPA check for Diplomatic Immunity
+			/if (!${Me.Buff[Brace for Impact].ID}) {
+				/call core_cast2 "Diplomatic Papers" item 0 FALSE
+			}
+			
+		}
+
 	}
 
-	/if (!${Me.Buff[${warbulwark}].ID} && !${Me.Buff[Roaring Shield].ID} && ${Me.CombatAbilityReady[${bmdisc}]}) {
-		|/docommand /disc 57800
-		/if (${validate_cast[FALSE, disc, "${bmdisc}", ${Me.ID}]}) /call core_cast2 "${bmdisc}" disc 0 FALSE
-	} else /if (!${FindItem[${ChestItemName}].TimerReady} && !${Me.Buff[Dichotomic Shield].ID} && !${Me.Buff[${warbulwark}].ID}) {
-		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
-	} else /if (!${Me.Buff[Dichotomic Shield].ID} && !${Me.Buff[${warbulwark}].ID} && !${Me.Buff[Roaring Shield].ID}) {
-		/if (${validate_cast[FALSE, disc, "${warbulwark}", ${Me.ID}]}) /call core_cast2 "${warbulwark}" disc 0 FALSE
-	} 
-	
-	/if (!${FindItem[${ItemOoWBP}].TimerReady} && !${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Spire of the Warlord].ID}) {
-		/if (${validate_cast[FALSE, item, "${ItemOoWBP}", ${Me.ID}]}) /call core_cast2 "${ItemOoWBP}" item 0 FALSE
-	} else /if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Spire of the Warlord].ID} && ${Me.AltAbilityReady[Warlord's Bravery]}) {
+	| Pain Doesn't Hurt > Brace for Impact > Diplo Papers
+	/if (!${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Brace for Impact].ID}) {
+		/if (${validate_cast[FALSE, alt, "Brace for Impact", ${Me.ID}]}) /call core_cast2 "Brace for Impact" alt 0 FALSE
+	}
+
+	| Dichotomic > RoS BP > Warrior's Bastion
+	/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) {
+		/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Buff[Roaring Shield].ID} && !${Me.Buff[Warrior's Bastion].ID}) {
+			/call core_cast2 "${ChestItemName}" item 0 FALSE
+		}
+
+	} else /if (${validate_cast[FALSE, disc, "${BastionDisc}", ${Me.ID}]}) {
+		/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Buff[Roaring Shield].ID} && !${Me.Buff[Warrior's Bastion].ID}) {
+			/call core_cast2 "${BastionDisc}" disc 0 FALSE
+		}
+		
+	}
+
+	| Anguish BP > Warlord's Bravery
+	/if ( !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Warlord's Bravery].ID}) {
 		/if (${validate_cast[FALSE, alt, "Warlord's Bravery", ${Me.ID}]}) /call core_cast2 "Warlord's Bravery" alt 0 FALSE
 	}
-
-	/if (!${Me.Buff[Warlord's Bravery].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Spire of the Warlord].ID} && ${Me.AltAbilityReady[Spire of the Warlord]}) {
-		/if (${validate_cast[FALSE, alt, "Spire of the Warlord", ${Me.ID}]}) /call core_cast2 "Spire of the Warlord" alt 0 FALSE
-	}
-
-	|-- Defensive buffs based on health
+	
+	| Defensive buffs based on health
 	/if (${Me.PctHPs} < 45) {
 		/if (${validate_cast[FALSE, alt, "Blade Guardian", ${Me.ID}]}) /call core_cast2 "Blade Guardian" alt 0 FALSE
 	}
@@ -145,7 +195,7 @@ Sub war_combat_buffs
 		/if (${validate_cast[FALSE, alt, "Warlord's Resurgence", ${Me.ID}]}) /call core_cast2 "Warlord's Resurgence" alt 0 FALSE
 	} 
 	
-	/if (${Me.PctHPs} < 45 || ${Target.Named}) {
+	/if (${Me.PctHPs} < 60 || ${Target.Named}) {
 		/if (${validate_cast[FALSE, alt, "Imperator's Charge", ${Me.ID}]}) /call core_cast2 "Imperator's Charge" alt 0 FALSE
 		/if (${validate_cast[FALSE, alt, "Resplendent Glory", ${Me.ID}]}) /call core_cast2 "Resplendent Glory" alt 0 FALSE
 	}

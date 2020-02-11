@@ -8,13 +8,13 @@ Sub war_setup
 |-Declare Discs
 	/declare meleemit		string outer NULL
 	/declare missall		string outer NULL
-	/declare absorball		string outer NULL
+	/declare PDHDisc		string outer NULL
 	/declare parryall		string outer NULL
 	/declare shieldhit		string outer NULL
 	/declare groupac		string outer NULL
 	/declare groupdodge		string outer NULL
 	/declare defenseac		string outer NULL
-	/declare bmdisc			string outer NULL
+	/declare DichoDisc			string outer NULL
 	/declare aeroar			string outer NULL
 	/declare aeselfbuff		string outer NULL
 	/declare aehealhate		string outer NULL
@@ -26,11 +26,11 @@ Sub war_setup
 	/declare Aura2			string outer NULL
 	/declare ItemOoWBP		string outer NULL
 	/declare ItemDipPapers	string outer NULL
-	/declare warbulwark		string outer NULL
+	/declare BastionDisc		string outer NULL
 	/declare shout			string outer NULL
 	/declare insult			string outer NULL
 	/declare roar			string outer NULL
-	/declare phantom		string outer NULL
+	/declare PhantomDisc		string outer NULL
 	/declare knuckle		string outer NULL
 	/declare throat			string outer NULL
 	/declare reprisal		string outer NULL
@@ -53,13 +53,13 @@ Sub war_abilities
 
 	|--One off discs
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Dissident Shield].RankName}]}) {
-		/varset bmdisc ${Spell[Dissident Shield].RankName}
+		/varset DichoDisc ${Spell[Dissident Shield].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Dichotomic Shield].RankName}]}) {
-		/varset bmdisc ${Spell[Dichotomic Shield].RankName}
+		/varset DichoDisc ${Spell[Dichotomic Shield].RankName}
 	}
 
-	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Phantom Aggressor].RankName}]}) {
-		/varset phantom ${Spell[Phantom Aggressor].RankName}
+	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[PhantomDisc Aggressor].RankName}]}) {
+		/varset PhantomDisc ${Spell[PhantomDisc Aggressor].RankName}
 	}
 
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Knuckle Crush].RankName}]}) {
@@ -88,7 +88,7 @@ Sub war_abilities
 		/varset missall ${Spell[Fortitude Discipline].RankName}
 		/varset FortitudeDiscID ${Spell[Fortitude Discipline].ID}
 	}
-	/if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Pain Doesn't Hurt].RankName}]}) /varset absorball ${Spell[Pain Doesn't Hurt].RankName}
+	/if (${Me.Level}>=102 && ${Me.CombatAbility[${Spell[Pain Doesn't Hurt].RankName}]}) /varset PDHDisc ${Spell[Pain Doesn't Hurt].RankName}
 	/if (${Me.Level}>=87 && ${Me.CombatAbility[${Spell[Flash of Anger].RankName}]}) /varset parryall ${Spell[Flash of Anger].RankName}
 	/if (${Me.Level}>=99 && ${Me.CombatAbility[${Spell[Wade in to Battle].RankName}]}) /varset aeselfbuff ${Spell[Wade in to Battle].RankName}
 	
@@ -148,8 +148,12 @@ Sub war_abilities
 	}
 
 	|---Bulwark disc
-	/if  (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Warrior's Bastion].RankName}]})  {
-		/varset warbulwark ${Spell[Warrior's Bastion].RankName}
+	
+	  
+	/if  (${Me.Level}>=109 && ${Me.CombatAbility[${Spell[Warrior's Bastion].RankName}]}) {
+		/varset BastionDisc ${Spell[Warrior's Bastion].RankName}
+	} else /if  (${Me.Level}>=104 && ${Me.CombatAbility[${Spell[Warrior's Bulwark].RankName}]}) {
+		/varset BastionDisc ${Spell[Warrior's Bulwark].RankName}
 	}
 	|---Group AC Disc
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Field Champion].RankName}]})  {

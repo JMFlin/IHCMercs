@@ -172,6 +172,7 @@ Sub ber_main
 			/delay 5
 		}
 		
+		| Or if Quicktime drops I know to cast Untamed Rage on my zerker: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/page-6#post-3627587
 		/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Untamed Rage]} && !${Me.Song[Quick Time V].ID}) {
 			/alt act ${Me.AltAbility[Untamed Rage].ID}
 			/delay 5
