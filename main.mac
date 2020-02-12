@@ -569,7 +569,7 @@ Sub check_state(bool _debug)
 
 	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]}) {
 		| check aura one
-		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !(${Me.Aura[1].Name.Equal[${Aura1}]} || ${Me.Aura[1].Name.Equal[Mana Rev. Aura]})) {
+		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !(${Me.Aura[1].Name.Equal[${Aura1}]} || ${Me.Aura[1].Name.Equal[Mana Rev. Aura]} || ${Me.Aura[1].Name.Equal[Mana Recursion Aura]})) {
 			
 			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) {
 				/call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
