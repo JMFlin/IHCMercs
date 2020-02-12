@@ -2,7 +2,9 @@
 |- SUB: shm_main
 |----------------------------------------------------------------------------
 Sub shm_main
-
+	/if (${powerLevel}) {
+		/return
+	} 
 	/call shm_self_buffs
 	/call shm_group_buffs
 	/call check_for_corpse FALSE

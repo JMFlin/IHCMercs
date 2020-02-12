@@ -2,7 +2,9 @@
 |- SUB: wiz_main
 |----------------------------------------------------------------------------
 Sub mag_main
-
+	/if (${powerLevel}) {
+		/return
+	} 
 	
 	/call mag_self_buff_check FALSE
 	/call get_target

@@ -430,9 +430,11 @@ Sub afk_pull
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return FALSE
 	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return FALSE
 	/if (${checkResourcesTimer} != 0) /return FALSE
+	
 	/if (!${pullAbility.Equal[Melee]}) {
 		/if (!(${Me.CombatAbilityReady[${pullAbility}]} || ${Me.AbilityReady[${pullAbility}]} || ${Me.AltAbilityReady[${pullAbility}]} || ${Me.SpellReady[${pullAbility}]})) /return FALSE
 	}
+	
 	/call puller_check_group_resources
 	
 	/if (${resourceChecker} == 0) {
