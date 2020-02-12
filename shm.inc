@@ -3,6 +3,7 @@
 |----------------------------------------------------------------------------
 Sub shm_main
 	/if (${powerLevel}) {
+		/call check_for_corpse FALSE
 		/return
 	} 
 	/call shm_self_buffs
