@@ -242,7 +242,7 @@ Sub RemoveTravelBuffs
 |---------------------------------------------------------------------------- 
 Sub engage
 
-	/if (!${validate_combat[${Target.ID}]} ) /return
+	/if (!${validate_combat[${Target.ID}]}) /return
 	/if (!${validate_target_distance[FALSE]}) /return
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
@@ -1266,6 +1266,10 @@ Sub get_target
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
 
+		/assist ${Group.MainAssist.Name}
+		/delay 1s ${Me.AssistComplete} == TRUE
+		/delay 5
+		
 		| if current target is not 100% aggro then get aggro
 		/if (${Target.ID}) {
 			/if (${Target.PctAggro} < 100) /call engage
@@ -1286,6 +1290,7 @@ Sub get_target
 				/delay 5
 				/call engage
 				/call ${Me.Class.ShortName.Lower}_get_aggro
+				/call get_target
 			}
 		}
 	}
