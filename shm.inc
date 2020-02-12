@@ -86,7 +86,7 @@ Sub shm_main
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal2}", ${worstHurtId}]}) {
 				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
 			}
 		}

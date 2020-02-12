@@ -114,6 +114,8 @@ Sub AFKRadiusCamping
 		| /delay 1s
 		| DEBUG CYCLE START
 
+		/doevents
+
 		/call misc
 
 		/if (!${powerLevel}) {
@@ -151,8 +153,6 @@ Sub AFKRadiusCamping
 		} else {
 			/call ${Me.Class.ShortName.Lower}_main
 		}
-		
-		/doevents
 	}
 /return
 
@@ -661,22 +661,22 @@ Sub balance_hp
 	/if (!${Me.XTarget[2].ID} || !${Balance}) /return
 
 Sub high_hp
-    /declare x int local 0
+    /declare _count int local 0
     /declare LowHP int local ${Target.PctHPs}
     /declare LowHPID int local ${Target.ID}
     /declare HighHP int local 0
     
-    /for x 1 to ${Me.XTarget}
-        /if (${Me.XTarget[${x}].PctHPs}<${LowHP}) {
-            /varset LowHP ${Me.XTarget[${x}].PctHPs}
+    /for _count 1 to ${Me.XTarget}
+        /if (${Me.XTarget[${_count}].PctHPs}<${LowHP}) {
+            /varset LowHP ${Me.XTarget[${_count}].PctHPs}
             /varset LowHPID ${Target.ID}
         }
         /if (!${Balance}) /return
-        /if (${Me.XTarget[${x}].PctHPs}>${HighHP}) {
-            /varset HighHP ${Me.XTarget[${x}].PctHPs}
-            /varset HighHPID ${Me.XTarget[${x}].ID}
+        /if (${Me.XTarget[${_count}].PctHPs}>${HighHP}) {
+            /varset HighHP ${Me.XTarget[${_count}].PctHPs}
+            /varset HighHPID ${Me.XTarget[${_count}].ID}
         }
-    /next x
+    /next _count
     
     /declare HPDiff int local 0
     /varcalc HPDiff ${HighHP}-${LowHP}
