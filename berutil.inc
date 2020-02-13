@@ -15,7 +15,7 @@ Sub ber_setup
 	/declare Daxethrow				string outer NULL
 	/declare Daxeof					string outer NULL
 	/declare Phantom				string outer NULL
-	/declare Alliance				string outer NULL
+	/declare AllianceDisc			string outer NULL
 	/declare PreCombatDisc			string outer NULL
 	/declare AESlice				string outer NULL
 	/declare AEVicious				string outer NULL
@@ -24,8 +24,8 @@ Sub ber_setup
 	/declare RageStrike				string outer NULL
 	/declare SharedBuff				string outer NULL
 	/declare SharedBuffName			string outer NULL
-	/declare BrutalDisc		string outer NULL
-	/declare BrutalDiscID		int outer 0
+	/declare BrutalDisc				string outer NULL
+	/declare BrutalDiscID			int outer 0
 	/declare CleavingDisc			string outer NULL
 	/declare CleavingDiscID			int outer 0
 	/declare FlurryDisc				string outer NULL
@@ -54,7 +54,7 @@ Sub ber_setup
 	/declare DichoAxeComponent	 	string outer NULL
 	/declare DichoAxeName 			string outer NULL
 	
-	/declare ChestItemName		string outer "${Me.Inventory[17].Name}"
+	/declare ChestItemName			string outer "${Me.Inventory[17].Name}"
 	/declare ZerkerCount			int outer 1
 	/declare epicaxe				string outer NULL
 	/declare UseEpic				int outer 0
@@ -86,9 +86,9 @@ Sub ber_abilities
 |---One off abilities
 	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Phantom Assailant].RankName}]}) /varset Phantom ${Spell[Phantom Assailant].RankName}
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Mangler's Alliance].RankName}]}) {
-		/varset Alliance ${Spell[Mangler's Covenant].RankName}
+		/varset AllianceDisc ${Spell[Mangler's Covenant].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.CombatAbility[${Spell[Demolisher's Alliance].RankName}]}) {
-		/varset Alliance ${Spell[Demolisher's Alliance].RankName}
+		/varset AllianceDisc ${Spell[Demolisher's Alliance].RankName}
 	}
 |---Cry Havoc - Crit Buff
 	/if (${Me.Level}>=98 && ${Me.CombatAbility[Cry Carnage]}) {
@@ -553,14 +553,14 @@ Sub Bind_SetVarInt(string ISection, string IName, int IVar)
 				/varset UsePet 0
 			}
   |--Alliance
-		} else /if (${IName.Equal[UseAlliance]}) {
-			/if (!${UseAlliance}) {
-				/echo \aw Setting UseAlliance to \ag ON
-				/varset UseAlliance 1
+		} else /if (${IName.Equal[useAlliance]}) {
+			/if (!${useAlliance}) {
+				/echo \aw Setting useAlliance to \ag ON
+				/varset useAlliance 1
 				/call AllianceCheck
 			} else {
-				/echo \aw Resetting UseAlliance to \ar OFF
-				/varset UseAlliance 0
+				/echo \aw Resetting useAlliance to \ar OFF
+				/varset useAlliance 0
 			}
   |--Opener
 		} else /if (${IName.Equal[UseOpener]}) {

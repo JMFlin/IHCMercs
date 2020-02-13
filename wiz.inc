@@ -40,6 +40,8 @@ Sub wiz_main
 		|	/call core_cast2 "${SelfRune1}" spell 0 FALSE
 		|}
 
+		/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
+
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
 			/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
 		}
@@ -109,6 +111,7 @@ Sub wiz_main
 	/doevents
 	
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: DebuffMobs
 |---------------------------------------------------------------------------- 
@@ -303,6 +306,7 @@ Sub wiz_manage_aggro
 		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
 	}
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: Handle Buff Requests
 |----------------------------------------------------------------------------

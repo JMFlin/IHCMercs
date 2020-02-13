@@ -123,7 +123,7 @@ Sub var_setup
 	/declare bash 			bool outer FALSE
 
 |- alliance
-	/declare UseAlliance 	bool outer FALSE
+	/declare useAlliance 	bool outer FALSE
 
 |- events
 	/declare snareImmuneID 		int outer 0
@@ -180,8 +180,11 @@ Sub var_setup
 	/declare powerLevel 		bool outer FALSE
 	/declare goSell 			bool outer FALSE
 
-	/declare newPosse			int outer 100
-	/declare oldPosse			int outer 100
+	/declare newPosseXY			int outer 100
+	/declare oldPosseXY			int outer 100
+
+	/declare oldPosseZ			int outer 20
+	/declare newPosseZ			int outer 20
 
 /return 
 |----------------------------------------------------------------------------
@@ -1342,7 +1345,9 @@ sub validate_combat(int _tmpID)
 	/if (!${_tmpID}) /return FALSE
 	|/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
-
+	/if (${Navigation.PathLength[id ${_tmpID}]} > ${assistRange}) /return FALSE
+	/if (!${Spawn[id ${_tmpID}].LineOfSight}) /return FALSE
+	/if (${Target.PctHPs} > ${autoAssistAt}) /return FALSE
 
 	/if (${Select[${Me.Class.ShortName},BER,ROG,BRD]}) {
 		/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${assistRange}) {
@@ -1352,31 +1357,24 @@ sub validate_combat(int _tmpID)
 	}
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) {
-		/if (${Target.PctHPs} >= ${autoAssistAt}) /return FALSE
+
 		/if (${Target.Mezzed.ID}) /return FALSE
-		/if (${Group.MainTank.ID} && ${Group.MainTank.ID} != ${Me.ID}) {
+
+		/if (${Group.MainTank.ID}) {
+
 			/if (${Spawn[id ${Group.MainTank.ID} pc radius 60].ID} && ${Me.PctAggro} >= 90) {
 				/if (${Stick.Active}) /stick off
 				/if (${Me.CombatState.Equal[COMBAT]}) /attack off
 				/return FALSE
+
 			}
 		}
-	} else {
-		/if (${Navigation.PathLength[id ${_tmpID}]} <= ${assistRange}) /return TRUE
-	}
-
-	/if (${Navigation.PathLength[id ${_tmpID}]} < ${assistRange} && ${Spawn[id ${_tmpID}].LineOfSight}) {
 
 		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK,WAR,PAL,SHD]}) {
-			/if (${Group.MainTank.ID} != ${Me.ID}) {
-				/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
-			}
+			/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
 		}
 		
-		/return TRUE
-	} else {
-		/return FALSE
-	}
+	} 
 
 /return TRUE
 
@@ -2105,7 +2103,7 @@ sub check_for_corpse(bool _debug)
 	| clerics first group or raid
 	/if (${SpawnCount[pccorpse cleric group radius ${setMaxRezRange}]} || ${SpawnCount[pccorpse cleric raid radius ${setMaxRezRange}]}) {
 
-		/for _count 1 to ${SpawnCount[pccorpse group cleric radius ${setMaxRezRange}]}
+		/for _count 0 to ${SpawnCount[pccorpse group cleric radius ${setMaxRezRange}]}
 			/varset _tmpID ${NearestSpawn[${_count},pccorpse group cleric radius ${setMaxRezRange}].ID}
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
@@ -2123,7 +2121,7 @@ sub check_for_corpse(bool _debug)
 	
 	| group members
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) {
-		/for _count 1 to ${SpawnCount[pccorpse group radius ${setMaxRezRange}]}
+		/for _count 0 to ${SpawnCount[pccorpse group radius ${setMaxRezRange}]}
 				/varset _tmpID ${NearestSpawn[${_count},pccorpse group radius ${setMaxRezRange}].ID}
 				|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 				|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
@@ -2141,7 +2139,7 @@ sub check_for_corpse(bool _debug)
 
 	/if (${Raid.Members}) {
 |	/if (${SpawnCount[pccorpse raid tank radius ${setMaxRezRange}]}) {
-		/for _count 1 to ${SpawnCount[pccorpse raid radius ${setMaxRezRange} tank]}
+		/for _count 0 to ${SpawnCount[pccorpse raid radius ${setMaxRezRange} tank]}
 			/varset _tmpID ${NearestSpawn[${_count},pccorpse raid radius ${setMaxRezRange} tank].ID}
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
 			|	/call cast_rez ${_tmpID} ${_divinerezCLR}		
@@ -2159,7 +2157,7 @@ sub check_for_corpse(bool _debug)
 
 	| remaining raid members
 |	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) {
-		/for _count 1 to ${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}
+		/for _count 0 to ${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}
 		
 			/varset _tmpID ${NearestSpawn[${_count},pccorpse raid radius ${setMaxRezRange}].ID}
 			|/if (${Select[${Me.Class.ShortName},CLR]} && ${Me.AltAbilityReady[${_divinerezCLR}]} && ${DivineRezCleric}) {
@@ -2972,7 +2970,6 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/declare _mezAERange		int local 0
 
 	| Is there something to mez or debuff?
-	/if (${Me.XTarget} < 2) /return FALSE
 	/if (!(${Me.Gem[${_mezAE}]} || ${Me.Gem[${_mezSingle}]})) /return
 
 	/call get_target
@@ -3114,3 +3111,47 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/call get_target
 
 /return
+
+sub cast_alliance(string _alliance, int _tmpID)
+
+	/if (!${_tmpID}) /return
+	/if (${Spawn[id ${_tmpID}].PctHPs} < ${allianceHP}) /return
+
+	/if (${validate_cast[FALSE, FIND, "${_alliance}", ${_tmpID}]}) {
+		/call core_cast2 "${_alliance}" FIND ${_tmpID} FALSE
+		/delay 5
+		/call get_next_in_rotation
+		/varset allianceCaster ${Macro.Return}
+		/docommand /dgt ******** NEXT SHOULD BE ${allianceCounter} *********
+		/squelch /dex ${allianceCounter} /varset allianceTurn 1
+		/squelch /dex ${allianceCounter} /varset allianceCounter ${allianceCounter} 
+		/varset allianceTurn 0
+	}
+/return
+
+Sub get_next_in_rotation
+
+  	/declare _counter int local 1
+  	/declare si setiterator local
+  	/vardata si allianceSet.First
+
+	/varcalc allianceCounter ${allianceCounter} + 1
+  	/if (${allianceCounter} > ${classTotal}) /varset allianceCounter 1
+  
+  	/while (!${si.IsEnd}) {
+
+		/if (${_counter} == ${allianceCounter}) {
+			/varset allianceCaster ${si.Value}
+			/break
+		}
+		
+		/varcalc _counter ${_counter} + 1
+		
+		/if (${si.Advance}) {
+		} else {
+			/echo 'Iterator not advanced. IsEnd: ${si.IsEnd}.'
+			/endmacro
+		}
+	}
+
+/return ${allianceCaster}

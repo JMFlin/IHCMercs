@@ -27,7 +27,7 @@ Sub brd_main
 		/call engage
 
 		/if (!${validate_combat[${Target.ID}]} ) /continue
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/call brd_combat
 		
 		/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
@@ -37,7 +37,7 @@ Sub brd_main
 				/call check_cast_events "${SlowSong}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
@@ -51,7 +51,7 @@ Sub brd_main
 				/call core_cast2 "${WarMarchSong}" pulse 0 FALSE
 			}
 		}
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
@@ -67,7 +67,7 @@ Sub brd_main
 				/call core_cast2 "${ArcaneSong}" pulse 0 FALSE
 			}
 		}
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
@@ -81,7 +81,7 @@ Sub brd_main
 				/call core_cast2 "${MainAriaSong}" pulse 0 FALSE
 			}
 		}
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
@@ -97,7 +97,7 @@ Sub brd_main
 				}
 			}
 		}
-		/call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		/if (${Me.XTarget}) {
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {

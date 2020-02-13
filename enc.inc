@@ -16,23 +16,25 @@ Sub enc_main
 		| Have we assisted MA?
 		/call get_target
 
+		/if (${Navigation.PathLength[id ${Target.ID}]} <= 200) {
+			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
+		}
+
 		| Do we have a valid target?
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		| Before debuffing and nuking check if we have to mezz
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
 		| Before nuking check if we have to debuff
-		/call enc_debuff_xtarget
+		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		| Start dpsing
-		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
-
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
 
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
 			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
@@ -42,7 +44,7 @@ Sub enc_main
 			}
 		}
 		
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				
@@ -53,22 +55,22 @@ Sub enc_main
 			}
 		}
 
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/call enc_debuff_xtarget
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
 		}
 
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/call enc_debuff_xtarget
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		/if (${validate_cast[FALSE, spell, "Chromatic Haze", ${Target.ID}]}) /call core_cast2 "Chromatic Haze" alt ${Target.ID} FALSE
 
 		/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
 		
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/call enc_debuff_xtarget
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
@@ -78,8 +80,8 @@ Sub enc_main
 			}
 		}
 		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
-		/call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/call enc_debuff_xtarget
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
 		/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
 	}
 |	/call CheckMana
@@ -94,10 +96,6 @@ Sub enc_main
 |---------------------------------------------------------------------------- 
 Sub enc_debuff_xtarget
 	/declare _count int local 1
-
-	| Is there something to mez?
-	/if (!${Me.XTarget}) /return
-	/if (${Me.XTarget} < 2) /return
 
 	/for _count 1 to ${Me.XTarget}
 

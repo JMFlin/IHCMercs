@@ -217,7 +217,7 @@ Sub CombatdpsItems
 |- SUB: Combatdps Mash
 |---------------------------------------------------------------------------- 
 Sub CombatdpsMash
-	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Firewalker's Covenant Trigger].ID} && !${Target.Buff[Doomwalker's Alliance Trigger].ID} && ${UseAlliance} && (${MonkCount}>=3 || ${ForceAlliance})) {
+	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Firewalker's Covenant Trigger].ID} && !${Target.Buff[Doomwalker's Alliance Trigger].ID} && ${useAlliance} && (${MonkCount}>=3 || ${ForceAlliance})) {
 		/Disc ${Alliance}
 		/delay 3
 	}
@@ -406,7 +406,7 @@ Sub DowntimeDiscs
 |- SUB: AllianceCheck - check for other monks in group
 |---------------------------------------------------------------------------- 
 Sub AllianceCheck
-	/if (${UseAlliance}) {
+	/if (${useAlliance}) {
 		/echo \aw Alliance Use is \ag on \aw, checking for other Monks!
 		/declare Gsize int local 0
 		/declare i int local
@@ -430,7 +430,7 @@ Sub AllianceCheck
 |- SUB: Event GroupChange
 |----------------------------------------------------------------------------
 Sub Event_GroupChange
-	/if (${UseAlliance}) {
+	/if (${useAlliance}) {
 		/call AllianceCheck
 	}
 /return 

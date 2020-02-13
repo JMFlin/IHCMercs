@@ -81,7 +81,7 @@ Sub Main
 
 	/call WelcomeMsg
 
-	/if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
+	/if (${alliance_check_group[FALSE]}) /varset useAlliance TRUE
 	/if (${Group.Puller.ID} == ${Me.ID}) {
 		/delay 3s
 		/call pre_pull_group_healer_spells
@@ -187,13 +187,15 @@ sub misc
 	/declare _count 		int local 0 
 	/declare _portClassID 	int local 0
 
-	/varset newPosse ${pullRadiusXY}
+	/varset newPosseXY ${pullRadiusXY}
+	/varset newPosseZ ${pullRadiusZ}
 
-	/if (${newPosse} != ${oldPosse}) {
+	/if (${newPosseXY} != ${oldPosseXY} || ${newPosseZ} != ${oldPosseZ}) {
 		/posse radius ${pullRadiusXY} 
 		/posse zradius ${pullRadiusZ}
 		/posse save
-		/varset oldPosse ${newPosse}
+		/varset oldPosseXY ${newPosseXY}
+		/varset oldPosseZ ${newPosseZ}
 		DEBUG Set MQ2Posse radius: ${Posse.Radius}
 	}
 
@@ -480,7 +482,7 @@ Sub create_campfire
 		}
 	}
 
-	/if (${Me.Fellowship.Campfire}) {
+	/if (${Me.Fellowship.CampfireDuration}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
 		/delay 5
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
@@ -499,7 +501,7 @@ Sub create_campfire
 	
 	/delay 5
 
-	/if (!${Me.Fellowship.Campfire}) {
+	/if (!${Me.Fellowship.CampfireDuration}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
 		/delay 5
 		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
@@ -509,8 +511,8 @@ Sub create_campfire
 		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 5
 		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
-		/delay 5s ${Me.Fellowship.Campfire}
-		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/delay 5s ${Me.Fellowship.CampfireDuration}
+		/if (!${Me.Fellowship.CampfireDuration}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
 		/windowstate FellowshipWnd close
     }
 
@@ -606,6 +608,7 @@ Sub check_state(bool _debug)
 /return
 
 Sub move_to_camp
+	/declare _autoCampRadius int local ${autoCampRadius}
 
 	| Melee are sticking to target so no need to move to camp
 	/if (${Me.XTarget}) {
@@ -614,7 +617,7 @@ Sub move_to_camp
 	| if casting return
 	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
 
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} < ${autoCampRadius}) /return
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} < ${_autoCampRadius}) /return
 
 	/if (${Navigation.Active}) /return
 
@@ -622,19 +625,15 @@ Sub move_to_camp
 	
 	/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
 
-	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} > ${autoCampRadius} && ${Navigation.Active}) {
+	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} > ${_autoCampRadius} && ${Navigation.Active}) {
 		/if (${Mode} == 0) {
 			/nav stop
 			/return
 		}
-		/delay 5
+		/varset _autoCampRadius ${autoCampRadius} * ${Int[${Me.Speed}]} / 100
 	}
 
 	/if (${Navigation.Active}) /nav stop
-	
-	/if (${Target.ID}) /face fast
-	
-	/delay 1s
 	
 /return
 

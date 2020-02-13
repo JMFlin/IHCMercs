@@ -97,8 +97,8 @@ Sub alliance_check_group(bool _debug)
 /return FALSE
 
 Sub Event_GroupChange(string line)
-  /if (${alliance_check_group[FALSE]}) /varset UseAlliance TRUE
-/return ${UseAlliance}
+  /if (${alliance_check_group[FALSE]}) /varset useAlliance TRUE
+/return ${useAlliance}
 |----------------------------------------------------------------------------
 |- SUB: DRU SHM
 |---------------------------------------------------------------------------- 
@@ -155,8 +155,8 @@ Sub alliance_check_raid(bool _debug)
 /return FALSE
 
 Sub Event_RaidChange(string line)
-	/if (${alliance_check_raid[FALSE]}) /varset UseAlliance TRUE
-/return ${UseAlliance}
+	/if (${alliance_check_raid[FALSE]}) /varset useAlliance TRUE
+/return ${useAlliance}
 |----------------------------------------------------------------------------
 |- SUB: Event Gain Something - DanNet message 
 |----------------------------------------------------------------------------    
@@ -2296,18 +2296,18 @@ Sub Event_BerStunRotation
 
   /declare _counter   int local 1
   /declare si setiterator local
-  /vardata si berStunRotationSet.First
+  /vardata si berStunSet.First
 
  
-  /varcalc berStunRotationCounter ${berStunRotationCounter} + 1
-  /if (${berStunRotationCounter} > ${berTotal}) /varset berStunRotationCounter 1
+  /varcalc berStunCounter ${berStunCounter} + 1
+  /if (${berStunCounter} > ${classTotal}) /varset berStunCounter 1
   
-  |/if (${berStunRotationStunner.Equal[${Me.DisplayName}]}) /docommand /gsay **CURRENT** Name: ${berStunRotationStunner}  Counter: ${berStunRotationCounter}
+  |/if (${berStunCaster.Equal[${Me.DisplayName}]}) /docommand /gsay **CURRENT** Name: ${berStunCaster}  Counter: ${berStunCounter}
   /while (!${si.IsEnd}) {
 
-    /if (${_counter} == ${berStunRotationCounter}) {
-      /varset berStunRotationStunner ${si.Value}
-      /if (${berStunRotationStunner.Equal[${Me.DisplayName}]}) /docommand /gsay **Me NEXT** Name: ${berStunRotationStunner}  Counter: ${berStunRotationCounter}
+    /if (${_counter} == ${berStunCounter}) {
+      /varset berStunCaster ${si.Value}
+      /if (${berStunCaster.Equal[${Me.DisplayName}]}) /docommand /gsay **Me NEXT** Name: ${berStunCaster}  Counter: ${berStunCounter}
       /break
     }
     

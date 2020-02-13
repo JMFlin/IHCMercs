@@ -61,13 +61,15 @@ Sub ber_main
 		/call get_target
 		/call engage
 
-		/if (!${validate_combat[${Target.ID}]} ) /continue
+		/if (!${validate_combat[${Target.ID}]}) /continue
 		
 		/call use_skill_melee FALSE ${Target.ID}
 
 		/if (!${Me.Combat}) {
 			/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
 		}
+
+		/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceDisc}" ${Target.ID}
 
 		/call use_skill_melee FALSE ${Target.ID}
 
@@ -239,10 +241,8 @@ Sub ber_combat
 	|	/delay 5
 	|}
 	
-	/if (${Me.CombatAbilityReady[${Alliance}]} && !${Target.Buff[Demolisher's Alliance Trigger].ID} && ${UseAlliance}) {
-		/Disc ${Alliance}
-		/delay 5
-	}
+	/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceDisc}" ${Target.ID}
+
 	|/if (${FindItem[${ChestItemName}].ID} && !${FindItem[${ChestCombatCast}].TimerReady}) {
 	|	/useitem "${ChestItemName}"
 	|	/delay 10	
@@ -282,19 +282,19 @@ Sub ber_combat
 		/Disc ${Dvolley}
 		/delay 5
 	}
-	| ${berStunRotationStunner.Equal[${Me.DisplayName}]} && 
+	| ${berStunCaster.Equal[${Me.DisplayName}]} && 
 	/if (${stunTurn}) {
 		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
 			/call core_cast2 "${Stun}" disc ${Target.ID} FALSE
 			/delay 5
 			/call get_next_in_rotation
-			/varset berStunRotationStunner ${Macro.Return}
-			/docommand /dgt ******** NEXT SHOULD BE ${berStunRotationStunner} *********
-			/squelch /dex ${berStunRotationStunner} /varset stunTurn 1
-			/squelch /dex ${berStunRotationStunner} /varset berStunRotationCounter ${berStunRotationCounter} 
+			/varset berStunCaster ${Macro.Return}
+			/docommand /dgt ******** NEXT SHOULD BE ${berStunCaster} *********
+			/squelch /dex ${berStunCaster} /varset stunTurn 1
+			/squelch /dex ${berStunCaster} /varset berStunCounter ${berStunCounter} 
 			/varset stunTurn 0
 		}
-	} else /if (!${berStunRotationStunner.Equal[${Me.DisplayName}]}) {
+	} else /if (!${berStunCaster.Equal[${Me.DisplayName}]}) {
 		/if (${Me.CombatAbilityReady[${Daxethrow}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
 			/Disc ${Daxethrow}
 			/delay 5
@@ -344,15 +344,15 @@ Sub get_next_in_rotation
 
   	/declare _counter   int local 1
   	/declare si setiterator local
-  	/vardata si berStunRotationSet.First
+  	/vardata si berStunSet.First
 
-	/varcalc berStunRotationCounter ${berStunRotationCounter} + 1
-  	/if (${berStunRotationCounter} > ${berTotal}) /varset berStunRotationCounter 1
+	/varcalc berStunCounter ${berStunCounter} + 1
+  	/if (${berStunCounter} > ${classTotal}) /varset berStunCounter 1
   
   	/while (!${si.IsEnd}) {
 
-		/if (${_counter} == ${berStunRotationCounter}) {
-			/varset berStunRotationStunner ${si.Value}
+		/if (${_counter} == ${berStunCounter}) {
+			/varset berStunCaster ${si.Value}
 			/break
 		}
 		
@@ -365,4 +365,4 @@ Sub get_next_in_rotation
 		}
 	}
 
-/return ${berStunRotationStunner}
+/return ${berStunCaster}

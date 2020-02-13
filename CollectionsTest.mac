@@ -465,7 +465,7 @@ Sub MapTest
     /return
 Sub MapRotationTest
     /declare berStunRotationMap  		map outer
-	/declare berStunRotationCounter		int outer 2
+	/declare berStunCounter		int outer 2
 	/declare _count 					int local 0
 	
 	
@@ -483,14 +483,14 @@ Sub MapRotationTest
 	}
     /declare mi mapiterator local
     /vardata mi berStunRotationMap.First
-    /declare berStunRotationStunner		string outer NULL 
+    /declare berStunCaster		string outer NULL 
 
     /while (!${mi.IsEnd}) {
         /echo Key : ${mi.Key} Value : ${mi.Value}
-        /if (${mi.Key} == ${berStunRotationCounter}) {
-            /varset berStunRotationStunner ${mi.Value}
+        /if (${mi.Key} == ${berStunCounter}) {
+            /varset berStunCaster ${mi.Value}
             /echo ${mi.Value} turn to stun!
-            /echo ${berStunRotationStunner.Equal[${Me.DisplayName}]}
+            /echo ${berStunCaster.Equal[${Me.DisplayName}]}
             /break
         }
         
