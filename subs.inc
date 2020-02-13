@@ -541,8 +541,10 @@ sub validate_chain_pull_start(bool _debug)
 		/delay 1
 	}
 
-    /nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
-	
+	/if (!${Navigation.Active}) {
+    	/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
+	}
+
 	/while (${Navigation.Active}) {
 		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} < 10 && ${Navigation.Active}) /nav stop
@@ -631,6 +633,9 @@ Sub get_pull_target(int _tmpID)
 			/if (!${Me.XTarget}) {
 				/if (${Spawn[id ${_tmpID}].Distance} < 20) /call get_close_target
 				/if (!${Me.XTarget}) /goto :tag_target
+			}
+			/if (${Me.XTarget}) {
+				/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
 			}
 		} else /if (${Spawn[id ${_tmpID}].LineOfSight} && ${Spawn[id ${_tmpID}].Distance} < ${pullDistance}) {
 			/if (${Navigation.Active}) /nav stop
@@ -2572,7 +2577,7 @@ sub setup_skill_melee(bool _debug)
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 55
+			/varset assistRange 70
 		}
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
@@ -2591,7 +2596,7 @@ sub setup_skill_melee(bool _debug)
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 55
+			/varset assistRange 150
 		}
 	}
 
@@ -2601,7 +2606,7 @@ sub setup_skill_melee(bool _debug)
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 55
+			/varset assistRange 200
 		}
 	}
 

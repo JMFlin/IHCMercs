@@ -12,10 +12,11 @@ Sub bst_main
 	/while (${Me.XTarget}) {
 		
 		/call get_target
-		/call engage
-		/call pet_attack
 	
 		/if (!${validate_combat[${Target.ID}]}) /continue
+
+		/call engage
+		/call pet_attack
 
 		/call use_skill_melee ${Target.ID} FALSE
 

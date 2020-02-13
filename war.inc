@@ -17,12 +17,14 @@ Sub war_main
 	/while (${Me.XTarget}) {
 		
 		/call get_target
-		/call engage
+		
 		/call check_add_aggro
 		/call war_get_aggro
 		/call war_combat_buffs
-		/if (!${validate_combat[${Target.ID}]}) /continue
 
+		/if (!${validate_combat[${Target.ID}]}) /continue
+		
+		/call engage
 		/call war_get_aggro
 		/if (!${Me.Song[Battle Leap].ID}) {
 			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE

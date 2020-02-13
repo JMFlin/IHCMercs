@@ -59,9 +59,9 @@ Sub ber_main
 
 	/while (${Me.XTarget}) {
 		/call get_target
-		/call engage
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
+		/call engage
 		
 		/call use_skill_melee FALSE ${Target.ID}
 

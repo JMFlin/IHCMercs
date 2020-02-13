@@ -37,7 +37,6 @@ Sub clr_main
 			}
 		}
 		
-
 		/call get_heal_target 90
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
