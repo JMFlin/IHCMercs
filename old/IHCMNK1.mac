@@ -54,7 +54,7 @@ Sub Main
     /if (${Mode}==0) /call Travel
     /if (${Mode}==1) /call ManualPullCamping
     /if (${Mode}==2) /call ManualRunAndGun
-    /if (${Mode}==3) /call AFKRadiusCamping
+    /if (${Mode}==3) /call afk_radius_camping
     /if (${Mode}==4) /call AFKRunAndGun
     /if (${Mode}==5) /call DoEvent
     /if (${Mode}==6) /call Raid
@@ -86,8 +86,8 @@ Sub Raid
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub ManualPullCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs  
+	/call make_camp
+    /call remove_travel_buffs  
 
     /while (${Mode}==1) {
 		/if (${Me.Hovering}) /call DeathSub
@@ -152,7 +152,7 @@ Sub ManualPullCamping
 |- SUB: ManualRunAndGun
 |----------------------------------------------------------------------------
 Sub ManualRunAndGun
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/if (${make_camp.Status.Equal[ON]}) /make_camp off
 
 	/while (${Mode}==2) {
 		/if (${Me.Hovering}) /call DeathSub
@@ -180,11 +180,11 @@ Sub ManualRunAndGun
 	}
 /return
 |----------------------------------------------------------------------------
-|- SUB: AFKRadiusCamping 
+|- SUB: afk_radius_camping 
 |---------------------------------------------------------------------------- 
-Sub AFKRadiusCamping
-	/call MakeCamp
-    /call RemoveTravelBuffs
+Sub afk_radius_camping
+	/call make_camp
+    /call remove_travel_buffs
 	/target clear  
 
 	/while (${Mode}==3) {

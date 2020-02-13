@@ -215,10 +215,10 @@ Sub set_timers
 /return
 
 |----------------------------------------------------------------------------
-|- SUB: MakeCamp
+|- SUB: make_camp
 |----------------------------------------------------------------------------
-Sub MakeCamp
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+Sub make_camp
+	/if (${make_camp.Status.Equal[ON]}) /make_camp off
 	/if (${Navigation.Active}) /nav stop
 	/delay 5
 	/varset pullAutoCampY ${Me.Y}
@@ -227,9 +227,9 @@ Sub MakeCamp
 	/delay 5
 /return
 |----------------------------------------------------------------------------
-|- SUB: RemoveTravelBuffs
+|- SUB: remove_travel_buffs
 |---------------------------------------------------------------------------- 
-Sub RemoveTravelBuffs
+Sub remove_travel_buffs
 	/makemevisible
 	/delay 2
 	/removebuff Group Perfected Levitation
@@ -281,7 +281,7 @@ sub validate_target_distance(bool _debug)
 |----------------------------------------------------------------------------
 Sub Travel
 	/if (${Stick.Status.Equal[ON]}) /stick off
-	/if (${MakeCamp.Status.Equal[ON]}) /makecamp off
+	/if (${make_camp.Status.Equal[ON]}) /make_camp off
 	/attack off
 	/if (${Me.Pet.ID} && ${Me.Combat}) /pet back off
 	/if (${Me.Pet.ID} && !${petFollow}) {

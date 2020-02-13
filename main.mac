@@ -92,19 +92,19 @@ Sub Main
 	/if (${Mode} == 0) /call Travel
 	/if (${Mode} == 1) /call ManualPullCamping
 	/if (${Mode} == 2) /call ManualRunAndGun
-	/if (${Mode} == 3) /call AFKRadiusCamping
+	/if (${Mode} == 3) /call afk_radius_camping
 	/if (${Mode} == 4) /call AFKRunAndGun
 	/if (${Mode} == 5) /call DoEvent
 	/if (${Mode} == 7) /call mode_posse_afk
 /goto :mainloop 
 /return
 |----------------------------------------------------------------------------
-|- SUB: AFKRadiusCamping 
+|- SUB: afk_radius_camping 
 |---------------------------------------------------------------------------- 
-Sub AFKRadiusCamping
+Sub afk_radius_camping
 	/call setup_skill_melee FALSE
-    /call MakeCamp
-    /call RemoveTravelBuffs
+    /call make_camp
+    /call remove_travel_buffs
 	/target clear
 	/if (${Group.Puller.ID} == ${Me.ID}) /call ignore_mobs_to_pull
 	/if (${Me.Pet.ID}) /pet guard
@@ -143,7 +143,7 @@ Sub AFKRadiusCamping
 			}
 		}
 		
-		/if (${Balance}) /call Balance_hp
+		/if (${Balance}) /call balance_mob_hitpoints
 		/if (${powerLevel}) {
 			/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,MNK]}) {
 				/call ${Me.Class.ShortName.Lower}_main
@@ -638,7 +638,7 @@ Sub move_to_camp
 /return
 
 
-Sub balance_hp
+Sub balance_mob_hitpoints
 
 	/if (!${Me.XTarget}) /return
 	/if (!${Me.XTarget[2].ID}) /return
