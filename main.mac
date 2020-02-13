@@ -5,6 +5,7 @@ TODO:
 	Aura combat cast.
 	All to core_cast2.
 	Fix names of warrior discs.
+	delete dannet variables after use
 
 	spawn	RaidAssistTarget[#]	Current raid assist target (1-3)
 	spawn	RaidMarkNPC[#]	Current raid marked NPC (1-3)
