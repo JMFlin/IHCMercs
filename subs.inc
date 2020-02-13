@@ -218,7 +218,6 @@ Sub set_timers
 |- SUB: make_camp
 |----------------------------------------------------------------------------
 Sub make_camp
-	/if (${make_camp.Status.Equal[ON]}) /make_camp off
 	/if (${Navigation.Active}) /nav stop
 	/delay 5
 	/varset pullAutoCampY ${Me.Y}
@@ -281,7 +280,6 @@ sub validate_target_distance(bool _debug)
 |----------------------------------------------------------------------------
 Sub Travel
 	/if (${Stick.Status.Equal[ON]}) /stick off
-	/if (${make_camp.Status.Equal[ON]}) /make_camp off
 	/attack off
 	/if (${Me.Pet.ID} && ${Me.Combat}) /pet back off
 	/if (${Me.Pet.ID} && !${petFollow}) {
@@ -681,6 +679,15 @@ Sub validate_no_pc(int _tmpID)
 	| /if (${_pcCount} > 0) /return FALSE
 	/if (${Me.TargetOfTarget.Name.NotEqual[NULL]}) /return FALSE
 
+|**
+|DEBUG Are there no PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
+		/if (!${validate_no_pc[${_pullMob}]}) {
+			/varcalc _count ${_count}+1
+			/continue
+		}
+
+**|
+
 /return TRUE
 
 Sub validate_single_pull(int _tmpID)
@@ -723,12 +730,6 @@ Sub set_pull_target
 
 		|DEBUG Does Navigation.Path exist to ${Spawn[id ${_pullMob}].DisplayName}: ${Navigation.PathExists[id ${_pullMob}]}
 		/if (!${Navigation.PathExists[id ${_pullMob}]}) {
-			/varcalc _count ${_count}+1
-			/continue
-		}
-		
-		|DEBUG Are there no PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
-		/if (!${validate_no_pc[${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
 		}
