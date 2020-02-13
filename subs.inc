@@ -670,16 +670,16 @@ Sub get_close_target(int _tmpID)
 /return
 
 Sub validate_no_pc(int _tmpID)
-	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
-	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
-	/declare locZ			int	local	${Spawn[id ${_tmpID}].Z}
-	/declare _groupCount	int local	${SpawnCount[loc ${locX} ${locY} radius 15 zradius 10 pc group notid ${Me.ID} noalert 1]}
-	/declare _pcCount		int local 	${SpawnCount[loc ${locX} ${locY} radius 15 zradius 10 pc notid ${Me.ID} noalert 1]}
+	| /declare locX			int	local	${Spawn[id ${_tmpID}].X}
+	| /declare locY			int	local	${Spawn[id ${_tmpID}].Y}
+	| /declare locZ			int	local	${Spawn[id ${_tmpID}].Z}
+	| /declare _groupCount	int local	${SpawnCount[loc ${locX} ${locY} radius 15 zradius 10 pc group notid ${Me.ID} noalert 1]}
+	| /declare _pcCount		int local 	${SpawnCount[loc ${locX} ${locY} radius 15 zradius 10 pc notid ${Me.ID} noalert 1]}
 	
-	/varcalc _pcCount ${_pcCount} - ${_groupCount}
+	| /varcalc _pcCount ${_pcCount} - ${_groupCount}
 
-	/if (${_pcCount} > 0) /return FALSE
-	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) /return FALSE
+	| /if (${_pcCount} > 0) /return FALSE
+	/if (${Me.TargetOfTarget.Name.NotEqual[NULL]}) /return FALSE
 
 /return TRUE
 
@@ -728,10 +728,10 @@ Sub set_pull_target
 		}
 		
 		|DEBUG Are there no PCs close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_no_pc[${_pullMob}]}
-		|/if (!${validate_no_pc[${_pullMob}]}) {
-		|	/varcalc _count ${_count}+1
-		|	/continue
-		|}
+		/if (!${validate_no_pc[${_pullMob}]}) {
+			/varcalc _count ${_count}+1
+			/continue
+		}
 		
 		|DEBUG Are there no adds close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_single_pull[${_pullMob}]}
 		/if (!${validate_single_pull[${_pullMob}]}) {
@@ -1351,7 +1351,7 @@ sub validate_combat(int _tmpID)
 	}
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) {
-		/if (${Target.PctHPs} > ${autoAssistAt}) /return FALSE
+		/if (${Target.PctHPs} >= ${autoAssistAt}) /return FALSE
 		/if (${Target.Mezzed.ID}) /return FALSE
 		/if (${Group.MainTank.ID} && ${Group.MainTank.ID} != ${Me.ID}) {
 			/if (${Spawn[id ${Group.MainTank.ID} pc radius 60].ID} && ${Me.PctAggro} >= 90) {
@@ -1360,9 +1360,11 @@ sub validate_combat(int _tmpID)
 				/return FALSE
 			}
 		}
+	} else {
+		/if (${Navigation.PathLength[id ${_tmpID}]} <= ${assistRange}) /return TRUE
 	}
 
-	/if (${Target.PctHPs} < 95 || (${Target.PctHPs} < 98 && ${Navigation.PathLength[id ${_tmpID}]} < 65 && ${Spawn[id ${_tmpID}].LineOfSight}) || ${Navigation.PathLength[id ${_tmpID}]} < ${assistRange}) {
+	/if (${Navigation.PathLength[id ${_tmpID}]} < ${assistRange} && ${Spawn[id ${_tmpID}].LineOfSight}) {
 
 		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK,WAR,PAL,SHD]}) {
 			/if (${Group.MainTank.ID} != ${Me.ID}) {
@@ -2580,7 +2582,7 @@ sub setup_skill_melee(bool _debug)
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 67
+			/varset assistRange 50
 		}
 	}
 
