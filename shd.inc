@@ -2,7 +2,9 @@
 |- SUB: shadowknight 
 |---------------------------------------------------------------------------- 
 Sub shd_main
-
+	/if (${powerLevel}) {
+		/return
+	} 
 	/call shd_self_buffs
 
 	/while (${Me.XTarget}) {
@@ -33,7 +35,7 @@ Sub shd_main
 				}
 			}
 		}
-
+		/call get_target
 		/call check_add_aggro
 	
 		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
@@ -54,7 +56,7 @@ Sub shd_main
 		/if (${Me.PctHPs} < 99) {
 			/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 		}
-		
+		/call get_target
 		/call shd_get_aggro
 		/call check_add_aggro
 		/if (${Me.PctHPs} < 90) {
@@ -75,7 +77,7 @@ Sub shd_main
 				/call core_cast2 "${Withstand}" disc 0 FALSE
 			}
 		}
-		
+		/call get_target
 		/call shd_get_aggro
 
 		/if (${Me.PctHPs} < 65) {

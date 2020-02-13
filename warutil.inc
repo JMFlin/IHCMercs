@@ -42,6 +42,7 @@ Sub war_setup
 	/declare PullTowards 	string outer NULL
 
 	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
+	/declare ChestItemSpellName 		string outer NULL
 	/declare CastResult             	string outer
 
 /return 
@@ -50,6 +51,10 @@ Sub war_setup
 |---------------------------------------------------------------------------- 
 Sub war_abilities
 
+	/if (${ChestItemName.Equal[Boreal Breastplate of Havok]}) {
+		/varset ChestItemSpellName Warrior's Awareness
+	} 
+	| Roaring Shield
 
 	|--One off discs
 	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Dissident Shield].RankName}]}) {

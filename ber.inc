@@ -48,6 +48,12 @@ Avenging Flurry Discipline
 |---------------------------------------------------------------------------- 
 Sub ber_main
 	
+	/if (${powerLevel}) {
+		/return
+	} 
+	
+	/call bst_self_buff_check
+
 	/if (!${Me.XTarget}) /call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${StunAxeName}" "${StunAxeComponent}"

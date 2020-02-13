@@ -242,7 +242,7 @@ Sub remove_travel_buffs
 |---------------------------------------------------------------------------- 
 Sub engage
 
-	/if (!${validate_combat[${Target.ID}]} ) /return
+	/if (!${validate_combat[${Target.ID}]}) /return
 	/if (!${validate_target_distance[FALSE]}) /return
 	| if target is not an NPC then don't engage
 	| /if (!${Target.Type.Equal[NPC]}) /return
@@ -430,9 +430,11 @@ Sub afk_pull
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return FALSE
 	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return FALSE
 	/if (${checkResourcesTimer} != 0) /return FALSE
+	
 	/if (!${pullAbility.Equal[Melee]}) {
 		/if (!(${Me.CombatAbilityReady[${pullAbility}]} || ${Me.AbilityReady[${pullAbility}]} || ${Me.AltAbilityReady[${pullAbility}]} || ${Me.SpellReady[${pullAbility}]})) /return FALSE
 	}
+	
 	/call puller_check_group_resources
 	
 	/if (${resourceChecker} == 0) {
@@ -1264,6 +1266,10 @@ Sub get_target
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
 
+		/assist ${Group.MainAssist.Name}
+		/delay 1s ${Me.AssistComplete} == TRUE
+		/delay 5
+		
 		| if current target is not 100% aggro then get aggro
 		/if (${Target.ID}) {
 			/if (${Target.PctAggro} < 100) /call engage
@@ -1284,6 +1290,7 @@ Sub get_target
 				/delay 5
 				/call engage
 				/call ${Me.Class.ShortName.Lower}_get_aggro
+				/call get_target
 			}
 		}
 	}

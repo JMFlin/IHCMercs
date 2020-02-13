@@ -2,13 +2,86 @@
 |- SUB: wiz_main
 |----------------------------------------------------------------------------
 Sub mag_main
+	/if (${powerLevel}) {
+		/return
+	} 
 
-	
 	/call mag_self_buff_check FALSE
-	/call get_target
-	/call mag_combat
-	
-	/doevents
+
+	/while (${Me.XTarget}) {
+
+		/call get_target
+		/if (!${validate_combat[${Target.ID}]}) /continue
+		/call pet_attack
+
+		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
+		}
+
+		/if (${Me.Buff[Improved Twincast].ID}) {
+
+			/if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ManySpell}" spell ${Target.ID} FALSE
+			}
+			
+			/if (${validate_cast[FALSE, spell, "${SpearSpell1}", ${Target.ID}]}) {
+				/call core_cast2 "${SpearSpell1}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${SpearSpell2}", ${Target.ID}]}) {
+				/call core_cast2 "${SpearSpell2}" spell ${Target.ID} FALSE
+			}
+
+		} else /if (${Me.Buff[Twincast].ID}) {
+
+			/if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ManySpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
+			}
+			
+			/if (${validate_cast[FALSE, spell, "${SpearSpell1}", ${Target.ID}]}) {
+				/call core_cast2 "${SpearSpell1}" spell ${Target.ID} FALSE
+			}
+
+		} else {
+
+			/if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ManySpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${SpearSpell1}", ${Target.ID}]}) {
+				/call core_cast2 "${SpearSpell1}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
+			}
+
+		}
+	}
 	
 /return
 |----------------------------------------------------------------------------
@@ -37,100 +110,6 @@ Sub mag_aa_and_disc
 |---------------------------------------------------------------------------- 
 Sub mag_combat
 
-	/call get_target
-	/if (!${validate_combat[${Target.ID}]} ) /return
-    /call pet_attack
-
-	/if (${Target.PctHPs} >= 100) /return
-
-    /if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
-		/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
-	}
-
-    /if (${Me.Buff[Improved Twincast].ID}) {
-
-		/if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ManySpell}" spell ${Target.ID} FALSE
-        }
-        
-        /if (${validate_cast[FALSE, spell, "${SpearSpell1}", ${Target.ID}]}) {
-            /call core_cast2 "${SpearSpell1}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${SpearSpell2}", ${Target.ID}]}) {
-            /call core_cast2 "${SpearSpell2}" spell ${Target.ID} FALSE
-        }
-
-	} else /if (${Me.Buff[Twincast].ID}) {
-
-		/if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ManySpell}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
-        }
-        
-        /if (${validate_cast[FALSE, spell, "${SpearSpell1}", ${Target.ID}]}) {
-            /call core_cast2 "${SpearSpell1}" spell ${Target.ID} FALSE
-        }
-
-	} else {
-
-        /if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ManySpell}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${SpearSpell1}", ${Target.ID}]}) {
-            /call core_cast2 "${SpearSpell1}" spell ${Target.ID} FALSE
-        }
-
-        /if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
-            /call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
-        }
-
-    }
-    |***
-	/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
-		/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
-	}
-	
-	/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
-		/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
-	}
-
-	/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
-		/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
-	}
-
-	/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
-		/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
-	}
-
-	/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
-		/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
-	}
-    **|
 	
 /return
 

@@ -5,6 +5,9 @@ Sub enc_main
 	|/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
 	|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
 	|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
+	/if (${powerLevel}) {
+		/return
+	} 
 	/call enc_self_buffs
 	/call enc_group_buffs
 	
