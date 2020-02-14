@@ -3123,14 +3123,24 @@ sub cast_alliance(string _alliance, int _tmpID)
 	/if (${Spawn[id ${_tmpID}].PctHPs} < ${allianceHP}) /return
 
 	/if (${validate_cast[FALSE, FIND, "${_alliance}", ${_tmpID}]}) {
+
+		| Cast alliance
 		/call core_cast2 "${_alliance}" FIND ${_tmpID} FALSE
-		/delay 5
+
+		| Get the index and name of the next caster
 		/call get_next_in_rotation
 		/varset allianceCaster ${Macro.Return}
-		/docommand /dgt ******** NEXT SHOULD BE ${allianceCounter} *********
-		/squelch /dex ${allianceCounter} /varset allianceTurn 1
-		/squelch /dex ${allianceCounter} /varset allianceCounter ${allianceCounter} 
+
+		| Announce who the next one is
+		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt ******** NEXT SHOULD BE ${allianceCaster} *********
+
+		| Tell the next in line that it is their turn
+		/squelch /dex ${allianceCaster} /varset allianceTurn 1
+		/squelch /dex ${allianceCaster} /varset allianceCounter ${allianceCounter}
+
+		| My turn is done
 		/varset allianceTurn 0
+
 	}
 /return
 

@@ -78,15 +78,23 @@ Sub ber_main
 				
 				/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
 					/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
-					/call core_cast2 "${BrutalDisc}" disc 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}) /call core_cast2 "Juggernaut Surge" alt 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}) /call core_cast2 "Blood Pact" alt 0 FALSE
+					
+					/if (!${Me.Buff[Blood Pact].ID}) {
+						/if (${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}) /call core_cast2 "Blood Pact" alt 0 FALSE
+					}
+
 					/if (${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}) /call core_cast2 "Blinding Fury" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Focused Rampage", ${Me.ID}]}) /call core_cast2 "Focused Rampage" alt 0 FALSE
+					/call core_cast2 "${BrutalDisc}" disc 0 FALSE
+					| Or if Quicktime drops I know to cast Untamed Rage on my zerker: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/page-6#post-3627587
+					/if (!${Me.Song[Quick Time V].ID}) {
+						/if (${validate_cast[FALSE, alt, "Untamed Rage", ${Me.ID}]}) /call core_cast2 "Untamed Rage" alt 0 FALSE 
+					}
 				}
 				/varset inBetween 1
 			}
@@ -145,59 +153,38 @@ Sub ber_main
 			/alt act ${Me.AltAbility[Communion of Blood].ID}
 			/delay 5
 		}
-		/if (${Me.AltAbilityReady[Battle Leap]} && !${Me.Song[Battle Leap Warcry].ID} && !${Me.Song[Group Bestial Alignment].ID} && ${Me.Combat}) {
-			/alt act ${Me.AltAbility[Battle Leap].ID}
+
+		/if (!${Me.Song[Battle Leap].ID} && !${Me.Song[Battle Leap Warcry].ID} && !${Me.Song[Group Bestial Alignment].ID}) {
+			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 		}
+
+
+		/if (!${Me.Song[${CryHavoc}].ID} && ${Me.ActiveDisc.ID}!=${CleavingDiscID}) {
+			/if (${validate_cast[FALSE, disc, "${CryHavoc}", ${Me.ID}]}) /call core_cast2 "${CryHavoc}" disc 0 FALSE
+		}
+
+		/if (${validate_cast[FALSE, disc, "${SappingStrike}", ${Target.ID}]}) /call core_cast2 "${SappingStrike}" disc ${Target.ID} FALSE
+
+		/if (${validate_cast[FALSE, disc, "${RageStrike}", ${Target.ID}]}) /call core_cast2 "${RageStrike}" disc ${Target.ID} FALSE
+
 		
-		/if (${Me.CombatAbilityReady[${Spell[${CryHavoc}].RankName}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${CryHavoc}].ID} && ${Me.ActiveDisc.ID}!=${CleavingDiscID}) {
-			/Disc ${Spell[${CryHavoc}].RankName}
-			/delay 5
+		/if (!${Me.Song[${SharedBuffName}].ID}) {
+			/if (${validate_cast[FALSE, disc, "${SharedBuff}", ${Target.ID}]}) /call core_cast2 "${SharedBuff}" disc ${Target.ID} FALSE
 		}
-		/if (${Me.AltAbilityReady[Blood Pact]} && !${Me.Buff[Blood Pact].ID} && ${Target.PctHPs}>1) {
-			/alt act ${Me.AltAbility[Blood Pact].ID}
-			/delay 5
-		}
-		/if (${Me.CombatAbilityReady[${SappingStrike}]} && ${Target.PctHPs}>1 && ${Me.PctEndurance}<90) {
-			/disc ${SappingStrike}
-			/delay 5
-		}	
-		/if (${Me.CombatAbilityReady[${RageStrike}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1) {
-			/Disc ${RageStrike}
-			/delay 5
-		}
-		/if (${Me.CombatAbilityReady[${SharedBuff}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && !${Me.Song[${SharedBuffName}].ID} && ${Target.Aggressive}) {
-			/Disc ${SharedBuff}
-			/delay 5
-		}	
+
 		/if (${Me.CombatAbilityReady[${FrenzyBoost}]} && !${Me.Buff[${FrenzyBoostBuff}].ID}) {
 			/if (${Me.PctHPs}>80) {
 				/alt act 752
 				/delay 5
 			}
-			/Disc ${FrenzyBoost}
+			/if (${validate_cast[FALSE, disc, "${FrenzyBoost}", ${Me.ID}]}) /call core_cast2 "${FrenzyBoost}" disc 0 FALSE
 			/delay 5
 		}
 		
-		| Or if Quicktime drops I know to cast Untamed Rage on my zerker: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/page-6#post-3627587
-		/if (${Me.Buff[Savage Spirit].ID} && ${Me.AltAbilityReady[Untamed Rage]} && !${Me.Song[Quick Time V].ID}) {
-			/alt act ${Me.AltAbility[Untamed Rage].ID}
-			/delay 5
-		}	
-
-		/if (${Me.AltAbilityReady[Reckless Abandon]} && ${Me.ActiveDisc.ID}==${CleavingDiscID}) {
-			/alt act ${Me.AltAbility[Reckless Abandon].ID}
-			/delay 5
+		/if (!${Me.Song[${HHEBuff}].ID} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${BrutalDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
+			/if (${validate_cast[FALSE, disc, "${HHEBuff}", ${Me.ID}]}) /call core_cast2 "${HHEBuff}" disc 0 FALSE
 		}
-		
-		
-		/if (${Me.CombatAbilityReady[${HHEBuff}]} && ${Me.Combat} && !${Me.Song[${HHEBuff}].ID} && !${Me.Song[Dichotomic Fury].ID} && !${Me.Song[Ruaabri's Fury].ID} && !${Me.Song[Quick Time].ID} && (${Me.ActiveDisc.ID}==${BrutalDiscID} || ${Me.ActiveDisc.ID}==${CleavingDiscID} || ${Me.ActiveDisc.ID}==${FlurryDiscID})) {
-			/disc ${HHEBuff}
-			/delay 5
-		}	
-		/if (${Target.PctHPs}>1 && ${Me.ActiveDisc.ID}!=${DisconDiscID} && ${UseEpic}) { 
-			/useitem "${epicaxe}"
-			/delay 10
-		}
+	
 		/call ber_combat
 
 	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
@@ -255,7 +242,6 @@ Sub ber_combat
 	
 	/if (${SpawnCount[npc radius 40 zradius 15 targetable playerstate 4]} < 2) {
 		/if (${validate_cast[FALSE, disc, "${AESlice}", ${Target.ID}]}) /call core_cast2 "${AESlice}" disc ${Target.ID} FALSE
-		/delay 5
 	}
 	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
@@ -264,50 +250,48 @@ Sub ber_combat
 	|	/if (${validate_cast[FALSE, disc, "${AEVicious}", ${Target.ID}]}) /call core_cast2 "${AEVicious}" disc ${Target.ID} FALSE
 	|	/delay 5
 	|}
-	/if (!${Target.Buff[Sarnak Finesse].ID} && ${Target.Type.Equal[npc]} && ${Me.Combat} && ${Me.CombatAbilityReady[${DichoSpell}]}) {
-		/if (${Me.AltAbilityReady[War Cry of the Braxi]}) /alt act 1013
-		/delay 5
-		/doability "${DichoSpell}"
-	}	
-	/if (${Me.AltAbilityReady[Binding Axe]} && ${Target.PctHPs}>1 && ${Me.Combat}) {
-		/alt act 642
-		/delay 5
-	}	
+
+	/if (!${Target.Buff[Sarnak Finesse].ID} && ${Target.PctHPs} > ${allianceHP}) {
+		/if (${validate_cast[FALSE, alt, "War Cry of the Braxi", ${Target.ID}]}) /call core_cast2 "War Cry of the Braxi" alt ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${DichoDisc}", ${Target.ID}]}) /call core_cast2 "${DichoDisc}" disc ${Target.ID} FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Binding Axe", ${Target.ID}]}) /call core_cast2 "Binding Axe" alt ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, disc, "${Dfrenzy}", ${Target.ID}]}) /call core_cast2 "${Dfrenzy}" disc ${Target.ID} FALSE
 
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
-	/if (${Me.CombatAbilityReady[${Dvolley}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
-		/Disc ${Dvolley}
-		/delay 5
-	}
-	| ${berStunCaster.Equal[${Me.DisplayName}]} && 
+	/if (${validate_cast[FALSE, disc, "${Dvolley}", ${Target.ID}]}) /call core_cast2 "${Dvolley}" disc ${Target.ID} FALSE
+
 	/if (${stunTurn}) {
 		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
+			
+			| Cast stun
 			/call core_cast2 "${Stun}" disc ${Target.ID} FALSE
 			/delay 5
+
+			| Get next in rotation
 			/call get_next_in_rotation
 			/varset berStunCaster ${Macro.Return}
-			/docommand /dgt ******** NEXT SHOULD BE ${berStunCaster} *********
+			
+			| Announce the next one
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt ******** NEXT SHOULD BE ${berStunCaster} *********
+
+			| Tell the next one in line that it is their turn
 			/squelch /dex ${berStunCaster} /varset stunTurn 1
-			/squelch /dex ${berStunCaster} /varset berStunCounter ${berStunCounter} 
+			/squelch /dex ${berStunCaster} /varset berStunCounter ${berStunCounter}
+
+			| Done casting for this round
 			/varset stunTurn 0
 		}
 	} else /if (!${berStunCaster.Equal[${Me.DisplayName}]}) {
-		/if (${Me.CombatAbilityReady[${Daxethrow}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
-			/Disc ${Daxethrow}
-			/delay 5
-		}
+		/if (${validate_cast[FALSE, disc, "${Daxethrow}", ${Target.ID}]}) /call core_cast2 "${Daxethrow}" disc ${Target.ID} FALSE
 	}
-	/if (${Me.CombatAbilityReady[${Daxeof}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>1 && ${Me.Combat}) {
-		/Disc ${Daxeof}
-		/delay 5
-	}
-	/if (${Me.CombatAbilityReady[${Phantom}]} && ${Me.PctEndurance}>=5 && ${Target.PctHPs}>50 && ${Me.Combat}) {
-		/Disc ${Phantom}
-		/delay 5
-	}
+
+	/if (${validate_cast[FALSE, disc, "${Daxeof}", ${Target.ID}]}) /call core_cast2 "${Daxeof}" disc ${Target.ID} FALSE
+
+	/if (${validate_cast[FALSE, disc, "${Phantom}", ${Target.ID}]}) /call core_cast2 "${Phantom}" disc ${Target.ID} FALSE
 
  /return
 |----------------------------------------------------------------------------

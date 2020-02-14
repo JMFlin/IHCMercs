@@ -138,13 +138,13 @@ Sub war_combat_buffs
 	/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Diplomatic Immunity].ID}) {	
 		/if (${validate_cast[FALSE, disc, "${PDHDisc}", ${Me.ID}]})  /call core_cast2 "${PDHDisc}" disc 0 FALSE
 	}
-	
+	| Main rotation stacking check for Guardian's Bravery
 	/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Diplomatic Immunity].ID}) {
 		/if (!${Me.Buff[Warlord's Bravery].ID}) {
 			/if (${validate_cast[FALSE, item, "Gladiator's Plate Chestguard of War", ${Me.ID}]}) /call core_cast2 "Gladiator's Plate Chestguard of War" item 0 FALSE	
 		}
 	}
-
+	| Main rotation stacking check for Diplomatic Immunity
 	/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Guardian's Bravery].ID} && !${Me.Buff[Diplomatic Immunity].ID}) {
 		/if (!${Me.Buff[Brace for Impact].ID}) {
 			/if (${validate_cast[FALSE, item, "Diplomatic Papers", ${Me.ID}]})  /call core_cast2 "Diplomatic Papers" item 0 FALSE	
@@ -161,7 +161,7 @@ Sub war_combat_buffs
 	/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Buff[${ChestItemSpellName}].ID} && !${Me.Buff[Warrior's Bastion].ID}) {
 		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
 	}
-	
+	| Dichotomic > RoS BP > Warrior's Bastion
 	/if (!${Me.Buff[${DichoDisc}].ID} && !${Me.Buff[${ChestItemSpellName}].ID} && !${Me.Buff[Warrior's Bastion].ID}) {
 		/if (${validate_cast[FALSE, disc, "${BastionDisc}", ${Me.ID}]}) /call core_cast2 "${BastionDisc}" disc 0 FALSE	
 	}

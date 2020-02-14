@@ -9,7 +9,7 @@ Sub ber_setup
 	/declare endregen				string outer NULL
 	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
-	/declare DichoSpell				string outer NULL
+	/declare DichoDisc				string outer NULL
 	/declare Dfrenzy				string outer NULL
 	/declare Dvolley				string outer NULL
 	/declare Daxethrow				string outer NULL
@@ -344,11 +344,11 @@ Sub ber_abilities
 	}
 |-Dicho Spell*
 	/if (${Me.Level}>=${Spell[Dissident Rage].Level} && ${Me.CombatAbility[${Spell[Dissident Rage].RankName}]}) {
-		/varset DichoSpell ${Spell[Dissident Rage].RankName}
+		/varset DichoDisc ${Spell[Dissident Rage].RankName}
 		/varset DichoAxeName NULL
 		/varset DichoAxeComponent NULL
 	} else /if (${Me.Level}>=${Spell[Dichotomic Rage].Level} && ${Me.CombatAbility[${Spell[Dichotomic Rage].RankName}]}) {
-		/varset DichoSpell ${Spell[Dichotomic Rage].RankName}
+		/varset DichoDisc ${Spell[Dichotomic Rage].RankName}
 		/varset DichoAxeName Axe of the Demolisher
 		/varset DichoAxeComponent Masterwork Axe Components
 	}
