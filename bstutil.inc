@@ -636,7 +636,7 @@ Sub bst_abilities
 		/varset PetHasteRecourse ${Spell[Tremendous Velocity].RankName}
 	} else /if (${Me.Level}>=${Spell[Extraordinary Velocity].Level} && ${Me.Book[${Spell[Extraordinary Velocity].RankName}]}) {
 		/varset PetHaste ${Spell[Extraordinary Velocity].RankName}
-		/varset PetHasteRecourse ${Spell[Extraordinary Velocity].RankName}
+		/varset PetHasteRecourse ${Spell[Exceptional Velocity].RankName}
 	} else /if (${Me.Level}>=${Spell[Exceptional Velocity].Level} && ${Me.Book[${Spell[Exceptional Velocity].RankName}]}) {
 		/varset PetHaste ${Spell[Exceptional Velocity].RankName}
 		/varset PetHasteRecourse ${Spell[Exceptional Velocity].RankName}
