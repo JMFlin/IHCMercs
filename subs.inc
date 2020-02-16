@@ -366,13 +366,11 @@ Sub puller_check_group_resources
 	/for _count 0 to ${Group}
 		/if (!${Group.Member[${_count}].Type.Equal[PC]}) /continue
 		
-		/if (!${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,DRU]}) /continue
+		/if (!${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,DRU,BST]}) /continue
 		
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
 
-			
-			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,DRU]}) {
-			|/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
+			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
 
 
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "ResPct" "int"
