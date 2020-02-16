@@ -114,6 +114,10 @@ BALANCED:
 	/if (${Me.Level} >= ${Spell[Circle of Knowledge].Level} && ${Me.Book[${Spell[Circle of Knowledge].RankName}]}) {
 		/varset PosseSpell ${Spell[Circle of Knowledge].RankName}
 	}
+
+	/if (${Me.Level} >= ${Spell[Froststone Aura].Level} && ${Me.Book[${Spell[Froststone Aura].RankName}]}) {
+		/varset Aura1 ${Spell[Froststone Aura].RankName}
+	}
 	
 
 	/if (${Me.Level}>=${Spell[Typhonic Roar].Level} && ${Me.Book[${Spell[Typhonic Roar].RankName}]}) {

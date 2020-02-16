@@ -2,10 +2,13 @@
 |- SUB: shm_main
 |----------------------------------------------------------------------------
 Sub shm_main
+
+|**
 	/if (${powerLevel}) {
 		/call check_for_corpse FALSE
 		/return
 	} 
+	**|
 	/call shm_self_buffs
 	/call shm_group_buffs
 	/call check_for_corpse FALSE
@@ -19,11 +22,38 @@ Sub shm_main
 		}
 	}
 
+	/if (${Me.PctHPs} >= 40 && ${Me.PctMana} < 70) {
+		/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
+			/call core_cast2 "Cannibalization" alt 0 FALSE
+		}
+	}
+|**
+	/if (!${Me.Song[${GroupRenewalHoT}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${GroupRenewalHoT}", ${Me.ID}]}) {
+			/call core_cast2 "${GroupRenewalHoT}" spell ${Me.ID} FALSE
+		}
+	}
+**|
 	/while (${Me.XTarget}) {
-
+		/call move_to_camp
 		/call get_target
-		/call pet_attack
 		
+		/if (${Me.XTarget[1].Named}) {
+			/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
+				/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" spell ${Target.ID} FALSE
+			}
+		}
+		
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
+			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
+				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
+			}
+		}
+
+		/call pet_attack
+
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
@@ -34,28 +64,10 @@ Sub shm_main
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
-		/delay 5
-		/call pet_attack
-		/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" spell ${Target.ID} FALSE
-		}
-		
-		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
-			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
-				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
-			}
-		}
-		
-		/call get_heal_target 85
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
-				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
-			}
-		}
+		/if (${Me.XTarget} > 1) /call shm_debuff_xtarget
 
+	
+		|**
 		/call get_target
 		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
 			/if (${validate_cast[FALSE, spell, "${CrippleSpell}", ${Target.ID}]}) {
@@ -64,29 +76,31 @@ Sub shm_main
 				/call check_cast_events "${CrippleSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-		
-		
-		/call get_heal_target 85
-		/varset worstHurtId ${Macro.Return}
-		
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
-				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
-			}
-		} else {
-			/call get_target
-			/if (!${Target.Buff[${FastDiseaseDoT}].ID}) {		
-				/if (${validate_cast[FALSE, spell, "${FastDiseaseDoT}", ${Target.ID}]}) {
-					/call core_cast2 "${FastDiseaseDoT}" spell ${Target.ID} FALSE
-				}
-			}
-		}
-		/call shm_debuff_xtarget
+		**|
 		
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
 			/if (${validate_cast[FALSE, spell, "${RecklessHeal2}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal2}" spell ${worstHurtId} FALSE
+			}
+		}
+
+		/call get_target
+		/if (${Target.Named}) {
+			/if (!${Target.Buff[${ChaoticPoisonDoT}].ID}) {		
+				/if (${validate_cast[FALSE, spell, "${ChaoticPoisonDoT}", ${Target.ID}]}) {
+					/call core_cast2 "${ChaoticPoisonDoT}" spell ${Target.ID} FALSE
+				}
+			}
+		}
+		
+		/if (${Me.XTarget} > 1) /call shm_debuff_xtarget
+		
+		/call get_heal_target 85
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
 				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
 			}
 		}
@@ -96,8 +110,14 @@ Sub shm_main
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
-				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal3}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal3}" spell ${worstHurtId} FALSE
+			}
+		}
+
+		/if (${Me.PctHPs} >= 40 && ${Me.PctMana} < 70) {
+			/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
+				/call core_cast2 "Cannibalization" alt 0 FALSE
 			}
 		}
 	}
@@ -125,9 +145,6 @@ Sub shm_health_to_mana
 Sub shm_debuff_xtarget
 	/declare _count int local 1
 
-	/if (!${Me.XTarget}) /return
-	/if (${Me.XTarget} < 2) /return
-
 	/for _count 1 to ${Me.XTarget}
 
 		/if (${immuneSet.Contains[${Me.XTarget[${_count}].ID}]}) /continue
@@ -141,67 +158,70 @@ Sub shm_debuff_xtarget
 		/if (${Target.Distance} > 200) /return
 		/if (!${Target.Type.Equal[NPC]}) /return
 		
-		/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" spell ${Target.ID} FALSE
+		/if (${Target.Named}) {
+			/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
+				/if (${validate_cast[FALSE, spell, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" spell ${Target.ID} FALSE
+			}
 		}
 
 		| How will you handle the AA?
-		/if (!${Target.Buff[${SlowSpell}].ID}) {
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
-			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 
-		/delay 1s
 	/next _count
 /return
 |----------------------------------------------------------------------------
 |- SUB: DoNamed
 |---------------------------------------------------------------------------- 
 Sub shm_do_named
-|-Shaman AAs for nameds on tank
-	/if (${Me.AltAbilityReady[Ancestral Aid]}) {
-		/call AANow ${Me.AltAbility[Ancestral Aid].ID} ${assistid}
-		/delay 4
-	}
-	/if (${Me.AltAbilityReady[Union of Spirits]}) {
-		/call AANow ${Me.AltAbility[Union of Spirits].ID} ${assistid}
-		/delay 2
-	}
-	/if (${Me.AltAbilityReady[Spirit Guard]}) {
-		/call AANow ${Me.AltAbility[Spirit Guard].ID} ${assistid}
-		/delay 3
-	}
-	/if (${Me.AltAbilityReady[Call of the Ancients]}) {
-		/call AANow ${Me.AltAbility[Call of the Ancients].ID} ${assistid}
-		/delay 3
-	}
-	/if (${Me.AltAbilityReady[Spiritual Blessing]}) {
-		/call AANow ${Me.AltAbility[Spiritual Blessing].ID} ${Me.ID}
-		/delay 3
-	}
-	/if (${Me.AltAbilityReady[Fundament: Third Spire of Ancestors]}) {
-		/call AANow ${Me.AltAbility[Fundament: Third Spire of Ancestors].ID} ${Me.ID}
-		/delay 4
-	}
-	/if (${Me.AltAbilityReady[Dampen Resistance]}) {
-		/call AANow ${Me.AltAbility[Dampen Resistance].ID} ${Me.ID}
-		/delay 4
-	}
-	/if (${Me.AltAbilityReady[Fleeting Spirit]}) {
-		/call AANow ${Me.AltAbility[Fleeting Spirit].ID} ${Me.ID}
-		/delay 5
-	}
-	/if (${Me.AltAbilityReady[Rabid Bear]}) {
-		/call AANow ${Me.AltAbility[Rabid Bear].ID} ${Me.ID}
-		/delay 3
-	}
-	/if (${Me.AltAbilityReady[Ancestral Guard]}) {
-		/call AANow ${Me.AltAbility[Ancestral Guard].ID} ${Me.ID}
-		/delay 5
+	/if (${Me.XTarget[1].Named}) {
+	|-Shaman AAs for nameds on tank
+		/if (${Me.AltAbilityReady[Ancestral Aid]}) {
+			/call AANow ${Me.AltAbility[Ancestral Aid].ID} ${assistid}
+			/delay 4
+		}
+		/if (${Me.AltAbilityReady[Union of Spirits]}) {
+			/call AANow ${Me.AltAbility[Union of Spirits].ID} ${assistid}
+			/delay 2
+		}
+		/if (${Me.AltAbilityReady[Spirit Guard]}) {
+			/call AANow ${Me.AltAbility[Spirit Guard].ID} ${assistid}
+			/delay 3
+		}
+		/if (${Me.AltAbilityReady[Call of the Ancients]}) {
+			/call AANow ${Me.AltAbility[Call of the Ancients].ID} ${assistid}
+			/delay 3
+		}
+		/if (${Me.AltAbilityReady[Spiritual Blessing]}) {
+			/call AANow ${Me.AltAbility[Spiritual Blessing].ID} ${Me.ID}
+			/delay 3
+		}
+		/if (${Me.AltAbilityReady[Fundament: Third Spire of Ancestors]}) {
+			/call AANow ${Me.AltAbility[Fundament: Third Spire of Ancestors].ID} ${Me.ID}
+			/delay 4
+		}
+		/if (${Me.AltAbilityReady[Dampen Resistance]}) {
+			/call AANow ${Me.AltAbility[Dampen Resistance].ID} ${Me.ID}
+			/delay 4
+		}
+		/if (${Me.AltAbilityReady[Fleeting Spirit]}) {
+			/call AANow ${Me.AltAbility[Fleeting Spirit].ID} ${Me.ID}
+			/delay 5
+		}
+		/if (${Me.AltAbilityReady[Rabid Bear]}) {
+			/call AANow ${Me.AltAbility[Rabid Bear].ID} ${Me.ID}
+			/delay 3
+		}
+		/if (${Me.AltAbilityReady[Ancestral Guard]}) {
+			/call AANow ${Me.AltAbility[Ancestral Guard].ID} ${Me.ID}
+			/delay 5
+		}
 	}
 /return
 |----------------------------------------------------------------------------
@@ -290,18 +310,21 @@ Sub shm_debuff
 		/delay 1
 	/next x
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: AANDisc 
 |---------------------------------------------------------------------------- 
 Sub shm_aa_and_disc
-	|/if (!${FindItem[=${EpicSpiritStaff}].TimerReady} && !${Me.Casting.ID} && ${Me.XTarget[1].Distance}<=75) {
-	|	/useitem "${EpicSpiritStaff}"
-	|	/delay 5
-	|}
+
+	/if (!${FindItem["Blessed Spiritstaff of the Heyokah"].TimerReady} && ${Me.XTarget[1].Distance} <= 75) {
+		/if (${validate_cast[FALSE, item, "Blessed Spiritstaff of the Heyokah", ${Me.ID}]}) {
+			/call core_cast2 "Blessed Spiritstaff of the Heyokah" item 0 FALSE
+		}
+	}
 
 	/call get_target
 
-	/if (${Target.Distance} <= 75) {
+	/if (${Target.Type.Equal[NPC]} && ${Target.Distance} <= 75) {
 		/target id ${Group.MainTank.ID}
 		/delay 1s ${Target.ID} == ${Group.MainTank.ID}
 		/delay 5
@@ -312,10 +335,10 @@ Sub shm_aa_and_disc
 		}
 	}
 
-	/if (${Me.AltAbilityReady[Spirit Guardian]}) {
-		/call AANow ${Me.AltAbility[Spirit Guardian].ID} ${assistid}
-		/delay 3
+	/if (${validate_cast[FALSE, spell, "Spirit Guardian", ${Group.MainTank.ID}]}) {
+		/call core_cast2 "Spirit Guardian" spell ${Group.MainTank.ID} FALSE
 	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: Combatdps

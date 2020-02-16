@@ -53,6 +53,7 @@ Sub ber_setup
 	/declare StunAxeComponent		string outer NULL
 	/declare DichoAxeComponent	 	string outer NULL
 	/declare DichoAxeName 			string outer NULL
+	/declare RitualScarification 	string outer NULL
 	
 	/declare ChestItemName			string outer "${Me.Inventory[17].Name}"
 	/declare ZerkerCount			int outer 1
@@ -271,6 +272,12 @@ Sub ber_abilities
 		/varset ResolveDisc ${Spell[Frenzied Resolve Discipline].RankName}
 		/varset ResolveDiscID ${Spell[ResolveDisc].ID}
 	}
+	
+	/if (${Me.Level}>=${Spell[Ritual Scarification].Level} && ${Me.CombatAbility[${Spell[Ritual Scarification].RankName}]}) {
+		/varset RitualScarification ${Spell[Ritual Scarification].RankName}
+	}
+	
+
 |---Frenzy Boost - Updated for RoS and Expanded for lower level
 |- STORMWILD FRENZY?
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Torrid Frenzy].RankName}]}) {

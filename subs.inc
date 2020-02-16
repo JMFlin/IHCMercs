@@ -158,6 +158,8 @@ Sub var_setup
 	/declare verboseMAG 		bool outer FALSE
 	/declare verboseMNK 		bool outer TRUE
 
+	/declare berHealPct			int outer 80
+
 |- classes
 	/declare casterCasting 		int outer 0
 
@@ -234,8 +236,8 @@ Sub make_camp
 Sub remove_travel_buffs
 	/makemevisible
 	/delay 2
-	/removebuff Group Perfected Levitation
-	/delay 2
+	|/removebuff Group Perfected Levitation
+	|/delay 2
 	/removebuff Group Perfected Invisibility to Undead
 	/delay 2
 /return
@@ -262,11 +264,12 @@ Sub engage
 		/if (!${Stick.Active}) /stick 12 hold moveback !front loose
 		/delay 10 ${Stick.Active}
 	}
-	/if (!${Me.Combat} && ${Select[${Me.Class.ShortName},BER,ROG]}) {
-		/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
+
+	/if (!${Target.Buff[Sarnak Finesse].ID}) {
+		/if (${Target.ID} && ${Target.Distance3D} < 50) /squelch /attack on
+		/call pet_attack
 	}
-	/if (${Target.ID} && ${Target.Distance3D} < 50) /squelch /attack on
-	/call pet_attack
+
 
 /return
 
@@ -365,8 +368,8 @@ Sub puller_check_group_resources
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
 
 			
-
-			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
+			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,DRU]}) {
+			|/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
 
 
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "ResPct" "int"
@@ -1275,7 +1278,7 @@ Sub get_target
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
 
-		/assist ${Group.MainAssist.Name}
+		/if (${Me.ID} != ${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
 		/delay 1s ${Me.AssistComplete} == TRUE
 		/delay 5
 		
@@ -1299,8 +1302,12 @@ Sub get_target
 				/delay 5
 				/call engage
 				/call ${Me.Class.ShortName.Lower}_get_aggro
-				/call get_target
 			}
+			/if (${Stick.Active}) /stick off
+			/if (${Me.ID} != ${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
+			/delay 1s ${Me.AssistComplete} == TRUE
+			/delay 5
+			/call engage
 		}
 	}
 
@@ -1352,16 +1359,10 @@ sub validate_combat(int _tmpID)
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 	/if (${Navigation.PathLength[id ${_tmpID}]} > ${assistRange}) /return FALSE
 	/if (!${Spawn[id ${_tmpID}].LineOfSight}) /return FALSE
-	/if (${Target.PctHPs} > ${autoAssistAt}) /return FALSE
-
-	/if (${Select[${Me.Class.ShortName},BER,ROG,BRD]}) {
-		/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${assistRange}) {
-			/if (${Stick.Active}) /stick off
-			/nav id ${_tmpID}
-		}
-	}
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) {
+
+		/if (${Target.PctHPs} > ${autoAssistAt}) /return FALSE
 
 		/if (${Target.Mezzed.ID}) /return FALSE
 
@@ -1376,10 +1377,18 @@ sub validate_combat(int _tmpID)
 		}
 
 		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK,WAR,PAL,SHD]}) {
+			
+			/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${assistRange}) {
+				/if (${Stick.Active}) /stick off
+				/nav id ${_tmpID}
+			}
+
 			/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
 		}
+
 		
 	} 
+
 
 /return TRUE
 
@@ -1403,8 +1412,10 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	}
 
 	| line of sight?
-	/if (!${Spell[${_spell}].SpellType.Equal[Beneficial]}) {
-		/if (!${Spawn[npc los id ${_tmpID}].ID}) /return FALSE
+	/if (!${_type.Equal[item]}) {
+		/if (!${Spell[${_spell}].SpellType.Equal[Beneficial]}) {
+			/if (!${Spawn[npc los id ${_tmpID}].ID}) /return FALSE
+		}
 	}
 
 	|CHECKINPUTS
@@ -1593,24 +1604,24 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	
 /return TRUE
 	| epic clicks
-|	else /if (${_type.Equal[epicitem]}) {
-|		DEBUG ${dep}epicitem\ax${dep}name:${_spell}
-|		/if (!${Me.ItemReady[=${${Me.Class.ShortName}Epic${_spell}}]}) /return FALSE
-|		/if (${_tmpID} != ${Me.ID}) {
-|			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].MyRange} && ${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].Range} != 0) /return FALSE
-|		}
-|		/if (${Me.Buff[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].ID}) /return FALSE
-|		/if (${Me.Song[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].ID}) /return FALSE
-|		
-|		/if (${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].SpellType.Equal[Beneficial]} && (${Target.ID} == ${Me.ID})) {
-|			/if (!${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].NewStacks}) /return FALSE
-|		}
-
+	|**
+	else /if (${_type.Equal[epicitem]}) {
+		DEBUG ${dep}epicitem\ax${dep}name:${_spell}
+		/if (!${Me.ItemReady[=${${Me.Class.ShortName}Epic${_spell}}]}) /return FALSE
+		/if (${_tmpID} != ${Me.ID}) {
+			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].MyRange} && ${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].Range} != 0) /return FALSE
+		}
+		/if (${Me.Buff[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].ID}) /return FALSE
+		/if (${Me.Song[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].ID}) /return FALSE
+		
+		/if (${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].SpellType.Equal[Beneficial]} && (${Target.ID} == ${Me.ID})) {
+			/if (!${Spell[${FindItem[=${${Me.Class.ShortName}Epic${_spell}}].Spell}].NewStacks}) /return FALSE
+		}
 	
-|	} 
+	} 
 	
 
-
+**|
 |***
  *	DES: checks your toon for buffs that should stop casting for some reason
  *	USE: /call check_no_cast_buff
@@ -1820,10 +1831,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open}) {
 					/delay 3
 				} 	
-
-				/if (${Target2Kill}) {
-					/if (${is_target_dead[${Target2Kill}]}) /break
-				}
  				
  				|CHECKINPUTS
 				| /call check_cast_events 2
@@ -2461,7 +2468,9 @@ Sub get_heal_target(int _hpLimit)
 		/if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
 			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
 		}
-	
+
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},BER]}) /varset _hpLimit ${berHealPct}
+
 		/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
 
 		/if (${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
@@ -2590,13 +2599,23 @@ sub setup_skill_melee(bool _debug)
 		}
 	}
 
-	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM]}) {
+	/if (${Select[${Me.Class.ShortName},DRU,SHM]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 60
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 150
+			/varset assistRange 70
+		}
+	}
+
+	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM]}) {
+		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
+			/varset autoAssistAt 60
+			/varset assistRange 55
+		} else {
+			/varset autoAssistAt 99
+			/varset assistRange 100
 		}
 	}
 
