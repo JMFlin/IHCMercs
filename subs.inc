@@ -365,6 +365,9 @@ Sub puller_check_group_resources
 
 	/for _count 0 to ${Group}
 		/if (!${Group.Member[${_count}].Type.Equal[PC]}) /continue
+		
+		/if (!${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,DRU]}) /continue
+		
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
 
 			
