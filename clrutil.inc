@@ -14,8 +14,8 @@ Sub clr_setup
 	/declare Remedy3	        string          outer NULL
 	/declare patchheal		        string          outer NULL
 	/declare patchheal2		        string          outer NULL
-	/declare groupfastheal	        string          outer NULL
-	/declare GroupHealSpell1		string          outer NULL
+	/declare SyllableSpell	        string          outer NULL
+	/declare GroupWordSpell		string          outer NULL
 	/declare grouphealnocure        string          outer NULL
 	/declare PromisedHeal		    string          outer NULL
 	/declare Renewal		        string          outer NULL
@@ -87,6 +87,7 @@ Sub clr_setup
 	/declare CasterSpeedBuff 		string 			outer NULL
 	/declare SingleElixirSpell 		string 			outer NULL
 	/declare GroupElixirSpell 		string			outer NULL
+	/declare DichoSpell 			string 			outer NULL
 	
 	/declare spellmisc 				int outer 8
 	/declare spellgem				int outer 1	
@@ -106,14 +107,37 @@ Sub clr_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 	
-	/call LoadSpellGem "${SingleElixirSpell}" 1
-	/call LoadSpellGem "${PromisedHeal}" 2
-	/call LoadSpellGem "${Remedy1}" 3
-	/call LoadSpellGem "${Remedy2}" 4
-	/call LoadSpellGem "${WardSpell}" 5
-	/call LoadSpellGem "${Intervention1}" 6
-	/call LoadSpellGem "${Intervention2}" 7
-	/call LoadSpellGem "${Intervention3}" 8
+	/if (${Me.AltAbility[Mnemonic Retention].Rank} == 5) {
+		/call LoadSpellGem "${MendingSplash}" 1
+		
+		/call LoadSpellGem "${DichoSpell}" 2
+
+		/call LoadSpellGem "${DivineBuff}" 3
+		/call LoadSpellGem "${WardSpell}" 4
+		/call LoadSpellGem "${PromisedHeal}" 5
+
+		/call LoadSpellGem "${Remedy1}" 6
+		/call LoadSpellGem "${Remedy2}" 7
+		/call LoadSpellGem "${Remedy3}" 8
+
+		/call LoadSpellGem "${Intervention1}" 9
+		/call LoadSpellGem "${Intervention2}" 10
+		/call LoadSpellGem "${Intervention3}" 11
+
+		/call LoadSpellGem "${SyllableSpell}" 12
+		/call LoadSpellGem "${GroupWordSpell}" 13
+
+
+	} else {
+		/call LoadSpellGem "${SingleElixirSpell}" 1
+		/call LoadSpellGem "${PromisedHeal}" 2
+		/call LoadSpellGem "${Remedy1}" 3
+		/call LoadSpellGem "${Remedy2}" 4
+		/call LoadSpellGem "${WardSpell}" 5
+		/call LoadSpellGem "${Intervention1}" 6
+		/call LoadSpellGem "${Intervention2}" 7
+		/call LoadSpellGem "${Intervention3}" 8
+	}
 
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
 		/call LoadSpellGem "${GroupElixirSpell}" 9
@@ -139,8 +163,14 @@ Sub clr_abilities
 	}
 
 
-	/if (${Me.Level}>=${Spell[Merciful Acquittal].Level} && ${Me.Book[${Spell[Merciful Acquittal].RankName}]})  {
+	/if (${Me.Level}>=${Spell[Merciful Acquittal].Level} && ${Me.Book[${Spell[Merciful Acquittal].RankName}]}) {
 		/varset GroupElixirSpell ${Spell[Merciful Acquittal].RankName}
+	}
+	
+	/if (${Me.Level}>=${Spell[Dissident Blessing].Level} && ${Me.Book[${Spell[Dissident Blessing].RankName}]}) {
+		/varset DichoSpell ${Spell[Dissident Blessing].RankName}
+	} else /if (${Me.Level}>=${Spell[Undying Life].Level} && ${Me.Book[${Spell[Undying Life].RankName}]}) {
+		/varset DichoSpell ${Spell[Undying Life].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Sincere Elixir].Level} && ${Me.Book[${Spell[Sincere Elixir].RankName}]})  {
@@ -298,33 +328,33 @@ Sub clr_abilities
 	}
 |---Group Heals Slot 5
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Word of Greater Restoration].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Greater Restoration].RankName}
+		/varset GroupWordSpell ${Spell[Word of Greater Restoration].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Word of Greater Reformation].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Greater Reformation].RankName}
+		/varset GroupWordSpell ${Spell[Word of Greater Reformation].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Word of Reformation].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Reformation].RankName}
+		/varset GroupWordSpell ${Spell[Word of Reformation].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Word of Rehabilitation].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Rehabilitation].RankName}
+		/varset GroupWordSpell ${Spell[Word of Rehabilitation].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Word of Resurgence].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Resurgence].RankName}
+		/varset GroupWordSpell ${Spell[Word of Resurgence].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Word of Recovery].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Recovery].RankName}
+		/varset GroupWordSpell ${Spell[Word of Recovery].RankName}
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Word of Vivacity].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Vivacity].RankName}
+		/varset GroupWordSpell ${Spell[Word of Vivacity].RankName}
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Word of Vivification].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Vivification].RankName}
+		/varset GroupWordSpell ${Spell[Word of Vivification].RankName}
 	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Word of Replenishment].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Replenishment].RankName}
+		/varset GroupWordSpell ${Spell[Word of Replenishment].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Word of Redemption].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Redemption].RankName}
+		/varset GroupWordSpell ${Spell[Word of Redemption].RankName}
 	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[Word of Restoration].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Restoration].RankName}
+		/varset GroupWordSpell ${Spell[Word of Restoration].RankName}
 	} else /if (${Me.Level}>=52 && ${Me.Book[${Spell[Word of Vigor].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Vigor].RankName}
+		/varset GroupWordSpell ${Spell[Word of Vigor].RankName}
 	} else /if (${Me.Level}>=45 && ${Me.Book[${Spell[Word of Healing].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Healing].RankName}
+		/varset GroupWordSpell ${Spell[Word of Healing].RankName}
 	} else /if (${Me.Level}>=30 && ${Me.Book[${Spell[Word of Health].RankName}]})  {
-		/varset GroupHealSpell1 ${Spell[Word of Health].RankName}
+		/varset GroupWordSpell ${Spell[Word of Health].RankName}
 	}
 |---Group Heals No Cure Slot 5
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Word of Mending].RankName}]})  {
@@ -348,13 +378,13 @@ Sub clr_abilities
 	}
 |---Group Fast Heal 103+ Only
 	/if (${Me.Level}>=${Spell[Syllable of Soothing].Level} && ${Me.Book[${Spell[Syllable of Soothing].RankName}]})  {
-		/varset groupfastheal ${Spell[Syllable of Soothing].RankName}
+		/varset SyllableSpell ${Spell[Syllable of Soothing].RankName}
 	} else /if (${Me.Level}>=108 && ${Me.Book[${Spell[Syllable of Mending].RankName}]})  {
-		/varset groupfastheal ${Spell[Syllable of Mending].RankName}
+		/varset SyllableSpell ${Spell[Syllable of Mending].RankName}
 	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Syllable of Convalescence].RankName}]})  {
-		/varset groupfastheal ${Spell[Syllable of Convalescence].RankName}
+		/varset SyllableSpell ${Spell[Syllable of Convalescence].RankName}
 	} else /if (${Me.Level}>=${Spell[Syllable of Renewal].Level} && ${Me.Book[${Spell[Syllable of Renewal].RankName}]})  {
-		/varset groupfastheal ${Spell[Syllable of Renewal].RankName}
+		/varset SyllableSpell ${Spell[Syllable of Renewal].RankName}
 	}
 |---Yaulp Setup Pre-91 AA
 	/if (${Me.Level}>=91) {

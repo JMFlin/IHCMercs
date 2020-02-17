@@ -59,6 +59,10 @@ Sub clr_main
 			}
 		}
 
+		/if (${check_hurt[FALSE, group, 80]} >= 3) {
+			/if (${validate_cast[FALSE, spell, "${SyllableSpell}", ${Me.ID}]}) /call core_cast2 "${SyllableSpell}" spell ${Me.ID} FALSE
+		}
+
 		/call get_heal_target 75
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
@@ -68,7 +72,7 @@ Sub clr_main
 		}
 
 		/if (!${Target.Buff[${PromisedHeal}].ID}) {
-			/if (${validate_tank_heal[70]}) {
+			/if (${validate_tank_heal[90]}) {
 				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
 					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
 				}
@@ -100,8 +104,17 @@ Sub clr_main
 		}
 
 		/if (${check_hurt[FALSE, group, 85]} >= 3) {
-			/if (${validate_cast[FALSE, spell, "${GroupHealSpell1}", ${Me.ID}]}) /call core_cast2 "${GroupHealSpell1}" spell ${Me.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${GroupWordSpell}", ${Me.ID}]}) /call core_cast2 "${GroupWordSpell}" spell ${Me.ID} FALSE
 		}
+
+		/call get_heal_target 40
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${worstHurtId}]}) {
+				/call core_cast2 "${DichoSpell}" spell ${worstHurtId} FALSE
+			}
+		}
+		
 
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
 		
@@ -415,8 +428,8 @@ Sub clr_group_heals
 |-Group Healing
  |   /if (${HurtMember}>=${grouphealcount} && ${Me.AltAbilityReady[Beacon of Life]} && ${Group}) {
 |		/call AANow ${Me.AltAbility[Beacon of Life].ID} ${Me.ID}
-|	} else /if (${HurtMember}>=${grouphealcount} && ${Me.SpellReady[${groupfastheal}]}) {
-|		/call SpellQueue "${groupfastheal}" ${Me.ID}
+|	} else /if (${HurtMember}>=${grouphealcount} && ${Me.SpellReady[${SyllableSpell}]}) {
+|		/call SpellQueue "${SyllableSpell}" ${Me.ID}
 |	} else /if (${HurtMember}>=${grouphealcount} && ${Me.SpellReady[${groupheal}]} && ${NoCures}!=1) {
 |		/call SpellQueue "${groupheal}" ${Me.ID}
 |	} else /if (${HurtMember}>=${grouphealcount} && ${Me.SpellReady[${grouphealnocure}]} && ${NoCures}==1) {
