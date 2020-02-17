@@ -61,7 +61,6 @@ Sub ber_main
 		/call get_target
 
 		/if (${Me.PctHPs} > 89) {
-			/echo ${validate_cast[FALSE, disc, "${RitualScarification}", ${Me.ID}]}
 			/if (${validate_cast[FALSE, disc, "${RitualScarification}", ${Me.ID}]}) /call core_cast2 "${RitualScarification}" disc 0 FALSE
 		}
 
@@ -84,31 +83,62 @@ Sub ber_main
 
 		/call use_skill_melee FALSE ${Target.ID}
 
+		|**
 		/if (!${Me.ActiveDisc.ID}) {
-			/if (${burnRotation} == 1) {
-				
-				/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
-					/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}) /call core_cast2 "Juggernaut Surge" alt 0 FALSE
+				/if (${burnRotation} == 1) {
 					
-					/if (!${Me.Buff[Blood Pact].ID}) {
-						/if (${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}) /call core_cast2 "Blood Pact" alt 0 FALSE
-					}
+					/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
+						/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
+						/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
+						/if (${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}) /call core_cast2 "Juggernaut Surge" alt 0 FALSE
+						
+						/if (!${Me.Buff[Blood Pact].ID}) {
+							/if (${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}) /call core_cast2 "Blood Pact" alt 0 FALSE
+						}
 
-					/if (${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}) /call core_cast2 "Blinding Fury" alt 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Focused Furious Rampage", ${Me.ID}]}) /call core_cast2 "Focused Furious Rampage" alt 0 FALSE
-					/call core_cast2 "${BrutalDisc}" disc 0 FALSE
-					| Or if Quicktime drops I know to cast Untamed Rage on my zerker: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/page-6#post-3627587
-					/if (!${Me.Song[Quick Time V].ID}) {
-						/if (${validate_cast[FALSE, alt, "Untamed Rage", ${Me.ID}]}) /call core_cast2 "Untamed Rage" alt 0 FALSE 
+						/if (${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}) /call core_cast2 "Blinding Fury" alt 0 FALSE
+						/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
+						/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
+						/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
+						/if (${validate_cast[FALSE, alt, "Focused Furious Rampage", ${Me.ID}]}) /call core_cast2 "Focused Furious Rampage" alt 0 FALSE
+						/call core_cast2 "${BrutalDisc}" disc 0 FALSE
+						| Or if Quicktime drops I know to cast Untamed Rage on my zerker: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/page-6#post-3627587
+						/if (!${Me.Song[Quick Time V].ID}) {
+							/if (${validate_cast[FALSE, alt, "Untamed Rage", ${Me.ID}]}) /call core_cast2 "Untamed Rage" alt 0 FALSE 
+						}
 					}
+					/varset inBetween 1
 				}
-				/varset inBetween 1
 			}
+		**|
+
+		/if (${check_for_named[FALSE]}) {
+			
+			/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
+			/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
+			/if (${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}) /call core_cast2 "Juggernaut Surge" alt 0 FALSE
+			
+			/if (!${Me.Buff[Blood Pact].ID}) {
+				/if (${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}) /call core_cast2 "Blood Pact" alt 0 FALSE
+			}
+
+			/if (${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}) /call core_cast2 "Blinding Fury" alt 0 FALSE
+			/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
+			/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
+			/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
+			/if (${validate_cast[FALSE, alt, "Focused Furious Rampage", ${Me.ID}]}) /call core_cast2 "Focused Furious Rampage" alt 0 FALSE
+			| Or if Quicktime drops I know to cast Untamed Rage on my zerker: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/page-6#post-3627587
+			/if (!${Me.Song[Quick Time V].ID}) {
+				/if (${validate_cast[FALSE, alt, "Untamed Rage", ${Me.ID}]}) /call core_cast2 "Untamed Rage" alt 0 FALSE 
+			}
+
+			/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
+				/if (${Me.ActiveDisc.ID} == ${DisconDiscID}) {
+					/stopdisc
+				}
+				/call core_cast2 "${BrutalDisc}" disc 0 FALSE	
+			}
+			/varset inBetween 1
 		}
 
 		/if (!${Me.ActiveDisc.ID}) {

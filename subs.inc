@@ -3146,22 +3146,22 @@ sub cast_alliance(string _alliance, int _tmpID)
 
 		| Cast alliance
 		/call core_cast2 "${_alliance}" FIND ${_tmpID} FALSE
-
-		| Get the index and name of the next caster
-		/call get_next_in_rotation
-		/varset allianceCaster ${Macro.Return}
-
-		| Announce who the next one is
-		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt ******** NEXT SHOULD BE ${allianceCaster} *********
-
-		| Tell the next in line that it is their turn
-		/squelch /dex ${allianceCaster} /varset allianceTurn 1
-		/squelch /dex ${allianceCaster} /varset allianceCounter ${allianceCounter}
-
-		| My turn is done
-		/varset allianceTurn 0
-
 	}
+
+	| Get the index and name of the next caster
+	/call get_next_in_rotation
+	/varset allianceCaster ${Macro.Return}
+
+	| Announce who the next one is
+	/if (${verbose${Me.Class.ShortName}}) /docommand /dgt ******** NEXT SHOULD BE ${allianceCaster} *********
+
+	| Tell the next in line that it is their turn
+	/squelch /dex ${allianceCaster} /varset allianceTurn 1
+	/squelch /dex ${allianceCaster} /varset allianceCounter ${allianceCounter}
+
+	| My turn is done
+	/varset allianceTurn 0
+
 /return
 
 Sub get_next_in_rotation
@@ -3190,3 +3190,15 @@ Sub get_next_in_rotation
 	}
 
 /return ${allianceCaster}
+
+
+sub check_for_named(bool _debug)
+	/declare _count int local 0
+
+	/for _count 1 to ${Me.XTarget}
+
+		/if (${Me.XTarget[${_count}].Named}) /return TRUE
+
+	/next _count
+
+/return FALSE

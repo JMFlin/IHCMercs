@@ -69,7 +69,7 @@ sub mnk_self_buffs
 |- SUB: Defense
 |----------------------------------------------------------------------------
 Sub Defense
-	/if (${Me.XTarget[1].Named} || ${Me.XTarget[2].Named} || ${Me.XTarget[3].Named} || ${Me.XTarget} > 2) {
+	/if (${check_for_named[FALSE]} || ${Me.XTarget} > 2) {
 		
 		/if (${Me.ActiveDisc.ID}) {
 			/if (${Me.ActiveDisc.ID} != ${Spell[${EarthForce}].ID} && ${Me.ActiveDisc.ID} != ${Spell[${Heel}].ID} && ${Me.ActiveDisc.ID} != ${Spell[${Palm}].ID} && ${Me.ActiveDisc.ID} != ${Spell[${Speed}].ID}) {
@@ -103,7 +103,7 @@ Sub Defense
 		/delay 5
 	}
 
-	/if (${Me.XTarget[1].Named} || ${Me.XTarget[2].Named} || ${Me.XTarget[3].Named} || ${Me.XTarget} > 2) {
+	/if (${check_for_named[FALSE]} || ${Me.XTarget} > 2) {
 		/if (${FindItem[Blood Drinker's Coating].Timer.TotalSeconds}==0 && ${Target.PctHPs}>10 && !${Me.Casting.ID} && !${Me.Moving} && ${Me.PctHPs} < 60) { 
 			/useitem "Blood Drinker's Coating"
 			/delay 5
@@ -121,7 +121,7 @@ Sub CombatdpsDiscs
 		/delay 2
 	}
 	/if (${Me.AltAbilityReady[Five Point Palm]} && !${Target.Buff[Sarnak Finesse].ID} && ${Target.PctHPs}>50 && ${Target.PctHPs}<95) {
-		/if (!${Me.ActiveDisc.ID} && !${Target.Named} && ${Me.CombatAbilityReady[${Iron}]}) {
+		/if (!${Me.ActiveDisc.ID} && ${Me.CombatAbilityReady[${Iron}]}) {
 			
 			/if (${validate_cast[FALSE, alt, "Swift Tails' Chant", ${Me.ID}]}) /call core_cast2 "Swift Tails' Chant" alt 0 FALSE
 			
@@ -132,7 +132,7 @@ Sub CombatdpsDiscs
 			/Disc ${Crane}
 			/delay 6
 			/alt act 1012
-		} else /if (!${Me.ActiveDisc.ID} && !${Target.Named} && ${Me.CombatAbilityReady[${Palm}]} && ${Me.AltAbilityReady[Five Point Palm]}) {
+		} else /if (!${Me.ActiveDisc.ID} && ${Me.CombatAbilityReady[${Palm}]} && ${Me.AltAbilityReady[Five Point Palm]}) {
 			
 			/if (${validate_cast[FALSE, alt, "Focused Destructive Force", ${Me.ID}]}) /call core_cast2 "Focused Destructive Force" alt 0 FALSE
 			
@@ -158,7 +158,7 @@ Sub CombatdpsDiscs
 			/alt act 1012
 		}
 	}
-	/if (${Me.CombatAbilityReady[${Storm}]} && !${Me.ActiveDisc.ID} && ${Target.PctHPs}>5 && !${Target.Named}) {
+	/if (${Me.CombatAbilityReady[${Storm}]} && !${Me.ActiveDisc.ID} && ${Target.PctHPs}>5 && !${check_for_named[FALSE]}) {
 		/Disc ${Storm}
 		/delay 2
 	}
@@ -240,7 +240,7 @@ Sub DoNamed
 
 	|/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
 
-	/if (${Target.Named} || ${Me.XTarget[1].Named} || ${Me.XTarget[2].Named} || ${Me.XTarget[3].Named}) {
+	/if (${check_for_named[FALSE]}) {
 
 		/if (${validate_cast[FALSE, alt, "Swift Tails' Chant", ${Me.ID}]}) /call core_cast2 "Swift Tails' Chant" alt 0 FALSE
 
