@@ -61,7 +61,6 @@ Sub ber_main
 		/call get_target
 
 		/if (${Me.PctHPs} > 89) {
-			/echo ${validate_cast[FALSE, disc, "${RitualScarification}", ${Me.ID}]}
 			/if (${validate_cast[FALSE, disc, "${RitualScarification}", ${Me.ID}]}) /call core_cast2 "${RitualScarification}" disc 0 FALSE
 		}
 
@@ -84,12 +83,17 @@ Sub ber_main
 
 		/call use_skill_melee FALSE ${Target.ID}
 
+		|/echo Desperation: ${validate_cast[FALSE, alt, "Desperation", ${Target.ID}]}
+		|/echo Savage Spirit: ${validate_cast[FALSE, alt, "Savage Spirit", ${Target.ID}]}
+		/echo Juggernaut: ${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}
+		/echo Blood Pact: ${validate_cast[FALSE, alt, "Blood Pact", ${Me.ID}]}
+		/echo Blinding Fury: ${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}
 		/if (!${Me.ActiveDisc.ID}) {
 			/if (${burnRotation} == 1) {
 				
 				/if (${validate_cast[FALSE, disc, "${BrutalDisc}", ${Me.ID}]}) {
 					/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Savage Spirit", ${Target.ID}]}) /call core_cast2 "Savage Spirit" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Juggernaut Surge", ${Me.ID}]}) /call core_cast2 "Juggernaut Surge" alt 0 FALSE
 					
 					/if (!${Me.Buff[Blood Pact].ID}) {
@@ -99,7 +103,7 @@ Sub ber_main
 					/if (${validate_cast[FALSE, alt, "Blinding Fury", ${Me.ID}]}) /call core_cast2 "Blinding Fury" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Silent Strikes", ${Me.ID}]}) /call core_cast2 "Silent Strikes" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Spire of the Juggernaut", ${Me.ID}]}) /call core_cast2 "Spire of the Juggernaut" alt 0 FALSE
-					/if (${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
+					/if (${validate_cast[FALSE, alt, "Desperation", ${Target.ID}]}) /call core_cast2 "Desperation" alt 0 FALSE
 					/if (${validate_cast[FALSE, alt, "Focused Furious Rampage", ${Me.ID}]}) /call core_cast2 "Focused Furious Rampage" alt 0 FALSE
 					/call core_cast2 "${BrutalDisc}" disc 0 FALSE
 					| Or if Quicktime drops I know to cast Untamed Rage on my zerker: https://forums.daybreakgames.com/eq/index.php?threads/tucos-setup-critique-welcome.240258/page-6#post-3627587

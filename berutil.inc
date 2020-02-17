@@ -390,8 +390,8 @@ Sub ber_abilities
 	} 
 
 |---Battle Cry - HHE Buff
-	/if (${Me.Level}>=65 && ${Me.CombatAbility[Ancient Cry of Chaos]}) {
-		/varset HHEBuff Ancient Cry of Chaos
+	/if (${Me.Level}>=65 && ${Me.CombatAbility[Ancient: Cry of Chaos]}) {
+		/varset HHEBuff Ancient: Cry of Chaos
 	} else /if (${Me.Level}>=65 && ${Me.CombatAbility[Battle Cry of the Mastruq]}) {
 		/varset HHEBuff Battle Cry of the Mastruq
 	} else /if (${Me.Level}>=64 && ${Me.CombatAbility[War Cry of Dravel]}) {

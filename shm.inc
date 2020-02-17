@@ -27,13 +27,13 @@ Sub shm_main
 			/call core_cast2 "Cannibalization" alt 0 FALSE
 		}
 	}
-|**
+
 	/if (!${Me.Song[${GroupRenewalHoT}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${GroupRenewalHoT}", ${Me.ID}]}) {
 			/call core_cast2 "${GroupRenewalHoT}" spell ${Me.ID} FALSE
 		}
 	}
-**|
+
 	/while (${Me.XTarget}) {
 		/call move_to_camp
 		/call get_target

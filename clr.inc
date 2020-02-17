@@ -28,6 +28,12 @@ Sub clr_main
 	/call clr_group_buffs
 	/call clr_self_buffs
 	/call clr_combat_tank_buffs
+	|!${Me.Song[${GroupElixirSpell}].ID}
+	/if (${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID}) {
+		/if (${validate_cast[FALSE, spell, "${GroupElixirSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${GroupElixirSpell}" spell ${Me.ID} FALSE
+		}
+	}
 
 	/while (${Me.XTarget}) {
 
@@ -108,6 +114,12 @@ Sub clr_main
 		}
 	}
 	
+	/if (${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID}) {
+		/if (${validate_cast[FALSE, spell, "${GroupElixirSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${GroupElixirSpell}" spell ${Me.ID} FALSE
+		}
+	}
+
 |	/call cures
 	/doevents
 	

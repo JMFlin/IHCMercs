@@ -1384,10 +1384,11 @@ sub validate_combat(int _tmpID)
 				/nav id ${_tmpID}
 			}
 
-			/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
+			/if (${Group.MainTank.ID} != ${Me.ID}) {
+				/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
+			}
 		}
 
-		
 	} 
 
 
@@ -1522,7 +1523,13 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	} else /if (${_type.Equal[alt]}) {
 |		DEBUG ${dep}alt\ax${dep}name:${_spell}
 		/if (!${Me.AltAbilityReady[${_spell}]}) /return FALSE
-		/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
+		
+		/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM,BST,SHD,PAL,RNG,CLR]}) {
+			/if (${Me.CurrentMana} < ${Spell[${_spell}].Mana}) /return FALSE
+		} else /if (${Select[${Me.Class.ShortName},BER,WAR,MNK,ROG]}) {
+			/if (${Me.CurrentEndurance} < ${Spell[${_spell}].EnduranceCost}) /return FALSE
+		}
+		
 		/if (${Spell[${_spell}].Range}) {
 			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
 		}		
@@ -2596,7 +2603,7 @@ sub setup_skill_melee(bool _debug)
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 50
+			/varset assistRange 30
 		}
 	}
 

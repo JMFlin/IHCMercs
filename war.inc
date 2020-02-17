@@ -71,9 +71,9 @@ Sub war_main
 		/if (${Me.SecondaryPctAggro} > 30) {
 			/if (${validate_cast[FALSE, alt, "Projection of Fury", ${Target.ID}]}) /call core_cast2 "Projection of Fury" alt ${Target.ID} FALSE
 		}
-		/if (${Me.SecondaryPctAggro} > 50) {
-			/if (${validate_cast[FALSE, alt, "Warlord's Grasp", ${Target.ID}]}) /call core_cast2 "Warlord's Grasp" alt ${Target.ID} FALSE
-		}
+		
+		/if (${validate_cast[FALSE, alt, "Warlord's Grasp", ${Target.ID}]}) /call core_cast2 "Warlord's Grasp" alt ${Target.ID} FALSE
+		
 		/call war_get_aggro
 
 		/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {

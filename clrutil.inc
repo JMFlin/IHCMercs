@@ -86,6 +86,7 @@ Sub clr_setup
 	/declare RezSpell	 			string 			outer NULL
 	/declare CasterSpeedBuff 		string 			outer NULL
 	/declare SingleElixirSpell 		string 			outer NULL
+	/declare GroupElixirSpell 		string			outer NULL
 	
 	/declare spellmisc 				int outer 8
 	/declare spellgem				int outer 1	
@@ -114,6 +115,9 @@ Sub clr_load_spellbar
 	/call LoadSpellGem "${Intervention2}" 7
 	/call LoadSpellGem "${Intervention3}" 8
 
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+		/call LoadSpellGem "${GroupElixirSpell}" 9
+	}
 	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -135,6 +139,9 @@ Sub clr_abilities
 	}
 
 
+	/if (${Me.Level}>=${Spell[Merciful Acquittal].Level} && ${Me.Book[${Spell[Merciful Acquittal].RankName}]})  {
+		/varset GroupElixirSpell ${Spell[Merciful Acquittal].RankName}
+	}
 
 	/if (${Me.Level}>=${Spell[Sincere Elixir].Level} && ${Me.Book[${Spell[Sincere Elixir].RankName}]})  {
 		/varset SingleElixirSpell ${Spell[Sincere Elixir].RankName}
