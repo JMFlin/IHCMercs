@@ -114,9 +114,7 @@ Sub wiz_abilities
 	}
 	
 |-Familiar Buff
-	/if (${Me.AltAbility[Kerafyrm's Prismatic Familiar].Rank} >= 1) {
-		/varset FamiliarBuff "Kerafyrm's Prismatic Familiar"
-	} else /if (${Me.AltAbility[Improved Familiar].Rank} >= 1 && !(${Me.AltAbility[Kerafyrm's Prismatic Familiar].Rank} >= 1)) {
+	/if (${Me.AltAbility[Improved Familiar].Rank} >= 1) {
 		/varset FamiliarBuff "Improved Familiar"
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Greater Familiar].RankName}]}) {
 		/varset FamiliarBuff ${Spell[Greater Familiar].RankName}
