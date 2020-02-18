@@ -163,14 +163,18 @@ Sub war_combat_buffs
 |- SUB: DoDisc 
 |---------------------------------------------------------------------------- 
 Sub war_disc
+	/declare _isNamed bool local FALSE
+	
+	${check_for_named[FALSE]}
+	/varset _isNamed ${Macro.Return}
 
-	/if (!${validate_combat[${Target.ID}]} ) /return
+	/if (!${validate_combat_buffs[${Target.ID}]}) /return
 
 	/if (${Me.PctHPs} < 55 && ${Me.ActiveDisc.ID} != ${FortitudeDiscID}) {
 		/disc ${parryall}
 	}
 
-	/if (${Me.XTarget} > 2 || ${check_for_named[FALSE]} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
+	/if (${Me.XTarget} > 2 || ${_isNamed} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
 		/if (${validate_cast[FALSE, disc, "${missall}", ${Me.ID}]}) {
 			/if (${Me.ActiveDisc.ID}) {
@@ -197,20 +201,20 @@ Sub war_disc
 		}
 	}
 
-	/if (${check_for_named[FALSE]} || ${Target.Level} > (${Me.Level}+3)) {
+	/if (${_isNamed} || ${Target.Level} > (${Me.Level}+3)) {
 
 		/if (${validate_cast[FALSE, alt, "Mark of the Mage Hunter", ${Me.ID}]}) /call core_cast2 "Mark of the Mage Hunter" alt 0 FALSE
 		/if (${validate_cast[FALSE, disc, "${attention}", ${Me.ID}]}) /call core_cast2 "${attention}" disc ${Target.ID} FALSE
 	}
 
-	/if (${Me.XTarget} > 3 || ${check_for_named[FALSE]} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
+	/if (${Me.XTarget} > 3 || ${_isNamed} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
 		/if (${validate_cast[FALSE, alt, "Warlord's Tenacity", ${Me.ID}]}) /call core_cast2 "Warlord's Tenacity" alt 0 FALSE
 		/if (${validate_cast[FALSE, alt, "Wars Sheol's Heroic Blade", ${Me.ID}]}) /call core_cast2 "Wars Sheol's Heroic Blade" alt ${Target.ID} FALSE
 		/if (${validate_cast[FALSE, alt, "Rage of Rallos Zek", ${Me.ID}]}) /call core_cast2 "Rage of Rallos Zek" alt 0 FALSE
 	}
 
-	/if (${check_for_named[FALSE]}) {
+	/if (${_isNamed}) {
 		/if (${validate_cast[FALSE, disc, "${throat}", ${Me.ID}]}) /call core_cast2 "${throat}" disc ${Target.ID} FALSE
 	}
 
@@ -280,9 +284,6 @@ Sub war_aoe_aggro
 	/declare _numberOfSpawn 	 int local 0
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
-	/if (!${validate_combat[${Target.ID}]} ) /return
-	
-	/call engage
 
 	/if (${SpawnCount[NPC radius 30 zradius 30]} > 1 && ${Me.XTarget} > 1) {
 		/if (${validate_cast[FALSE, disc, "${aeroar}", ${Target.ID}]}) /call core_cast2 "${aeroar}" disc ${Target.ID} FALSE
