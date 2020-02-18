@@ -1412,7 +1412,7 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	
 	| is the issued target dead?
 	/if (${_tmpID}) {
-		/if (!${Spawn[${_tmpID}].ID}) /return FALSE
+		/if (!${Spawn[id ${_tmpID}].ID}) /return FALSE
 	}
 
 	| line of sight?
@@ -1531,9 +1531,9 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		} else /if (${Select[${Me.Class.ShortName},BER,WAR,MNK,ROG]}) {
 			/if (${Me.CurrentEndurance} < ${Spell[${_spell}].EnduranceCost}) /return FALSE
 		}
-		
+
 		/if (${Spell[${_spell}].Range}) {
-			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
+			/if (${Spawn[id ${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
 		}		
 		| stacking
 		/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && (${_tmpID} == ${Me.ID})) {
@@ -1556,7 +1556,7 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		/if (!${Me.CombatAbilityReady[${Me.CombatAbility[${Spell[${_spell}].RankName}]}]}) /return FALSE
 		/if (${Me.CurrentEndurance} < ${Spell[${_spell}].EnduranceCost}) /return FALSE
 		/if (${Spell[${_spell}].Range}) {
-			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
+			/if (${Spawn[id ${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
 		}
 		/if (${Bool[${Me.Song[${_spell}].Duration}]}) /return FALSE
 		/if (${Bool[${Me.Buff[${_spell}].Duration}]}) /return FALSE		
@@ -1582,7 +1582,7 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 
 		| check the distance
 		/if (${_tmpID} != ${Me.ID}) {
-			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${FindItem[=${_spell}].Spell}].MyRange} && ${Spell[${FindItem[=${_spell}].Spell}].Range} != 0) /return FALSE
+			/if (${Spawn[id ${_tmpID}].Distance} > ${Spell[${FindItem[=${_spell}].Spell}].MyRange} && ${Spell[${FindItem[=${_spell}].Spell}].Range} != 0) /return FALSE
 		}
 		
 		| do we already have the effect?

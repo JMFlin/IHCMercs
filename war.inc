@@ -9,10 +9,6 @@ Figure out when to use Spire.
 
 
 Sub war_main
-
-	/if (${powerLevel}) {
-		/return
-	} 
 	
 	/while (${Me.XTarget}) {
 		
