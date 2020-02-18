@@ -16,7 +16,7 @@ Sub bst_main
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		/call engage
-		/call pet_attack
+		/call pet_attack ${Target.ID}
 
 		/call use_skill_melee ${Target.ID} FALSE
 
@@ -38,7 +38,7 @@ Sub bst_main
 		}
 		/call get_target
 		/call engage
-		/call pet_attack
+		/call pet_attack ${Target.ID}
 
 		/if (${Me.CombatAbilityReady[${Maul}]}) {
 			/if (${validate_cast[FALSE, disc, ${Maul}, ${Target.ID}]}) /call core_cast2 ${Maul} disc ${Target.ID} FALSE
@@ -50,7 +50,7 @@ Sub bst_main
 
 		/call get_target
 		/call engage
-		/call pet_attack
+		/call pet_attack ${Target.ID}
 		
 		/if (!${Target.Buff[${MaelstromNuke}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${MaelstromNuke}", ${Target.ID}]}) /call core_cast2 "${MaelstromNuke}" spell ${Target.ID} FALSE

@@ -267,7 +267,7 @@ Sub engage
 
 	/if (!${Target.Buff[Sarnak Finesse].ID}) {
 		/if (${Target.ID} && ${Target.Distance3D} < 50) /squelch /attack on
-		/call pet_attack
+		/call pet_attack ${Target.ID}
 	}
 
 
@@ -802,23 +802,23 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 |----------------------------------------------------------------------------
 |- SUB: PetAttack
 |---------------------------------------------------------------------------- 
-Sub pet_attack
+Sub pet_attack(int _tmpID)
 	/if (!${Me.Pet.ID}) /return
 	/if (${petFollow}) /varset petFollow 0
-	/if (!${validate_combat[${Target.ID}]} ) /return
+	/if (!${validate_combat[${_tmpID}]} ) /return
 	
 	|- Spirit call
-	/if (${Target.PctHPs} >= 30 && ${Me.AltAbilityReady[Spirit Call]}) {
-		/if (!${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /alt act 177
-		/delay 2
+	/if (${Target.PctHPs} >= 30) {
+		/if (${validate_cast[FALSE, alt, "Spirit Call", ${_tmpID}]}) /call core_cast2 "Spirit Call" FIND ${_tmpID} FALSE
 	}
+
 	/if (!${Me.Pet.Combat}) {
 		/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet attack 
 		/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet swarm
 	}
 
-	/if (!${Spawn[${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
-	/if (${Spawn[${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
+	/if (!${Spawn[id ${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
+	/if (${Spawn[id ${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
 /return
 
 |***

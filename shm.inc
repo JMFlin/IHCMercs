@@ -65,7 +65,7 @@ Sub shm_main
 			}
 		}
 
-		/call pet_attack
+		/call pet_attack ${Target.ID}
 
 	
 		|**

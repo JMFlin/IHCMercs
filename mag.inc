@@ -12,7 +12,7 @@ Sub mag_main
 
 		/call get_target
 		/if (!${validate_combat[${Target.ID}]}) /continue
-		/call pet_attack
+		/call pet_attack ${Target.ID}
 
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
 			/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
