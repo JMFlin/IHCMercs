@@ -48,6 +48,11 @@ Avenging Flurry Discipline
 |---------------------------------------------------------------------------- 
 Sub ber_main
 	
+	/if (!${powerLevel}) {
+		/varset powerLevel TRUE
+		/return
+	}
+
 	/if (${powerLevel}) {
 		/return
 	}

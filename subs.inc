@@ -2604,19 +2604,19 @@ sub setup_skill_melee(bool _debug)
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 95
-			/varset assistRange 55
+			/varset assistRange 100
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 70
+			/varset assistRange 100
 		}
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 95
-			/varset assistRange 55
+			/varset assistRange 100
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 30
+			/varset assistRange 55
 		}
 	}
 
@@ -2626,14 +2626,14 @@ sub setup_skill_melee(bool _debug)
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
-			/varset assistRange 70
+			/varset assistRange 100
 		}
 	}
 
 	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 95
-			/varset assistRange 55
+			/varset assistRange 100
 		} else {
 			/varset autoAssistAt 99
 			/varset assistRange 100
@@ -2643,7 +2643,7 @@ sub setup_skill_melee(bool _debug)
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 95
-			/varset assistRange 55
+			/varset assistRange 100
 		} else {
 			/varset autoAssistAt 100
 			/varset assistRange 200
