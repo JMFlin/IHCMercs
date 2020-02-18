@@ -35,19 +35,8 @@ Sub shm_main
 	}
 	
 	/while (${Me.XTarget}) {
-		/call move_to_camp
-
-		/call get_heal_target 85
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
-				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
-			}
-		}
 
 		/call get_target
-		
-		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		/if (${check_for_named[FALSE]}) /call shm_do_named
 
@@ -67,17 +56,15 @@ Sub shm_main
 
 		/call pet_attack ${Target.ID}
 
-	
-		|**
-		/call get_target
-		/if (!${Target.Crippled.ID} && !${Target.Buff[${CrippleSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
-			/if (${validate_cast[FALSE, spell, "${CrippleSpell}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Crippling \ar ${Target.Name} \ax with =>> \ag ${CrippleSpell} \ax <<=
-				/call core_cast2 "${CrippleSpell}" spell ${Target.ID} FALSE
-				/call check_cast_events "${CrippleSpell}" CAST_IMMUNE ${Target.ID}
+		/call move_to_camp
+
+		/call get_heal_target 85
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
 			}
 		}
-		**|
 		
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
@@ -86,28 +73,7 @@ Sub shm_main
 				/call core_cast2 "${RecklessHeal2}" spell ${worstHurtId} FALSE
 			}
 		}
-
-		/if (${Me.XTarget} > 1) /call shm_debuff_xtarget
 		
-		/call get_heal_target 85
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
-				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
-			}
-		}
-
-		/call get_heal_target 50
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, alt, "Union of Spirits", ${worstHurtId}]}) {
-				/call core_cast2 "Union of Spirits" alt ${worstHurtId} FALSE
-			}
-		}
-
-		
-		/call shm_aa_and_disc
-
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
@@ -121,6 +87,18 @@ Sub shm_main
 				}
 			}
 		}
+
+		/if (${Me.XTarget} > 1) /call shm_debuff_xtarget
+
+		/call get_heal_target 50
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, alt, "Union of Spirits", ${worstHurtId}]}) {
+				/call core_cast2 "Union of Spirits" alt ${worstHurtId} FALSE
+			}
+		}
+
+		/call shm_aa_and_disc
 
 		/call get_target
 		/if (${Target.Named}) {
@@ -150,8 +128,7 @@ Sub shm_main
 		/if (${check_hurt[FALSE, group, 70]} >= 2) {
 			/if (${validate_cast[FALSE, spell, "${RecourseHeal}", ${Me.ID}]}) /call core_cast2 "${RecourseHeal}" spell ${Me.ID} FALSE
 		}
-		DEBUG Spirit Guard ${validate_cast[FALSE, alt, "Spirit Guardian", ${Group.MainTank.ID}]}
-		DEBUG Ancestral Aid ${validate_cast[FALSE, alt, "Ancestral Aid", ${Me.ID}]}
+
 		DEBUG Call of the Ancients ${validate_cast[FALSE, alt, "Call of the Ancients", ${Me.ID}]}
 
 	}
@@ -230,7 +207,9 @@ Sub shm_do_named
 **|
 
 	| Group and Wards
-	/if (${validate_cast[FALSE, alt, "Call of the Ancients", ${Me.ID}]}) /call core_cast2 "Call of the Ancients" alt ${Me.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Call of the Ancients", ${Me.ID}]}) {
+    	/call core_cast2 "Call of the Ancients" alt ${Me.ID} FALSE
+    }
 	/if (${validate_cast[FALSE, alt, "Spire of Ancestors", ${Me.ID}]}) /call core_cast2 "Spire of Ancestors" alt 0 FALSE
 
 	

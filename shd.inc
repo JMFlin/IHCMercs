@@ -173,8 +173,6 @@ Sub shd_combat_buffs
 		}
 	}
 
-
-
 /return
 |----------------------------------------------------------------------------
 |- SUB: DoDisc 
@@ -239,7 +237,7 @@ Sub shd_disc
 Sub shd_get_aggro
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
-	
+
 	/call use_skill_melee ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {

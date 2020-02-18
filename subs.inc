@@ -1379,7 +1379,7 @@ sub validate_combat(int _tmpID)
 
 		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK,WAR,PAL,SHD]}) {
 			
-			/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${EverQuest.ValidLoc[${Spawn[id ${_tmpID}].X} ${Spawn[id ${_tmpID}].Y} ${Spawn[id ${_tmpID}].Y}]}) {
+			/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathExists[id ${_tmpID}]} && ${EverQuest.ValidLoc[${Spawn[id ${_tmpID}].X} ${Spawn[id ${_tmpID}].Y} ${Spawn[id ${_tmpID}].Y}]}) {
 				/if (${Stick.Active}) /stick off
 				/nav id ${_tmpID}
 				/while (${Navigation.Active}) {

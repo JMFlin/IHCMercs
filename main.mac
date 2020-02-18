@@ -135,16 +135,6 @@ Sub afk_radius_camping
 		}
 
 		/call check_state FALSE
-
-		/if (!${powerLevel}) {
-			/if (${Select[${Me.Class.ShortName},ENC,WIZ,MAG,MNK,ROG,BER,BST]}) {
-				/call get_target
-			}
-		} else /if (${powerLevel}) {
-			/if (${Select[${Me.Class.ShortName},ENC,WIZ,MAG,MNK]}) {
-				/call get_target
-			}
-		}
 		
 		/if (${Balance}) /call balance_mob_hitpoints
 		/if (${powerLevel}) {
@@ -155,7 +145,7 @@ Sub afk_radius_camping
 			/call ${Me.Class.ShortName.Lower}_main
 		}
 	}
-	/doevents
+	|doevents
 /return
 
 Sub set_mode

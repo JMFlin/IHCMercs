@@ -12,14 +12,6 @@ Sub mnk_main
 		/call CombatdpsMash
 		/call Defense
 		/call DoNamed
-		/if (${Me.XTarget}) {
-			/if (${Me.XTarget[1].Distance} > 170 && !${Me.XTarget[2].ID} && ${Me.XTarget[1].Distance} < 210) {
-				/nav id ${Me.XTarget[1].ID}
-				/while (${Navigation.Active}) {
-					/delay 5
-				}
-			}
-		}
 	}
 
 	/call mnk_self_buffs

@@ -25,11 +25,7 @@ Sub war_main
 		/if (!${Me.Song[Battle Leap].ID}) {
 			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 		}
-		|**
-		/if (!${Target.Stunned}) {
-			/if (${validate_cast[FALSE, alt, "Press the Attack", ${Target.ID}]}) /call core_cast2 "Press the Attack" alt ${Target.ID} FALSE
-		}
-		**|
+
 		/call war_disc
 
 		/if (!${Me.ActiveDisc.ID}) {
@@ -45,14 +41,9 @@ Sub war_main
 		/call war_aoe_aggro
 		/call check_add_aggro
 
-		/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
-
 		/if (${Target.Named} || ${Me.PctHPs} < 61) {
 			/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
 		}
-		
-		/call check_add_aggro
-		/call war_aoe_aggro
 
 		/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]} < 2) {
 			/if (${validate_cast[FALSE, alt, "Rampage", ${Target.ID}]}) /call core_cast2 "Rampage" alt ${Target.ID} FALSE
