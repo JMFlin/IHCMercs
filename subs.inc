@@ -332,7 +332,8 @@ Sub check_add_aggro
 	/if (${Balance}) /return
 	/if (!${Me.XTarget[2].ID}) /return
 	/if (${timeForMez} != 0) /return
-
+	/if (${Group.MainTank.ID} != ${Me.ID}) /return
+	
 	/if (${Target.Type.Equal[Corpse]}) /target clear
 
 	| if any npcs on xtarget have less than 100% aggro

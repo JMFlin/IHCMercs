@@ -34,9 +34,17 @@ Sub war_main
 			/if (${validate_cast[FALSE, alt, "Press the Attack", ${Target.ID}]}) /call core_cast2 "Press the Attack" alt ${Target.ID} FALSE
 		}
 		**|
+		/call war_disc
+
 		/if (!${Me.ActiveDisc.ID}) {
 			/if (${validate_cast[FALSE, disc, "${defenseac}", ${Me.ID}]}) /call core_cast2 "${defenseac}" disc 0 FALSE
 		}
+
+		/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
+
+		/if (${validate_cast[FALSE, alt, "Knee Strike", ${Target.ID}]}) /call core_cast2 "Knee Strike" alt ${Target.ID} FALSE
+
+		/if (${validate_cast[FALSE, alt, "Gut Punch", ${Target.ID}]}) /call core_cast2 "Gut Punch" alt ${Target.ID} FALSE
 
 		/call war_aoe_aggro
 		/call check_add_aggro
@@ -53,42 +61,11 @@ Sub war_main
 		/if (${SpawnCount[NPC radius 45 zradius 20 noalert 1]} < 2) {
 			/if (${validate_cast[FALSE, alt, "Rampage", ${Target.ID}]}) /call core_cast2 "Rampage" alt ${Target.ID} FALSE
 		}
-		/if (${Me.SecondaryPctAggro} > 10) {
-			/if (${validate_cast[FALSE, disc, "${singlehealhate}", ${Target.ID}]}) /call core_cast2 "${singlehealhate}" disc ${Target.ID} FALSE
-		}
 		
-		/call war_get_aggro
-
-		/if (${Me.SecondaryPctAggro} > 10) {
-			/if (${validate_cast[FALSE, disc, "${PhantomDisc}", ${Target.ID}]}) /call core_cast2 "${PhantomDisc}" disc ${Target.ID} FALSE
-		}
-
-		/call war_aoe_aggro
 		/call war_combat_buffs
-		/call check_add_aggro
-		/call war_disc
-
-		/if (${Me.SecondaryPctAggro} > 30) {
-			/if (${validate_cast[FALSE, alt, "Projection of Fury", ${Target.ID}]}) /call core_cast2 "Projection of Fury" alt ${Target.ID} FALSE
-		}
-		
-		/if (${validate_cast[FALSE, alt, "Warlord's Grasp", ${Target.ID}]}) /call core_cast2 "Warlord's Grasp" alt ${Target.ID} FALSE
-		
-		/call war_get_aggro
-
-		/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
-			/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]}) /call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
-		}
 
 		/call check_add_aggro
 
-		/if (${validate_cast[FALSE, disc, "${tongue}", ${Target.ID}]}) /call core_cast2 "${tongue}" disc ${Target.ID} FALSE
-
-		/if (${validate_cast[FALSE, disc, "${reprisal}", ${Target.ID}]}) /call core_cast2 "${reprisal}" disc ${Target.ID} FALSE
-
-		/call war_combat_buffs
-		/call war_disc
-		/call war_aoe_aggro
 	}
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 
@@ -264,11 +241,26 @@ Sub war_get_aggro
 	
 	/call use_skill_melee FALSE ${Target.ID}
 
-	/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
+	/if (${Me.SecondaryPctAggro} > 10) {
+		/if (${validate_cast[FALSE, disc, "${PhantomDisc}", ${Target.ID}]}) /call core_cast2 "${PhantomDisc}" disc ${Target.ID} FALSE
+	}
+	/if (${Me.SecondaryPctAggro} > 10) {
+		/if (${validate_cast[FALSE, disc, "${singlehealhate}", ${Target.ID}]}) /call core_cast2 "${singlehealhate}" disc ${Target.ID} FALSE
+	}
 
-	/if (${validate_cast[FALSE, alt, "Knee Strike", ${Target.ID}]}) /call core_cast2 "Knee Strike" alt ${Target.ID} FALSE
+	/if (${Me.SecondaryPctAggro} > 30) {
+		/if (${validate_cast[FALSE, alt, "Projection of Fury", ${Target.ID}]}) /call core_cast2 "Projection of Fury" alt ${Target.ID} FALSE
+	}
+	
+	/if (${validate_cast[FALSE, alt, "Warlord's Grasp", ${Target.ID}]}) /call core_cast2 "Warlord's Grasp" alt ${Target.ID} FALSE
 
-	/if (${validate_cast[FALSE, alt, "Gut Punch", ${Target.ID}]}) /call core_cast2 "Gut Punch" alt ${Target.ID} FALSE
+	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
+		/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${Target.ID}]}) /call core_cast2 "Ageless Enmity" alt ${Target.ID} FALSE
+	}
+
+	/if (${validate_cast[FALSE, disc, "${tongue}", ${Target.ID}]}) /call core_cast2 "${tongue}" disc ${Target.ID} FALSE
+
+	/if (${validate_cast[FALSE, disc, "${reprisal}", ${Target.ID}]}) /call core_cast2 "${reprisal}" disc ${Target.ID} FALSE
 
 |**
 	/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {

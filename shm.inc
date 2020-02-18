@@ -130,10 +130,9 @@ Sub shm_main
 			/if (${validate_cast[FALSE, spell, "${InterventionHeal}", ${Me.ID}]}) /call core_cast2 "${InterventionHeal}" spell ${Me.ID} FALSE
 		}
 
-		DEBUG TwinHealNuke validation: ${validate_cast[FALSE, spell, "${TwinHealNuke}", ${Group.MainTank.ID}]}
-
+		/call get_target
 		/if (${check_hurt[FALSE, group, 90]} >= 3) {
-			/if (${validate_cast[FALSE, spell, "${TwinHealNuke}", ${Group.MainTank.ID}]}) /call core_cast2 "${TwinHealNuke}" spell ${Group.MainTank.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${TwinHealNuke}", ${Target.ID}]}) /call core_cast2 "${TwinHealNuke}" spell ${Group.MainTank.ID} FALSE
 			/if (${validate_cast[FALSE, spell, "${AESpiritualHeal}", ${Group.MainTank.ID}]}) /call core_cast2 "${AESpiritualHeal}" spell ${Group.MainTank.ID} FALSE
 		}
 
@@ -463,8 +462,8 @@ Sub shm_group_buffs
 			}
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${RunSpeedBuff}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${RunSpeedBuff}].Stacks" "tmpstackcheck" "bool"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${RunSpeedBuffName}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${RunSpeedBuffName}].Stacks" "tmpstackcheck" "bool"
 				/if (${tmpstackcheck} && !${tmpbuffid}) {
 					/if (${validate_cast[FALSE, FIND, ${RunSpeedBuff}, ${Group.Member[${_count}].ID}]}) {
 						/call core_cast2 "${RunSpeedBuff}" FIND ${Group.Member[${_count}].ID} FALSE
@@ -474,7 +473,7 @@ Sub shm_group_buffs
 			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
 				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 				/delay 1s
-				/if (!${Target.Buff[${RunSpeedBuff}].ID}) {
+				/if (!${Target.Buff[${RunSpeedBuffName}].ID}) {
 					/if (${validate_cast[FALSE, FIND, ${RunSpeedBuff}, ${Group.Member[${_count}].ID}]}) {
 						/call core_cast2 "${RunSpeedBuff}" FIND ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
@@ -486,8 +485,8 @@ Sub shm_group_buffs
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${HasteSpell}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${HasteSpell}].Stacks" "tmpstackcheck" "bool"
 				/if (${tmpstackcheck} && !${tmpbuffid}) {
-					/if (${validate_cast[FALSE, spell, ${HasteSpell}, ${Group.Member[${_count}].ID}]}) {
-						/call core_cast2 "${HasteSpell}" spell ${Group.Member[${_count}].ID} FALSE
+					/if (${validate_cast[FALSE, FIND, ${HasteSpell}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${HasteSpell}" FIND ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
 				}
@@ -495,25 +494,23 @@ Sub shm_group_buffs
 				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 				/delay 1s
 				/if (!${Target.Buff[${HasteSpell}].ID}) {
-					/if (${validate_cast[FALSE, spell, ${HasteSpell}, ${Group.Member[${_count}].ID}]}) {
-						/call core_cast2 "${HasteSpell}" spell ${Group.Member[${_count}].ID} FALSE
+					/if (${validate_cast[FALSE, FIND, ${HasteSpell}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${HasteSpell}" FIND ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1
 					}
 				}
 			}
 
 			/if (${Group.Member[${_count}].ID} != ${Group.MainTank.ID}) /continue
-			
-			DEBUG REMEMBER TO DEBUG SLOWPROC AND GROTWH AND ALLIANCE
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
 				
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GrowthBuff}].Stacks" "tmpstackcheck" "bool"
 					
-					DEBUG GrowthBuff: ${GrowthBuff} tmpbuffid: ${tmpbuffid} tmpstackcheck: ${tmpstackcheck}
 					
-					/if (!${tmpbuffid} && !${tmpstackcheck}) {
+					
+					/if (!${tmpbuffid} && ${tmpstackcheck}) {
 						/if (${validate_cast[FALSE, spell, ${GrowthBuff}, ${Group.Member[${_count}].ID}]}) {
 							/call core_cast2 "${GrowthBuff}" spell ${Group.Member[${_count}].ID} FALSE
 							/varset CastCheck 1
@@ -536,9 +533,9 @@ Sub shm_group_buffs
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${SlowProcBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${SlowProcBuff}].Stacks" "tmpstackcheck" "bool"
 					
-					DEBUG SlowProcBuff: ${SlowProcBuff} tmpbuffid: ${tmpbuffid} tmpstackcheck: ${tmpstackcheck}
+					
 
-					/if (!${tmpbuffid} && !${tmpstackcheck}) {
+					/if (!${tmpbuffid} && ${tmpstackcheck}) {
 						/if (${validate_cast[FALSE, spell, ${SlowProcBuff}, ${Group.Member[${_count}].ID}]}) {
 							/call core_cast2 "${SlowProcBuff}" spell ${Group.Member[${_count}].ID} FALSE
 							/varset CastCheck 1
@@ -561,9 +558,9 @@ Sub shm_group_buffs
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
 					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
 					
-					DEBUG AllianceBuff: ${AllianceBuff} tmpbuffid: ${tmpbuffid} tmpstackcheck: ${tmpstackcheck}
+					
 
-					/if (!${tmpbuffid} && !${tmpstackcheck}) {
+					/if (!${tmpbuffid} && ${tmpstackcheck}) {
 						/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) {
 							/call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
 							/varset CastCheck 1
@@ -610,13 +607,13 @@ Sub shm_self_buffs
 		}
 	}
 	/if (${validate_cast[FALSE, alt, "Preincarnation", ${Me.ID}]}) {
-		/call core_cast2 "${Preincarnation}" alt 0 FALSE
+		/call core_cast2 "Preincarnation" alt 0 FALSE
 		/varset CastCheck 1
 	}
-	/if (${validate_cast[FALSE, alt, "Visionary's Unity", ${Me.ID}]}) {
-		/call core_cast2 "Visionary's Unity" alt 0 FALSE
-		/varset CastCheck 1
-	}
+	|/if (${validate_cast[FALSE, alt, "Visionary's Unity", ${Me.ID}]}) {
+	|	/call core_cast2 "Visionary's Unity" alt 0 FALSE
+	|	/varset CastCheck 1
+	|}
 	/if (${validate_cast[FALSE, spell, "${GroupHealProcBuff}", ${Me.ID}]}) {
 		/call core_cast2 "${GroupHealProcBuff}" spell ${Me.ID} FALSE
 		/varset CastCheck 1

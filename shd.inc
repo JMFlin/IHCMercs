@@ -2,9 +2,7 @@
 |- SUB: shadowknight 
 |---------------------------------------------------------------------------- 
 Sub shd_main
-	/if (${powerLevel}) {
-		/return
-	} 
+
 	/call shd_self_buffs
 
 	/while (${Me.XTarget}) {
@@ -21,7 +19,7 @@ Sub shd_main
 		
 		/call shd_disc
 
-		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
+		/if (${Group.MainTank.ID} == ${Me.ID} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${Me.AltAbilityReady[Encroaching Darkness]}) {
 				/echo ${validate_cast[FALSE, alt, "Encroaching Darkness", ${Target.ID}]}
 				/if (${validate_cast[FALSE, alt, "Encroaching Darkness", ${Target.ID}]}) {
@@ -128,9 +126,11 @@ Sub shd_self_buffs
 
 	/if (${Me.XTarget}) /return
 	
-	/if (${validate_cast[FALSE, alt, "Voice of Thule", ${Me.ID}]}) {
-		/call core_cast2 "Voice of Thule" alt ${Me.ID} FALSE
-		/varset CastCheck 1
+	/if (${Group.MainTank.ID} == ${Me.ID}) {
+		/if (${validate_cast[FALSE, alt, "Voice of Thule", ${Me.ID}]}) {
+			/call core_cast2 "Voice of Thule" alt ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
 	}
 
 	/if (!${Me.Buff["Bobbing Corpse"].ID}) {
@@ -240,6 +240,8 @@ Sub shd_get_aggro
 
 	/call use_skill_melee ${Target.ID} FALSE
 
+	/if (${Group.MainTank.ID} != ${Me.ID}) /return
+
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {
 		/call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
 	}
@@ -274,6 +276,8 @@ Sub shd_get_aggro
 |- SUB: aoe_aggro   
 |---------------------------------------------------------------------------- 
 Sub shd_aoe_aggro
+
+	/if (${Group.MainTank.ID} != ${Me.ID}) /return
 
 	/if (${Me.XTarget} > 1) {
 		/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {

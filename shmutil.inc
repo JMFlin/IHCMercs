@@ -98,6 +98,7 @@ Sub shm_setup
 	/declare ReadyToCast	  	timer outer 0
 	/declare groupbufftimer		timer outer 0
 	/declare CCTimer			timer outer 0
+	/declare RunSpeedBuffName 	string outer NULL
 	
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
@@ -236,6 +237,7 @@ Sub shm_abilities
 |- RunSpeedBuff
 	/if (${Me.AltAbility[Lupine Spirit].ID}) {
 		/varset RunSpeedBuff Lupine Spirit
+		/varset RunSpeedBuffName Spirit of Tala'Tak
 	} else /if (${Me.Level}>=${Spell[Spirit of Tala'Tak].Level} && ${Me.Book[${Spell[Spirit of Tala'Tak].RankName}]}) {
 		/varset RunSpeedBuff ${Spell[Spirit of Tala'Tak].RankName}
 	} else /if (${Me.Level}>=${Spell[Spirit of Bih'Li].Level} && ${Me.Book[${Spell[Spirit of Bih'Li].RankName}]}) {
