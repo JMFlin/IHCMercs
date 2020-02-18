@@ -48,9 +48,9 @@ Avenging Flurry Discipline
 |---------------------------------------------------------------------------- 
 Sub ber_main
 	
-	/if (${powerLevel}) {
-		/return
-	}
+	|/if (${powerLevel}) {
+	|	/return
+	|}
 
 	/if (!${Me.XTarget}) /call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
@@ -114,7 +114,7 @@ Sub ber_main
 
 		/echo ${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}
 		/echo ${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}
-		
+
 		/if (${check_for_named[FALSE]}) {
 			
 			/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
@@ -299,6 +299,7 @@ Sub ber_combat
 
 	/if (${validate_cast[FALSE, disc, "${Dvolley}", ${Target.ID}]}) /call core_cast2 "${Dvolley}" disc ${Target.ID} FALSE
 
+	|**
 	/if (${stunTurn} && ${classTotal} > 1) {
 		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
 			
@@ -321,8 +322,9 @@ Sub ber_combat
 			/varset stunTurn 0
 		}
 	} else {
-		/if (${validate_cast[FALSE, disc, "${Daxethrow}", ${Target.ID}]}) /call core_cast2 "${Daxethrow}" disc ${Target.ID} FALSE
-	}
+		**|
+	/if (${validate_cast[FALSE, disc, "${Daxethrow}", ${Target.ID}]}) /call core_cast2 "${Daxethrow}" disc ${Target.ID} FALSE
+	|}
 
 	/if (${validate_cast[FALSE, disc, "${Daxeof}", ${Target.ID}]}) /call core_cast2 "${Daxeof}" disc ${Target.ID} FALSE
 

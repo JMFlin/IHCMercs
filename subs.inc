@@ -333,7 +333,7 @@ Sub check_add_aggro
 	/if (!${Me.XTarget[2].ID}) /return
 	/if (${timeForMez} != 0) /return
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
-	
+
 	/if (${Target.Type.Equal[Corpse]}) /target clear
 
 	| if any npcs on xtarget have less than 100% aggro
@@ -2602,7 +2602,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 20
+			/varset autoAssistAt 95
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
@@ -2611,7 +2611,7 @@ sub setup_skill_melee(bool _debug)
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 20
+			/varset autoAssistAt 95
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
@@ -2621,7 +2621,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},DRU,SHM]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 60
+			/varset autoAssistAt 95
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
@@ -2631,7 +2631,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 60
+			/varset autoAssistAt 95
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 99
@@ -2641,7 +2641,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 60
+			/varset autoAssistAt 95
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
