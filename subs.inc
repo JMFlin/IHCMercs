@@ -149,14 +149,14 @@ Sub var_setup
 	/declare verboseWAR 		bool outer FALSE
 	/declare verboseBST 		bool outer FALSE
 	/declare verboseDRU 		bool outer FALSE
-	/declare verboseSHM 		bool outer TRUE
-	/declare verboseBER 		bool outer TRUE
+	/declare verboseSHM 		bool outer FALSE
+	/declare verboseBER 		bool outer FALSE
 	/declare verboseWIZ 		bool outer FALSE
-	/declare verboseENC 		bool outer TRUE
-	/declare verboseBRD 		bool outer TRUE
+	/declare verboseENC 		bool outer FALSE
+	/declare verboseBRD 		bool outer FALSE
 	/declare verboseCLR 		bool outer FALSE
 	/declare verboseMAG 		bool outer FALSE
-	/declare verboseMNK 		bool outer TRUE
+	/declare verboseMNK 		bool outer FALSE
 
 	/declare berHealPct			int outer 80
 

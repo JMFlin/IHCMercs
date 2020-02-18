@@ -56,6 +56,8 @@ Sub shm_main
 
 		/call pet_attack ${Target.ID}
 
+		/call shm_aa_and_disc
+
 		/call move_to_camp
 
 		/call get_heal_target 85
@@ -97,8 +99,6 @@ Sub shm_main
 				/call core_cast2 "Union of Spirits" alt ${worstHurtId} FALSE
 			}
 		}
-
-		/call shm_aa_and_disc
 
 		/call get_target
 		/if (${Target.Named}) {
