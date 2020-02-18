@@ -1360,7 +1360,6 @@ sub validate_combat(int _tmpID)
 	|/if (!${Target.Type.Equal[NPC]}) /return FALSE
 	/if (${Target.Type.Equal[Corpse]}) /return FALSE
 	/if (${Navigation.PathLength[id ${_tmpID}]} > ${assistRange}) /return FALSE
-	/if (!${Spawn[id ${_tmpID}].LineOfSight}) /return FALSE
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) {
 
@@ -1380,18 +1379,20 @@ sub validate_combat(int _tmpID)
 
 		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK,WAR,PAL,SHD]}) {
 			
-			/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathLength[id ${_tmpID}]} < ${assistRange}) {
+			/if (!${Spawn[id ${_tmpID}].LineOfSight}) {
 				/if (${Stick.Active}) /stick off
 				/nav id ${_tmpID}
+				/while (${Navigation.Active}) {
+					/if (${Spawn[id ${_tmpID}].Distance} <= 15) /break
+					/delay 2
+				}
 			}
 
 			/if (${Group.MainTank.ID} != ${Me.ID}) {
 				/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
 			}
 		}
-
 	} 
-
 
 /return TRUE
 
