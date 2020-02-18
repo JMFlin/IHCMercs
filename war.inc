@@ -164,8 +164,8 @@ Sub war_combat_buffs
 |---------------------------------------------------------------------------- 
 Sub war_disc
 	/declare _isNamed bool local FALSE
-	
-	${check_for_named[FALSE]}
+
+	/call check_for_named FALSE
 	/varset _isNamed ${Macro.Return}
 
 	/if (!${validate_combat_buffs[${Target.ID}]}) /return
