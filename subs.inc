@@ -366,7 +366,7 @@ Sub puller_check_group_resources
 	/for _count 0 to ${Group}
 		/if (!${Group.Member[${_count}].Type.Equal[PC]}) /continue
 		
-		/if (!${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,DRU,BST]}) /continue
+		/if (!${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,DRU,BST,WAR,MNK]}) /continue
 		
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
 
@@ -2067,7 +2067,7 @@ sub mem_spell(bool _debug, bool _echo, string _spellname, string _spellgem, bool
  *	NOTE:
  ***|
 sub fix_gem_id(string _spellGem, bool _debug)
-	/declare _gem int local 8
+	/declare _gem int local 1
 
 	/if (${_spellGem.Length} == 1 || ${_spellGem.Length} == 4) {
 		/varset _gem ${_spellGem.Right[1]}
@@ -2075,7 +2075,7 @@ sub fix_gem_id(string _spellGem, bool _debug)
 		/varset _gem ${_spellGem.Right[2]} 
 	}
 | ${_gem}
-/return 8
+/return 1
 
 |-------------------------------------------------------------------------------------
 |***

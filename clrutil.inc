@@ -88,6 +88,7 @@ Sub clr_setup
 	/declare SingleElixirSpell 		string 			outer NULL
 	/declare GroupElixirSpell 		string			outer NULL
 	/declare DichoSpell 			string 			outer NULL
+	/declare MendingSplash 			string 			outer NULL
 	
 	/declare spellmisc 				int outer 8
 	/declare spellgem				int outer 1	
@@ -112,7 +113,8 @@ Sub clr_load_spellbar
 		
 		/call LoadSpellGem "${DichoSpell}" 2
 
-		/call LoadSpellGem "${DivineBuff}" 3
+		/call LoadSpellGem "${TankBuff}" 3
+		| /call LoadSpellGem "${DivineBuff}" 3
 		/call LoadSpellGem "${WardSpell}" 4
 		/call LoadSpellGem "${PromisedHeal}" 5
 
@@ -139,9 +141,6 @@ Sub clr_load_spellbar
 		/call LoadSpellGem "${Intervention3}" 8
 	}
 
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
-		/call LoadSpellGem "${GroupElixirSpell}" 9
-	}
 	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}

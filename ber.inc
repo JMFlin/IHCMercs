@@ -112,6 +112,9 @@ Sub ber_main
 			}
 		**|
 
+		/echo ${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}
+		/echo ${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}
+		
 		/if (${check_for_named[FALSE]}) {
 			
 			/if (${validate_cast[FALSE, item, "Vengeful Taelosian Blood Axe", ${Me.ID}]}) /call core_cast2 "Vengeful Taelosian Blood Axe" item 0 FALSE
