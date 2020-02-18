@@ -198,6 +198,7 @@ Sub brd_combat
 	/if (${Me.XTarget}>=${BurnMobCount} || ${Target.Named}) {
 
 		/if (${Target.Named}) {
+			
 			/if (${validate_cast[FALSE, alt, "Boastful Bellow", ${Target.ID}]}) {
 				/call core_cast2 "Boastful Bellow" alt ${Target.ID} FALSE
 			}

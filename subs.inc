@@ -2339,8 +2339,9 @@ Sub get_corpses
 sub check_hurt(bool _debug, string _type, int _hpLimit)
 
 	/declare _count		 				int local 0
-	/declare countGroupHeal				int local 3
-	/declare hurtCount	 				int local 0
+	/declare _countGroupHeal			int local 3
+	/declare _hurtCount	 				int local 0
+	/declare _hpLimitTrue 				int local ${_hpLimit}
 
 	| check group hurt
 	/if (${_type.Equal[group]}) {
@@ -2349,13 +2350,19 @@ sub check_hurt(bool _debug, string _type, int _hpLimit)
 			/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
 			/if (${Group.Member.OtherZone}) /continue
 			
-			/if (${Group.Member[${_count}].Distance} <= 200 && ${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
-				/varcalc hurtCount ${hurtCount}+1
+			/if (${Select[${Group.Member[${_count}].Class.ShortName},BER]}) {
+				/varset _hpLimit ${berHealPct}
+			} else {
+				/varset _hpLimit ${_hpLimitTrue}
 			}
-			/if (${hurtCount} >= ${countGroupHeal}) /break
+
+			/if (${Group.Member[${_count}].Distance} <= 200 && ${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
+				/varcalc _hurtCount ${_hurtCount}+1
+			}
+			/if (${_hurtCount} >= ${_countGroupHeal}) /break
 
 		/next _count
-		/return ${hurtCount}
+		/return ${_hurtCount}
 
 	| check xtarget hurt
 	} else /if (${_type.Equal[xtarget]}) {
@@ -2372,10 +2379,10 @@ sub check_hurt(bool _debug, string _type, int _hpLimit)
 				/varset hurtID ${Me.XTarget[${_count}].ID}
 				/varset hurtPctHP ${Me.XTarget[${_count}].PctHPs}
 				/varset hurtCLS ${Me.XTarget[${_count}].Class.ShortName}
-				/varcalc hurtCount ${hurtCount}+1
+				/varcalc _hurtCount ${_hurtCount}+1
 
 		/next _count
-	  /return ${hurtCount}
+	  /return ${_hurtCount}
 	  
 	  
 	| check pet hurt
@@ -2461,6 +2468,7 @@ Sub get_heal_target(int _hpLimit)
 
 	/declare _worstHurtId		int local 0
 	/declare _count		     	int local 0
+	/declare _hpLimitTrue 		int local ${_hpLimit}
 	
 	/for _count 0 to ${Group}
 	
@@ -2470,7 +2478,11 @@ Sub get_heal_target(int _hpLimit)
 			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /continue
 		}
 
-		/if (${Select[${Group.Member[${_count}].Class.ShortName},BER]}) /varset _hpLimit ${berHealPct}
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},BER]}) {
+				/varset _hpLimit ${berHealPct}
+			} else {
+				/varset _hpLimit ${_hpLimitTrue}
+			}
 
 		/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
 
@@ -2493,13 +2505,13 @@ Sub validate_tank_heal(int _hpLimit)
 
 	/if (${Spawn[id ${Group.MainTank.ID}].Type.Equal[Corpse]}) /return FALSE
 
+	/if (${Spawn[id ${Group.MainTank.ID}].Distance} > 200) /return FALSE
+
 	/if (${Target.ID} != ${Group.MainTank.ID}) {
 		/target id ${Group.MainTank.ID}
 		/delay 1s ${Target.ID} == ${Group.MainTank.ID}
 		/delay 5
 	}
-
-	/if (${Target.Distance} > 200) /return FALSE
 
 	/if (${Target.PctHPs} >= ${_hpLimit}) {
 		/return TRUE
