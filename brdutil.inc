@@ -59,6 +59,7 @@ Sub brd_setup
 	/declare TuneStuckActive		int outer 0
 	/declare PlaySongs				int outer 0
 	/declare DoBurn					int outer 0
+	/declare AllianceSong 			string outer NULL
 |-Declare spell variables
 	/declare spellmisc 			int outer 8
 	/declare GroupBuffRecast 	int outer 0
@@ -80,7 +81,7 @@ Sub brd_load_spellbar
 
 	/if (${Me.AltAbility[Mnemonic Retention].Rank} == 5) {
 
-		/call LoadSpellGem "${SlowSong}" 1
+		/call LoadSpellGem "${AllianceSong}" 1
 
 		/call LoadSpellGem "${InsultSong1}" 2
 		/call LoadSpellGem "${InsultSong2}" 3
@@ -92,8 +93,9 @@ Sub brd_load_spellbar
 		/call LoadSpellGem "${SufferingSong}" 7
 		/call LoadSpellGem "${ArcaneSong}" 8
 		/call LoadSpellGem "${StormBladeSong}" 9
-
-		/call LoadSpellGem "${FateSong}" 10
+		
+		/call LoadSpellGem "${SlowSong}" 10
+		| /call LoadSpellGem "${FateSong}" 10
 		/call LoadSpellGem "${ChorusRegenSong}" 11
 		/call LoadSpellGem "${Aura1}" 12
 		/call LoadSpellGem "${AccelerandoSong}" 13
@@ -128,6 +130,14 @@ Sub brd_load_spellbar
 |- SUB: CheckSpells
 |---------------------------------------------------------------------------- 
 Sub brd_abilities
+
+	
+	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Covenant of Sticks and Stones].RankName}]}) {
+		/varset AllianceSong ${Spell[Covenant of Sticks and Stones].RankName}
+	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[].RankName}]}) {
+		/varset AllianceSong ${Spell[Alliance of Sticks and Stones].RankName}
+	}
+
 |- BardDPSAura
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Aura of Begalru].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of Begalru].RankName}
