@@ -33,7 +33,7 @@ Sub shm_main
 			/call core_cast2 "${GroupRenewalHoT}" spell ${Me.ID} FALSE
 		}
 	}
-
+	
 	/while (${Me.XTarget}) {
 		/call move_to_camp
 
@@ -49,9 +49,11 @@ Sub shm_main
 		
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
+		/if (${check_for_named[FALSE]}) /call shm_do_named
+
 		/if (${Target.Named}) {
-			/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
-				/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" spell ${Target.ID} FALSE
+			/if (!${Target.Maloed.ID} && !${Target.Buff[${MaloName}].ID}) {
+				/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
 			}
 		}
 		
@@ -95,6 +97,15 @@ Sub shm_main
 			}
 		}
 
+		/call get_heal_target 50
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, alt, "Union of Spirits", ${worstHurtId}]}) {
+				/call core_cast2 "Union of Spirits" alt ${worstHurtId} FALSE
+			}
+		}
+
+		
 		/call shm_aa_and_disc
 
 		/call get_heal_target 85
@@ -200,49 +211,26 @@ Sub shm_debuff_xtarget
 |- SUB: DoNamed
 |---------------------------------------------------------------------------- 
 Sub shm_do_named
-	/if (${Me.XTarget[1].Named}) {
+	
 	|-Shaman AAs for nameds on tank
-		/if (${Me.AltAbilityReady[Ancestral Aid]}) {
-			/call AANow ${Me.AltAbility[Ancestral Aid].ID} ${assistid}
-			/delay 4
-		}
-		/if (${Me.AltAbilityReady[Union of Spirits]}) {
-			/call AANow ${Me.AltAbility[Union of Spirits].ID} ${assistid}
-			/delay 2
-		}
-		/if (${Me.AltAbilityReady[Spirit Guard]}) {
-			/call AANow ${Me.AltAbility[Spirit Guard].ID} ${assistid}
-			/delay 3
-		}
-		/if (${Me.AltAbilityReady[Call of the Ancients]}) {
-			/call AANow ${Me.AltAbility[Call of the Ancients].ID} ${assistid}
-			/delay 3
-		}
-		/if (${Me.AltAbilityReady[Spiritual Blessing]}) {
-			/call AANow ${Me.AltAbility[Spiritual Blessing].ID} ${Me.ID}
-			/delay 3
-		}
-		/if (${Me.AltAbilityReady[Fundament: Third Spire of Ancestors]}) {
-			/call AANow ${Me.AltAbility[Fundament: Third Spire of Ancestors].ID} ${Me.ID}
-			/delay 4
-		}
-		/if (${Me.AltAbilityReady[Dampen Resistance]}) {
-			/call AANow ${Me.AltAbility[Dampen Resistance].ID} ${Me.ID}
-			/delay 4
-		}
-		/if (${Me.AltAbilityReady[Fleeting Spirit]}) {
-			/call AANow ${Me.AltAbility[Fleeting Spirit].ID} ${Me.ID}
-			/delay 5
-		}
-		/if (${Me.AltAbilityReady[Rabid Bear]}) {
-			/call AANow ${Me.AltAbility[Rabid Bear].ID} ${Me.ID}
-			/delay 3
-		}
-		/if (${Me.AltAbilityReady[Ancestral Guard]}) {
-			/call AANow ${Me.AltAbility[Ancestral Guard].ID} ${Me.ID}
-			/delay 5
-		}
-	}
+
+	| Main Tank
+	/if (${validate_cast[FALSE, alt, "Spirit Guard", ${Group.MainTank.ID}]}) /call core_cast2 "Spirit Guard" alt ${Group.MainTank.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Ancestral Aid", ${Group.MainTank.ID}]}) /call core_cast2 "Ancestral Aid" alt ${Group.MainTank.ID} FALSE
+
+	| Group and Wards
+	/if (${validate_cast[FALSE, alt, "Call of the Ancients", ${Me.ID}]}) /call core_cast2 "Call of the Ancients" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Spire of Ancestors", ${Me.ID}]}) /call core_cast2 "Spire of Ancestors" alt 0 FALSE
+
+	
+	| Self Buffs
+	/if (${validate_cast[FALSE, alt, "Ancestral Guard", ${Me.ID}]}) /call core_cast2 "Ancestral Guard" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Spiritual Blessing", ${Me.ID}]}) /call core_cast2 "Spiritual Blessing" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Dampen Resistance", ${Me.ID}]}) /call core_cast2 "Dampen Resistance" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Fleeting Spirit", ${Me.ID}]}) /call core_cast2 "Fleeting Spirit" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Rabid Bear", ${Me.ID}]}) /call core_cast2 "Rabid Bear" alt 0 FALSE
+	/if (${validate_cast[FALSE, alt, "Focus of Arcanum", ${Me.ID}]}) /call core_cast2 "Focus of Arcanum" alt 0 FALSE
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: SingleCure
@@ -650,7 +638,7 @@ Sub shm_self_buffs
 |- SUB: ConfigHeal
 |---------------------------------------------------------------------------- 
 Sub shm_config_heal
-	/if (${Me.XTarget}>2 || ${Me.XTarget[1].Named}) {
+	/if (${Me.XTarget}>2 || ${check_for_named[FALSE]}) {
 		/if (${TankHealPoint}!=95) {
 			/varset TankHealPoint 95
 			/varset GroupHealPoint 85

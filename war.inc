@@ -157,7 +157,7 @@ Sub war_combat_buffs
 		/if (${validate_cast[FALSE, alt, "Warlord's Resurgence", ${Me.ID}]}) /call core_cast2 "Warlord's Resurgence" alt 0 FALSE
 	} 
 	
-	/if (${Me.PctHPs} < 60 || ${Target.Named}) {
+	/if (${Me.PctHPs} < 60 || ${check_for_named[FALSE]}) {
 		/if (${validate_cast[FALSE, alt, "Imperator's Command", ${Me.ID}]}) /call core_cast2 "Imperator's Command" alt 0 FALSE
 		/if (${validate_cast[FALSE, alt, "Resplendent Glory", ${Me.ID}]}) /call core_cast2 "Resplendent Glory" alt 0 FALSE
 	}
@@ -174,7 +174,7 @@ Sub war_disc
 		/disc ${parryall}
 	}
 
-	/if (${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
+	/if (${Me.XTarget} > 2 || ${check_for_named[FALSE]} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
 		/if (${validate_cast[FALSE, disc, "${missall}", ${Me.ID}]}) {
 			/if (${Me.ActiveDisc.ID}) {
@@ -201,20 +201,20 @@ Sub war_disc
 		}
 	}
 
-	/if (${Target.Named} || ${Target.Level} > (${Me.Level}+3)) {
+	/if (${check_for_named[FALSE]} || ${Target.Level} > (${Me.Level}+3)) {
 
 		/if (${validate_cast[FALSE, alt, "Mark of the Mage Hunter", ${Me.ID}]}) /call core_cast2 "Mark of the Mage Hunter" alt 0 FALSE
 		/if (${validate_cast[FALSE, disc, "${attention}", ${Me.ID}]}) /call core_cast2 "${attention}" disc ${Target.ID} FALSE
 	}
 
-	/if (${Me.XTarget} > 3 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
+	/if (${Me.XTarget} > 3 || ${check_for_named[FALSE]} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
 		/if (${validate_cast[FALSE, alt, "Warlord's Tenacity", ${Me.ID}]}) /call core_cast2 "Warlord's Tenacity" alt 0 FALSE
 		/if (${validate_cast[FALSE, alt, "Wars Sheol's Heroic Blade", ${Me.ID}]}) /call core_cast2 "Wars Sheol's Heroic Blade" alt ${Target.ID} FALSE
 		/if (${validate_cast[FALSE, alt, "Rage of Rallos Zek", ${Me.ID}]}) /call core_cast2 "Rage of Rallos Zek" alt 0 FALSE
 	}
 
-	/if (${Target.Named}) {
+	/if (${check_for_named[FALSE]}) {
 		/if (${validate_cast[FALSE, disc, "${throat}", ${Me.ID}]}) /call core_cast2 "${throat}" disc ${Target.ID} FALSE
 	}
 

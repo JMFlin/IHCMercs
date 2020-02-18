@@ -181,7 +181,7 @@ Sub shd_combat_buffs
 |---------------------------------------------------------------------------- 
 Sub shd_disc
 
-	/if (${Me.XTarget} > 2 || ${Target.Named} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
+	/if (${Me.XTarget} > 2 || ${check_for_named[FALSE]} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
 		/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) {
 			/if (${Me.ActiveDisc.ID}) {
@@ -238,9 +238,9 @@ Sub shd_disc
 |---------------------------------------------------------------------------- 
 Sub shd_get_aggro
 
-	/call use_skill_melee ${Target.ID} FALSE
-
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
+	
+	/call use_skill_melee ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {
 		/call core_cast2 "${Terror1}" spell ${Target.ID} FALSE

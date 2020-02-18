@@ -46,10 +46,12 @@ Sub shm_setup
 	/declare SlowProcBuff			string outer NULL
 	/declare SelfHealProcBuff		string outer NULL
 	/declare Malo 					string outer NULL
+	/declare MaloName 				string outer NULL
 	/declare LowLevelTalisman 		string outer NULL
 	/declare CrippleSpell 			string outer NULL
 	/declare RezSpell 				string outer NULL
 	/declare MassRezSpell			string outer NULL
+	
 
 |- Misc Variables
 	/declare Spell1					string outer NULL
@@ -267,7 +269,9 @@ Sub shm_abilities
 	}
 
 	
-	/if (${Me.Level}>=${Spell[Incarnate Anew].Level} && ${Me.Book[${Spell[Incarnate Anew].RankName}]}) {
+	/if (${Me.AltAbility[Rejuvenation of Spirits].ID}) {
+		/varset RezSpell Rejuvenation of Spirits
+	} else /if (${Me.Level}>=${Spell[Incarnate Anew].Level} && ${Me.Book[${Spell[Incarnate Anew].RankName}]}) {
 		/varset RezSpell ${Spell[Incarnate Anew].RankName}
 	} 
 |- PetSpell
@@ -348,7 +352,10 @@ Sub shm_abilities
 		/varset RecourseHeal ${Spell[Qirik's Recourse].RankName}
 	}
 |- Malo
-	/if (${Me.Level}>=${Spell[Malosinata].Level} && ${Me.Book[${Spell[Malosinata].RankName}]}) {
+	/if (${Me.AltAbility[Malaise].ID}) {
+		/varset Malo Malaise
+		/varset MaloName Malosinata
+	} else /if (${Me.Level}>=${Spell[Malosinata].Level} && ${Me.Book[${Spell[Malosinata].RankName}]}) {
 		/varset Malo ${Spell[Malosinata].RankName}
 	} else /if (${Me.Level}>=${Spell[Malos].Level} && ${Me.Book[${Spell[Malos].RankName}]}) {
 		/varset Malo ${Spell[Malos].RankName}

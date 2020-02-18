@@ -48,9 +48,9 @@ Avenging Flurry Discipline
 |---------------------------------------------------------------------------- 
 Sub ber_main
 	
-	|/if (${powerLevel}) {
-	|	/return
-	|}
+	/if (${powerLevel}) {
+		/return
+	}
 
 	/if (!${Me.XTarget}) /call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
