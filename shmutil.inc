@@ -113,44 +113,37 @@ Sub shm_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 
-	/call LoadSpellGem "${RecklessHeal1}" 1
-	/call LoadSpellGem "${RecklessHeal2}" 2
-	/call LoadSpellGem "${RecklessHeal3}" 3
-	|/call LoadSpellGem "${CrippleSpell}" 3
-	/call LoadSpellGem "${RecourseHeal}" 4
-	/call LoadSpellGem "${InterventionHeal}" 5
-	/call LoadSpellGem "${Malo}" 6
 
-	/if (${Me.AltAbility[Turgur's Swarm].ID}) {
-		/call LoadSpellGem "${GroupRenewalHoT}" 7
-	} else {
-		/call LoadSpellGem "${SlowSpell}" 7
-	}
+	/if (${Me.AltAbility[Mnemonic Retention].Rank} == 5) {
+		/call LoadSpellGem "${RecklessHeal1}" 1
+		/call LoadSpellGem "${RecklessHeal2}" 2
+		/call LoadSpellGem "${RecklessHeal3}" 3
 
-	/if (${DichoSpell.NotEqual[NULL]}) {
-		/call LoadSpellGem "${DichoSpell}" 8
-	} else /if (${MeleeProcBuff.NotEqual[NULL]}) {
-		/call LoadSpellGem "${MeleeProcBuff}" 8
-	} else /if (${FastPoisonDoT.NotEqual[NULL]}) {
-		/call LoadSpellGem "${FastDiseaseDoT}" 8
-	} else {
-		/call LoadSpellGem "${FastPoisonDoT}" 8
-	}
+		/call LoadSpellGem "${GroupRenewalHoT}" 4
+		/call LoadSpellGem "${RecourseHeal}" 5
 
-	/if (${spellmisc}>8) {
-		/call LoadSpellGem "${GrowthBuff}" 9
-	}
-	/if (${spellmisc}>9) {
-		/call LoadSpellGem "${CurseDoT1}" 10
-	}
-	/if (${spellmisc}>10) {
-		/call LoadSpellGem "${TwinHealNuke}" 11
-	}
-	/if (${spellmisc}>11) {
-		/call LoadSpellGem "${FastDiseaseDoT}" 12
-	}
-	/if (${spellmisc}>12) {
+		/call LoadSpellGem "${InterventionHeal}" 6
+		/call LoadSpellGem "${DichoSpell}" 7
+		/call LoadSpellGem "${TwinHealNuke}" 8
+		/call LoadSpellGem "${AESpiritualHeal}" 9
+
+		/call LoadSpellGem "${AllianceBuff}" 10
+		/call LoadSpellGem "${SlowProcBuff}" 11
+		/call LoadSpellGem "${GrowthBuff}" 12
+
 		/call LoadSpellGem "${ChaoticPoisonDoT}" 13
+
+	} else {
+		
+		/call LoadSpellGem "${RecklessHeal1}" 1
+		/call LoadSpellGem "${RecklessHeal2}" 2
+		/call LoadSpellGem "${RecklessHeal3}" 3
+		/call LoadSpellGem "${RecourseHeal}" 4
+		/call LoadSpellGem "${InterventionHeal}" 5
+		/call LoadSpellGem "${Malo}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${FastDiseaseDoT}" 8
+
 	}
 	
 	/if (${Me.Sitting}) /stand
@@ -241,7 +234,9 @@ Sub shm_abilities
 		/varset SingleFocusSpell ${Spell[Inner Fire].RankName}
 	}
 |- RunSpeedBuff
-	/if (${Me.Level}>=${Spell[Spirit of Tala'Tak].Level} && ${Me.Book[${Spell[Spirit of Tala'Tak].RankName}]}) {
+	/if (${Me.AltAbility[Lupine Spirit].ID}) {
+		/varset RunSpeedBuff Lupine Spirit
+	} else /if (${Me.Level}>=${Spell[Spirit of Tala'Tak].Level} && ${Me.Book[${Spell[Spirit of Tala'Tak].RankName}]}) {
 		/varset RunSpeedBuff ${Spell[Spirit of Tala'Tak].RankName}
 	} else /if (${Me.Level}>=${Spell[Spirit of Bih'Li].Level} && ${Me.Book[${Spell[Spirit of Bih'Li].RankName}]}) {
 		/varset RunSpeedBuff ${Spell[Spirit of Bih'Li].RankName}

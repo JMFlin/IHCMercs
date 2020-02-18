@@ -57,6 +57,7 @@ Sub wiz_setup
 
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
+	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
 /return
 |* ------------------------------------------------------------------------------------------
 | SUB: load_spellbar

@@ -3,7 +3,6 @@
 |---------------------------------------------------------------------------- 
 Sub brd_main
 
-
 	/if (${powerLevel}) {
 		/return
 	} 
@@ -24,12 +23,16 @@ Sub brd_main
 	/while (${Me.XTarget}) {
 		
 		/call get_target
+		
+		/if (!${validate_combat[${Target.ID}]} ) /continue
 		/call engage
 
-		/if (!${validate_combat[${Target.ID}]} ) /continue
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		
 		/call brd_combat
 		
+		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
+
 		/if (${Target.Type.Equal[NPC]} && !${Target.Slowed.ID} && !${Target.Buff[${SlowSong}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${validate_cast[FALSE, pulse, "${SlowSong}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSong} \ax <<=
@@ -37,7 +40,9 @@ Sub brd_main
 				/call check_cast_events "${SlowSong}" CAST_IMMUNE ${Target.ID}
 			}
 		}
+
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
+		
 		/if (${Me.XTarget}) {
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
@@ -51,11 +56,13 @@ Sub brd_main
 				/call core_cast2 "${WarMarchSong}" pulse 0 FALSE
 			}
 		}
+
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
+
 		/if (${Me.XTarget}) {
-			/if (${Me.Gem[${InsultSong1}]}) {
-				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
-					/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			/if (${Me.Gem[${InsultSong2}]}) {
+				/if (${validate_cast[FALSE, pulse, "${InsultSong2}", ${Target.ID}]}) {
+					/call core_cast2 "${InsultSong2}" pulse ${Target.ID} FALSE
 				}
 			}
 			/if (${Me.Gem[${SufferingSong}]}) {
@@ -67,7 +74,9 @@ Sub brd_main
 				/call core_cast2 "${ArcaneSong}" pulse 0 FALSE
 			}
 		}
+
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
+
 		/if (${Me.XTarget}) {
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
@@ -81,11 +90,13 @@ Sub brd_main
 				/call core_cast2 "${MainAriaSong}" pulse 0 FALSE
 			}
 		}
+
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
+
 		/if (${Me.XTarget}) {
-			/if (${Me.Gem[${InsultSong1}]}) {
-				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
-					/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE
+			/if (${Me.Gem[${InsultSong2}]}) {
+				/if (${validate_cast[FALSE, pulse, "${InsultSong2}", ${Target.ID}]}) {
+					/call core_cast2 "${InsultSong2}" pulse ${Target.ID} FALSE
 				}
 			}
 			/if (${validate_cast[FALSE, pulse, "${WarMarchSong}", ${Me.ID}]}) {
@@ -97,7 +108,9 @@ Sub brd_main
 				}
 			}
 		}
+
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
+
 		/if (${Me.XTarget}) {
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
@@ -175,59 +188,79 @@ Sub brd_pulse(bool _debug, string _melody)
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 
 Sub brd_combat
+
 	/if (!${validate_combat[${Target.ID}]} ) /return
+	
+	/if (${validate_cast[FALSE, alt, "Fierce Eye", ${Me.ID}]}) {
+		/call core_cast2 "Fierce Eye" alt 0 FALSE
+	}
 
 	/if (${Me.XTarget}>=${BurnMobCount} || ${Target.Named}) {
-		/if (${Me.CombatAbilityReady[Thousand Blades]}) {
-			/disc Thousand Blades
-			/delay 5
-		}
-		/if (${Me.AltAbilityReady[Dance of Blades]}) {
-			/alt act ${Me.AltAbility[Dance of Blades].ID}
-			/delay 5
-		}
-		/if (${Me.AltAbilityReady[Flurry of Notes]}) {
-			/alt act ${Me.AltAbility[Flurry of Notes].ID}
-			/delay 5
-		}
-		/if (${Me.AltAbilityReady[Song of Stone]}) {
-			/alt act ${Me.AltAbility[Song of Stone].ID}
-			/delay 5
-		}
-		/if (${Me.AltAbilityReady[Frenzied Kicks]}) {
-			/alt act ${Me.AltAbility[Frenzied Kicks].ID}
-			/delay 5
-		}
-		/if (${Me.AltAbilityReady[Funeral Dirge]}) {
-			/alt act ${Me.AltAbility[Funeral Dirge].ID}
-			/delay 5
-		}
-	}
 
+		/if (${Target.Named}) {
+			
+			/if (${validate_cast[FALSE, alt, "Boastful Bellow", ${Target.ID}]}) {
+				/call core_cast2 "Boastful Bellow" alt ${Target.ID} FALSE
+			}
+			/if (${validate_cast[FALSE, alt, "Funeral Dirge", ${Target.ID}]}) {
+				/call core_cast2 "Funeral Dirge" alt ${Target.ID} FALSE
+			}
+			/if (${validate_cast[FALSE, alt, "Lyrical Prankster", ${Target.ID}]}) {
+				/call core_cast2 "Lyrical Prankster" alt ${Target.ID} FALSE
+			}
 
-	/if (${MelodyType.Equal[Caster]} && ${Me.AltAbilityReady[Fundament: Second Spire of the Minstrels]}) {
-		/alt act ${Me.AltAbility[Fundament: Second Spire of the Minstrels].ID}
-		/delay 5
-	} else /if (${Me.AltAbilityReady[Fundament: Third Spire of the Minstrels]}) {
-		/alt act ${Me.AltAbility[Fundament: Third Spire of the Minstrels].ID}
-		/delay 5
-	} else /if (${FindItem[${ChestItemName}].ID} && ${Me.ItemReady[${ChestItemName}]} && !${Me.Buff[Third Spire of the Minstrels].ID} && !${Me.Buff[Second Spire of the Minstrels].ID}) {
-		/useitem "${ChestItemName}"
-		/delay 10	
+			/if (${validate_cast[FALSE, alt, "Cacophony", ${Target.ID}]}) {
+				/call core_cast2 "Cacophony" alt ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, alt, "Bladed Song", ${Target.ID}]}) {
+				/call core_cast2 "Bladed Song" alt ${Target.ID} FALSE
+			}
+		}
+
+		/if (!${Me.Buff[Dichotomic Fury]} || !${Me.Buff[Ruaabri's Fury]}) {
+			/if (${validate_cast[FALSE, alt, "Quick Time", ${Me.ID}]}) {
+				/call core_cast2 "Quick Time" alt 0 FALSE
+			}
+		}
+
+		/if (${validate_cast[FALSE, alt, "Spire of the Minstrels", ${Me.ID}]}) {
+			/call core_cast2 "Spire of the Minstrels" alt 0 FALSE
+		}
+
+		/if (${validate_cast[FALSE, disc, "Thousand Blades", ${Me.ID}]}) {
+			/call core_cast2 "Thousand Blades" disc 0 FALSE
+		}
+
+		/if (${validate_cast[FALSE, alt, "Dance of Blades", ${Me.ID}]}) {
+			/call core_cast2 "Dance of Blades" alt 0 FALSE
+		}
+		
+		/if (${validate_cast[FALSE, alt, "Frenzied Kicks", ${Me.ID}]}) {
+			/call core_cast2 "Frenzied Kicks" alt 0 FALSE
+		}
+
+		/if (${validate_cast[FALSE, alt, "Flurry of Notes", ${Me.ID}]}) {
+			/call core_cast2 "Flurry of Notes" alt 0 FALSE
+		}
+
+		/if (${validate_cast[FALSE, alt, "Song of Stone", ${Target.ID}]}) {
+			/call core_cast2 "Song of Stone" alt ${Target.ID} FALSE
+		}
+
+		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) {
+			/call pulse_stop itemcaster FALSE
+			/call core_cast2 "${ChestItemName}" item 0 FALSE
+		}
+
+		/if (${validate_cast[FALSE, item, "Blade of Vesagran", ${Me.ID}]}) {
+			/call pulse_stop itemcaster FALSE
+			/call core_cast2 "Blade of Vesagran" item 0 FALSE
+		}
+
+		
 	}
-	/if (${Me.AltAbilityReady[Boastful Bellow]} && !${Target.Buff[Boastful Bellow].ID} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
-		/alt act ${Me.AltAbility[Boastful Bellow].ID}
-		/delay 5
-	} else /if (${Me.AltAbilityReady[Lyrical Prankster]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
-		/alt act ${Me.AltAbility[Lyrical Prankster].ID}
-		/delay 5
-	} else /if (${Me.AltAbilityReady[Cacophony]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
-		/alt act ${Me.AltAbility[Cacophony].ID}
-		/delay 5
-	} else /if (${Me.AltAbilityReady[Bladed Song]} && ${Me.PctEndurance}>20 && ${Target.PctHPs}>20) {
-		/alt act ${Me.AltAbility[Bladed Song].ID}
-		/delay 5
-	}
+	
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
@@ -244,18 +277,9 @@ Sub brd_aa_and_disc
 		/useitem "${Epicsword}"
 		/delay 10
 	}
-	/if (${Me.AltAbilityReady[Fierce Eye]}) {
-		/alt act ${Me.AltAbility[Fierce Eye].ID}
-		/delay 5
-	}
-	/if (${Me.AltAbilityReady[Tune Stuck in Your Head]}) {
-		/alt act ${Me.AltAbility[Tune Stuck in Your Head].ID}
-		/delay 5
-	}
-	/if (${Me.AltAbilityReady[Quick Time]} && !${Me.Song[Ruaabri's Fury].ID}) {
-		/alt act ${Me.AltAbility[Quick Time].ID}
-		/delay 5
-	}
+
+
+
 /return
 |***
  *	DES: quit singing.

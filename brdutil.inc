@@ -59,6 +59,7 @@ Sub brd_setup
 	/declare TuneStuckActive		int outer 0
 	/declare PlaySongs				int outer 0
 	/declare DoBurn					int outer 0
+	/declare AllianceSong 			string outer NULL
 |-Declare spell variables
 	/declare spellmisc 			int outer 8
 	/declare GroupBuffRecast 	int outer 0
@@ -78,14 +79,37 @@ Sub brd_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar	
 
-	/call LoadSpellGem "${MainAriaSong}" 1
-	/call LoadSpellGem "${WarMarchSong}" 2
-	/call LoadSpellGem "${AccelerandoSong}" 3
-	/call LoadSpellGem "${SlowSong}" 4
-	/call LoadSpellGem "${StormBladeSong}" 5
-	/call LoadSpellGem "${ArcaneSong}" 6
-	/call LoadSpellGem "${ChorusRegenSong}" 7
-	/call LoadSpellGem "${AEMezSong}" 8
+	/if (${Me.AltAbility[Mnemonic Retention].Rank} == 5) {
+
+		/call LoadSpellGem "${AllianceSong}" 1
+
+		/call LoadSpellGem "${InsultSong1}" 2
+		/call LoadSpellGem "${InsultSong2}" 3
+
+		/call LoadSpellGem "${DichoSong}" 4
+
+		/call LoadSpellGem "${MainAriaSong}" 5
+		/call LoadSpellGem "${WarMarchSong}" 6
+		/call LoadSpellGem "${SufferingSong}" 7
+		/call LoadSpellGem "${ArcaneSong}" 8
+		/call LoadSpellGem "${StormBladeSong}" 9
+		
+		/call LoadSpellGem "${SlowSong}" 10
+		| /call LoadSpellGem "${FateSong}" 10
+		/call LoadSpellGem "${ChorusRegenSong}" 11
+		/call LoadSpellGem "${Aura1}" 12
+		/call LoadSpellGem "${AccelerandoSong}" 13
+
+	} else {
+		/call LoadSpellGem "${MainAriaSong}" 1
+		/call LoadSpellGem "${WarMarchSong}" 2
+		/call LoadSpellGem "${SufferingSong}" 3
+		/call LoadSpellGem "${ArcaneSong}" 4
+		/call LoadSpellGem "${StormBladeSong}" 5
+		/call LoadSpellGem "${SlowSong}" 6
+		/call LoadSpellGem "${ChorusRegenSong}" 7
+		/call LoadSpellGem "${AccelerandoSong}" 8
+	}
 
 
 |**
@@ -106,6 +130,14 @@ Sub brd_load_spellbar
 |- SUB: CheckSpells
 |---------------------------------------------------------------------------- 
 Sub brd_abilities
+
+	
+	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Covenant of Sticks and Stones].RankName}]}) {
+		/varset AllianceSong ${Spell[Covenant of Sticks and Stones].RankName}
+	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[].RankName}]}) {
+		/varset AllianceSong ${Spell[Alliance of Sticks and Stones].RankName}
+	}
+
 |- BardDPSAura
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Aura of Begalru].RankName}]}) {
 		/varset Aura1 ${Spell[Aura of Begalru].RankName}
@@ -194,29 +226,29 @@ Sub brd_abilities
 
 
 |- SufferingSong
-	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Travenro's Song of Suffering].RankName}]})  {
+	/if (${Me.Level}>=109 && ${Me.Book[${Spell[Travenro's Song of Suffering].RankName}]}) {
 		/varset SufferingSong ${Spell[Travenro's Song of Suffering].RankName}
-	} else /if (${Me.Level}>=104 && ${Me.Book[${Spell[Fjilnauk's Song of Suffering].RankName}]})  {
+	} else /if (${Me.Level}>=104 && ${Me.Book[${Spell[Fjilnauk's Song of Suffering].RankName}]}) {
 		/varset SufferingSong ${Spell[Fjilnauk's Song of Suffering].RankName}
-	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[Kaficus' Song of Suffering].RankName}]})  {
+	} else /if (${Me.Level}>=99 && ${Me.Book[${Spell[Kaficus' Song of Suffering].RankName}]}) {
 		/varset SufferingSong ${Spell[Kaficus' Song of Suffering].RankName}
-	} else /if (${Me.Level}>=94 && ${Me.Book[${Spell[Hykast's Song of Suffering].RankName}]})  {
+	} else /if (${Me.Level}>=94 && ${Me.Book[${Spell[Hykast's Song of Suffering].RankName}]}) {
 		/varset SufferingSong ${Spell[Hykast's Song of Suffering].RankName}
-	} else /if (${Me.Level}>=89 && ${Me.Book[${Spell[Noira's Song of Suffering].RankName}]})  {
+	} else /if (${Me.Level}>=89 && ${Me.Book[${Spell[Noira's Song of Suffering].RankName}]}) {
 		/varset SufferingSong ${Spell[Noira's Song of Suffering].RankName}
 	} 
 |- ArcaneSong
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Arcane Ballad].RankName}]})  {
+	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Arcane Ballad].RankName}]}) {
 		/varset ArcaneSong ${Spell[Arcane Ballad].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Arcane Melody].RankName}]})  {
+	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Arcane Melody].RankName}]}) {
 		/varset ArcaneSong ${Spell[Arcane Melody].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Arcane Hymn].RankName}]})  {
+	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Arcane Hymn].RankName}]}) {
 		/varset ArcaneSong ${Spell[Arcane Hymn].RankName}
-	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Arcane Address].RankName}]})  {
+	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Arcane Address].RankName}]}) {
 		/varset ArcaneSong ${Spell[Arcane Address].RankName}
-	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Arcane Chorus].RankName}]})  {
+	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Arcane Chorus].RankName}]}) {
 		/varset ArcaneSong ${Spell[Arcane Chorus].RankName}
-	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Arcane Arietta].RankName}]})  {
+	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Arcane Arietta].RankName}]}) {
 		/varset ArcaneSong ${Spell[Arcane Arietta].RankName}
 	} 
 |- SprySonataSong
@@ -297,43 +329,35 @@ Sub brd_abilities
 |- InsultSong1
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Sathir's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Sathir's Insult].RankName}
+		/varset InsultSong2 ${Spell[Travenro's Insult].RankName}
 	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Travenro's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Travenro's Insult].RankName}
+		/varset InsultSong2 ${Spell[Tsaph's Insult].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Tsaph's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Tsaph's Insult].RankName}
+		/varset InsultSong2 ${Spell[Fjilnauk's Insult].RankName}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Fjilnauk's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Fjilnauk's Insult].RankName}
+		/varset InsultSong2 ${Spell[Kaficus' Insult].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Kaficus' Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Kaficus' Insult].RankName}
+		/varset InsultSong2 ${Spell[Garath's Insult].RankName}
 	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Garath's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Garath's Insult].RankName}
+		/varset InsultSong2 ${Spell[Hykast's Insult].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Hykast's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Hykast's Insult].RankName}
+		/varset InsultSong2 ${Spell[Lyrin's Insult].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Lyrin's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Lyrin's Insult].RankName}
+		/varset InsultSong2 ${Spell[Venimor's Insult].RankName}
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Venimor's Insult].RankName}]})  {
 		/varset InsultSong1 ${Spell[Venimor's Insult].RankName}
+		/varset InsultSong2 ${Spell[Brusco's Bombastic Bellow].RankName}
 	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Brusco's Bombastic Bellow].RankName}]})  {
 		/varset InsultSong1 ${Spell[Brusco's Bombastic Bellow].RankName}
 	}
-|- InsultSong2
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Travenro's Insult].RankName}]} && ${InsultSong1.NotEqual[${Spell[Travenro's Insult].RankName}]})  {
-		/varset InsultSong2 ${Spell[Travenro's Insult].RankName}
-	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Tsaph's Insult].RankName}]} && ${InsultSong1.NotEqual[${Spell[Tsaph's Insult].RankName}]})  {
-		/varset InsultSong2 ${Spell[Tsaph's Insult].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Fjilnauk's Insult].RankName}]} && ${InsultSong1.NotEqual[${Spell[Fjilnauk's Insult].RankName}]})  {
-		/varset InsultSong2 ${Spell[Fjilnauk's Insult].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Kaficus' Insult].RankName}]} && ${InsultSong1.NotEqual[${Spell[Kaficus' Insult].RankName}]})  {
-		/varset InsultSong2 ${Spell[Kaficus' Insult].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Garath's Insult].RankName}]} && ${InsultSong1.NotEqual[${Spell[Garath's Insult].RankName}]})  {
-		/varset InsultSong2 ${Spell[Garath's Insult].RankName}
-	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Hykast's Insult].RankName}]} && ${InsultSong1.NotEqual[${Me.Book[${Spell[Hykast's Insult].RankName}]}]})  {
-		/varset InsultSong2 ${Spell[Hykast's Insult].RankName}
-	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Lyrin's Insult].RankName}]} && ${InsultSong1.NotEqual[${Spell[Lyrin's Insult].RankName}]})  {
-		/varset InsultSong2 ${Spell[Lyrin's Insult].RankName}
-	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Venimor's Insult].RankName}]} && ${InsultSong1.NotEqual[${Spell[Venimor's Insult].RankName}]})  {
-		/varset InsultSong2 ${Spell[Venimor's Insult].RankName}
-	}
+
 |- DichoSong
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Dissident Psalm].RankName}]})  {
 		/varset DichoSong ${Spell[Dissident Psalm].RankName}
