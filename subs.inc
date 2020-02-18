@@ -2489,7 +2489,7 @@ Sub validate_tank_heal(int _hpLimit)
 		/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) /return FALSE
 	}
 
-	/if (${Spawn[id ${Group.MainTank.ID} pccorpse radius 150].ID}) /return FALSE
+	/if (${Spawn[id ${Group.MainTank.ID} pccorpse radius 200].ID}) /return FALSE
 
 	/if (${Spawn[id ${Group.MainTank.ID}].Type.Equal[Corpse]}) /return FALSE
 
@@ -2508,7 +2508,6 @@ Sub validate_tank_heal(int _hpLimit)
 	}
 	
 /return FALSE
-
 
 |***
  *	DES: check  health
