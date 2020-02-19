@@ -9,7 +9,7 @@ Figure out when to use Spire.
 
 
 Sub war_main
-	
+
 	/while (${Me.XTarget}) {
 		
 		/call get_target
@@ -63,8 +63,6 @@ Sub war_main
 Sub war_combat_buffs
 	
 	/if (!${validate_combat_buffs[FALSE]}) /return
-
-	/call engage
 	
 	/if (!${Me.Song[Field].ID}) {
 		/if (${validate_cast[FALSE, disc, "${groupac}", ${Me.ID}]}) /call core_cast2 "${groupac}" disc 0 FALSE
@@ -156,10 +154,10 @@ Sub war_combat_buffs
 Sub war_disc
 	/declare _isNamed bool local FALSE
 
+	/if (!${validate_combat_buffs[${Target.ID}]}) /return
+
 	/call check_for_named FALSE
 	/varset _isNamed ${Macro.Return}
-
-	/if (!${validate_combat_buffs[${Target.ID}]}) /return
 
 	/if (${Me.PctHPs} < 55 && ${Me.ActiveDisc.ID} != ${FortitudeDiscID}) {
 		/disc ${parryall}
@@ -216,7 +214,7 @@ Sub war_disc
 Sub war_get_aggro
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
-	/if (!${validate_combat[${Target.ID}]} ) /return
+	/if (!${validate_combat[${Target.ID}]}) /return
 	
 	/call engage
 
@@ -280,7 +278,7 @@ Sub war_aoe_aggro
 		/if (${validate_cast[FALSE, disc, "${aeroar}", ${Target.ID}]}) /call core_cast2 "${aeroar}" disc ${Target.ID} FALSE
 	}
 	
-	/if (${SpawnCount[NPC radius 40 zradius 40]} > 2 && ${Me.XTarget} > 2) {
+	/if (${SpawnCount[NPC radius 40 zradius 40]} > 1 && ${Me.XTarget} > 1) {
 		/if (${validate_cast[FALSE, alt, "Area Taunt", ${Target.ID}]}) /call core_cast2 "Area Taunt" alt ${Target.ID} FALSE
 	}
 |**

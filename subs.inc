@@ -418,12 +418,6 @@ Sub pre_pull_group_healer_spells
 
 sub validate_pull_start(bool _debug)
 	
-
-/return TRUE
-
-Sub afk_pull
-	/declare _pullTargetID 	int local 0
-
 	/if (${Select[${Me.Class.ShortName},BST]}) {
 		/if (!${Me.Pet.ID}) /return FALSE
 	}
@@ -448,6 +442,11 @@ Sub afk_pull
 		/return FALSE
 	}
 
+/return TRUE
+
+Sub afk_pull
+	/declare _pullTargetID 	int local 0
+
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 		|**
 		/if (!${Me.Song[${elixirSpell}].ID}) {
@@ -471,9 +470,7 @@ Sub afk_pull
 			/squelch /dex ${Group.Cleric.Name.Lower} /cast "${promisedSpell}"
 			/delay 2s
 		}
-		
 	}
-	
 	
 	/while (!${Me.XTarget}) {
 		/call set_pull_target
@@ -530,8 +527,6 @@ sub validate_chain_pull_start(bool _debug)
  Sub chain_pull
 	/declare _pullTargetID 	int local 0
 
-	
-	
 	/while (!${Me.XTarget}) {
 		/call set_pull_target
 		/varset _pullTargetID ${Macro.Return}
@@ -1379,7 +1374,7 @@ sub validate_combat(int _tmpID)
 
 		/if (${Select[${Me.Class.ShortName},BER,BRD,ROG,MNK,WAR,PAL,SHD]}) {
 			
-			/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathExists[id ${_tmpID}]} && ${EverQuest.ValidLoc[${Spawn[id ${_tmpID}].X} ${Spawn[id ${_tmpID}].Y} ${Spawn[id ${_tmpID}].Y}]}) {
+			/if (!${Spawn[id ${_tmpID}].LineOfSight} && ${Navigation.PathExists[id ${_tmpID}]} && ${EverQuest.ValidLoc[${Spawn[id ${_tmpID}].X} ${Spawn[id ${_tmpID}].Y} ${Spawn[id ${_tmpID}].Z}]}) {
 				/if (${Stick.Active}) /stick off
 				/nav id ${_tmpID}
 				/while (${Navigation.Active}) {
@@ -2594,7 +2589,9 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/varset bash TRUE
+		/varset kick FALSE
 		/if (!${Skill[Bash].Auto}) /autoskill Bash
+		/if (${Skill[Kick].Auto}) /autoskill Kick
 	}
 
 	|/if (${Me.AbilityReady[Disarm]} && ${Select[${Me.Class.ShortName},WAR,PAL,SHD,BER,ROG,MNK,BRD,BST]}) {
@@ -2665,8 +2662,10 @@ sub use_skill_melee(int _tmpID, bool _debug)
 	}
 
 	| taunt /onoff agro
-	/if (${Me.ID} == ${Group.MainTank.ID} && ${Me.AbilityReady[Taunt]} && ${Spawn[id ${_tmpID}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]} && ${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
-		/if (${Target.ID}) /doability Taunt
+	/if (${Me.ID} == ${Group.MainTank.ID} && ${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
+		/if (${Me.AbilityReady[Taunt]} && ${Spawn[id ${_tmpID}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
+			/if (${Target.ID}) /doability Taunt
+		}
 	}
 	
 	| disarm
