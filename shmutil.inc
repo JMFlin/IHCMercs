@@ -269,9 +269,12 @@ Sub shm_abilities
 	}
 
 	
-	/if (${Me.AltAbility[Rejuvenation of Spirits].ID}) {
-		/varset RezSpell Rejuvenation of Spirits
-	} else /if (${Me.Level}>=${Spell[Incarnate Anew].Level} && ${Me.Book[${Spell[Incarnate Anew].RankName}]}) {
+	|/if (${Me.AltAbility[Rejuvenation of Spirit].ID}) {
+	|	/varset RezSpell Rejuvenation of Spirit
+
+	|} else 
+	
+	/if (${Me.Level}>=${Spell[Incarnate Anew].Level} && ${Me.Book[${Spell[Incarnate Anew].RankName}]}) {
 		/varset RezSpell ${Spell[Incarnate Anew].RankName}
 	} 
 |- PetSpell

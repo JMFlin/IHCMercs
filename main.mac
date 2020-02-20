@@ -122,7 +122,7 @@ Sub afk_radius_camping
 		/if (!${powerLevel}) {
 			/call move_to_camp
 		} else /if (${powerLevel}) {
-			/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} > 70) /call move_to_camp
+			/call move_to_camp
 		}
 		
 		/if (!${powerLevel}) {
@@ -226,7 +226,7 @@ sub misc
 
 
 
-	/call dummy_mode
+	|/call dummy_mode
 
 	|**
 	/if (${goSell}) /call vendor_items

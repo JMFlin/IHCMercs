@@ -175,7 +175,6 @@ Sub clr_self_buffs
 
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
-		/docommand /dgt \aw Done Buffing
 	}
 
 /return

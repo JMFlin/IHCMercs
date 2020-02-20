@@ -418,6 +418,13 @@ Sub pre_pull_group_healer_spells
 
 sub validate_pull_start(bool _debug)
 	
+	
+
+/return TRUE
+
+Sub afk_pull
+	/declare _pullTargetID 	int local 0
+
 	/if (${Select[${Me.Class.ShortName},BST]}) {
 		/if (!${Me.Pet.ID}) /return FALSE
 	}
@@ -441,11 +448,6 @@ sub validate_pull_start(bool _debug)
 		/call set_timers
 		/return FALSE
 	}
-
-/return TRUE
-
-Sub afk_pull
-	/declare _pullTargetID 	int local 0
 
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
 		|**
@@ -736,13 +738,13 @@ Sub set_pull_target
 
 		/varset _pullMob ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
 
-		|DEBUG Does Navigation.Path exist to ${Spawn[id ${_pullMob}].DisplayName}: ${Navigation.PathExists[id ${_pullMob}]}
+		DEBUG Does Navigation.Path exist to ${Spawn[id ${_pullMob}].DisplayName}: ${Navigation.PathExists[id ${_pullMob}]}
 		/if (!${Navigation.PathExists[id ${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
 		}
 		
-		|DEBUG Are there no adds close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_single_pull[${_pullMob}]}
+		DEBUG Are there no adds close to ${Spawn[id ${_pullMob}].DisplayName}: ${validate_single_pull[${_pullMob}]}
 		/if (!${validate_single_pull[${_pullMob}]}) {
 			/varcalc _count ${_count}+1
 			/continue
