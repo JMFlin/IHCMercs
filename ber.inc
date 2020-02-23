@@ -331,9 +331,7 @@ Sub ber_combat
 |- SUB: DowntimeDiscs
 |---------------------------------------------------------------------------- 
 Sub make_axes(string AxeName, string AxeComponents)
-	/delay 1s
-	/if (${Me.Combat}) /return
-	/if (${Me.XTarget}) /return
+
 	/if (${Me.Moving}) /return
 	/if (${Navigation.Active}) /return
 	/if (${FindItemCount[${AxeComponents}]} <= 1) /return
