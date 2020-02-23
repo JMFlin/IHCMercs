@@ -339,17 +339,22 @@ Sub make_axes(string AxeName, string AxeComponents)
 	/if (!${validate_cast[FALSE, disc, "${AxeName}", ${Me.ID}]}) /return
 
 	/while (${FindItemCount[${AxeName}]} < 200 && ${FindItemCount[${AxeComponents}]} > 1) {
+		
 		/if (${Cursor.ID}) /autoinventory
+		
 		/if (${Me.XTarget}) /return
+		
 		/if (${Mode} == 0) /return
+		
 		/if (!${Me.Casting.ID} && !${Cursor.ID}) {
-			DEBUG Making ${AxeName} with ${AxeComponents}
-			/if (${validate_cast[FALSE, disc, "${AxeName}", ${Me.ID}]}) /call core_cast2 "${AxeName}" disc 0 FALSE
+			/if (${validate_cast[FALSE, disc, "${AxeName}", ${Me.ID}]}) {
+				DEBUG Making ${AxeName} with ${AxeComponents}
+				/call core_cast2 "${AxeName}" disc 0 FALSE
+			}
 			/if (${Cursor.ID}) /autoinventory
 		}
-		/if (${Cursor.ID}) /autoinventory
+
 		/if (${FindItemCount[${AxeName}]} > 200) /break
-		/if (${Cursor.ID}) /autoinventory
 	}
 	
 /return
