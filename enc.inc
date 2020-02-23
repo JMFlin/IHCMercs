@@ -5,11 +5,9 @@ Sub enc_main
 	|/call check_resources FALSE "Gather Mana" spell ${Me.ID} 60
 	|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
 	|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
-	/if (${powerLevel}) {
-		/return
-	} 
+
 	/call enc_self_buffs
-	/call enc_group_buffs
+	/if (!${doNotBuff}) /call enc_group_buffs
 	
 	/while (${Me.XTarget}) {
 
@@ -19,9 +17,6 @@ Sub enc_main
 		/if (${Navigation.PathLength[id ${Target.ID}]} <= 200) {
 			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 		}
-
-		| Do we have a valid target?
-		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		| Before debuffing and nuking check if we have to mezz
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
@@ -45,6 +40,9 @@ Sub enc_main
 		}
 		
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+
+		| Do we have a valid target?
+		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				
@@ -371,7 +369,8 @@ Sub enc_group_buffs
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
 	
 	/for _count 0 to ${Group}
-		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone} && (!${Me.Casting.ID})) {
+	
+		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
 			
 			/if (${Me.XTarget}) {
 				/call ${Me.Class.ShortName.Lower}_load_spellbar

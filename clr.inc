@@ -2,11 +2,15 @@
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub clr_main
-	
-	/if (${powerLevel}) {
-		/call check_for_corpse FALSE
-		/return
-	} 
+
+	/if (!${doNotBuff}) /call clr_group_buffs
+	/call clr_self_buffs
+	/if (!${doNotBuff}) /call clr_combat_tank_buffs
+
+	|/if (${powerLevel}) {
+	|	/call check_for_corpse FALSE
+	|	/return
+	|} 
 
 	/call get_heal_target 90
 	/varset worstHurtId ${Macro.Return}
@@ -25,9 +29,7 @@ Sub clr_main
 	}
 
 	/call check_for_corpse FALSE
-	/call clr_group_buffs
-	/call clr_self_buffs
-	/call clr_combat_tank_buffs
+	
 	|!${Me.Song[${GroupElixirSpell}].ID}
 	/if (${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID}) {
 		/if (${validate_cast[FALSE, spell, "${GroupElixirSpell}", ${Me.ID}]}) {
@@ -37,9 +39,11 @@ Sub clr_main
 
 	/while (${Me.XTarget}) {
 
-		/if (${validate_tank_heal[70]}) {
-			/if (${validate_cast[FALSE, spell, "${WardSpell}", ${Group.MainTank.ID}]}) {
-				/call core_cast2 "${WardSpell}" spell ${Group.MainTank.ID} FALSE
+		/if (!${doNotBuff}) {
+			/if (${validate_tank_heal[70]}) {
+				/if (${validate_cast[FALSE, spell, "${WardSpell}", ${Group.MainTank.ID}]}) {
+					/call core_cast2 "${WardSpell}" spell ${Group.MainTank.ID} FALSE
+				}
 			}
 		}
 		
@@ -61,14 +65,6 @@ Sub clr_main
 
 		/if (${check_hurt[FALSE, group, 80]} >= 3) {
 			/if (${validate_cast[FALSE, spell, "${SyllableSpell}", ${Me.ID}]}) /call core_cast2 "${SyllableSpell}" spell ${Me.ID} FALSE
-		}
-
-		/if (${validate_tank_heal[50]}) {
-			/if (!${Target.Buff[${WardSpell}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${WardSpell}", ${Group.MainTank.ID}]}) {
-					/call core_cast2 "${WardSpell}" spell ${Group.MainTank.ID} FALSE
-				}
-			}
 		}
 
 		/call get_heal_target 75
@@ -111,15 +107,16 @@ Sub clr_main
 			}
 		}
 
-		
-		/if (${validate_tank_heal[90]}) {
-			/if (!${Target.Buff[${PromisedHeal}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
-					/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
+		/if (!${doNotBuff}) {
+			/if (${validate_tank_heal[90]}) {
+				/if (!${Target.Buff[${PromisedHeal}].ID}) {
+					/if (${validate_cast[FALSE, spell, "${PromisedHeal}", ${Group.MainTank.ID}]}) {
+						/call core_cast2 "${PromisedHeal}" spell ${Group.MainTank.ID} FALSE
+					}
 				}
 			}
 		}
-
+		
 		|**
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
 		
@@ -131,12 +128,6 @@ Sub clr_main
 			}
 		}
 		**|
-	}
-	
-	/if (${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID}) {
-		/if (${validate_cast[FALSE, spell, "${GroupElixirSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${GroupElixirSpell}" spell ${Me.ID} FALSE
-		}
 	}
 
 |	/call cures
@@ -375,7 +366,6 @@ Sub clr_group_buffs
 
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
-		/docommand /dgt \aw Done Buffing
 	}
 	
 /return
@@ -409,7 +399,6 @@ Sub clr_combat_tank_buffs
 
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
-		/docommand /dgt \aw Done Buffing
 	}
 
 /return

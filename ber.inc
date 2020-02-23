@@ -48,17 +48,7 @@ Avenging Flurry Discipline
 |---------------------------------------------------------------------------- 
 Sub ber_main
 	
-	|**
-	/if (!${powerLevel}) {
-		/varset powerLevel TRUE
-		/return
-	}
-
-	/if (${powerLevel}) {
-		/return
-	}
-	**|
-
+	
 	/if (!${Me.XTarget}) /call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${StunAxeName}" "${StunAxeComponent}"
@@ -119,8 +109,8 @@ Sub ber_main
 			}
 		**|
 
-		/echo ${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}
-		/echo ${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}
+		|/echo ${validate_cast[FALSE, alt, "Savage Spirit", ${Me.ID}]}
+		|/echo ${validate_cast[FALSE, alt, "Desperation", ${Me.ID}]}
 
 		/if (${check_for_named[FALSE]}) {
 			
@@ -228,7 +218,7 @@ Sub ber_main
 		}
 	
 		/call ber_combat
-
+		/call move_to_camp
 	|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 		/doevents
 	}
@@ -294,7 +284,7 @@ Sub ber_combat
 	|}
 
 	/if (!${Target.Buff[Sarnak Finesse].ID}) {
-		/if (${validate_cast[FALSE, alt, "War Cry of the Braxi", ${Target.ID}]}) /call core_cast2 "War Cry of the Braxi" alt ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, alt, "Braxi's Howl", ${Target.ID}]}) /call core_cast2 "Braxi's Howl" alt ${Target.ID} FALSE
 		/if (${validate_cast[FALSE, disc, "${DichoDisc}", ${Target.ID}]}) /call core_cast2 "${DichoDisc}" disc ${Target.ID} FALSE
 	}
 

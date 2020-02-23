@@ -188,6 +188,14 @@ Sub var_setup
 	/declare oldPosseZ			int outer 20
 	/declare newPosseZ			int outer 20
 
+|- Buff stacking
+	/declare bstDoNotBuffShm 	bool outer FALSE
+	/declare bstDoNotBuffDru 	bool outer FALSE
+	/declare bstDoNotBuffEnc 	bool outer FALSE
+	/declare shmDoNotBuffEnc 	bool outer FALSE
+	/declare druDoNotBuffShm 	bool outer FALSE
+	/declare doNotBuff 			bool outer FALSE
+
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion
@@ -604,7 +612,7 @@ Sub get_pull_target(int _tmpID)
 				/return
 			}
 		}
-		/delay 1s ${Me.XTarget}
+		/delay 3s ${Me.XTarget}
 		/return
 	}
 	
@@ -637,7 +645,8 @@ Sub get_pull_target(int _tmpID)
 				/if (!${Me.XTarget}) /goto :tag_target
 			}
 			/if (${Me.XTarget}) {
-				/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
+				/nav stop
+				/break
 			}
 		} else /if (${Spawn[id ${_tmpID}].LineOfSight} && ${Spawn[id ${_tmpID}].Distance} < ${pullDistance}) {
 			/if (${Navigation.Active}) /nav stop
@@ -662,6 +671,8 @@ Sub get_pull_target(int _tmpID)
 		}
 		/delay 1
 	}
+	
+	/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
 
 /return
 
@@ -2602,7 +2613,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 95
+			/varset autoAssistAt 90
 			/varset assistRange 100
 		} else {
 			/varset autoAssistAt 100
@@ -2611,7 +2622,7 @@ sub setup_skill_melee(bool _debug)
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 95
+			/varset autoAssistAt 90
 			/varset assistRange 100
 		} else {
 			/varset autoAssistAt 100
@@ -2621,7 +2632,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},DRU,SHM]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 95
+			/varset autoAssistAt 90
 			/varset assistRange 55
 		} else {
 			/varset autoAssistAt 100
@@ -2631,7 +2642,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 95
+			/varset autoAssistAt 90
 			/varset assistRange 100
 		} else {
 			/varset autoAssistAt 99
@@ -2641,7 +2652,7 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},ENC]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 95
+			/varset autoAssistAt 90
 			/varset assistRange 100
 		} else {
 			/varset autoAssistAt 100

@@ -3,11 +3,8 @@
 |---------------------------------------------------------------------------- 
 Sub dru_main
 
-	/if (${powerLevel}) {
-		/return
-	} 
 |	/call check_for_corpse FALSE
-	/call dru_group_buffs
+	/if (!${doNotBuff}) /call dru_group_buffs
 	/call dru_self_buffs
 	
 	/call get_heal_target 70
@@ -106,7 +103,7 @@ Sub dru_main
 			}
 		}
 		/call dru_group_heals
-		/call dru_combat_tank_buffs
+		/if (!${doNotBuff}) /call dru_combat_tank_buffs
 	}
 
 	/doevents
@@ -141,7 +138,6 @@ Sub dru_combat_tank_buffs
 	}
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
-		/docommand /dgt \aw Done Buffing
 	}
 
 /return
@@ -301,16 +297,18 @@ Sub dru_group_buffs
 			}
 		}
 
-		/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-			/call Gquery ${Group.Member[${_count}].Name.Lower} "Me.Buff[${SoW}].ID" "tmpbuffid" "int"
-			/call Gquery ${Group.Member[${_count}].Name.Lower} "Spell[${SoW}].Stacks" "tmpstackcheck" "bool"
-			/if (!${tmpbuffid} && ${tmpstackcheck}) {
-				/if (${validate_cast[FALSE, spell, ${SoW}, ${Group.Member[${_count}].ID}]}) {
-					/call core_cast2 "${SoW}" spell ${Group.Member[${_count}].ID} FALSE
-					/varset CastCheck 1
+		/if (!${druDoNotBuffShm}) {
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				/call Gquery ${Group.Member[${_count}].Name.Lower} "Me.Buff[${SoW}].ID" "tmpbuffid" "int"
+				/call Gquery ${Group.Member[${_count}].Name.Lower} "Spell[${SoW}].Stacks" "tmpstackcheck" "bool"
+				/if (!${tmpbuffid} && ${tmpstackcheck}) {
+					/if (${validate_cast[FALSE, spell, ${SoW}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${SoW}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
 				}
-			}
-		} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]} && ${Group.Member[${_count}].ID} == ${Group.MainTank.ID}) {
 				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 				/delay 1s
 				/if (!${Target.Buff[${SoW}].ID}) {
@@ -320,6 +318,57 @@ Sub dru_group_buffs
 					}
 				}
 			}
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
+					
+					
+
+					/if (!${tmpbuffid} && ${tmpstackcheck}) {
+						/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) {
+							/call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
+							/varset CastCheck 1
+						}
+					}
+				
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${AllianceBuff}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+			}
+
+			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
+				
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff}].ID" "tmpbuffid" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GrowthBuff}].Stacks" "tmpstackcheck" "bool"
+				
+				
+				
+				/if (!${tmpbuffid} && ${tmpstackcheck}) {
+					/if (${validate_cast[FALSE, spell, ${GrowthBuff}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${GrowthBuff}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+				
+			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
+				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
+				/delay 1s
+				/if (!${Target.Buff[${GrowthBuff}].ID}) {
+					/if (${validate_cast[FALSE, spell, ${GrowthBuff}, ${Group.Member[${_count}].ID}]}) {
+						/call core_cast2 "${GrowthBuff}" spell ${Group.Member[${_count}].ID} FALSE
+						/varset CastCheck 1
+					}
+				}
+			}
+		}
 		
 		/if (${Mode} != 3) /return
 

@@ -109,6 +109,7 @@ Sub afk_radius_camping
 	/target clear
 	/if (${Group.Puller.ID} == ${Me.ID}) /call ignore_mobs_to_pull
 	/if (${Me.Pet.ID}) /pet guard
+	/if (${Select[${Me.Class.ShortName},CLR,SHM,DRU,BST,ENC]}) /call group_checker
 
 	/while (${Mode} == 3) {
 
@@ -119,16 +120,13 @@ Sub afk_radius_camping
 
 		/call misc
 
-		/if (!${powerLevel}) {
-			/call move_to_camp
-		} else /if (${powerLevel}) {
-			/call move_to_camp
-		}
+		/call move_to_camp
+		
 		
 		/if (!${powerLevel}) {
 			/if (${validate_pull_start[FALSE]}) /call afk_pull
 		} else /if (${powerLevel}) {
-			/if (${Select[${Me.Class.ShortName},MNK]}) {
+			/if (${Group.Puller.ID} == ${Me.ID}) {
 				/if (${npcRadiusCheck} != 1) /varset npcRadiusCheck 1
 				/if (${validate_chain_pull_start[FALSE]}) /call chain_pull
 			}
@@ -137,15 +135,12 @@ Sub afk_radius_camping
 		/call check_state FALSE
 		
 		/if (${Balance}) /call balance_mob_hitpoints
-		/if (${powerLevel}) {
-			/if (${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,MNK]}) {
-				/call ${Me.Class.ShortName.Lower}_main
-			}
-		} else {
-			/call ${Me.Class.ShortName.Lower}_main
-		}
+
+		/call ${Me.Class.ShortName.Lower}_main
+
+		/call dummy_mode
 	}
-	|doevents
+	/doevents
 /return
 
 Sub set_mode
@@ -176,8 +171,6 @@ Sub set_mode
 /return
 
 sub misc
-	/declare _count 		int local 0 
-	/declare _portClassID 	int local 0
 
 	/varset newPosseXY ${pullRadiusXY}
 	/varset newPosseZ ${pullRadiusZ}
@@ -224,32 +217,9 @@ sub misc
 		}
 	}
 
-
-
-	|/call dummy_mode
-
-	|**
 	/if (${goSell}) /call vendor_items
 	
-	/if (${Mode} == 0) /return
-	/if (${Zone.ID} == 202) /return
-	/if (${Zone.ID} == 344) /return
-	/if (${Zone.ID} == 345) /return
 
-	/if (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) {
-		/call port_class_checker
-		/varset _portClassID ${Macro.Return}
-
-		/if (${_portClassID}) {
-			/varset Mode 7
-			/varset posseZone TRUE
-			/call get_me_out ${_portClassID}
-		} else {
-			/call dummy_mode
-		}
-	}
-	
-	**|
 /return
 
 sub get_me_out(int _tmpID)
@@ -285,7 +255,7 @@ sub mode_posse_afk
 	/declare _counter					int local 1
 	/declare _returnToFellowshipTimer	timer local 0
 	
-	/varset _returnToFellowshipTimer 10m
+	/varset _returnToFellowshipTimer 20m
 
 	/while (${Mode} == 7) {
 
@@ -604,7 +574,7 @@ Sub move_to_camp
 
 	| Melee are sticking to target so no need to move to camp
 	/if (${Me.XTarget}) {
-		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) /varset _autoCampRadius 50
+		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) /varset _autoCampRadius 120
 	}
 	
 	| if casting return
@@ -680,38 +650,94 @@ Sub high_hp
 /return
 
 Sub dummy_mode 
-	/declare _count int local
+	/declare _count 		int local 0 
+	/declare _portClassID 	int local 0
 
+	/if (${Mode} == 0) /return
 	/if (${Zone.ID} == 202) /return
 	/if (${Zone.ID} == 344) /return
 	/if (${Zone.ID} == 345) /return
 	/if (${Me.XTarget}) /return
 
-	/if (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
-		
-		/call move_to_camp
+	
+	/if (${Spawn[gm].ID} || ${Posse.Strangers} > 0) {
+		|**
+		/call port_class_checker
+		/varset _portClassID ${Macro.Return}
 
-		/while (${Navigation.Active}) { 
-			/delay 5
-		}
+		/if (${_portClassID}) {
+			/varset Mode 7
+			/varset posseZone TRUE
+			/call get_me_out ${_portClassID}
+			**|
+		| } else {
+			
+			/call move_to_camp
 
-		/echo Entering Dummy Mode...
-		/delay 1s 
-		/echo PC nearby! 
-		
-		/while (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
-			/for _count 1 to ${DummyTime}
-				/echo (${_count}/${DummyTime})
-				/if (${Mode} == 0) /return
-				/if (${Zone.ID} == 202) /return
-				/if (${Zone.ID} == 344) /return
-				/if (${Zone.ID} == 345) /return
-				/if (${Me.XTarget}) /return
-				/delay 1s
-			/next _count
+			/while (${Navigation.Active}) { 
+				/delay 5
+			}
+
+			/echo Entering Dummy Mode...
 			/delay 1s 
+			/echo PC nearby! 
+			
+			/while (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
+				/for _count 1 to ${DummyTime}
+					/echo (${_count}/${DummyTime})
+					/if (${Mode} == 0) /return
+					/if (${Zone.ID} == 202) /return
+					/if (${Zone.ID} == 344) /return
+					/if (${Zone.ID} == 345) /return
+					/if (${Me.XTarget}) /return
+					/delay 1s
+				/next _count
+				/delay 1s 
+			}
 		}
-	}
+	| }
+	
 
 /return
 
+sub group_checker
+	/declare _count int local
+
+	/for _count 0 to ${Group}
+
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},SHM]} && ${Select[${Me.Class.ShortName},BST]}) {
+			/varset bstDoNotBuffShm TRUE
+			/break
+		}
+
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},DRU]} && ${Select[${Me.Class.ShortName},BST]}) {
+			/varset bstDoNotBuffDru TRUE
+			/break
+		}
+
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},ENC]} && ${Select[${Me.Class.ShortName},BST]}) {
+			/varset bstDoNotBuffEnc TRUE
+			/break
+		}
+
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},ENC]} && ${Select[${Me.Class.ShortName},SHM]}) {
+			/varset shmDoNotBuffEnc TRUE
+			/break
+		}
+
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},SHM]} && ${Select[${Me.Class.ShortName},DRU]}) {
+			/varset druDoNotBuffShm TRUE
+			/break
+		}
+
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},${Me.Class.ShortName}]}) {
+			
+			/if (${Group.Member[${_count}].Level} > ${Me.Level}) {
+				/varset doNotBuff TRUE
+				/break
+			}
+		}
+		
+	/next _count
+	
+/return
