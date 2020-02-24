@@ -34,7 +34,7 @@ Sub shd_main
 			}
 		}
 		/call get_target
-		/call check_add_aggro
+		/call get_target
 	
 		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
 			/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
@@ -45,7 +45,7 @@ Sub shd_main
 		}
 		
 		/call shd_aoe_aggro
-		/call check_add_aggro
+		/call get_target
 
 		/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
 			/call core_cast2 "Visage of Death" alt 0 FALSE
@@ -56,19 +56,19 @@ Sub shd_main
 		}
 		/call get_target
 		/call shd_get_aggro
-		/call check_add_aggro
+		/call get_target
 		/if (${Me.PctHPs} < 90) {
 			/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 		}
 
-		/call check_add_aggro
+		/call get_target
 
 		/if (!${Me.Buff[${Recourse}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 		}
 
 		/call shd_aoe_aggro
-		/call check_add_aggro
+		/call get_target
 
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
 			/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {

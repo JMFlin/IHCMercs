@@ -196,6 +196,8 @@ Sub var_setup
 	/declare druDoNotBuffShm 	bool outer FALSE
 	/declare doNotBuff 			bool outer FALSE
 
+	/declare MainTargetID			int outer 0
+
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion
@@ -332,31 +334,7 @@ Sub Travel
 	}
 
 /return
-|----------------------------------------------------------------------------
-|- SUB: check_add_aggro
-|---------------------------------------------------------------------------- 
-Sub check_add_aggro
 
-	/if (${Balance}) /return
-	/if (!${Me.XTarget[2].ID}) /return
-	/if (${timeForMez} != 0) /return
-	/if (${Group.MainTank.ID} != ${Me.ID}) /return
-
-	/if (${Target.Type.Equal[Corpse]}) /target clear
-
-	| if any npcs on xtarget have less than 100% aggro
-	/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
-		/if (${If[${Select[${SpawnSort[1,asc,PctAggro,xtarhater].Animation},110,26,32,71,72,111]}, 0, 1]}==1) {
-			/target id ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
-			/delay 5 ${Target.ID} == ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
-			/call engage
-			/call ${Me.Class.ShortName.Lower}_get_aggro
-			/call ${Me.Class.ShortName.Lower}_aoe_aggro
-			/delay 1s
-		}
-	}
-
-/return
 |----------------------------------------------------------------------------
 |- SUB: puller_check_group_resources
 |---------------------------------------------------------------------------- 
@@ -1253,7 +1231,7 @@ Sub WelcomeMsg
 Sub get_target
 	/declare _npcIDontHaveAggroOnID 	int local 0
 	/declare _currentTarget 			int local 0
-	/declare _tmpID 				int local 0
+	/declare _tmpID 					int local 0
 
 	| is there a target to be had?
 	|/echo Checking xtarget
@@ -1281,7 +1259,6 @@ Sub get_target
 				/if (${Navigation.Active}) /nav stop
 				/if (${Stick.Active}) /stick off
 			}
-
 			/delay 5
 		}
 	}
@@ -1291,7 +1268,7 @@ Sub get_target
 		/if (${Me.ID} != ${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
 		/delay 1s ${Me.AssistComplete} == TRUE
 		/delay 5
-		
+
 		| if current target is not 100% aggro then get aggro
 		/if (${Target.ID}) {
 			/if (${Target.PctAggro} < 100) /call engage
@@ -1310,14 +1287,18 @@ Sub get_target
 				/target id ${_npcIDontHaveAggroOnID}
 				/delay 5 ${Target.ID} == ${_npcIDontHaveAggroOnID}
 				/delay 5
+				|**
 				/call engage
 				/call ${Me.Class.ShortName.Lower}_get_aggro
+				**|
 			}
+			|**
 			/if (${Stick.Active}) /stick off
 			/if (${Me.ID} != ${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
 			/delay 1s ${Me.AssistComplete} == TRUE
 			/delay 5
 			/call engage
+			**|
 		}
 	}
 
@@ -1332,8 +1313,6 @@ Sub get_target
 			/if (${Navigation.Active}) /nav stop
 			/if (${Stick.Active}) /stick off
 		}
-
-		/return
 	}
 
 /return

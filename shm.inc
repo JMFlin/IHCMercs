@@ -28,7 +28,6 @@ Sub shm_main
 		}
 	}
 
-
 	/if (!${doNotBuff} && !${Me.Song[${GroupRenewalHoT}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${GroupRenewalHoT}", ${Me.ID}]}) {
 			/call core_cast2 "${GroupRenewalHoT}" spell ${Me.ID} FALSE
@@ -39,14 +38,20 @@ Sub shm_main
 
 		/call get_target
 
-		/if (${check_for_named[FALSE]}) /call shm_do_named
-
 		/if (${Target.Named}) {
 			/if (!${Target.Maloed.ID} && !${Target.Buff[${MaloName}].ID}) {
 				/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
 			}
 		}
 		
+		/call get_heal_target 90
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal3}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal3}" spell ${worstHurtId} FALSE
+			}
+		}
+
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
 			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
@@ -55,12 +60,6 @@ Sub shm_main
 			}
 		}
 
-		/call pet_attack ${Target.ID}
-
-		/call shm_aa_and_disc
-
-		/call move_to_camp
-
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
 		/if (${worstHurtId} > 0) {
@@ -68,6 +67,13 @@ Sub shm_main
 				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
 			}
 		}
+
+		/if (!${validate_combat[${Target.ID}]}) /continue
+
+		/call pet_attack ${Target.ID}
+
+		/if (${check_for_named[FALSE]}) /call shm_do_named
+		/call shm_aa_and_disc
 		
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
@@ -120,6 +126,22 @@ Sub shm_main
 			/if (${validate_cast[FALSE, spell, "${InterventionHeal}", ${Me.ID}]}) /call core_cast2 "${InterventionHeal}" spell ${Me.ID} FALSE
 		}
 
+		/call get_heal_target 85
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
+			}
+		}
+		
+		/call get_heal_target 85
+		/varset worstHurtId ${Macro.Return}
+		/if (${worstHurtId} > 0) {
+			/if (${validate_cast[FALSE, spell, "${RecklessHeal2}", ${worstHurtId}]}) {
+				/call core_cast2 "${RecklessHeal2}" spell ${worstHurtId} FALSE
+			}
+		}
+
 		/call get_target
 		/if (${check_hurt[FALSE, group, 90]} >= 3) {
 			/if (${validate_cast[FALSE, spell, "${TwinHealNuke}", ${Target.ID}]}) /call core_cast2 "${TwinHealNuke}" spell ${Group.MainTank.ID} FALSE
@@ -129,6 +151,8 @@ Sub shm_main
 		/if (${check_hurt[FALSE, group, 70]} >= 2) {
 			/if (${validate_cast[FALSE, spell, "${RecourseHeal}", ${Me.ID}]}) /call core_cast2 "${RecourseHeal}" spell ${Me.ID} FALSE
 		}
+
+		/call move_to_camp
 
 		DEBUG Call of the Ancients ${validate_cast[FALSE, alt, "Call of the Ancients", ${Me.ID}]}
 

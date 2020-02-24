@@ -14,7 +14,6 @@ Sub war_main
 		
 		/call get_target
 		
-		/call check_add_aggro
 		/call war_get_aggro
 		/call war_combat_buffs
 
@@ -39,7 +38,7 @@ Sub war_main
 		/if (${validate_cast[FALSE, alt, "Gut Punch", ${Target.ID}]}) /call core_cast2 "Gut Punch" alt ${Target.ID} FALSE
 
 		/call war_aoe_aggro
-		/call check_add_aggro
+		/call get_target
 
 		/if (${Target.Named} || ${Me.PctHPs} < 61) {
 			/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
@@ -51,7 +50,7 @@ Sub war_main
 		
 		/call war_combat_buffs
 
-		/call check_add_aggro
+		/call get_target
 
 		/call move_to_camp
 
