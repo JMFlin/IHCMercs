@@ -141,7 +141,7 @@ Sub ber_main
 		}
 
 		/if (!${Me.ActiveDisc.ID}) {
-			/if (${burnRotation} == 2) {
+			/if (${burnRotation} == 1) {
 				/if (${validate_cast[FALSE, alt, "Reckless Abandon", ${Me.ID}]}) /call core_cast2 "Reckless Abandon" alt 0 FALSE
 				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
 				/if (${validate_cast[FALSE, disc, "${CleavingDisc}", ${Me.ID}]}) {
@@ -152,7 +152,7 @@ Sub ber_main
 		}
 
 		/if (!${Me.ActiveDisc.ID}) {
-			/if (${burnRotation} == 3) {
+			/if (${burnRotation} == 2) {
 				/if (${validate_cast[FALSE, alt, "Vehement Rage", ${Me.ID}]}) /call core_cast2 "Vehement Rage" alt 0 FALSE
 				/if (${validate_cast[FALSE, disc, "${ResolveDisc}", ${Me.ID}]}) {
 					/call core_cast2 "${ResolveDisc}" disc 0 FALSE
@@ -162,7 +162,7 @@ Sub ber_main
 		}
 
 		/if (!${Me.ActiveDisc.ID}) {
-			/if (${burnRotation} == 4) {
+			/if (${burnRotation} == 3) {
 				/if (${validate_cast[FALSE, disc, "${FlurryDisc}", ${Me.ID}]}) {
 					/call core_cast2 "${FlurryDisc}" disc 0 FALSE
 				}

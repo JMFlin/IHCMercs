@@ -1251,24 +1251,30 @@ Sub get_target
 
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
-		| if there is an xtarget close then target the one with lowest hp
-		/if (${SpawnSort[1,asc,PctHPs,xtarhater].Distance} < 200) {
+		/call check_for_named FALSE
+		/varset _tmpID ${Macro.Return}
+
+		/if (${_tmpID}) {
+			/target id ${_tmpID}
+		} else /if (${SpawnSort[1,asc,PctHPs,xtarhater].Distance} < 200) {
 			/target id ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
 
 			/if (${_currentTarget} != ${Target.ID}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Stick.Active}) /stick off
 			}
-			/delay 5
 		}
+		/delay 5
 	}
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
 
-		/if (${Me.ID} != ${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
-		/delay 1s ${Me.AssistComplete} == TRUE
-		/delay 5
-
+		/if (${Me.ID} != ${Group.MainAssist.ID}) {
+			/assist ${Group.MainAssist.Name}
+			/delay 1s ${Me.AssistComplete} == TRUE
+			/delay 5
+		}
+		
 		| if current target is not 100% aggro then get aggro
 		/if (${Target.ID}) {
 			/if (${Target.PctAggro} < 100) /call engage
@@ -1287,18 +1293,7 @@ Sub get_target
 				/target id ${_npcIDontHaveAggroOnID}
 				/delay 5 ${Target.ID} == ${_npcIDontHaveAggroOnID}
 				/delay 5
-				|**
-				/call engage
-				/call ${Me.Class.ShortName.Lower}_get_aggro
-				**|
 			}
-			|**
-			/if (${Stick.Active}) /stick off
-			/if (${Me.ID} != ${Group.MainAssist.ID}) /assist ${Group.MainAssist.Name}
-			/delay 1s ${Me.AssistComplete} == TRUE
-			/delay 5
-			/call engage
-			**|
 		}
 	}
 
