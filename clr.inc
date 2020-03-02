@@ -2,7 +2,7 @@
 |- SUB: ManualPullCamping
 |---------------------------------------------------------------------------- 
 Sub clr_main
-
+	
 	/if (!${doNotBuff}) /call clr_group_buffs
 	/call clr_self_buffs
 	/if (!${doNotBuff}) /call clr_combat_tank_buffs
@@ -38,6 +38,8 @@ Sub clr_main
 	}
 
 	/while (${Me.XTarget}) {
+		
+		/call move_to_camp
 
 		/if (!${doNotBuff}) {
 			/if (${validate_tank_heal[70]}) {
@@ -116,6 +118,10 @@ Sub clr_main
 				}
 			}
 		}
+
+		/if (${check_for_named[FALSE]}) {
+			/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
+		}
 		
 		|**
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
@@ -149,7 +155,7 @@ Sub clr_self_buffs
 			/varset CastCheck 1
 		}
 	}
-
+|**
 	/if (!${Me.Buff[${Retaliation}].ID}) {
 		/if (${validate_cast[FALSE, spell, ${Retaliation}, ${Me.ID}]}) {
 			/call core_cast2 "${Retaliation}" spell ${Me.ID} FALSE
@@ -163,7 +169,7 @@ Sub clr_self_buffs
 			/varset CastCheck 1
 		}
 	}
-
+**|
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 	}

@@ -12,24 +12,27 @@ Sub war_main
 
 	/while (${Me.XTarget}) {
 		
+		/call move_to_camp
+
 		/call get_target
 		
-		/call war_get_aggro
 		/call war_combat_buffs
+		/call war_disc
+		/call war_get_aggro
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
 		
-		/call engage
 		/call war_get_aggro
+		/call war_disc
+		/call engage
 		/if (!${Me.Song[Battle Leap].ID}) {
 			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 		}
 
-		/call war_disc
-
 		/if (!${Me.ActiveDisc.ID}) {
 			/if (${validate_cast[FALSE, disc, "${defenseac}", ${Me.ID}]}) /call core_cast2 "${defenseac}" disc 0 FALSE
 		}
+		/call war_aoe_aggro
 
 		/if (${validate_cast[FALSE, disc, "${shieldhit}", ${Target.ID}]}) /call core_cast2 "${shieldhit}" disc ${Target.ID} FALSE
 
@@ -51,8 +54,6 @@ Sub war_main
 		/call war_combat_buffs
 
 		/call get_target
-
-		/call move_to_camp
 
 	}
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID} || ${Me.Buff[Drachnid Entangle].ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
@@ -197,7 +198,7 @@ Sub war_disc
 		/if (${validate_cast[FALSE, disc, "${attention}", ${Me.ID}]}) /call core_cast2 "${attention}" disc ${Target.ID} FALSE
 	}
 
-	/if (${Me.XTarget} > 3 || ${_isNamed} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
+	/if (${Me.XTarget} > 3 || ${_isNamed} || ${Target.Level} > ${Me.Level}+3) {
 
 		/if (${validate_cast[FALSE, alt, "Warlord's Tenacity", ${Me.ID}]}) /call core_cast2 "Warlord's Tenacity" alt 0 FALSE
 		/if (${validate_cast[FALSE, alt, "Wars Sheol's Heroic Blade", ${Me.ID}]}) /call core_cast2 "Wars Sheol's Heroic Blade" alt ${Target.ID} FALSE

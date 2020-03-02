@@ -97,6 +97,8 @@ Sub clr_setup
 	/declare tempid					string outer NULL
 	/declare spellrememtimer		timer outer 0
 	/declare spellslots				int outer 8
+
+	/declare ChestItemName		string outer ${Me.Inventory[17].Name}
 /return 
 |----------------------------------------------------------
 |- SUB: ${Me.Class.ShortName.Lower}_load_spellbar
@@ -129,6 +131,25 @@ Sub clr_load_spellbar
 		/call LoadSpellGem "${SyllableSpell}" 12
 		/call LoadSpellGem "${GroupWordSpell}" 13
 
+	} /if (${Me.AltAbility[Mnemonic Retention].Rank} == 4) {
+		/call LoadSpellGem "${MendingSplash}" 1
+		
+		/call LoadSpellGem "${DichoSpell}" 2
+
+		/call LoadSpellGem "${TankBuff}" 3
+		| /call LoadSpellGem "${DivineBuff}" 3
+		/call LoadSpellGem "${WardSpell}" 4
+		/call LoadSpellGem "${PromisedHeal}" 5
+
+		/call LoadSpellGem "${Remedy1}" 6
+		/call LoadSpellGem "${Remedy2}" 7
+		/call LoadSpellGem "${Remedy3}" 8
+
+		/call LoadSpellGem "${Intervention1}" 9
+		/call LoadSpellGem "${Intervention2}" 10
+		/call LoadSpellGem "${Intervention3}" 11
+
+		/call LoadSpellGem "${SyllableSpell}" 12
 
 	} else {
 		/call LoadSpellGem "${SingleElixirSpell}" 1

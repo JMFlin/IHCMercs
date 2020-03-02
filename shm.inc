@@ -28,6 +28,7 @@ Sub shm_main
 		}
 	}
 
+	
 	/if (!${doNotBuff} && !${Me.Song[${GroupRenewalHoT}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${GroupRenewalHoT}", ${Me.ID}]}) {
 			/call core_cast2 "${GroupRenewalHoT}" spell ${Me.ID} FALSE
@@ -70,6 +71,7 @@ Sub shm_main
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
+		/call get_target
 		/call pet_attack ${Target.ID}
 
 		/if (${check_for_named[FALSE]}) /call shm_do_named
@@ -115,6 +117,8 @@ Sub shm_main
 				}
 			}
 		}
+		
+		/call pet_attack ${Target.ID}
 
 		/if (${Me.PctHPs} >= 50 && ${Me.PctMana} < 30) {
 			/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
@@ -563,8 +567,6 @@ Sub shm_group_buffs
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
 				
-				
-
 				/if (!${tmpbuffid} && ${tmpstackcheck}) {
 					/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) {
 						/call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
@@ -618,10 +620,15 @@ Sub shm_self_buffs
 	|	/call core_cast2 "Visionary's Unity" alt 0 FALSE
 	|	/varset CastCheck 1
 	|}
-	/if (${validate_cast[FALSE, spell, "${GroupHealProcBuff}", ${Me.ID}]}) {
-		/call core_cast2 "${GroupHealProcBuff}" spell ${Me.ID} FALSE
-		/varset CastCheck 1
+
+	
+	/if (!${Me.Buff[${GroupHealProcBuff}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${GroupHealProcBuff}", ${Me.ID}]}) {
+			/call core_cast2 "${GroupHealProcBuff}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
+		}
 	}
+	
 
 	|**
 	/if (!${Spell[${Me.Aura[1]}].ID} && ${Me.AltAbilityReady[${ShamanAura}]}) {

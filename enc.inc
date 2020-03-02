@@ -8,11 +8,21 @@ Sub enc_main
 
 	/call enc_self_buffs
 	/if (!${doNotBuff}) /call enc_group_buffs
-	
+	/call enc_check_mana
+	/call set_timers
+
 	/while (${Me.XTarget}) {
+
+		/call move_to_camp
+
+		/call enc_check_mana
 
 		| Have we assisted MA?
 		/call get_target
+
+		/if (${Int[${Target.Beneficial.ID}]}) {
+			/if (${validate_cast[FALSE, alt, "Eradicate Magic", ${Target.ID}]}) /call core_cast2 "Eradicate Magic" alt ${Target.ID} FALSE
+		}
 
 		/if (${Navigation.PathLength[id ${Target.ID}]} <= 200) {
 			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
@@ -22,7 +32,7 @@ Sub enc_main
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
 		| Before nuking check if we have to debuff
-		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
+		/if (${timeForDebuff} == 0 &&  ${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		| Start dpsing
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
@@ -31,19 +41,29 @@ Sub enc_main
 
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
-		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
-			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+		/if (!${Target.Buff[${SlowSpellName}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
+			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpellName} \ax <<=
+				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-		
+
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
 		| Do we have a valid target?
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
+		/if (${Target.Named}) {
+			/if (!${Target.Buff[${Constriction}].ID}) {
+				/if (${validate_cast[FALSE, spell, "${Constriction}", ${Target.ID}]}) /call core_cast2 "${Constriction}" spell ${Target.ID} FALSE
+			}
+	
+			/if (!${Target.Buff[Mental Contortion ${MentalContortionRank}].ID}) {
+				/if (${validate_cast[FALSE, alt, "Mental Contortion", ${Target.ID}]}) /call core_cast2 "Mental Contortion" alt ${Target.ID} FALSE
+			}
+		}
+		
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
@@ -53,22 +73,24 @@ Sub enc_main
 			}
 		}
 
+		/call pet_attack
+
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
+		/if (${timeForDebuff} == 0 &&  ${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		/if (!${Me.Buff[Improved Twincast].ID} && !${Target.Buff[${Drown}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
 		}
 
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
+		/if (${timeForDebuff} == 0 &&  ${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		/if (${validate_cast[FALSE, spell, "Chromatic Haze", ${Target.ID}]}) /call core_cast2 "Chromatic Haze" alt ${Target.ID} FALSE
 
 		/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
 		
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
+		/if (${timeForDebuff} == 0 &&  ${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		/if (!${Target.Mezzed.ID} && !${Target.Buff[${MezSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${validate_cast[FALSE, spell, "${SingleStunSpell1}", ${Target.ID}]}) {
@@ -77,10 +99,14 @@ Sub enc_main
 				/call check_cast_events "${SingleStunSpell1}" CAST_IMMUNE ${Target.ID}
 			}
 		}
+
 		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
+		
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
+		/if (${timeForDebuff} == 0 &&  ${Me.XTarget} > 1) /call enc_debuff_xtarget
+
 		/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
+		
 	}
 |	/call CheckMana
 |	/if (${UseModRods}) /call ClickModRoD
@@ -112,20 +138,22 @@ Sub enc_debuff_xtarget
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
 
-		/if (!${Target.Buff[${Constriction}].ID} && ${Target.Named}) {
-			/if (${validate_cast[FALSE, spell, "${Constriction}", ${Target.ID}]}) /call core_cast2 "${Constriction}" spell ${Target.ID} FALSE
-		}
+		/if (${Target.Named}) {
+			/if (!${Target.Buff[${Constriction}].ID}) {
+				/if (${validate_cast[FALSE, spell, "${Constriction}", ${Target.ID}]}) /call core_cast2 "${Constriction}" spell ${Target.ID} FALSE
+			}
 	
-		/if (!${Target.Buff[Mental Contortion].ID} && ${Target.Named}) {
-			/if (${validate_cast[FALSE, alt, "Mental Contortion", ${Target.ID}]}) /call core_cast2 "Mental Contortion" alt ${Target.ID} FALSE
+			/if (!${Target.Buff[Mental Contortion].ID}) {
+				/if (${validate_cast[FALSE, alt, "Mental Contortion", ${Target.ID}]}) /call core_cast2 "Mental Contortion" alt ${Target.ID} FALSE
+			}
 		}
 
 		| How will you handle the AA?
-		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+		/if (!${Target.Buff[${SlowSpellName}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
-			/if (${validate_cast[FALSE, spell, "${SlowSpell}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
-				/call core_cast2 "${SlowSpell}" spell ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpellName} \ax <<=
+				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
@@ -172,6 +200,33 @@ Sub enc_debuff_xtarget
 	/call get_target
 
 /return
+
+
+sub enc_check_mana
+
+	| if mana is below the puller check limit
+	/if (${Spawn[${Me.Name} pccorpse radius 50].ID}) /return
+
+	/if (${Me.PctMana} < 80) {
+		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
+	}
+
+	/if (${Me.PctMana} < 50) {
+		/if (${validate_cast[FALSE, alt, "Gather Mana", ${Me.ID}]}) /call core_cast2 "Gather Mana" alt 0 FALSE
+	}
+
+	/if (${Me.PctMana} < 90) {
+		/if (${validate_cast[FALSE, alt, "Azure Mind Crystal", ${Me.ID}]}) {
+			/call core_cast2 "Azure Mind Crystal" alt 0 FALSE
+
+			/if (${Me.FreeInventory} >= 1) /autoinventory
+
+			/if (${validate_cast[FALSE, item, "Azure Mind Crystal ${AzureMindCrystalRank}", ${Me.ID}]}) /call core_cast2 "Azure Mind Crystal ${AzureMindCrystalRank}" item 0 FALSE
+		}
+	}
+
+/return
+
 
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
@@ -419,16 +474,18 @@ Sub enc_group_buffs
 					/varset CastCheck 1
 				}
 			}
+			|**
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${ProcBuff}].ID" "tmpbuffid" "int"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${ProcBuff}].Stacks" "tmpstackcheck" "bool"
 			/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[Illusion Benefit Greater Jann].ID" "jaanbuffid" "int"
-			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Select[${Group.Member[${_count}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD,WAR]}) {
+			/if (!${tmpbuffid} && !${jaanbuffid} && ${tmpstackcheck} && ${Select[${Group.Member[${_count}].Class.ShortName},BRD,BST,BER,MNK,PAL,RNG,ROG,SHD]}) {
 				/if (${validate_cast[FALSE, spell, "${ProcBuff}", ${Group.Member[${_count}].ID}]}) {
 					/call core_cast2 "${ProcBuff}" spell ${Group.Member[${_count}].ID} FALSE
 					/delay 10
 					/varset CastCheck 1
 				}
 			}
+			**|
 		}
 	/next _count
 

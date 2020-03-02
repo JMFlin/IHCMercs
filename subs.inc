@@ -81,7 +81,9 @@ Sub var_setup
 	/declare pullDistance 		int outer 0
 	/declare chainPullLimit 	int outer 20
 	/declare resourceChecker 	int outer 1
-	/declare Limit 				int outer 50
+	/declare Limit 				int outer 40
+	/declare LimitUpper 		int outer 40
+	/declare LimitLower 		int outer 75
 	/declare DummyTime        	int outer 10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
 |	/declare PCRadiusCheck 		int outer 10
@@ -227,6 +229,10 @@ Sub set_timers
 		}
 	}
 
+	/if (${Select[${Me.Class.ShortName},ENC]}) {
+		/varset timeForDebuff 7s
+	}
+
 /return
 
 |----------------------------------------------------------------------------
@@ -345,15 +351,14 @@ Sub puller_check_group_resources
 	/if (${Me.XTarget[1].ID}) /return
 	/if (${Group.Puller.ID} != ${Me.ID}) /return
 
-	/if (${Limit} == 50 && ${resourceChecker} == 0) /varset Limit 85
-	/if (${Limit} == 85 && ${resourceChecker} == 1) /varset Limit 50
+	/if (${Limit} == ${LimitLower} && ${resourceChecker} == 0) /varset Limit ${LimitUpper}
+	/if (${Limit} == ${LimitUpper} && ${resourceChecker} == 1) /varset Limit ${LimitLower}
 	/varset resourceChecker 1
 	/varset casterCasting 0
 
 	/for _count 0 to ${Group}
+
 		/if (!${Group.Member[${_count}].Type.Equal[PC]}) /continue
-		
-		/if (!${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,DRU,BST,WAR,MNK]}) /continue
 		
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
 
@@ -378,12 +383,15 @@ Sub puller_check_group_resources
 			}
 			/if (${resourceChecker} == 0) /return
 		}
+
 	/next _count
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: AFKPull /varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
 |---------------------------------------------------------------------------- 
 Sub pre_pull_group_healer_spells
+
 	/declare promisedSpell string outer NULL
 	/declare elixirSpell string outer NULL
 	/declare elixirCastTime string outer NULL
@@ -400,6 +408,7 @@ Sub pre_pull_group_healer_spells
 		/varset elixirSpell ${elixirSpellName}
 		/varset elixirCastTime ${elixirCast}
 	}
+	
 /return
 
 sub validate_pull_start(bool _debug)
@@ -711,10 +720,6 @@ Sub set_pull_target
 	}
 
 	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 loc ${pullAutoCampX} ${pullAutoCampY} radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
-	
-	|DEBUG 
-	|DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
-	|DEBUG 
 
 	/if (${_mobsInRadius} == 0) {
 		DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
@@ -746,10 +751,10 @@ Sub set_pull_target
 		}
 
 		/varcalc _count ${_count} + 1
+		/delay 3
 	}
-	|DEBUG 
+
 	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as pull target
-	|DEBUG 
 
 /return ${_pullTargetID}
 |----------------------------------------------------------------------------
@@ -1269,18 +1274,6 @@ Sub get_target
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
 
-		/if (${Me.ID} != ${Group.MainAssist.ID}) {
-			/assist ${Group.MainAssist.Name}
-			/delay 1s ${Me.AssistComplete} == TRUE
-			/delay 5
-		}
-		
-		| if current target is not 100% aggro then get aggro
-		/if (${Target.ID}) {
-			/if (${Target.PctAggro} < 100) /call engage
-			/if (${Target.PctAggro} < 100) /call ${Me.Class.ShortName.Lower}_get_aggro
-		}
-
 		| if any npcs on xtarget have less than 100% aggro
 		/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
 
@@ -1294,6 +1287,10 @@ Sub get_target
 				/delay 5 ${Target.ID} == ${_npcIDontHaveAggroOnID}
 				/delay 5
 			}
+		} else /if (${Me.ID} != ${Group.MainAssist.ID}) {
+			/assist ${Group.MainAssist.Name}
+			/delay 1s ${Me.AssistComplete} == TRUE
+			/delay 5
 		}
 	}
 
@@ -1496,7 +1493,9 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && !${Spell[${_spell}].Category.Equal[Heals]}) {
 				/if (!${Spell[${_spell}].NewStacks}) /return FALSE
 				/if (${Me.Buff[${_spell}].ID}) /return FALSE
-				/if (${Me.Song[${_spell}].ID}) /return FALSE		
+				/if (!${Me.Song[Twincast Effect].ID}) {
+					/if (${Me.Song[${_spell}].ID}) /return FALSE
+				}
 			}
 		}
 		
@@ -1636,6 +1635,35 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	
 |/return FALSE
 
+sub validate_target_buff(string _spell)
+	/declare _spellRank string local NULL
+	/declare _return 	bool local TRUE
+
+	/if (${Me.AltAbility[${_spell}].Rank} == 1) {
+		/varset _spellRank I
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 2) {
+		/varset _spellRank II
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 3) {
+		/varset _spellRank III
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 4) {
+		/varset _spellRank IV
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 5) {
+		/varset _spellRank V
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 6) {
+		/varset _spellRank VI
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 7) {
+		/varset _spellRank VII
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 8) {
+		/varset _spellRank VIII
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 9) {
+		/varset _spellRank VIII
+	} else /if (${Me.AltAbility[${_spell}].Rank} == 10) {
+		/varset _spellRank X
+	}
+
+	/if (${Target.Buff[${_spell} ${_spellRank}].ID}) /varset _return FALSE
+	
+/return ${_return}
 
 |***
  *	DES: spell/disc/aa/item cast wrapper
@@ -1661,6 +1689,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 			/delay 1s ${Target.ID} == ${_tmpID}
 		}
 	}
+
 	| what type is it?
 	| /if (${_type.Equal[FIND]}) {
 	/if (${Select[${_type},FIND,FORCE]} && ${Select[${Me.Class.ShortName},BRD]}) {
@@ -1742,7 +1771,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 					}
 				}
 				/if (${Me.SpellInCooldown} && ${_tmpID} != 0 && !${Spell[${_spell}].SpellType.Equal[Beneficial]}) /call global_cooldown_spells ${_tmpID}
-
+				/delay 1
 				/if (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) /goto :cast_in_progress
 
 				| check fizzle
@@ -1810,20 +1839,21 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/varset castReturn CAST_NOTREADY
 
 		| is the item ready?
-		/if (${Me.ItemReady[${_spell}]}) {	
+		/if (!${FindItem[${_spell}].TimerReady}) {	
 
-
+			DEBUG "${_spell}"
 			| try this 2 times
 			/while (${_castLoop}) {
 			
-				/useitem "${_spell}" 
+				/useitem "${_spell}"
 				/delay 2s ${Me.Casting.ID}
+				/delay 3
 				| /delay 2s !${Me.Casting.ID}
- 	
+
 				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open}) {
 					/delay 3
-				} 	
- 				
+				}
+					
  				|CHECKINPUTS
 				| /call check_cast_events 2
 						
@@ -1945,6 +1975,10 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 |---------------------------------------------------------------------------- 
 Sub global_cooldown_spells(int _tmpID)
 | ${Me.AltAbility[Force of Flame].Rank} >= 1
+
+	/if (${Int[${Target.Beneficial.ID}]}) {
+		/if (${validate_cast[FALSE, alt, "Eradicate Magic", ${_tmpID}]}) /alt act ${Me.AltAbility[Eradicate Magic].ID}
+	}
 
 	/if (${validate_cast[FALSE, alt, "Force of Flame", ${_tmpID}]}) {
 		/alt act ${Me.AltAbility[Force of Flame].ID}
@@ -2470,10 +2504,10 @@ Sub get_heal_target(int _hpLimit)
 		}
 
 		/if (${Select[${Group.Member[${_count}].Class.ShortName},BER]}) {
-				/varset _hpLimit ${berHealPct}
-			} else {
-				/varset _hpLimit ${_hpLimitTrue}
-			}
+			/varset _hpLimit ${berHealPct}
+		} else {
+			/varset _hpLimit ${_hpLimitTrue}
+		}
 
 		/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
 
@@ -2483,7 +2517,7 @@ Sub get_heal_target(int _hpLimit)
 		}
 
 	/next _count
-
+	
 /return ${_worstHurtId}
 
 Sub validate_tank_heal(int _hpLimit)
@@ -3002,8 +3036,6 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 
 	| Is there something to mez or debuff?
 	/if (!(${Me.Gem[${_mezAE}]} || ${Me.Gem[${_mezSingle}]})) /return
-
-	/call get_target
 	
 	/attack off
 
@@ -3095,7 +3127,7 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			/delay 1s
 
 			/if (${Spawn[id ${Target.ID}].Body.Name.Equal[Giant]}) {
-				/if (!${immuneSet.Add[${_tmpID}]}) {
+				/if (!${immuneSet.Add[${Target.ID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Set Add of ${_tmpID} failed.
 				}
 				/continue
@@ -3146,7 +3178,13 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 sub cast_alliance(string _alliance, int _tmpID)
 
 	/if (!${_tmpID}) /return
+
 	/if (${Spawn[id ${_tmpID}].PctHPs} < ${allianceHP}) /return
+	
+	/if (${Target.Buff[${_alliance}].ID}) /return
+	/if (${Target.Buff[${AllianceSpellRankCheck}].ID}) /return
+	/if (${Target.Buff[${AllianceSpellRankCheck} Rk. II].ID}) /return
+	/if (${Target.Buff[${AllianceSpellRankCheck} Rk. III].ID}) /return
 
 	/if (${validate_cast[FALSE, FIND, "${_alliance}", ${_tmpID}]}) {
 
@@ -3199,6 +3237,7 @@ Sub get_next_in_rotation
 
 
 sub check_for_named(bool _debug)
+
 	/declare _count int local 0
 
 	/for _count 1 to ${Me.XTarget}

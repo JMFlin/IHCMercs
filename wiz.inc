@@ -3,27 +3,29 @@
 |----------------------------------------------------------------------------
 Sub wiz_main
 
-	/if (${powerLevel}) {
-		/return
-	} 
 	/call wiz_self_buff_check FALSE
+
+	/call wiz_check_mana
 
 	/while (${Me.XTarget}) {
 
-	| if mana is below the puller check limit
-		/if ((${Me.XTarget} && ${Me.PctMana} < 20) || (!${Me.XTarget} && ${Me.PctMana} < ${Limit})) {
+		/call move_to_camp
 
-			| If my corpse is near then don't waste harvest
-			/if (!${Spawn[${Me.Name} pccorpse radius 50].ID}) {
-				
-				| Trigger first harvest
-				/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
-			}
-		}
+		/call wiz_check_mana
 
 		/call get_target
-		/if (!${validate_combat[${Target.ID}]} ) /continue
 
+		/if (${Int[${Target.Beneficial.ID}]}) {
+			/if (${validate_cast[FALSE, alt, "Eradicate Magic", ${Target.ID}]}) /call core_cast2 "Eradicate Magic" alt ${Target.ID} FALSE
+		}
+
+		/if (!${validate_combat[${Target.ID}]}) /continue
+
+		/if (${Target.Named} || ${Target.PctHPs} > 90) {
+			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
+		}
+
+		|**
 		/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
@@ -35,16 +37,20 @@ Sub wiz_main
 				/call check_cast_events "${RootSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
+		**|
 
 		|/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
 		|	/call core_cast2 "${SelfRune1}" spell 0 FALSE
 		|}
 
-		/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
-
-		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
+		/if (${Me.PctMana} < 70) {
+			
+			| Trigger first harvest
+			/if (${validate_cast[FALSE, spell, "${GambitSpell}", ${Me.ID}]}) /call core_cast2 "${GambitSpell}" spell 0 FALSE
 		}
+		
+		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" spell 0 FALSE
+		
 
 		/if (${Me.Buff[Improved Twincast].ID}) {
 
@@ -88,12 +94,6 @@ Sub wiz_main
 				/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
 			}
 
-			/if (${Target.PctHPs} >= 40) {
-				/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
-					/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
-				}
-			}
-
 			/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
 				/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
 			}
@@ -103,13 +103,34 @@ Sub wiz_main
 			}
 
 		}
-
+		
 		/call wiz_manage_aggro
 	}
 	
 |-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0) /call BegForCure
 	/doevents
 	
+/return
+
+sub wiz_check_mana
+
+	| if mana is below the puller check limit
+	/if (${Spawn[${Me.Name} pccorpse radius 50].ID}) /return
+	
+	/if (${Me.PctMana} < 80) {
+		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
+	}
+	
+	/if (${Me.PctMana} < 70) {
+		/if (${validate_cast[FALSE, alt, "Harvest of Druzzil", ${Me.ID}]}) /call core_cast2 "Harvest of Druzzil" alt 0 FALSE
+	}
+	
+	/if (${Me.PctMana} < 20 || ${Me.PctMana} < ${Limit}) {
+			
+		| Trigger first harvest
+		/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
+	}
+
 /return
 
 |----------------------------------------------------------------------------
@@ -264,21 +285,19 @@ Sub wiz_self_buff_check(bool _debug)
 	/declare CastCheck			int local 0
 	
 	/if (${Me.XTarget}) /return
-
-	/if (${validate_cast[FALSE, alt, "${ACPyromancy}", ${Me.ID}]}) /call core_cast2 "${ACPyromancy}" alt ${Me.ID} FALSE
-
+	
 	/if (${validate_cast[FALSE, FIND, "${FamiliarBuff}", ${Me.ID}]}) {
-		/call core_cast2 "${FamiliarBuff}" FIND ${Me.ID} FALSE
+		/call core_cast2 "${FamiliarBuff}" FIND 0 FALSE
 		/varset CastCheck 1
 	}
 
 	/if (${validate_cast[FALSE, FIND, "${SelfHPBuff}", ${Me.ID}]}) {
-		/call core_cast2 "${SelfHPBuff}" FIND ${Me.ID} FALSE
+		/call core_cast2 "${SelfHPBuff}" FIND 0 FALSE
 		/varset CastCheck 1
 	}
 
 	/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
-		/call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE
+		/call core_cast2 "${SelfRune1}" spell 0 FALSE
 		/varset CastCheck 1
 	}
 
@@ -303,7 +322,7 @@ Sub wiz_manage_aggro
 	/if (${Me.Buff[Twincast].ID}) /return
 
 	/if (${Target.PctAggro} > 30) {
-		/if (${validate_cast[FALSE, spell, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, FIND, "${JoltSpell}", ${Target.ID}]}) /call core_cast2 "${JoltSpell}" FIND ${Target.ID} FALSE
 	}
 /return
 

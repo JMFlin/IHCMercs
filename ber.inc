@@ -359,7 +359,7 @@ Sub make_axes(string AxeName, string AxeComponents)
 	
 /return
 
-
+|**
 Sub get_next_in_rotation
 
   	/declare _counter   int local 1
@@ -386,3 +386,4 @@ Sub get_next_in_rotation
 	}
 
 /return ${berStunCaster}
+**|

@@ -459,6 +459,8 @@ Sub create_campfire
 		/delay 5
 		/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox Yes_Button leftmouseup
 		/delay 5
+		/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox Confirm_Button leftmouseup
+		/delay 5
 	}
 	
 	/delay 5
@@ -534,7 +536,7 @@ Sub check_state(bool _debug)
 
 	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]} || ${Me.AltAbilityReady[${Aura1}]}) {
 		| check aura one
-		/if (!${Spell[${Me.Aura[1]}].ID} && !${Me.Song[${Aura1}].ID} && !(${Me.Aura[1].Name.Equal[${Aura1}]} || ${Me.Aura[1].Name.Equal[Mana Rev. Aura]} || ${Me.Aura[1].Name.Equal[Mana Recursion Aura]})) {
+		/if (!${Me.Song[${Aura1}].ID} && !${Me.Aura[2].Name.Equal[${Aura1}]} && !(${Me.Aura[1].Name.Equal[${Aura1}]} || ${Me.Aura[1].Name.Equal[Mana Rev. Aura]} || ${Me.Aura[1].Name.Equal[Mana Recursion Aura]})) {
 			
 			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) {
 				/call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
@@ -551,7 +553,7 @@ Sub check_state(bool _debug)
 	/if (${Me.Book[${Aura2}]} && ${Me.AltAbility[Auroria Mastery].Rank} >= 1) {
 		
 		| check aura two
-		/if (!${Spell[${Me.Aura[2]}].ID} && !${Me.Song[${Aura2}].ID} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
+		/if (!${Me.Song[${Aura2}].ID} && !${Me.Aura[1].Name.Equal[${Aura2}]} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
 
 			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) {
 				/call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
@@ -573,8 +575,11 @@ Sub move_to_camp
 	/declare _autoCampRadius int local ${autoCampRadius}
 
 	| Melee are sticking to target so no need to move to camp
-	/if (${Me.XTarget}) {
+	/if (${Me.XTarget} && ${Group.MainTank.ID} != ${Me.ID}) {
 		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) /varset _autoCampRadius 120
+	}
+	/if (${Me.XTarget} && ${Group.MainTank.ID} == ${Me.ID}) {
+		/varset _autoCampRadius 20
 	}
 	
 	| if casting return

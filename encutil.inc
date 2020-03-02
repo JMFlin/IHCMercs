@@ -46,11 +46,12 @@ Sub enc_setup
 	/declare CharmedID				int		outer	0
 	/declare OldCharmedID			int		outer	0
   |-Debuff
-	/declare CrippleSpell1			string	outer	"NULL"
-	/declare SlowSpell				string	outer	"NULL"
-	/declare StripBuffSpell			string	outer	"NULL"
-	/declare TashSpell				string 	outer 	"NULL"
-	/declare ManaDrainSpell1		string 	outer 	"NULL"
+	/declare CrippleSpell1			string	outer	NULL
+	/declare SlowSpell				string	outer	NULL
+	/declare SlowSpellName 			string  outer	NULL
+	/declare StripBuffSpell			string	outer	NULL
+	/declare TashSpell				string 	outer 	NULL
+	/declare ManaDrainSpell1		string 	outer 	NULL
   |-DPS
 	/declare DichoSpell				string 	outer	"NULL"
 	/declare Drown				string 	outer	"NULL"
@@ -99,18 +100,21 @@ Sub enc_setup
 	/declare UnityRune 				string 	outer	 NULL
 |-Config Options	
 
-	/declare ChestItemName		string outer "${Me.Inventory[17].Name}"
+	/declare ChestItemName		string outer ${Me.Inventory[17].Name}
 	|-Set AA DurationMod for mez timer from Spell Casting Reinforcement AA
 	/declare spellmisc 				int outer 8
 	/declare spellgem				int outer 1	
 	/declare CastResult             string outer
 	/declare miscspellremem			string outer NULL
 	/declare spellrememtimer		timer outer 0
-	/declare groupbufftimer		timer outer 0
-	/declare DeBuffTimer		timer outer 0
 
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
+
+	/declare timeForDebuff 			timer outer 0
+
+	/declare AzureMindCrystalRank 	string outer NULL
+	/declare MentalContortionRank 	string outer NULL
 |- Below Code is only needed for using ihcxtenchmez.inc
 |-	/declare MezCount[13]           			int         outer 	0
 |-	/declare MezArray[50,3]			            string      outer       NULL
@@ -127,212 +131,41 @@ Sub enc_load_spellbar
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
-	/call LoadSpellGem "${MezSpell}" 1
-	/call LoadSpellGem "${DichoSpell}" 2
-	/call LoadSpellGem "${TashSpell}" 3
-	/call LoadSpellGem "${SlowSpell}" 4
-	/call LoadSpellGem "${Drown}" 5
-	/call LoadSpellGem "${MindNukeSub}" 6
-	/call LoadSpellGem "${MindNukeMain}" 7
-	/call LoadSpellGem "${SingleStunSpell1}" 8
 	
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
-		/call LoadSpellGem "${SingleStunSpell1}" 5
-		/if (${UseDicho} && ${Me.Level}>=101 && ${DichoSpell.NotEqual[null]}) {
-			/call LoadSpellGem "${DichoSpell}" 6
-		} else {
-			/call LoadSpellGem "${PBAEStunSpell}" 6
-		}
-		/call LoadSpellGem "${MindNukeMain}" 7
-		/call LoadSpellGem "${MindNukeSub}" 8
-		/if (${UseCharmPet}) {
-			/call LoadSpellGem "${CharmSpell1}" 11
-		} else /if (${UseDoTs}) {
-			/call LoadSpellGem "${Constriction}" 11
-		} else {
-			/call LoadSpellGem "${MezPBAESpell}" 11
-		}
-		/if (${UseDoTs}) {
-			/call LoadSpellGem "${Drown}" 9
-			/call LoadSpellGem "${DoTSpell2}" 10
-		} else {
-			/call LoadSpellGem "${Chromatic}" 9
-			/call LoadSpellGem "${NukeSpell4}" 10
-		}
-		/call LoadSpellGem "${ProcBuff}" 12
-		/call LoadSpellGem "${RootSpell}" 13
-		/varset spellmisc 13
-		/varset miscspellremem ${RootSpell}
-	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
-		|- Level 100 - AA strip becomes available - AA AE Memblur becomes available? 
-		/if (${Me.Level}>=100) {
-			/call LoadSpellGem "${SingleStunSpell1}" 5
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${CharmSpell1}" 6
-			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${Constriction}" 6
-			} else {
-				/call LoadSpellGem "${PBAEStunSpell}" 6
-			}
-			/if (${UseDoTs}) {
-				/call LoadSpellGem "${Drown}" 9
-				/call LoadSpellGem "${DoTSpell2}" 10
-			} else {
-				/call LoadSpellGem "${Chromatic}" 9
-				/call LoadSpellGem "${NukeSpell4}" 10
-			}
-			/call LoadSpellGem "${MindNukeSub}" 8
-		} else /if (${Me.Level}>=96) {
-			/call LoadSpellGem "${StripBuffSpell}" 5
-			/call LoadSpellGem "${MindNukeSub}" 8
-			/call LoadSpellGem "${Drown}" 9
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${CharmSpell1}" 10
-				/call LoadSpellGem "${SingleStunSpell1}" 6
-			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell2}" 10
-				/call LoadSpellGem "${Constriction}" 6
-			} else {
-				/call LoadSpellGem "${Chromatic}" 10
-				/call LoadSpellGem "${SingleStunSpell1}" 6
-			}
-		} else /if (${Me.Level}>=89) {
-			/call LoadSpellGem "${StripBuffSpell}" 5
-			/call LoadSpellGem "${MindNukeSub}" 8
-			/call LoadSpellGem "${Drown}" 9
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${CharmSpell1}" 10
-				/call LoadSpellGem "${SingleStunSpell1}" 6
-			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${Constriction}" 6
-				/call LoadSpellGem "${DoTSpell2}" 10
-			} else {
-				/call LoadSpellGem "${SingleStunSpell1}" 6
-				/call LoadSpellGem "${Chromatic}" 10
-			}
-		} else /if (${Me.Level}>=88) {
-		|- Level 88 - Slow+Cripple in 1 spell
-			/call LoadSpellGem "${StripBuffSpell}" 5
-			/call LoadSpellGem "${SingleStunSpell1}" 6
-			/call LoadSpellGem "${MindNukeSub}" 8
-			/call LoadSpellGem "${Drown}" 9
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${CharmSpell1}" 10
-			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell2}" 10
-			} else {
-				/call LoadSpellGem "${Chromatic}" 10
-			}
-		} else /if (${Me.Level}>=86) {
-		|- Level 86 - AA slow becomes available 
-			/call LoadSpellGem "${StripBuffSpell}" 5
-			/call LoadSpellGem "${CrippleSpell1}" 6
-			/call LoadSpellGem "${Drown}" 9
-			/call LoadSpellGem "${MindNukeSub}" 8
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${CharmSpell1}" 10
-			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell2}" 10
-			} else {
-				/call LoadSpellGem "${Chromatic}" 10
-			}
-		} else /if (${Me.Level}>=81) {
-		|- Level 81 - AA Single Memblur becomes available? 
-			/call LoadSpellGem "${StripBuffSpell}" 5
-			/call LoadSpellGem "${Drown}" 9
-			/call LoadSpellGem "${MindNukeSub}" 8
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${CharmSpell1}" 6
-				/call LoadSpellGem "${SingleStunSpell1}" 10
-			} else /if (${UseDoTs}) {
-				/call LoadSpellGem "${CrippleSpell1}" 6
-				/call LoadSpellGem "${DoTSpell2}" 10
-			} else {
-				/call LoadSpellGem "${CrippleSpell1}" 6
-				/call LoadSpellGem "${SingleStunSpell1}" 10
-			}
-		} else {
-			/if (${UseCharmPet}) {
-				/call LoadSpellGem "${SingleStunSpell1}" 5
-				/call LoadSpellGem "${CharmSpell1}" 6			
-			} else {
-				/call LoadSpellGem "${StripBuffSpell}" 5
-				/call LoadSpellGem "${CrippleSpell1}" 6
-			}
-			/if (${UseDoTs}) {
-				/call LoadSpellGem "${DoTSpell2}" 8
-			} else {
-				/call LoadSpellGem "${MindNukeSub}" 8
-			}
-			/call LoadSpellGem "${Drown}" 9
-			/call LoadSpellGem "${BlurSpell}" 10
-		}
-		/call LoadSpellGem "${MindNukeMain}" 7
-		/call LoadSpellGem "${ProcBuff}" 11
-		/if (${UseDicho} && ${Me.Level}>=101 && ${DichoSpell.NotEqual[null]}) {
-			/call LoadSpellGem "${DichoSpell}" 12
-			/varset miscspellremem ${DichoSpell}
-		} else {
-			/call LoadSpellGem "${RootSpell}" 12
-			/varset miscspellremem ${RootSpell}
-		}
-		/varset spellmisc 12	
-	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==3) {
-		/if (${UseCharmPet}) {
-			/call LoadSpellGem "${SingleStunSpell1}" 5
-			/call LoadSpellGem "${CharmSpell1}" 6			
-		} else {
-			/call LoadSpellGem "${StripBuffSpell}" 5
-			/call LoadSpellGem "${CrippleSpell1}" 6
-		}
-		/call LoadSpellGem "${MindNukeMain}" 7
-		/if (${UseDoTs}) {
-			/call LoadSpellGem "${Drown}" 8
-		} else {
-			/call LoadSpellGem "${MindNukeSub}" 8
-		}
-		/call LoadSpellGem "${BlurSpell}" 9
-		/call LoadSpellGem "${ProcBuff}" 10
-		/call LoadSpellGem "${RootSpell}" 11
-		/varset spellmisc 11
-		/varset miscspellremem ${RootSpell}
-	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==2) {
-		/if (${UseCharmPet}) {
-			/call LoadSpellGem "${SingleStunSpell1}" 5
-			/call LoadSpellGem "${CharmSpell1}" 6			
-		} else {
-			/call LoadSpellGem "${StripBuffSpell}" 5
-			/call LoadSpellGem "${CrippleSpell1}" 6
-		}
-		/call LoadSpellGem "${MindNukeMain}" 7
-		/if (${UseDoTs}) {
-			/call LoadSpellGem "${Drown}" 8
-		} else {
-			/call LoadSpellGem "${MindNukeSub}" 8
-		}
-		/call LoadSpellGem "${ProcBuff}" 9
-		/call LoadSpellGem "${BlurSpell}" 10
-		/varset spellmisc 10
-		/varset miscspellremem ${BlurSpell}
-	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==1) {
-		/if (${UseCharmPet}) {
-			/call LoadSpellGem "${SingleStunSpell1}" 5
-			/call LoadSpellGem "${CharmSpell1}" 6			
-		} else {
-			/call LoadSpellGem "${StripBuffSpell}" 5
-			/call LoadSpellGem "${CrippleSpell1}" 6
-		}
-		/if (${UseDoTs}) {
-			/call LoadSpellGem "${Drown}" 7
-		} else {
-			/call LoadSpellGem "${MindNukeMain}" 7
-		}
-		/call LoadSpellGem "${ProcBuff}" 8
-		/call LoadSpellGem "${BlurSpell}" 9
-		/varset spellmisc 9
-		/varset miscspellremem ${BlurSpell}
-	} 
 	
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
+	
+		/call LoadSpellGem "${MezSpell}" 1
+		/call LoadSpellGem "${AEMezSpell}" 2
+		/call LoadSpellGem "${DichoSpell}" 3
+		/call LoadSpellGem "${TashSpell}" 4
+		/if (!${Me.AltAbility[Slowing Helix].ID}) {
+			/call LoadSpellGem "${SlowSpell}" 5
+		} else {
+			/call LoadSpellGem "${Constriction}" 5
+		}
+		/call LoadSpellGem "${Drown}" 6
+		/call LoadSpellGem "${MindNukeSub}" 7
+		/call LoadSpellGem "${MindNukeMain}" 8
+		/call LoadSpellGem "${SingleStunSpell1}" 9
+
+		/call LoadSpellGem "${Aura1}" 11
+		/call LoadSpellGem "${Aura2}" 12
+
+	} else {	
+		
+		/call LoadSpellGem "${MezSpell}" 1
+		/call LoadSpellGem "${DichoSpell}" 2
+		/call LoadSpellGem "${TashSpell}" 3
+		/if (!${Me.AltAbility[Slowing Helix].ID}) /call LoadSpellGem "${SlowSpell}" 4
+		/call LoadSpellGem "${Drown}" 5
+		/call LoadSpellGem "${MindNukeSub}" 6
+		/call LoadSpellGem "${MindNukeMain}" 7
+		/call LoadSpellGem "${SingleStunSpell1}" 8
+
+	}
+
 	/delay 2s
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -342,12 +175,47 @@ Sub enc_load_spellbar
 |------------------------------------------------------------------------------------------ *|
 Sub enc_abilities
 |-AE Mez AA * Var Name : MezAEAA string outer
-	/if (${Me.Level}>=85 && ${Me.AltAbilityReady[Beam of Slumber]}) {
+	/if (${Me.Level} >= 85 && ${Me.AltAbilityReady[Beam of Slumber]}) {
 		/varset MezAEAA Beam of Slumber
 	}
 	/if (${Me.AltAbilityReady[Gather Mana]}) {
 		/varset HarvestSpell1 Gather Mana
 	}
+
+	/if (${Me.AltAbility[Azure Mind Crystal].Rank} == 1) {
+		/varset AzureMindCrystalRank I
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 2) {
+		/varset AzureMindCrystalRank II
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 3) {
+		/varset AzureMindCrystalRank III
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 4) {
+		/varset AzureMindCrystalRank IV
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 5) {
+		/varset AzureMindCrystalRank V
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 6) {
+		/varset AzureMindCrystalRank VI
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 7) {
+		/varset AzureMindCrystalRank VII
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 8) {
+		/varset AzureMindCrystalRank VIII
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 9) {
+		/varset AzureMindCrystalRank VIII
+	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 10) {
+		/varset AzureMindCrystalRank X
+	}
+
+	/if (${Me.AltAbility[Mental Contortion].Rank} == 12) {
+		/varset MentalContortionRank VI
+	} else /if (${Me.AltAbility[Mental Contortion].Rank} == 13) {
+		/varset MentalContortionRank VII
+	} else /if (${Me.AltAbility[Mental Contortion].Rank} == 14) {
+		/varset MentalContortionRank VIII
+	} else /if (${Me.AltAbility[Mental Contortion].Rank} == 15) {
+		/varset MentalContortionRank VIII
+	} else /if (${Me.AltAbility[Mental Contortion].Rank} == 16) {
+		/varset MentalContortionRank X
+	}
+
 |-Mez Spell * Var Name: MezSpell string	outer
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Chaotic Delusion].RankName}]}) {
 		/varset MezSpell ${Spell[Chaotic Delusion].RankName}
@@ -500,29 +368,55 @@ Sub enc_abilities
 	} else /if (${Me.Level}>=2 && ${Me.Book[${Spell[Tashina].RankName}]}) {
 		/varset TashSpell ${Spell[Tashina].RankName}
 	}
+
 |-Slow - * Var Name: SlowSpell string outer -  lvl88 and above this is also cripple spell
-	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Constraining Helix].RankName}]}) {
-		/varset SlowSpell ${Spell[Constraining Helix].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Undermining Helix].RankName}]}) {
-		/varset SlowSpell ${Spell[Undermining Helix].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Diminishing Helix].RankName}]}) {
-		/varset SlowSpell ${Spell[Diminishing Helix].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Attenuating Helix].RankName}]}) {
-		/varset SlowSpell ${Spell[Attenuating Helix].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Curtailing Helix].RankName}]}) {
-		/varset SlowSpell ${Spell[Curtailing Helix].RankName}
-	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Desolate Deeds].RankName}]}) {
-		/varset SlowSpell ${Spell[Desolate Deeds].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Dreary Deeds].RankName}]}) {
-		/varset SlowSpell ${Spell[Dreary Deeds].RankName}
-	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[Forlorn Deeds].RankName}]}) {
-		/varset SlowSpell ${Spell[Forlorn Deeds].RankName}
-	} else /if (${Me.Level}>=41 && ${Me.Book[${Spell[Shiftless Deeds].RankName}]}) {
-		/varset SlowSpell ${Spell[Shiftless Deeds].RankName}
-	} else /if (${Me.Level}>=23 && ${Me.Book[${Spell[Tepid Deeds].RankName}]}) {
-		/varset SlowSpell ${Spell[Tepid Deeds].RankName}
-	} else /if (${Me.Level}>=9 && ${Me.Book[${Spell[Languid Pace].RankName}]}) {
-		/varset SlowSpell ${Spell[Languid Pace].RankName}
+	/if (${Me.AltAbility[Slowing Helix].ID}) {
+		/varset SlowSpell Slowing Helix
+
+		/if (${Me.Level}>=108 && ${Me.Book[${Spell[Constraining Helix].RankName}]}) {
+			/varset SlowSpellName Constraining Helix
+		} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Undermining Helix].RankName}]}) {
+			/varset SlowSpellName Undermining Helix
+		} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Diminishing Helix].RankName}]}) {
+			/varset SlowSpellName Diminishing Helix
+		} 
+
+	} else {
+
+		/if (${Me.Level}>=108 && ${Me.Book[${Spell[Constraining Helix].RankName}]}) {
+			/varset SlowSpell ${Spell[Constraining Helix].RankName}
+			/varset SlowSpellName Constraining Helix
+		} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Undermining Helix].RankName}]}) {
+			/varset SlowSpell ${Spell[Undermining Helix].RankName}
+			/varset SlowSpellName Undermining Helix
+		} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Diminishing Helix].RankName}]}) {
+			/varset SlowSpell ${Spell[Diminishing Helix].RankName}
+			/varset SlowSpellName Diminishing Helix
+		} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Attenuating Helix].RankName}]}) {
+			/varset SlowSpell ${Spell[Attenuating Helix].RankName}
+			/varset SlowSpellName Attenuating Helix
+		} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Curtailing Helix].RankName}]}) {
+			/varset SlowSpell ${Spell[Curtailing Helix].RankName}
+			/varset SlowSpellName Curtailing Helix
+		} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Desolate Deeds].RankName}]}) {
+			/varset SlowSpell ${Spell[Desolate Deeds].RankName}
+			/varset SlowSpellName Desolate Deeds
+		} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Dreary Deeds].RankName}]}) {
+			/varset SlowSpell ${Spell[Dreary Deeds].RankName}
+			/varset SlowSpellName Dreary Deeds
+		} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[Forlorn Deeds].RankName}]}) {
+			/varset SlowSpell ${Spell[Forlorn Deeds].RankName}
+			/varset SlowSpellName Forlorn Deeds
+		} else /if (${Me.Level}>=41 && ${Me.Book[${Spell[Shiftless Deeds].RankName}]}) {
+			/varset SlowSpell ${Spell[Shiftless Deeds].RankName}
+			/varset SlowSpellName Shiftless Deeds
+		} else /if (${Me.Level}>=23 && ${Me.Book[${Spell[Tepid Deeds].RankName}]}) {
+			/varset SlowSpell ${Spell[Tepid Deeds].RankName}
+			/varset SlowSpellName Tepid Deeds
+		} else /if (${Me.Level}>=9 && ${Me.Book[${Spell[Languid Pace].RankName}]}) {
+			/varset SlowSpell ${Spell[Languid Pace].RankName}
+			/varset SlowSpellName Languid Pace
+		}
 	}
 
 	|-Cripple Spell * Var Name: CrippleSpell1 string outer
@@ -562,14 +456,19 @@ Sub enc_abilities
 |-Nuke 1 * Var Name: MindNukeMain string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mindslash].RankName}]}) {
 		/varset MindNukeMain ${Spell[Mindslash].RankName}
+		/varset MindNukeSub ${Spell[Mindsunder].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Mindsunder].RankName}]}) {
 		/varset MindNukeMain ${Spell[Mindsunder].RankName}
+		/varset MindNukeSub ${Spell[Mindcleave].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Mindcleave].RankName}]}) {
 		/varset MindNukeMain ${Spell[Mindcleave].RankName}
+		/varset MindNukeSub ${Spell[Mindscythe].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Mindscythe].RankName}]}) {
 		/varset MindNukeMain ${Spell[Mindscythe].RankName}
+		/varset MindNukeSub ${Spell[Mindblade].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Mindblade].RankName}]}) {
 		/varset MindNukeMain ${Spell[Mindblade].RankName}
+		/varset MindNukeSub ${Spell[Spectral Assault].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Spectral Assault].RankName}]}) {
 		/varset MindNukeMain ${Spell[Spectral Assault].RankName}
 	} else /if (${Me.Level}>=87 && ${Me.Book[${Spell[Chromarcana].RankName}]}) {
@@ -611,54 +510,7 @@ Sub enc_abilities
 	} else /if (${Me.Level}>=7 && ${Me.Book[${Spell[Chaotic Feedback].RankName}]}) {
 		/varset MindNukeMain ${Spell[Chaotic Feedback].RankName}
 	}
-|-Nuke 2 * Var Name: MindNukeSub string outer
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mindsunder].RankName}]}) {
-		/varset MindNukeSub ${Spell[Mindsunder].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Mindcleave].RankName}]}) {
-		/varset MindNukeSub ${Spell[Mindcleave].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Mindscythe].RankName}]}) {
-		/varset MindNukeSub ${Spell[Mindscythe].RankName}
-	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Mindblade].RankName}]}) {
-		/varset MindNukeSub ${Spell[Mindblade].RankName}
-	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Spectral Assault].RankName}]}) {
-		/varset MindNukeSub ${Spell[Spectral Assault].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Chromarcana].RankName}]}) {
-		/varset MindNukeSub ${Spell[Chromarcana].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Polychaotic Assault].RankName}]}) {
-		/varset MindNukeSub ${Spell[Polychaotic Assault].RankName}
-	} else /if (${Me.Level}>=83 && ${Me.Book[${Spell[Multichromatic Assault].RankName}]}) {
-		/varset MindNukeSub ${Spell[Multichromatic Assault].RankName}
-	} else /if (${Me.Level}>=78 && ${Me.Book[${Spell[Polychromatic Assault].RankName}]}) {
-		/varset MindNukeSub ${Spell[Polychromatic Assault].RankName}
-	} else /if (${Me.Level}>=73 && ${Me.Book[${Spell[Ancient Neurosis].RankName}]}) {
-		/varset MindNukeSub ${Spell[Ancient Neurosis].RankName}
-	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Colored Chaos].RankName}]}) {
-		/varset MindNukeSub ${Spell[Colored Chaos].RankName}
-	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Psychosis].RankName}]}) {
-		/varset MindNukeSub ${Spell[Psychosis].RankName}
-	} else /if (${Me.Level}>=68 && ${Me.Book[${Spell[Ancient Chaos Madness].RankName}]}) {
-		/varset MindNukeSub ${Spell[Ancient Chaos Madness].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Madness of Ikkibi].RankName}]}) {
-		/varset MindNukeSub ${Spell[Madness of Ikkibi].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Insanity].RankName}]}) {
-		/varset MindNukeSub ${Spell[Insanity].RankName}
-	} else /if (${Me.Level}>=64 && ${Me.Book[${Spell[Ancient Chaotic Visions].RankName}]}) {
-		/varset MindNukeSub ${Spell[Ancient Chaotic Visions].RankName}
-	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Dementing Visions].RankName}]}) {
-		/varset MindNukeSub ${Spell[Dementing Visions].RankName}
-	} else /if (${Me.Level}>=58 && ${Me.Book[${Spell[Dementia].RankName}]}) {
-		/varset MindNukeSub ${Spell[Dementia].RankName}
-	} else /if (${Me.Level}>=54 && ${Me.Book[${Spell[Discordant Mind].RankName}]}) {
-		/varset MindNukeSub ${Spell[Discordant Mind].RankName}
-	} else /if (${Me.Level}>=43 && ${Me.Book[${Spell[Anarchy].RankName}]}) {
-		/varset MindNukeSub ${Spell[Anarchy].RankName}
-	} else /if (${Me.Level}>=32 && ${Me.Book[${Spell[Chaos Flux].RankName}]}) {
-		/varset MindNukeSub ${Spell[Chaos Flux].RankName}
-	} else /if (${Me.Level}>=21 && ${Me.Book[${Spell[Sanity Warp].RankName}]}) {
-		/varset MindNukeSub ${Spell[Sanity Warp].RankName}
-	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Chaotic Feedback].RankName}]}) {
-		/varset MindNukeSub ${Spell[Chaotic Feedback].RankName}
-	}
+
 |-Nuke 3 - Fast * Var Name: Chromatic string outer
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Chromatic Flicker].RankName}]}) {
 		/varset Chromatic ${Spell[Chromatic Flicker].RankName}

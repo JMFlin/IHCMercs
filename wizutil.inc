@@ -19,6 +19,7 @@ Sub wiz_setup
 	/declare Aura2					string outer NULL
 	/declare DPSRecastTimer			timer 	outer	0
 	/declare AllianceSpell			string	outer	NULL
+	/declare AllianceSpellRankCheck string 	outer 	NULL
 	/declare DichoSpell				string 	outer	NULL
 	/declare ClawNuke				string 	outer	NULL
 	/declare CloudburstNuke			string 	outer	NULL
@@ -57,7 +58,7 @@ Sub wiz_setup
 
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
-	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
+	/declare ChestItemName			string outer ${Me.Inventory[17].Name}
 /return
 |* ------------------------------------------------------------------------------------------
 | SUB: load_spellbar
@@ -87,6 +88,24 @@ Sub wiz_load_spellbar
 
 		/call LoadSpellGem "${GambitSpell}" 13
 
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank} == 4) {
+
+		/call LoadSpellGem "${ClawNuke}" 1
+		/call LoadSpellGem "${CloudburstNuke}" 2
+		/call LoadSpellGem "${ColdEtherealNuke}" 3
+
+		/call LoadSpellGem "${FireEtherealNuke}" 4
+		/call LoadSpellGem "${FuseNuke}" 5
+
+		/call LoadSpellGem "${TwincastSpell}" 6
+		/call LoadSpellGem "${DichoSpell}" 7
+		/call LoadSpellGem "${VortexNuke}" 8
+		|/call LoadSpellGem "${}" 9
+
+		/call LoadSpellGem "${AllianceSpell}" 10
+		/call LoadSpellGem "${GambitSpell}" 11
+		/call LoadSpellGem "${HarvestSpell1}" 12
+
 	} else {
 		
 		/call LoadSpellGem "${ClawNuke}" 1
@@ -115,7 +134,7 @@ Sub wiz_abilities
 	
 |-Familiar Buff
 	/if (${Me.AltAbility[Improved Familiar].Rank} >= 1) {
-		/varset FamiliarBuff "Improved Familiar"
+		/varset FamiliarBuff Improved Familiar
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Greater Familiar].RankName}]}) {
 		/varset FamiliarBuff ${Spell[Greater Familiar].RankName}
 	} else /if (${Me.Level}>=54 && ${Me.Book[${Spell[Familiar].RankName}]}) {
@@ -198,8 +217,10 @@ Sub wiz_abilities
 |-AllianceSpell
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Frostbound Covenant].RankName}]}) {
 		/varset AllianceSpell ${Spell[Frostbound Covenant].RankName}
+		/varset AllianceSpellRankCheck ${Spell[Frostbound Covenant]}
 	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Frostbound Alliance].RankName}]}) {
 		/varset AllianceSpell ${Spell[Frostbound Alliance].RankName}
+		/varset AllianceSpellRankCheck ${Spell[Frostbound Alliance]}
 	}
 |-DichoSpell
 /if (${Me.Level}>=106 && ${Me.Book[${Spell[Dissident Fire].RankName}]}) {
@@ -234,7 +255,9 @@ Sub wiz_abilities
 		/varset SnareSpell ${Spell[Bonds of Force].RankName}
 	}	
 |-JoltSpell
-	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Concussive Volley].RankName}]}) {
+	/if (${Me.AltAbility[Concussion].Rank} >= 1) {
+		/varset JoltSpell Concussion
+	} else /if (${Me.Level}>=106 && ${Me.Book[${Spell[Concussive Volley].RankName}]}) {
 		/varset JoltSpell ${Spell[Concussive Volley].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Concussive Storm].RankName}]}) {
 		/varset JoltSpell ${Spell[Concussive Storm].RankName}
