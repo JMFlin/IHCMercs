@@ -4,60 +4,66 @@
 
 |**
 Single-target heals
-Revitalization -> Adrenaline Barrage-> Curavida
+	Revitalization -> Adrenaline Barrage-> Curavida
 
 Group Heals
-Lunasalve
-Survival of the Auspicious
-Wildtender's Survival
+	Lunasalve
+	Survival of the Auspicious
+	Wildtender's Survival
 
 Debuffs
-Frostreave Breath - The primary cold debuff. Frostreave breath dramatically reduces armor class and increases cold damage taken by the target. It also heals the target’s target.
-Skin to Sumac - Increases fire damage taken by the target. Does not work on all NPCs.
-Glistening Frost - Dramatically decreases the target’s Attack and Armor Class stats. 
-Blessing of Ro (AA)/Vortex of Ro(AA) - Casts the highest rank of Cowl of Ro you have scribed. Massive fire debuff/damage increase/debuff. Vortex casts an AE version of the same spell.
+	There are several debuffs that need to be placed on every single “main” boss NPC the raid encounters.
+	Frostreave Breath - The primary cold debuff. 
+	Frostreave breath dramatically reduces armor class and increases cold damage taken by the target.
 
-All Druids can cast Blessing of Ro on whatever the raid encounters (including add trash). 
-Save the larger debuffs for bosses and assign one to each Druid to spread the work out.
+	It also heals the target’s target.
+	Skin to Sumac - Increases fire damage taken by the target. Does not work on all NPCs.
+
+	Glistening Frost - Dramatically decreases the target’s Attack and Armor Class stats. 
+	Blessing of Ro (AA)/Vortex of Ro(AA) - Casts the highest rank of Cowl of Ro you have scribed.
+
+	Massive fire debuff/damage increase/debuff. Vortex casts an AE version of the same spell.
+
+	All Druids can cast Blessing of Ro on whatever the raid encounters (including add trash). 
+	Save the larger debuffs for bosses and assign one to each Druid to spread the work out.
 
 Nukes
-You can multibind this lineup (in this order):
-Dicho -> Remote Sunblaze -> Cyclonic Roar -> Anabatic Roar -> Winter’s Wildblaze
-Take note that the first two spells in this lineup provide a massive heal as well as top nuke damage for the class. 
-Making frequent use of them essentially fulfills two of your roles perfectly.
+	You can multibind this lineup (in this order):
+	Dicho -> Remote Sunblaze -> Cyclonic Roar -> Anabatic Roar -> Winter’s Wildblaze
+	Take note that the first two spells in this lineup provide a massive heal as well as top nuke damage for the class. 
+	Making frequent use of them essentially fulfills two of your roles perfectly.
 
 Offensive Casts (DoTs)
 
-Druids have four extremely powerful DoTs that can be utilized during burns. 
-You want to cast as many of these as possible during spell twincast (not ITC). 
-Once spell twincast has faded you can hit ITC and finish your rotation:
+	Druids have four extremely powerful DoTs that can be utilized during burns. 
+	You want to cast as many of these as possible during spell twincast (not ITC). 
+	Once spell twincast has faded you can hit ITC and finish your rotation:
 
-Nature’s Blistering Wrath - Always cast this first
-Horde of Polybiads
-Sunflame
-Chill of the Wildtender - This is a large “doom dot” that triggers a larger DoT when it fades
+	Nature’s Blistering Wrath - Always cast this first
+	Horde of Polybiads
+	Sunflame
+	Chill of the Wildtender - This is a large “doom dot” that triggers a larger DoT when it fades
 
-You can maintain these on large boss target(s) for as long as your mana/group survivability will allow. 
-Note that these DoTs are incredibly mana intensive and learning to balance your mana usage so you have something left over for healing is key.
+	You can maintain these on large boss target(s) for as long as your mana/group survivability will allow. 
+	Note that these DoTs are incredibly mana intensive and learning to balance your mana usage so you have something left over for healing is key.
 
 
 Burning
-Twincast (Spell) -> Nature’s Blistering Wrath -> Horde -> Sunflame -> Chill of the Wildtender -> Improved Twincast -> Nuke Weave -> DoT refresh as needed
+	Twincast (Spell) -> Nature’s Blistering Wrath -> Horde -> Sunflame -> Chill of the Wildtender -> Improved Twincast -> Nuke Weave -> DoT refresh as needed
 
 TODO:
-Rejuvenation of Spirit
-Vortex of Ro
-Wall of Wind
-Wildtender's Surival
-Wildtender's Unity
+	AAs:
+		Rejuvenation of Spirit
+		Vortex of Ro
+		Wall of Wind
+		Wildtender's Surival
+		Wildtender's Unity
 
-Frostreave Breath
-Skin to Sumac
-Glistening Frost
-
+	Spells:
+		Frostreave Breath
+		Skin to Sumac
+		Glistening Frost
 **|
-
-
 
 Sub dru_main
 
@@ -123,8 +129,10 @@ Sub dru_main
 				ITC -> Dicho -> Remote Sunblaze -> Cyclonic Roar -> Anabatic Roar -> Winter's Wildblaze
 			**|
 
-			/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
-				/call core_cast2 "Improved Twincast" alt 0 FALSE
+			/if (!${Me.Buff[${TwincastSpell}].ID}) {
+				/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
+					/call core_cast2 "Improved Twincast" alt 0 FALSE
+				}
 			}
 			/call get_target
 			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
@@ -144,7 +152,7 @@ Sub dru_main
 			}
 		}
 
-		/if (${Me.PctMana} > ${hybridManaLimit}) {
+		/if (${Me.PctMana} > ${hybridManaLimit} && !${Me.Buff[Improved Twincast].ID}) {
 			|**
 				Spell Twincast -> Nature’s Blistering Wrath -> Horde of Polybiads -> Sunflame -> Chill of the Wildtender
 			**|

@@ -122,7 +122,7 @@ Sub wiz_main
 				claw > braid > cloudburst thunderbolt / Dissident > fire ethereal
 			**|
 			
-			| ROTATION
+			| ROTATION COMMUNICATION FOR VORTEX
 			/if (${validate_cast[FALSE, spell, "${VortexNuke}", ${Target.ID}]}) {
 				/call core_cast2 "${VortexNuke}" spell ${Target.ID} FALSE
 			}
