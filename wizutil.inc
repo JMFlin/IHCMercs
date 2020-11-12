@@ -332,19 +332,20 @@ Sub wiz_abilities
 		/varset PetSpell ${Spell[Flaming Sword of Xuzl].RankName}
 	}
 |-ClawNuke
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Claw of Travenro].RankName}]} && ${SpellSet.Equal[cold]}) {
+|- ${SpellSet.Equal[cold]}
+	/if (${Me.Level}>=${Spell[Claw of Travenro].Level} && ${Me.Book[${Spell[Claw of Travenro].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of Travenro].RankName}
-	} else /if (${Me.Level}>=108 && ${Me.Book[${Spell[Claw of Qunard].RankName}]} && (${SpellSet.Equal[auto]} || ${SpellSet.Equal[fire]})) {
+	} else /if (${Me.Level}>=${Spell[Claw of Qunard].Level} && ${Me.Book[${Spell[Claw of Qunard].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of Qunard].RankName}
-	} else /if (${Me.Level}>=106 && ${Me.Book[${Spell[Claw of Ellarr].RankName}]} && ${SpellSet.Equal[magic]}) {
+	} else /if (${Me.Level}>=${Spell[Claw of Ellarr].Level} && ${Me.Book[${Spell[Claw of Ellarr].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of Ellarr].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Claw of the Oceanlord].RankName}]} && ${SpellSet.Equal[cold]}) {
+	} else /if (${Me.Level}>=${Spell[Claw of the Oceanlord].Level} && ${Me.Book[${Spell[Claw of the Oceanlord].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of the Oceanlord].RankName}
-	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Claw of the Flameweaver].RankName}]} && (${SpellSet.Equal[auto]} || ${SpellSet.Equal[fire]})) {
+	} else /if (${Me.Level}>=${Spell[Claw of the Flameweaver].Level} && ${Me.Book[${Spell[Claw of the Flameweaver].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of the Flameweaver].RankName}
-	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Claw of the Indagatori].RankName}]} && ${SpellSet.Equal[magic]}) {
+	} else /if (${Me.Level}>=${Spell[Claw of the Indagatori].Level} && ${Me.Book[${Spell[Claw of the Indagatori].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of the Indagatori].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Claw of the Icewing].RankName}]} && ${SpellSet.Equal[cold]}) {
+	} else /if (${Me.Level}>=${Spell[Claw of the Icewing].Level} && ${Me.Book[${Spell[Claw of the Icewing].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of the Icewing].RankName}
 	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Claw of the Flamewing].RankName}]}) {
 		/varset ClawNuke ${Spell[Claw of the Flamewing].RankName}
@@ -426,23 +427,23 @@ Sub wiz_abilities
 		/varset VortexNuke ${Spell[Stormjolt Vortex].RankName}
 	} else /if (${Me.Level}>=103 && ${Me.Book[${Spell[Shocking Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Shocking Vortex].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Hoarfrost Vortex].RankName}]} && (${SpellSet.Equal[auto]} || ${SpellSet.Equal[fire]})) {
+	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Hoarfrost Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Hoarfrost Vortex].RankName}
-	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Ether Vortex].RankName}]} && ${SpellSet.Equal[cold]}) {
+	} else /if (${Me.Level}>=98 && ${Me.Book[${Spell[Ether Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Ether Vortex].RankName}
-	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Incandescent Vortex].RankName}]} && ${SpellSet.Equal[magic]}) {
+	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Incandescent Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Incandescent Vortex].RankName}
-	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Frost Vortex].RankName}]} && (${SpellSet.Equal[auto]} || ${SpellSet.Equal[fire]})) {
+	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Frost Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Frost Vortex].RankName}
-	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Power Vortex].RankName}]} && ${SpellSet.Equal[cold]}) {
+	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Power Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Power Vortex].RankName}
-	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Flame Vortex].RankName}]} && ${SpellSet.Equal[magic]}) {
+	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Flame Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Flame Vortex].RankName}
-	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Ice Vortex].RankName}]} && (${SpellSet.Equal[auto]} || ${SpellSet.Equal[fire]})) {
+	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Ice Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Ice Vortex].RankName}
-	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Mana Vortex].RankName}]} && ${SpellSet.Equal[cold]}) {
+	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Mana Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Mana Vortex].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Fire Vortex].RankName}]} && ${SpellSet.Equal[magic]}) {
+	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Fire Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Fire Vortex].RankName}
 	}	
 |-ChaosNuke

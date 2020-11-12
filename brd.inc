@@ -27,6 +27,10 @@ Sub brd_main
 		/if (!${validate_combat[${Target.ID}]} ) /continue
 		/call engage
 
+		/if (${Target.Named} || ${Target.PctHPs} > 90) {
+			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
+		}
+
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		
 		/call brd_combat
@@ -44,6 +48,7 @@ Sub brd_main
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSong}" "${MezSong}"
 		
 		/if (${Me.XTarget}) {
+
 			/if (${Me.Gem[${InsultSong1}]}) {
 				/if (${validate_cast[FALSE, pulse, "${InsultSong1}", ${Target.ID}]}) {
 					/call core_cast2 "${InsultSong1}" pulse ${Target.ID} FALSE

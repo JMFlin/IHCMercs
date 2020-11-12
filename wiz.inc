@@ -135,7 +135,7 @@ Sub wiz_main
 				/call core_cast2 "${BraidNuke}" spell ${Target.ID} FALSE
 			}
 
-			/if (${Me.PctMana} > 50 && ${Target.PctHPs} > 20) {
+			/if (${Me.PctMana} > 30 && ${Target.PctHPs} > 20) {
 				/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
 					/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 				}
@@ -144,7 +144,7 @@ Sub wiz_main
 					/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
 				}
 			}
-			
+
 			/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
 				/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
 			}

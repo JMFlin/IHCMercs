@@ -119,7 +119,6 @@ Sub shd_self_buffs
 	}
 
 	/if (${Me.XTarget}) /return
-
 	/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
 		/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
 		/varset CastCheck 1
@@ -127,7 +126,6 @@ Sub shd_self_buffs
 	
 
 	/if (${Me.XTarget}) /return
-	
 	/if (${Group.MainTank.ID} == ${Me.ID}) {
 		/if (${validate_cast[FALSE, alt, "Voice of Thule", ${Me.ID}]}) {
 			/call core_cast2 "Voice of Thule" alt ${Me.ID} FALSE

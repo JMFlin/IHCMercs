@@ -2017,6 +2017,30 @@ Sub global_cooldown_spells(int _tmpID)
 		}
 	}
 
+	/if (${Select[${Me.Class.ShortName},DRU]}) {
+		
+		/if (${validate_cast[FALSE, alt, "Nature's Fire", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Nature's Fire].ID}
+			/return
+		}
+		/if (${validate_cast[FALSE, alt, "Nature's Frost", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Nature's Frost].ID}
+			/return
+		}
+		/if (${validate_cast[FALSE, alt, "Nature's Bolt", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Nature's Bolt].ID}
+			/return
+		}
+		/if (${validate_cast[FALSE, alt, "Spirits of Nature", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Spirits of Nature].ID}
+			/return
+		}
+		/if (${validate_cast[FALSE, alt, "Nature's Guardian", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Spirits of Nature].ID}
+			/return
+		}
+	}
+
 /return
 
 |***

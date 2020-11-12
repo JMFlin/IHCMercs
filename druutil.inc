@@ -23,6 +23,7 @@ Sub dru_setup
 	/declare RemoteMoon			string outer NULL
 	/declare RemoteSun			string outer NULL
 	/declare Cyclonic 			string outer NULL
+	/declare LowerCyclonic 		string outer NULL
 	/declare SelfDamageShield 	string outer NULL
 	/declare SelfUnity 			string outer NULL
 	/declare RezSpell 				string outer NULL
@@ -74,7 +75,7 @@ Sub dru_load_spellbar
 			/call LoadSpellGem "${Curavida}" 3
 			/call LoadSpellGem "${Lunasalve}" 4
 			/call LoadSpellGem "${Survival}" 5
-			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${RemoteSun}" 6
 			/call LoadSpellGem "${DichoSpell}" 7
 			/call LoadSpellGem "${NBW}" 8
 			/call LoadSpellGem "${Sunflame}" 9
@@ -89,7 +90,7 @@ Sub dru_load_spellbar
 			/call LoadSpellGem "${Curavida}" 3
 			/call LoadSpellGem "${Lunasalve}" 4
 			/call LoadSpellGem "${Survival}" 5
-			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${RemoteSun}" 6
 			/call LoadSpellGem "${DichoSpell}" 7
 			/call LoadSpellGem "${NBW}" 8
 			/call LoadSpellGem "${Sunflame}" 9
@@ -103,7 +104,7 @@ Sub dru_load_spellbar
 			/call LoadSpellGem "${Curavida}" 3
 			/call LoadSpellGem "${Lunasalve}" 4
 			/call LoadSpellGem "${Survival}" 5
-			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${RemoteSun}" 6
 			/call LoadSpellGem "${DichoSpell}" 7
 			/call LoadSpellGem "${NBW}" 8
 			/call LoadSpellGem "${Sunflame}" 9
@@ -116,7 +117,7 @@ Sub dru_load_spellbar
 			/call LoadSpellGem "${Curavida}" 3
 			/call LoadSpellGem "${Lunasalve}" 4
 			/call LoadSpellGem "${Survival}" 5
-			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${RemoteSun}" 6
 			/call LoadSpellGem "${DichoSpell}" 7
 			/call LoadSpellGem "${NBW}" 8
 			/call LoadSpellGem "${Sunflame}" 9
@@ -128,7 +129,7 @@ Sub dru_load_spellbar
 			/call LoadSpellGem "${Curavida}" 3
 			/call LoadSpellGem "${Lunasalve}" 4
 			/call LoadSpellGem "${Survival}" 5
-			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${RemoteSun}" 6
 			/call LoadSpellGem "${DichoSpell}" 7
 			/call LoadSpellGem "${NBW}" 8
 			/call LoadSpellGem "${Sunflame}" 9
@@ -139,7 +140,7 @@ Sub dru_load_spellbar
 			/call LoadSpellGem "${Curavida}" 3
 			/call LoadSpellGem "${Lunasalve}" 4
 			/call LoadSpellGem "${Survival}" 5
-			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${RemoteSun}" 6
 			/call LoadSpellGem "${DichoSpell}" 7
 			/call LoadSpellGem "${Cyclonic}" 8
 		}
@@ -215,9 +216,9 @@ Sub dru_load_spellbar
 			/call LoadSpellGem "${Curavida}" 3
 			/call LoadSpellGem "${Lunasalve}" 4
 			/call LoadSpellGem "${Promised}" 5
-			/call LoadSpellGem "${Sunflash}" 6
-			/call LoadSpellGem "${Survival}" 7
-			/call LoadSpellGem "${Reptile}" 8
+			/call LoadSpellGem "${DoTSpell1}" 6
+			/call LoadSpellGem "${Cyclonic}" 7
+			/call LoadSpellGem "${SnareSpell}" 8
 		}
 	}
 	
@@ -277,18 +278,25 @@ BALANCED:
 
 	/if (${Me.Level}>=${Spell[Typhonic Roar].Level} && ${Me.Book[${Spell[Typhonic Roar].RankName}]}) {
 		/varset Cyclonic ${Spell[Typhonic Roar].RankName}
+		/varset LowerCyclonic ${Spell[Cyclonic Roar].RankName}
 	} else /if (${Me.Level}>=${Spell[Cyclonic Roar].Level} && ${Me.Book[${Spell[Cyclonic Roar].RankName}]}) {
 		/varset Cyclonic ${Spell[Cyclonic Roar].RankName}
+		/varset LowerCyclonic ${Spell[Anabatic Roar].RankName}
 	} else /if (${Me.Level}>=${Spell[Anabatic Roar].Level} && ${Me.Book[${Spell[Anabatic Roar].RankName}]}) {
 		/varset Cyclonic ${Spell[Anabatic Roar].RankName}
+		/varset LowerCyclonic ${Spell[Katabatic Roar].RankName}
 	} else /if (${Me.Level}>=${Spell[Katabatic Roar].Level} && ${Me.Book[${Spell[Katabatic Roar].RankName}]}) {
 		/varset Cyclonic ${Spell[Katabatic Roar].RankName}
+		/varset LowerCyclonic ${Spell[Roar of Kolos].RankName}
 	} else /if (${Me.Level}>=${Spell[Roar of Kolos].Level} && ${Me.Book[${Spell[Roar of Kolos].RankName}]}) {
 		/varset Cyclonic ${Spell[Roar of Kolos].RankName}
+		/varset LowerCyclonic ${Spell[Cyclone of the Stormborn].RankName}
 	} else /if (${Me.Level}>=${Spell[Cyclone of the Stormborn].Level} && ${Me.Book[${Spell[Cyclone of the Stormborn].RankName}]}) {
 		/varset Cyclonic ${Spell[Cyclone of the Stormborn].RankName}
+		/varset LowerCyclonic ${Spell[Shear of the Stormborn].RankName}
 	} else /if (${Me.Level}>=${Spell[Shear of the Stormborn].Level} && ${Me.Book[${Spell[Shear of the Stormborn].RankName}]}) {
 		/varset Cyclonic ${Spell[Shear of the Stormborn].RankName}
+		/varset LowerCyclonic ${Spell[Squall of the Stormborn].RankName}
 	} else /if (${Me.Level}>=${Spell[Squall of the Stormborn].Level} && ${Me.Book[${Spell[Squall of the Stormborn].RankName}]}) {
 		/varset Cyclonic ${Spell[Squall of the Stormborn].RankName}
 	} else /if (${Me.Level}>=${Spell[Tempest of the Stormborn].Level} && ${Me.Book[${Spell[Tempest of the Stormborn].RankName}]}) {
@@ -323,6 +331,27 @@ BALANCED:
 		/varset Moonbeam ${Spell[Algid Moonbeam].RankName}
 	} else /if (${Me.Level}>=${Spell[Gelid Moonbeam].Level} && ${Me.Book[${Spell[Gelid Moonbeam].RankName}]}) {
 		/varset Moonbeam ${Spell[Gelid Moonbeam].RankName}
+	}
+
+
+	/if (${Me.Level}>=${Spell[Winter's Wildshock].Level} && ${Me.Book[${Spell[Winter's Wildshock].RankName}]}) {
+		/varset Winter ${Spell[Winter's Wildshock].RankName}
+	} else /if (${Me.Level}>=${Spell[Winter's Wildblaze].Level} && ${Me.Book[${Spell[Winter's Wildblaze].RankName}]}) {
+		/varset Winter ${Spell[Winter's Wildblaze].RankName}
+	} else /if (${Me.Level}>=${Spell[Winter's Wildflame].Level} && ${Me.Book[${Spell[Winter's Wildflame].RankName}]}) {
+		/varset Winter ${Spell[Winter's Wildflame].RankName}
+	} else /if (${Me.Level}>=${Spell[Winter's Wildfire].Level} && ${Me.Book[${Spell[Winter's Wildfire].RankName}]}) {
+		/varset Winter ${Spell[Winter's Wildfire].RankName}
+	} else /if (${Me.Level}>=${Spell[Winter's Sear].Level} && ${Me.Book[${Spell[Winter's Sear].RankName}]}) {
+		/varset Winter ${Spell[Winter's Sear].RankName}
+	} else /if (${Me.Level}>=${Spell[Winter's Pyre].Level} && ${Me.Book[${Spell[Winter's Pyre].RankName}]}) {
+		/varset Winter ${Spell[Winter's Pyre].RankName}
+	} else /if (${Me.Level}>=${Spell[Winter's Flare].Level} && ${Me.Book[${Spell[Winter's Flare].RankName}]}) {
+		/varset Winter ${Spell[Winter's Flare].RankName}
+	} else /if (${Me.Level}>=${Spell[Winter's Blaze].Level} && ${Me.Book[${Spell[Winter's Blaze].RankName}]}) {
+		/varset Winter ${Spell[Winter's Blaze].RankName}
+	} else /if (${Me.Level}>=${Spell[Winter's Flame].Level} && ${Me.Book[${Spell[Winter's Flame].RankName}]}) {
+		/varset Winter ${Spell[Winter's Flame].RankName}
 	}
 
 
@@ -686,7 +715,7 @@ BALANCED:
 	}
 	
 	|-TwincastSpell
-	/if (${Me.Level}>=85 && ${Me.Book[${Spell[Twincast].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Twincast].Level} && ${Me.Book[${Spell[Twincast].RankName}]}) {
 		/varset TwincastSpell ${Spell[Twincast].RankName}
 	}
 

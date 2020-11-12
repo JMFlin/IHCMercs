@@ -253,7 +253,9 @@ Sub ber_combat
 	|	/delay 5
 	|}
 	
-	/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceDisc}" ${Target.ID}
+	/if (${Target.Named} || ${Target.PctHPs} > 90) {
+		/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceDisc}" ${Target.ID}
+	}
 
 	|/if (${FindItem[${ChestItemName}].ID} && !${FindItem[${ChestCombatCast}].TimerReady}) {
 	|	/useitem "${ChestItemName}"

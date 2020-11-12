@@ -99,6 +99,7 @@ Sub brd_load_spellbar
 		/call LoadSpellGem "${ChorusRegenSong}" 11
 		/call LoadSpellGem "${Aura1}" 12
 		/call LoadSpellGem "${AccelerandoSong}" 13
+		| /call LoadSpellGem "${AllianceSong}" 13
 
 	} else {
 		/call LoadSpellGem "${MainAriaSong}" 1
