@@ -799,6 +799,32 @@ BALANCED:
 		/varset SingleFrostAtkDebuff ${Spell[Hoar Frost].RankName}
 	}
 	
+	/if (${Me.AltAbility[Blessing of Ro].Rank} >= 1) {
+		/varset SingleFireAtkDebuffSpell Blessing of Ro
+	} else /if (${Me.Level}>=${Spell[Crush of Ro].Level} && ${Me.Book[${Spell[Crush of Ro].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Crush of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Clasp of Ro].Level} && ${Me.Book[${Spell[Clasp of Ro].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Clasp of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Cowl of Ro].Level} && ${Me.Book[${Spell[Cowl of Ro].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Cowl of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Clutch of Ro].Level} && ${Me.Book[${Spell[Clutch of Ro].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Clutch of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Grip of Ro].Level} && ${Me.Book[${Spell[Grip of Ro].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Grip of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Grasp of Ro].Level} && ${Me.Book[${Spell[Grasp of Ro].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Grasp of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Sun's Corona].Level} && ${Me.Book[${Spell[Sun's Corona].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Sun's Corona].RankName}
+	} else /if (${Me.Level}>=${Spell[Ro's Illumination].Level} && ${Me.Book[${Spell[Ro's Illumination].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Ro's Illumination].RankName}
+	} else /if (${Me.Level}>=${Spell[Hand of Ro].Level} && ${Me.Book[${Spell[Hand of Ro].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Hand of Ro].RankName}
+	} else /if (${Me.Level}>=${Spell[Ro's Smoldering Disjunction].Level} && ${Me.Book[${Spell[Ro's Smoldering Disjunction].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Ro's Smoldering Disjunction].RankName}
+	} else /if (${Me.Level}>=${Spell[Fixation of Ro].Level} && ${Me.Book[${Spell[Fixation of Ro].RankName}]}) {
+		/varset SingleFireAtkDebuffSpell ${Spell[Fixation of Ro].RankName}
+	} 
+
 	/if (${Me.Level}>=${Spell[Crush of Ro].Level} && ${Me.Book[${Spell[Crush of Ro].RankName}]}) {
 		/varset SingleFireAtkDebuff ${Spell[Crush of Ro].RankName}
 	} else /if (${Me.Level}>=${Spell[Clasp of Ro].Level} && ${Me.Book[${Spell[Clasp of Ro].RankName}]}) {

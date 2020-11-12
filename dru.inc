@@ -63,8 +63,11 @@ Sub dru_main
 		|/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
 		|	/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
 		|}
-		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID}) {
-			/if (${validate_cast[FALSE, alt, "Blessing of Ro", ${Target.ID}]}) /call core_cast2 "Blessing of Ro" alt ${Target.ID} FALSE
+		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			/if (${validate_cast[FALSE, FIND, "${SingleFireAtkDebuffSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${SingleFireAtkDebuffSpell}" FIND ${Target.ID} FALSE
+				/call check_cast_events "${SingleFireAtkDebuffSpell}" CAST_IMMUNE ${Target.ID}
+			}
 		}
 		
 		/call get_heal_target 70
@@ -271,10 +274,10 @@ Sub dru_debuff_xtarget
 		| How will you handle the AA?
 		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID}) {
 			
-			/if (${validate_cast[FALSE, spell, "${SingleFireAtkDebuff}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${SingleFireAtkDebuff} \ax <<=
-				/call core_cast2 "${SingleFireAtkDebuff}" spell ${Target.ID} FALSE
-				/call check_cast_events "${SingleFireAtkDebuff}" CAST_IMMUNE ${Target.ID}
+			/if (${validate_cast[FALSE, FIND, "${SingleFireAtkDebuffSpell}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${SingleFireAtkDebuffSpell} \ax <<=
+				/call core_cast2 "${SingleFireAtkDebuffSpell}" FIND ${Target.ID} FALSE
+				/call check_cast_events "${SingleFireAtkDebuffSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 
