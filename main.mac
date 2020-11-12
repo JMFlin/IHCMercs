@@ -98,6 +98,7 @@ Sub Main
 	/if (${Mode} == 4) /call AFKRunAndGun
 	/if (${Mode} == 5) /call DoEvent
 	/if (${Mode} == 7) /call mode_posse_afk
+	/if (${Mode} == 8) /call go_sell
 /goto :mainloop 
 /return
 |----------------------------------------------------------------------------
@@ -121,7 +122,6 @@ Sub afk_radius_camping
 
 		/call misc
 		/if (${Mode} != 0) /call force_create_campfire
-		/if (${goSell}) /call vendor_items
 
 		/call move_to_camp
 		
@@ -158,6 +158,7 @@ Sub set_mode
 	/if (${PreviousMode} == 5) /varset PreviousModeName DoEvent
 	/if (${PreviousMode} == 6) /varset PreviousModeName Raid
 	/if (${PreviousMode} == 7) /varset PreviousModeName PosseAFK
+	/if (${PreviousMode} == 8) /varset PreviousModeName Sell
 
 	/if (${Mode} == 0) /varset ModeName Travel
 	/if (${Mode} == 1) /varset ModeName ManualPullCamping
@@ -167,6 +168,7 @@ Sub set_mode
 	/if (${Mode} == 5) /varset ModeName DoEvent
 	/if (${Mode} == 6) /varset ModeName Raid
 	/if (${Mode} == 7) /varset ModeName PosseAFK
+	/if (${Mode} == 8) /varset ModeName Sell
 
  	/docommand /dgt  Previous mode \ar ${PreviousModeName} \ax Current mode \ag ${ModeName}
 	/varset PreviousMode ${Mode}
@@ -235,7 +237,7 @@ sub get_me_out(int _tmpID)
 		/delay 2m ${Me.Zoning}
 		/delay 2m !${Me.Zoning}
 
-	} else /if (${Select[${Me.Class.ShortName},DRU,WIZ]}) {	
+	} else {	
 
 		/if (${validate_cast[FALSE, spell, "${PosseSpell}", ${Me.ID}]}) {
 			/call core_cast2 "${PosseSpell}" spell ${Me.ID} FALSE
@@ -245,6 +247,29 @@ sub get_me_out(int _tmpID)
 	}
 	
 /return
+
+Sub go_sell
+	/declare _nearestMerchant 			int local 0
+
+	/if (${Spawn[merchant radius 700].ID}) {
+		
+		/varset _nearestMerchant ${NearestSpawn[1, merchant radius 700].ID}
+		
+		/nav id ${_nearestMerchant}
+
+		/while (${Navigation.Active}) {
+			/delay 1s
+		}
+		
+		/target id ${_nearestMerchant}
+		/autoloot sell
+		/delay 1m  ${Window[MerchantWnd].Open}
+		/if (${Mode} == 8) /varset Mode 0
+		/return TRUE
+	}
+	/delay 3
+
+/return FALSE
 
 sub mode_posse_afk
 	/declare _haveSold 					bool local FALSE
@@ -270,25 +295,9 @@ sub mode_posse_afk
 			/varset Mode 0	
 			/return
 		}
-
 		/if (!${_haveSold}) {
-
-			/if (${Spawn[merchant radius 700].ID}) {
-				
-				/varset _nearestMerchant ${NearestSpawn[1, merchant radius 700].ID}
-				
-				/nav id ${_nearestMerchant}
-
-				/while (${Navigation.Active}) {
-					/delay 1s
-				}
-				
-				/target id ${_nearestMerchant}
-				/autoloot sell
-				/delay 1m  ${Window[MerchantWnd].Open}
-			}
-
-			/varset _haveSold TRUE
+			/call go_sell
+			/varset _haveSold ${Macro.Return}
 		}
 
 		/if (${_returnToFellowshipTimer} == 0) {
@@ -308,7 +317,6 @@ sub mode_posse_afk
 			}
 		}
 
-		/if (${goSell}) /varset goSell FALSE
 		/varcalc _counter ${_counter} + 1
 		/delay 1s
 	}
@@ -665,16 +673,15 @@ Sub dummy_mode
 
 	
 	/if (${Spawn[gm].ID} || ${Posse.Strangers} > 0) {
-		|**
+		
 		/call port_class_checker
 		/varset _portClassID ${Macro.Return}
 
 		/if (${_portClassID}) {
 			/varset Mode 7
-			/varset posseZone TRUE
+			|/varset posseZone TRUE
 			/call get_me_out ${_portClassID}
-			**|
-		| } else {
+		 } else {
 			
 			/call move_to_camp
 
@@ -699,7 +706,7 @@ Sub dummy_mode
 				/delay 1s 
 			}
 		}
-	| }
+	 }
 	
 
 /return

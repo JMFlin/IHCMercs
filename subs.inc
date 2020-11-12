@@ -182,6 +182,7 @@ Sub var_setup
 
 	/declare powerLevel 		bool outer FALSE
 	/declare goSell 			bool outer FALSE
+	/declare Sold				bool outer FALSE
 
 	/declare newPosseXY			int outer 100
 	/declare oldPosseXY			int outer 100
@@ -201,7 +202,6 @@ Sub var_setup
 	/declare doSnare 			bool outer False
 	/declare berDoStun 			bool outer False
 
-	/declare MainTargetID			int outer 0
 
 /return 
 |----------------------------------------------------------------------------
@@ -335,12 +335,6 @@ Sub Travel
 	}
 
 	/call misc
-
-	/if (${posseZone} && ${goSell}) {
-		/if (${Zone.ID} == 202 || ${Zone.ID} == 344 || ${Zone.ID} == 345) {
-			/varset Mode 7
-		}
-	}
 
 /return
 
