@@ -230,6 +230,7 @@ Sub dru_load_spellbar
 Sub dru_abilities
 
 |**
+REMAKE THIS:
 HEAL:
 1-   Revitalization
 2-   Adrenaline Barrage (or Thornspike Rush if short event)
@@ -893,7 +894,6 @@ BALANCED:
 	}
 
  
-
 	/if (${Me.Level}>=${Spell[Survival of the Favored].Level} && ${Me.Book[${Spell[Survival of the Favored].RankName}]}) {
 		/varset Survival ${Spell[Survival of the Favored].RankName}
 	} else /if (${Me.Level}>=${Spell[Survival of the Auspicious].Level} && ${Me.Book[${Spell[Survival of the Auspicious].RankName}]}) {
