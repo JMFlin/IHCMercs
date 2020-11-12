@@ -192,36 +192,38 @@ Sub mag_self_buff_check(bool _debug)
 		/call core_cast2 "Thaumaturge's Unity" alt 0 FALSE
 	}
 
-	/if (${validate_cast[FALSE, alt, "Elemental Form", ${Me.ID}]}) {
-		/call core_cast2 "Elemental Form" alt 0 FALSE
+	
+
+	/if (!${Me.Buff[${Me.AltAbility[Elemental Form].Rank}].ID}) {
+		/if (${validate_cast[FALSE, alt, "Elemental Form", ${Me.ID}]}) {
+			/call core_cast2 "Elemental Form" alt 0 FALSE
+		}
 	}
 
-	/if (${validate_cast[FALSE, FIND, "${SelfHPBuff}", ${Me.ID}]}) {
-		/while (!${Me.Buff[${SelfHPBuff}].ID}) {
+	/if (!${Me.Buff[${SelfHPBuff}].ID}) {
+		/if (${validate_cast[FALSE, FIND, "${SelfHPBuff}", ${Me.ID}]}) {
 			/call core_cast2 "${SelfHPBuff}" FIND 0 FALSE
+			/varset CastCheck 1
 		}
-		/varset CastCheck 1
 	}
 
-	/if (${validate_cast[FALSE, spell, "${BodyguardSpell}", ${Me.ID}]}) {
-		/while (!${Me.Buff[${BodyguardSpell}].ID}) {
+	/if (!${Me.Buff[${Me.AltAbility[${ChaoticHeal}].Rank}]}) {
+		/if (${validate_cast[FALSE, spell, "${BodyguardSpell}", ${Me.ID}]}) {
 			/call core_cast2 "${BodyguardSpell}" spell 0 FALSE
+			/varset CastCheck 1
 		}
-		/varset CastCheck 1
 	}
 
-	/if (${validate_cast[FALSE, spell, "${ShieldSpell}", ${Me.ID}]}) {
-		/while (!${Me.Buff[${ShieldSpell}].ID}) {
+	/if (!${Me.Buff[${ShieldSpell}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${ShieldSpell}", ${Me.ID}]}) {
 			/call core_cast2 "${ShieldSpell}" spell 0 FALSE
+			/varset CastCheck 1
 		}
-		/varset CastCheck 1
 	}
 
     /if (!${Me.Pet.ID}) {
 		/if (${validate_cast[FALSE, spell, "${PetSpell}", ${Me.ID}]}) {
-			/while (!${Me.Pet.ID}) {
-				/call core_cast2 "${PetSpell}" spell 0 FALSE
-			}
+			/call core_cast2 "${PetSpell}" spell 0 FALSE
 			/varset CastCheck 1
 		}
 	}
@@ -232,36 +234,23 @@ Sub mag_self_buff_check(bool _debug)
 
 		/if (!${Me.Pet.Buff[${BurnoutSpell}]}) {
 			/if (${validate_cast[FALSE, spell, "${BurnoutSpell}", ${Me.Pet.ID}]}) {
-				/while (!${Me.Pet.Buff[${BurnoutSpell}]}) {
-					/call core_cast2 "${BurnoutSpell}" spell ${Me.Pet.ID} FALSE
-				}
+				/call core_cast2 "${BurnoutSpell}" spell ${Me.Pet.ID} FALSE
 				/varset CastCheck 1
 			}
 		}
 
 		/if (!${Me.Pet.Buff[${PetProc}]}) {
 			/if (${validate_cast[FALSE, spell, "${PetProc}", ${Me.Pet.ID}]}) {
-				/while (!${Me.Pet.Buff[${PetProc}]}) {
-					/call core_cast2 "${PetProc}" spell ${Me.Pet.ID} FALSE
-				}
+				/call core_cast2 "${PetProc}" spell ${Me.Pet.ID} FALSE
 				/varset CastCheck 1
 			}
 		}
 
 		/if (!${Me.Pet.Buff[${Iceflame}]}) {
 			/if (${validate_cast[FALSE, spell, "${Iceflame}", ${Me.Pet.ID}]}) {
-				/while (!${Me.Pet.Buff[${Iceflame}]}) {
-					/call core_cast2 "${Iceflame}" spell ${Me.Pet.ID} FALSE
-				}
+				/call core_cast2 "${Iceflame}" spell ${Me.Pet.ID} FALSE
 				/varset CastCheck 1
 			}
-		}
-
-		/if (${validate_cast[FALSE, spell, "${ChaoticHeal}", ${Me.ID}]}) {
-			/while (!${Me.Buff[${ChaoticHeal}].ID}) {
-				/call core_cast2 "${ChaoticHeal}" spell ${Me.ID} FALSE
-			}
-			/varset CastCheck 1
 		}
 
 		/if (!${Me.Pet.Buff[${Me.AltAbility[Velocity].Rank}]}) {
@@ -269,7 +258,6 @@ Sub mag_self_buff_check(bool _debug)
 				/call core_cast2 "Velocity" alt 0 FALSE
 			}
 		}
-
 
 		/if (!${Me.Pet.Buff[${Me.AltAbility[Host in the Shell].Rank}]}) {
 			/if (${validate_cast[FALSE, alt, "Host in the Shell", ${Me.Pet.ID}]}) {
@@ -281,6 +269,13 @@ Sub mag_self_buff_check(bool _debug)
 			/if (${validate_cast[FALSE, alt, "Companion's Aegis", ${Me.Pet.ID}]}) {
 				/call core_cast2 "Companion's Aegis" alt 0 FALSE
 			}
+		}
+	}
+
+	/if (!${Me.Buff[${ChaoticHeal}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${ChaoticHeal}", ${Me.ID}]}) {
+			/call core_cast2 "${ChaoticHeal}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
 		}
 	}
 
