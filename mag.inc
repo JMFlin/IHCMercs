@@ -192,34 +192,39 @@ Sub mag_self_buff_check(bool _debug)
 		/call core_cast2 "Thaumaturge's Unity" alt 0 FALSE
 	}
 
-	
-
-	/if (!${Me.Buff[${Me.AltAbility[Elemental Form].Rank}].ID}) {
+	|/if (!${Me.Buff[${Me.AltAbility[Elemental Form].Rank}].ID}) {
 		/if (${validate_cast[FALSE, alt, "Elemental Form", ${Me.ID}]}) {
 			/call core_cast2 "Elemental Form" alt 0 FALSE
 		}
-	}
+	|}
 
-	/if (!${Me.Buff[${SelfHPBuff}].ID}) {
-		/if (${validate_cast[FALSE, FIND, "${SelfHPBuff}", ${Me.ID}]}) {
-			/call core_cast2 "${SelfHPBuff}" FIND 0 FALSE
-			/varset CastCheck 1
-		}
+	|/if (!${Me.Buff[${SelfHPBuff}].ID}) {
+	/if (${validate_cast[FALSE, FIND, "${SelfHPBuff}", ${Me.ID}]}) {
+		/call core_cast2 "${SelfHPBuff}" FIND 0 FALSE
+		/varset CastCheck 1
 	}
+	|}
 
-	/if (!${Me.Buff[${Me.AltAbility[${ChaoticHeal}].Rank}]}) {
-		/if (${validate_cast[FALSE, spell, "${BodyguardSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${BodyguardSpell}" spell 0 FALSE
-			/varset CastCheck 1
-		}
+	|/if (!${Me.Buff[${Me.AltAbility[${ChaoticHeal}].Rank}]}) {
+	/if (${validate_cast[FALSE, spell, "${BodyguardSpell}", ${Me.ID}]}) {
+		/call core_cast2 "${BodyguardSpell}" spell 0 FALSE
+		/varset CastCheck 1
 	}
+	|}
 
-	/if (!${Me.Buff[${ShieldSpell}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${ShieldSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${ShieldSpell}" spell 0 FALSE
-			/varset CastCheck 1
-		}
+	|/if (!${Me.Buff[${ShieldSpell}].ID}) {
+	/if (${validate_cast[FALSE, spell, "${ShieldSpell}", ${Me.ID}]}) {
+		/call core_cast2 "${ShieldSpell}" spell 0 FALSE
+		/varset CastCheck 1
 	}
+	|}
+
+	|/if (!${Me.Buff[${ChaoticHeal}].ID}) {
+	/if (${validate_cast[FALSE, spell, "${ChaoticHeal}", ${Me.ID}]}) {
+		/call core_cast2 "${ChaoticHeal}" spell ${Me.ID} FALSE
+		/varset CastCheck 1
+	}
+	|}
 
     /if (!${Me.Pet.ID}) {
 		/if (${validate_cast[FALSE, spell, "${PetSpell}", ${Me.ID}]}) {
@@ -269,13 +274,6 @@ Sub mag_self_buff_check(bool _debug)
 			/if (${validate_cast[FALSE, alt, "Companion's Aegis", ${Me.Pet.ID}]}) {
 				/call core_cast2 "Companion's Aegis" alt 0 FALSE
 			}
-		}
-	}
-
-	/if (!${Me.Buff[${ChaoticHeal}].ID}) {
-		/if (${validate_cast[FALSE, spell, "${ChaoticHeal}", ${Me.ID}]}) {
-			/call core_cast2 "${ChaoticHeal}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
 		}
 	}
 

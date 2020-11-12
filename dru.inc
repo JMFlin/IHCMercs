@@ -289,19 +289,19 @@ Sub dru_self_buffs
 
 
 	/if (!${Me.Book[${SelfUnity}]}) {
-		/if (!${Me.Buff[${Mask}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${Mask}", ${Me.ID}]}) {
-				/call core_cast2 "${Mask}" spell ${Me.ID} FALSE
-				/varset CastCheck 1
-			}
+		|/if (!${Me.Buff[${Mask}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${Mask}", ${Me.ID}]}) {
+			/call core_cast2 "${Mask}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
 		}
+		|}
 
-		/if (!${Me.Buff[${SelfDamageShield}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${SelfDamageShield}", ${Me.ID}]}) {
-				/call core_cast2 "${SelfDamageShield}" spell ${Me.ID} FALSE
-				/varset CastCheck 1
-			}
+		|/if (!${Me.Buff[${SelfDamageShield}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${SelfDamageShield}", ${Me.ID}]}) {
+			/call core_cast2 "${SelfDamageShield}" spell ${Me.ID} FALSE
+			/varset CastCheck 1
 		}
+		|}
 	} else {
 		/if (!${Me.Buff[${SelfDamageShield}].ID} || !${Me.Buff[${Mask}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${SelfUnity}", ${Me.ID}]}) {
