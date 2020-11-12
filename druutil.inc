@@ -28,6 +28,9 @@ Sub dru_setup
 	/declare RezSpell 				string outer NULL
 	/declare MassRezSpell			string outer NULL
 	/declare TravelSpell 			string outer NULL
+	/declare NurturingGrowth	string outer NULL
+	/declare GrowthBuff			string outer NULL
+	/declare Response			string outer NULL
 
 	/declare Revitalization 	string outer NULL
 	/declare Curavida 			string outer NULL
@@ -46,11 +49,15 @@ Sub dru_setup
 	/declare Survival 			string outer NULL
 	/declare Mask 				string outer NULL
 	/declare TwincastSpell 		string outer NULL
+	/declare ShmAllianceBuff 	string outer NULL
 
 	/declare PosseSpell				string outer NULL
 
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
+
+	/declare LoadoutType 			string outer NULL
+	/varset LoadoutType Balanced
 /return 
 |* ------------------------------------------------------------------------------------------
 | SUB: ${Me.Class.ShortName.Lower}_load_spellbar
@@ -60,22 +67,159 @@ Sub dru_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 
-	/call LoadSpellGem "${Revitalization}" 1
-	/call LoadSpellGem "${Adrenaline}" 2
-	/call LoadSpellGem "${Curavida}" 3
-	/call LoadSpellGem "${Cyclonic}" 4
-	|/call LoadSpellGem "${Lunasalve}" 4
-	/call LoadSpellGem "${Survival}" 5
-	/call LoadSpellGem "${Reptile}" 6
-	
-	/call LoadSpellGem "${NBW}" 7
-	/call LoadSpellGem "${SingleFrostAtkDebuff}" 8
-	
-	|/call LoadSpellGem "${Sunflame}" 9 |Sunflame
-	|/call LoadSpellGem "${DoTSpell1}" 10 |Horde of Polybiads
-	|/call LoadSpellGem "${Chill}" 11 |Chill of the Wildtender
-	|/call LoadSpellGem "${Moonbeam}" 12 | Pearlescent Moonbeam
-	|/call LoadSpellGem "${Cyclonic}" 13
+	/if (${LoadoutType.Equal["Balanced"]}) {
+		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Survival}" 5
+			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${DichoSpell}" 7
+			/call LoadSpellGem "${NBW}" 8
+			/call LoadSpellGem "${Sunflame}" 9
+			/call LoadSpellGem "${DoTSpell1}" 10
+			/call LoadSpellGem "${Chill}" 11
+			/call LoadSpellGem "${Moonbeam}" 12
+			/call LoadSpellGem "${Cyclonic}" 13
+
+		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Survival}" 5
+			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${DichoSpell}" 7
+			/call LoadSpellGem "${NBW}" 8
+			/call LoadSpellGem "${Sunflame}" 9
+			/call LoadSpellGem "${DoTSpell1}" 10
+			/call LoadSpellGem "${Chill}" 11
+			/call LoadSpellGem "${Moonbeam}" 12
+		
+		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==3) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Survival}" 5
+			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${DichoSpell}" 7
+			/call LoadSpellGem "${NBW}" 8
+			/call LoadSpellGem "${Sunflame}" 9
+			/call LoadSpellGem "${DoTSpell1}" 10
+			/call LoadSpellGem "${Chill}" 11
+
+		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==2) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Survival}" 5
+			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${DichoSpell}" 7
+			/call LoadSpellGem "${NBW}" 8
+			/call LoadSpellGem "${Sunflame}" 9
+			/call LoadSpellGem "${DoTSpell1}" 10
+
+		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==1) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Survival}" 5
+			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${DichoSpell}" 7
+			/call LoadSpellGem "${NBW}" 8
+			/call LoadSpellGem "${Sunflame}" 9
+
+		} else {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Survival}" 5
+			/call LoadSpellGem "${RemoteMoon}" 6
+			/call LoadSpellGem "${DichoSpell}" 7
+			/call LoadSpellGem "${Cyclonic}" 8
+		}
+	} else /if (${LoadoutType.Equal["Heal"]}) {
+		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Promised}" 5
+			/call LoadSpellGem "${Sunflash}" 6
+			/call LoadSpellGem "${Survival}" 7
+			/call LoadSpellGem "${Reptile}" 8
+			/call LoadSpellGem "${GrowthBuff}" 9
+			/call LoadSpellGem "${GroupSkin}" 10
+			/call LoadSpellGem "${AllianceBuff}" 11
+			/call LoadSpellGem "${Response}" 12
+			/call LoadSpellGem "${NurturingGrowth}" 13
+
+		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Promised}" 5
+			/call LoadSpellGem "${Sunflash}" 6
+			/call LoadSpellGem "${Survival}" 7
+			/call LoadSpellGem "${Reptile}" 8
+			/call LoadSpellGem "${GrowthBuff}" 9
+			/call LoadSpellGem "${GroupSkin}" 10
+			/call LoadSpellGem "${AllianceBuff}" 11
+			/call LoadSpellGem "${Response}" 12
+		
+		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==3) {
+			//call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Promised}" 5
+			/call LoadSpellGem "${Sunflash}" 6
+			/call LoadSpellGem "${Survival}" 7
+			/call LoadSpellGem "${Reptile}" 8
+			/call LoadSpellGem "${GrowthBuff}" 9
+			/call LoadSpellGem "${GroupSkin}" 10
+			/call LoadSpellGem "${AllianceBuff}" 11
+
+		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==2) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Promised}" 5
+			/call LoadSpellGem "${Sunflash}" 6
+			/call LoadSpellGem "${Survival}" 7
+			/call LoadSpellGem "${Reptile}" 8
+			/call LoadSpellGem "${GrowthBuff}" 9
+			/call LoadSpellGem "${GroupSkin}" 10
+
+		} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==1) {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Promised}" 5
+			/call LoadSpellGem "${Sunflash}" 6
+			/call LoadSpellGem "${Survival}" 7
+			/call LoadSpellGem "${Reptile}" 8
+			/call LoadSpellGem "${GrowthBuff}" 9
+
+		} else {
+			/call LoadSpellGem "${Revitalization}" 1
+			/call LoadSpellGem "${Adrenaline}" 2
+			/call LoadSpellGem "${Curavida}" 3
+			/call LoadSpellGem "${Lunasalve}" 4
+			/call LoadSpellGem "${Promised}" 5
+			/call LoadSpellGem "${Sunflash}" 6
+			/call LoadSpellGem "${Survival}" 7
+			/call LoadSpellGem "${Reptile}" 8
+		}
+	}
 	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -97,8 +241,8 @@ HEAL:
 8-   Guard of the Reptile
 9-   Savage Growth
 10-   Arcronite Skin (or Blessing if short event)
-11-   Bosquetender’s Alliance
-12-   Nature’s Response
+11-   Bosquetender's Alliance
+12-   Nature's Response
 13-   Nourishing Growth
 
 BALANCED:
@@ -109,11 +253,11 @@ BALANCED:
 5-   Survival of the Auspicious
 6-   Remote Moonflash (or Remote Sunblaze)
 7-   Dichotomic Winds
-8-   Nature’s Blistening Wrath
+8-   Nature's Blistening Wrath
 9-   Sunflame
 10-   Horde of Polybiads
 11-   Chill of the Wildtender (Cycle with the spell Nourishing Growth for mana regen)
-12-   Pearlescent Moonbeam (Cycle with the spell Bosquetener’s Fortitude for a short-burn event) OR Overwhelming Sunray (Cycle with the spell Twincast for extra Twin burn)
+12-   Pearlescent Moonbeam (Cycle with the spell Bosquetener's Fortitude for a short-burn event) OR Overwhelming Sunray (Cycle with the spell Twincast for extra Twin burn)
 13-   Cyclonic Roar (Cycle with the spell Frostreave Aura or Wildspark Aura for extra cold/fire burst procs for your group)
 **|
 
@@ -126,7 +270,10 @@ BALANCED:
 	/if (${Me.Level} >= ${Spell[Froststone Aura].Level} && ${Me.Book[${Spell[Froststone Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Froststone Aura].RankName}
 	}
-	
+
+	/if (${Me.Level} >= ${Spell[Nature's Response].Level} && ${Me.Book[${Spell[Nature's Response].RankName}]}) {
+		/varset Response ${Spell[Nature's Response].RankName}
+	}
 
 	/if (${Me.Level}>=${Spell[Typhonic Roar].Level} && ${Me.Book[${Spell[Typhonic Roar].RankName}]}) {
 		/varset Cyclonic ${Spell[Typhonic Roar].RankName}
@@ -164,6 +311,75 @@ BALANCED:
 		/varset Cyclonic ${Spell[Whirling Wind].RankName}
 	}
 
+	/if (${Me.Level}>=${Spell[Opaline Moonbeam].Level} && ${Me.Book[${Spell[Opaline Moonbeam].RankName}]}) {
+		/varset Moonbeam ${Spell[Opaline Moonbeam].RankName}
+	} else /if (${Me.Level}>=${Spell[Pearlescent Moonbeam].Level} && ${Me.Book[${Spell[Pearlescent Moonbeam].RankName}]}) {
+		/varset Moonbeam ${Spell[Pearlescent Moonbeam].RankName}
+	} else /if (${Me.Level}>=${Spell[Argent Moonbeam].Level} && ${Me.Book[${Spell[Argent Moonbeam].RankName}]}) {
+		/varset Moonbeam ${Spell[Argent Moonbeam].RankName}
+	} else /if (${Me.Level}>=${Spell[Frigid Moonbeam].Level} && ${Me.Book[${Spell[Frigid Moonbeam].RankName}]}) {
+		/varset Moonbeam ${Spell[Frigid Moonbeam].RankName}
+	} else /if (${Me.Level}>=${Spell[Algid Moonbeam].Level} && ${Me.Book[${Spell[Algid Moonbeam].RankName}]}) {
+		/varset Moonbeam ${Spell[Algid Moonbeam].RankName}
+	} else /if (${Me.Level}>=${Spell[Gelid Moonbeam].Level} && ${Me.Book[${Spell[Gelid Moonbeam].RankName}]}) {
+		/varset Moonbeam ${Spell[Gelid Moonbeam].RankName}
+	}
+
+
+	/if (${Me.Level}>=${Spell[Chill of the Arbor Tender].Level} && ${Me.Book[${Spell[Chill of the Arbor Tender].RankName}]}) {
+		/varset Chill ${Spell[Chill of the Arbor Tender].RankName}
+	} else /if (${Me.Level}>=${Spell[Chill of the Wildtender].Level} && ${Me.Book[${Spell[Chill of the Wildtender].RankName}]}) {
+		/varset Chill ${Spell[Chill of the Wildtender].RankName}
+	} else /if (${Me.Level}>=${Spell[Chill of the Copsetender].Level} && ${Me.Book[${Spell[Chill of the Copsetender].RankName}]}) {
+		/varset Chill ${Spell[Chill of the Copsetender].RankName}
+	} else /if (${Me.Level}>=${Spell[Chill of the Visionary].Level} && ${Me.Book[${Spell[Chill of the Visionary].RankName}]}) {
+		/varset Chill ${Spell[Chill of the Visionary].RankName}
+	} else /if (${Me.Level}>=${Spell[Chill of the Natureward].Level} && ${Me.Book[${Spell[Chill of the Natureward].RankName}]}) {
+		/varset Chill ${Spell[Chill of the Natureward].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Sunshock].Level} && ${Me.Book[${Spell[Sunshock].RankName}]}) {
+		/varset Sunflame ${Spell[Sunshock].RankName}
+	} else /if (${Me.Level}>=${Spell[Sunflame].Level} && ${Me.Book[${Spell[Sunflame].RankName}]}) {
+		/varset Sunflame ${Spell[Sunflame].RankName}
+	} else /if (${Me.Level}>=${Spell[Sunflash].Level} && ${Me.Book[${Spell[Sunflash].RankName}]}) {
+		/varset Sunflame ${Spell[Sunflash].RankName}
+	} else /if (${Me.Level}>=${Spell[Sunblaze].Level} && ${Me.Book[${Spell[Sunblaze].RankName}]}) {
+		/varset Sunflame ${Spell[Sunblaze].RankName}
+	} else /if (${Me.Level}>=${Spell[Sunscorch].Level} && ${Me.Book[${Spell[Sunscorch].RankName}]}) {
+		/varset Sunflame ${Spell[Sunscorch].RankName}
+	} else /if (${Me.Level}>=${Spell[Sunbrand].Level} && ${Me.Book[${Spell[Sunbrand].RankName}]}) {
+		/varset Sunflame ${Spell[Sunbrand].RankName}
+	} else /if (${Me.Level}>=${Spell[Sunsinge].Level} && ${Me.Book[${Spell[Sunsinge].RankName}]}) {
+		/varset Sunflame ${Spell[Sunsinge].RankName}
+	} else /if (${Me.Level}>=${Spell[Sunsear].Level} && ${Me.Book[${Spell[Sunsear].RankName}]}) {
+		/varset Sunflame ${Spell[Sunsear].RankName}
+	} else /if (${Me.Level}>=${Spell[Sunscorch].Level} && ${Me.Book[${Spell[Sunscorch].RankName}]}) {
+		/varset Sunflame ${Spell[Sunscorch].RankName}
+	} else /if (${Me.Level}>=${Spell[Vengeance of the Sun].Level} && ${Me.Book[${Spell[Vengeance of the Sun].RankName}]}) {
+		/varset Sunflame ${Spell[Vengeance of the Sun].RankName}
+	}
+
+	|- GrowthBuff
+	/if (${Me.Level}>=${Spell[Savage Growth].Level} && ${Me.Book[${Spell[Savage Growth].RankName}]}) {
+		/varset GrowthBuff ${Spell[Savage Growth].RankName}
+	} else /if (${Me.Level}>=${Spell[Ferocious Growth].Level} && ${Me.Book[${Spell[Ferocious Growth].RankName}]}) {
+		/varset GrowthBuff ${Spell[Ferocious Growth].RankName}
+	} else /if (${Me.Level}>=${Spell[Rampant Growth].Level} && ${Me.Book[${Spell[Rampant Growth].RankName}]}) {
+		/varset GrowthBuff ${Spell[Rampant Growth].RankName}
+	} else /if (${Me.Level}>=${Spell[Unfettered Growth].Level} && ${Me.Book[${Spell[Unfettered Growth].RankName}]}) {
+		/varset GrowthBuff ${Spell[Unfettered Growth].RankName}
+	} else /if (${Me.Level}>=${Spell[Untamed Growth].Level} && ${Me.Book[${Spell[Untamed Growth].RankName}]}) {
+		/varset GrowthBuff ${Spell[Untamed Growth].RankName}
+	}
+	
+	/if (${Me.Level}>=${Spell[Sustaining Growth].Level} && ${Me.Book[${Spell[Sustaining Growth].RankName}]}) {
+		/varset NurturingGrowth ${Spell[Sustaining Growth].RankName}
+	} else /if (${Me.Level}>=${Spell[Nourishing Growth].Level} && ${Me.Book[${Spell[Nourishing Growth].RankName}]}) {
+		/varset NurturingGrowth ${Spell[Nourishing Growth].RankName}
+	} else /if (${Me.Level}>=${Spell[Nurturing Growth].Level} && ${Me.Book[${Spell[Nurturing Growth].RankName}]}) {
+		/varset NurturingGrowth ${Spell[Nurturing Growth].RankName}
+	}
 
 	/if (${Me.Level}>=${Spell[Remote Sunshock].Level} && ${Me.Book[${Spell[Remote Sunshock].RankName}]}) {
 		/varset RemoteSun ${Spell[Remote Sunshock].RankName}
@@ -359,8 +575,24 @@ BALANCED:
 		/varset NukeSpell1 ${Spell[Burst of Flame].RankName}
 	}
 	
-	
-	/if (${Me.Level}>=${Spell[Wasp Swarm].Level} && ${Me.Book[${Spell[Wasp Swarm].RankName}]}) {
+
+	/if (${Me.Level}>=${Spell[Horde of Hyperboreads].Level} && ${Me.Book[${Spell[Horde of Hyperboreads].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Horde of Hyperboreads].RankName}
+	} else /if (${Me.Level}>=${Spell[Horde of Polybiads].Level} && ${Me.Book[${Spell[Horde of Polybiads].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Horde of Polybiads].RankName}
+	} else /if (${Me.Level}>=${Spell[Horde of Aculeids].Level} && ${Me.Book[${Spell[Horde of Aculeids].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Horde of Aculeids].RankName}
+	} else /if (${Me.Level}>=${Spell[Horde of Mutillids].Level} && ${Me.Book[${Spell[Horde of Mutillids].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Horde of Mutillids].RankName}
+	} else /if (${Me.Level}>=${Spell[Horde of Vespids].Level} && ${Me.Book[${Spell[Horde of Vespids].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Horde of Vespids].RankName}
+	} else /if (${Me.Level}>=${Spell[Horde of Scoriae].Level} && ${Me.Book[${Spell[Horde of Scoriae].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Horde of Scoriae].RankName}
+	} else /if (${Me.Level}>=${Spell[Horde of the Hive].Level} && ${Me.Book[${Spell[Horde of the Hive].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Horde of the Hive].RankName}
+	} else /if (${Me.Level}>=${Spell[Horde of Fireants].Level} && ${Me.Book[${Spell[Horde of Fireants].RankName}]}) {
+		/varset DoTSpell1 ${Spell[Horde of Fireants].RankName}
+	} else /if (${Me.Level}>=${Spell[Wasp Swarm].Level} && ${Me.Book[${Spell[Wasp Swarm].RankName}]}) {
 		/varset DoTSpell1 ${Spell[Wasp Swarm].RankName}
 	} else /if (${Me.Level}>=${Spell[Swarming Death].Level} && ${Me.Book[${Spell[Swarming Death].RankName}]}) {
 		/varset DoTSpell1 ${Spell[Swarming Death].RankName}
@@ -695,11 +927,7 @@ BALANCED:
 	|- AllianceBuff
 	/if (${Me.Level}>=${Spell[Bosquetender's Alliance].Level} && ${Me.Book[${Spell[Bosquetender's Alliance].RankName}]}) {
 		/varset AllianceBuff ${Spell[Bosquetender's Alliance].RankName}
-	}
-
-	|- Growth Buff
-	/if (${Me.Level}>=${Spell[Nourishing Growth].Level} && ${Me.Book[${Spell[Nourishing Growth].RankName}]}) {
-		/varset GrowthBuff ${Spell[Nourishing Growth].RankName}
+		/varset ShmAllianceBuff Ancient Alliance
 	}
 
 	/delay 1s

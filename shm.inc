@@ -506,19 +506,21 @@ Sub shm_group_buffs
 			/if (${Group.Member[${_count}].ID} != ${Group.MainTank.ID}) /continue
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GrowthBuff}].Stacks" "tmpstackcheck" "bool"
-				
-				
-				
-				/if (!${tmpbuffid} && ${tmpstackcheck}) {
-					/if (${validate_cast[FALSE, spell, ${GrowthBuff}, ${Group.Member[${_count}].ID}]}) {
-						/call core_cast2 "${GrowthBuff}" spell ${Group.Member[${_count}].ID} FALSE
-						/varset CastCheck 1
+				|- This is done becasue a shaman or another druid could have given the buff with a different rank
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff}].ID" "GrowthBuffRkI" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff} Rk. II].ID" "GrowthBuffRkII" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${GrowthBuff} Rk. III].ID" "GrowthBuffRkIII" "int"
+
+				/if (!${GrowthBuffRkI} && !${GrowthBuffRkII} && !${GrowthBuffRkIII}) {
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${GrowthBuff}].Stacks" "tmpstackcheck" "bool"
+					
+					/if (${tmpstackcheck}) {
+						/if (${validate_cast[FALSE, spell, ${GrowthBuff}, ${Group.Member[${_count}].ID}]}) {
+							/call core_cast2 "${GrowthBuff}" spell ${Group.Member[${_count}].ID} FALSE
+							/varset CastCheck 1
+						}
 					}
 				}
-				
 			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
 				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 				/delay 1s
@@ -556,21 +558,26 @@ Sub shm_group_buffs
 			}
 
 			/if (${Group.Member[${_count}].Type.Equal[PC]}) {
-				
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
-				
-				/if (!${tmpbuffid} && ${tmpstackcheck}) {
-					/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) {
-						/call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
-						/varset CastCheck 1
+				|- This is done becasue a shaman or another druid could have given the buff with a different rank
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${DruAllianceBuff}].ID" "DruAllianceRkI" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${DruAllianceBuff} Rk. II].ID" "DruAllianceRkII" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${DruAllianceBuff} Rk. III].ID" "DruAllianceRkIII" "int"
+
+				/if (!${DruAllianceRkI} && !${DruAllianceRkII} && !${DruAllianceRkIII}) {
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Buff[${AllianceBuff}].ID" "tmpbuffid" "int"
+					/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Spell[${AllianceBuff}].Stacks" "tmpstackcheck" "bool"
+					
+					/if (!${tmpbuffid} && ${tmpstackcheck}) {
+						/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) {
+							/call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
+							/varset CastCheck 1
+						}
 					}
 				}
-				
 			} else /if (${Group.Member[${_count}].Type.Equal[Mercenary]}) {
 				/if (${Group.Member[${_count}].ID} != ${Target.ID}) /target ${Group.Member[${_count}]}
 				/delay 1s
-				/if (!${Target.Buff[${AllianceBuff}].ID}) {
+				/if (!${Target.Buff[${AllianceBuff}].ID} && !${Target.Buff[${DruAllianceBuff}].ID} && !${Target.Buff[${DruAllianceBuff} Rk. II].ID} && !${Target.Buff[${DruAllianceBuff} Rk. III].ID}) {
 					/if (${validate_cast[FALSE, spell, ${AllianceBuff}, ${Group.Member[${_count}].ID}]}) {
 						/call core_cast2 "${AllianceBuff}" spell ${Group.Member[${_count}].ID} FALSE
 						/varset CastCheck 1

@@ -85,6 +85,7 @@ Sub shm_setup
 	/declare newtank				int outer 0
 	/declare CureMemberCount    	int outer 0
 	/declare CureMemberID     		int outer 0
+	/declare DruAllianceBuff 		string outer NULL
 |-Special
 	/declare EpicSpiritStaff		string outer NULL
 	/declare UseEpic 				int outer 0
@@ -545,7 +546,9 @@ Sub shm_abilities
 |- AllianceBuff
 	/if (${Me.Level}>=${Spell[Ancient Alliance].Level} && ${Me.Book[${Spell[Ancient Alliance].RankName}]}) {
 		/varset AllianceBuff ${Spell[Ancient Alliance].RankName}
+		/varset DruAllianceBuff Bosquetender's Alliance
 	}
+	
 |- GroupHealProcBuff
 	/if (${Me.Level}>=${Spell[Responsive Spirit].Level} && ${Me.Book[${Spell[Responsive Spirit].RankName}]}) {
 		/varset GroupHealProcBuff ${Spell[Responsive Spirit].RankName}
