@@ -17,7 +17,6 @@ Sub wiz_setup
   |-DPS
   	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
-	/declare DPSRecastTimer			timer 	outer	0
 	/declare AllianceSpell			string	outer	NULL
 	/declare AllianceSpellRankCheck string 	outer 	NULL
 	/declare DichoSpell				string 	outer	NULL
@@ -47,13 +46,8 @@ Sub wiz_setup
 	/declare JoltSpell				string 	outer	NULL
 	/declare RuneGuardSpell 		string  outer 	NULL
 	
-	/declare AANukeRecasttimer		timer outer 0
 	/declare SpellSet				string outer auto
-	/declare spellmisc 				int outer 8
-	/declare spellgem				int outer 1	
 	/declare CastResult             string outer
-	/declare miscspellremem			string outer NULL
-	/declare spellrememtimer		timer outer 0
 
 	/declare PosseSpell				string outer NULL
 
@@ -634,12 +628,6 @@ Sub wiz_abilities
 	/varset GoMNuke ${DichoSpell}
 	|/varset GoMNuke2 ${Alliance}
 
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
-	
 	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
 		/alt act 25
 		/delay 5

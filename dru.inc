@@ -56,7 +56,6 @@ TODO:
 		Rejuvenation of Spirit
 		Vortex of Ro
 		Wall of Wind
-		Wildtender's Surival
 		Wildtender's Unity
 
 	Spells:
@@ -95,7 +94,9 @@ Sub dru_main
 		| Does this work?
 		/call get_target
 		/if (!${Target.Buff[${Me.AltAbility[Season's Wrath].Rank}].ID}) {
-			/if (${validate_cast[FALSE, alt, "Season's Wrath", ${Target.ID}]}) /call core_cast2 "Season's Wrath" alt ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, alt, "Season's Wrath", ${Target.ID}]}) {
+				/call core_cast2 "Season's Wrath" alt ${Target.ID} FALSE
+			}
 		}
 
 		/if (${Target.Named}) { 
@@ -222,18 +223,18 @@ Sub dru_main
 |---------------------------------------------------------------------------- 
 Sub dru_heal_spam
 	|**
-		(Convergence of Spirits) -> Revitalization -> Adrenaline Barrage-> Curavida
+		(Convergence of Spirit) -> Revitalization -> Adrenaline Barrage-> Curavida
 	**|
 
-	/call get_heal_target 60
+	/call get_heal_target 50
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0 && ${worstHurtId} == ${Group.MainTank.ID}) {
-		/if (${validate_cast[FALSE, alt, "Convergence of Spirits", ${worstHurtId}]}) {
-			/call core_cast2 "Convergence of Spirits" alt ${worstHurtId} FALSE
+		/if (${validate_cast[FALSE, alt, "Convergence of Spirit", ${worstHurtId}]}) {
+			/call core_cast2 "Convergence of Spirit" alt ${worstHurtId} FALSE
 		}
 	}
 
-	/call get_heal_target 80
+	/call get_heal_target 60
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${Revitalization}", ${worstHurtId}]}) {
@@ -241,7 +242,7 @@ Sub dru_heal_spam
 		}
 	}
 
-	/call get_heal_target 80
+	/call get_heal_target 60
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${worstHurtId}]}) {
@@ -256,6 +257,8 @@ Sub dru_heal_spam
 			/call core_cast2 "${Curavida}" spell ${worstHurtId} FALSE
 		}
 	}
+
+
 
 /return
 |----------------------------------------------------------------------------
@@ -646,17 +649,30 @@ Sub dru_single_target_heals
 |- SUB: HealGroup
 |---------------------------------------------------------------------------- 
 Sub dru_group_heals
-	|TODO: Wildtender's Surival
-	/if (${check_hurt[FALSE, group, 85]} >= 3) {
-		/if (${validate_cast[FALSE, alt, "Blessing of Tunare", ${Me.ID}]}) /call core_cast2 "Blessing of Tunare" alt ${Me.ID} FALSE
-	}
-
-	/if (${check_hurt[FALSE, group, 20]} >= 1) {
-		/if (${validate_cast[FALSE, spell, "${Survival}", ${Me.ID}]}) /call core_cast2 "${Survival}" spell ${Me.ID} FALSE
-	}
 
 	/if (${check_hurt[FALSE, group, 85]} >= 3) {
-		/if (${validate_cast[FALSE, spell, "${Lunasalve}", ${Me.ID}]}) /call core_cast2 "${Lunasalve}" spell ${Me.ID} FALSE
+		/call get_heal_target 85
+		/if (${validate_cast[FALSE, alt, "Blessing of Tunare", ${Me.ID}]}) {
+			/call core_cast2 "Blessing of Tunare" alt ${Me.ID} FALSE
+		}
+	}
+
+	/if (${check_hurt[FALSE, group, 45]} >= 1) {
+		/if (${validate_cast[FALSE, spell, "${Survival}", ${Me.ID}]}) {
+			/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
+		}
+	}
+
+	/if (${check_hurt[FALSE, group, 85]} >= 3) {
+		/if (${validate_cast[FALSE, spell, "${Lunasalve}", ${Me.ID}]}) {
+			/call core_cast2 "${Lunasalve}" spell ${Me.ID} FALSE
+		}
+	}
+
+	/if (${check_hurt[FALSE, group, 35]} >= 1) {
+		/if (${validate_cast[FALSE, alt, "Wildtender's Survival", ${Me.ID}]}) {
+			/call core_cast2 "Wildtender's Survival" alt ${Me.ID} FALSE
+		}
 	}
 
 /return
