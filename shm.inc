@@ -83,8 +83,6 @@ Sub shm_main
 		}
 
 		/call move_to_camp
-
-		DEBUG Call of the Ancients ${validate_cast[FALSE, alt, "Call of the Ancients", ${Me.ID}]}
 	}
 
 /return
@@ -212,24 +210,20 @@ Sub shm_burn_routine
 	/if (${validate_cast[FALSE, alt, "Spirit Guardian", ${Group.MainTank.ID}]}) /call core_cast2 "Spirit Guardian" alt ${Group.MainTank.ID} FALSE
 	/if (${validate_cast[FALSE, alt, "Ancestral Aid", ${Me.ID}]}) /call core_cast2 "Ancestral Aid" alt 0 FALSE
 
-|**
-		${Me.AltAbilityReady["Call of the Ancients"]}
-		${Spell["Call of the Ancients"].MyRange}
-		${Spell["Call of the Ancients"].Mana}
-		${Spell["Call of the Ancients"].SpellType.Equal[Beneficial]}
-**|
-
 	| Group and Wards
-	/if (${validate_cast[FALSE, alt, "Call of the Ancients", ${Me.ID}]}) {
-    	/call core_cast2 "Call of the Ancients" alt ${Me.ID} FALSE
+	/if (${Me.AltAbilityReady[Call of the Ancients]}) {
+    	/call core_cast2 "Call of the Ancients" alt 0 FALSE
     }
-	/if (${validate_cast[FALSE, alt, "Spire of Ancestors", ${Me.ID}]}) /call core_cast2 "Spire of Ancestors" alt 0 FALSE
-
+	/if (${validate_cast[FALSE, alt, "Spire of Ancestors", ${Me.ID}]}) {
+		/call core_cast2 "Spire of Ancestors" alt 0 FALSE
+	}
 	
+	/call shm_heal_spam
 	| Self Buffs
 	/if (${validate_cast[FALSE, alt, "Ancestral Guard", ${Me.ID}]}) /call core_cast2 "Ancestral Guard" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Spiritual Blessing", ${Me.ID}]}) /call core_cast2 "Spiritual Blessing" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Dampen Resistance", ${Me.ID}]}) /call core_cast2 "Dampen Resistance" alt 0 FALSE
+	/call shm_heal_spam
 	/if (${validate_cast[FALSE, alt, "Fleeting Spirit", ${Me.ID}]}) /call core_cast2 "Fleeting Spirit" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Rabid Bear", ${Me.ID}]}) /call core_cast2 "Rabid Bear" alt 0 FALSE
 	/if (${validate_cast[FALSE, alt, "Focus of Arcanum", ${Me.ID}]}) /call core_cast2 "Focus of Arcanum" alt 0 FALSE

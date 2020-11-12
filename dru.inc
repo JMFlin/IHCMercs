@@ -317,6 +317,7 @@ Sub dru_burn_routine
 	/if (${validate_cast[FALSE, alt, "Swarm of Fireflies", ${Group.MainTank.ID}]}) {
 		/call core_cast2 "Swarm of Fireflies" alt ${Group.MainTank.ID} FALSE
 	}
+	/call dru_heal_spam
 	| ADD MGB HERE IF IN RAID
 	/if (${validate_cast[FALSE, alt, "Spirit of the Wood", ${Group.MainTank.ID}]}) {
 		/call core_cast2 "Spirit of the Wood" alt ${Group.MainTank.ID} FALSE
@@ -330,6 +331,7 @@ Sub dru_burn_routine
 	/if (${validate_cast[FALSE, alt, "Nature's Fury", ${Me.ID}]}) {
 		/call core_cast2 "Nature's Fury" alt 0 FALSE
 	}
+	/call dru_heal_spam
 	/if (${validate_cast[FALSE, alt, "Nature's Boon", ${Me.ID}]}) {
 		/call core_cast2 "Nature's Boon" alt 0 FALSE
 	}
