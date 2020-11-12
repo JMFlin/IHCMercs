@@ -385,13 +385,13 @@ Sub wiz_abilities
 	} 
 
 |-BraidNuke
-	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Confluence].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Ethereal Confluence].Level} && ${Me.Book[${Spell[Ethereal Confluence].RankName}]}) {
 		/varset BraidNuke ${Spell[Ethereal Confluence].RankName}
-	} else /if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Ethereal Braid].Level} && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
 		/varset BraidNuke ${Spell[Ethereal Braid].RankName}
-	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Ethereal Fuse].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Ethereal Fuse].Level} && ${Me.Book[${Spell[Ethereal Fuse].RankName}]}) {
 		/varset BraidNuke ${Spell[Ethereal Fuse].RankName}
-	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Ethereal Weave].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Ethereal Weave].Level} && ${Me.Book[${Spell[Ethereal Weave].RankName}]}) {
 		/varset BraidNuke ${Spell[Ethereal Weave].RankName}
 	}
 |-WildNuke: Kizant uses Wildether barrage and wild spark barrage in TBL with fury of gods
