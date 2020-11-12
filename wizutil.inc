@@ -247,7 +247,9 @@ Sub wiz_abilities
 		/varset TwincastSpell ${Spell[Twincast].RankName}
 	}
 |-SnareSpell
-	/if (${Me.Level}>=93 && ${Me.Book[${Spell[Atol's Concussive Shackles].RankName}]}) {
+	/if (${Me.AltAbility[Atol's Unresistable Shackles].Rank} >= 1) {
+		/varset SnareSpell Atol's Unresistable Shackles
+	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Atol's Concussive Shackles].RankName}]}) {
 		/varset SnareSpell ${Spell[Atol's Concussive Shackles].RankName}
 	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Atol's Spectral Shackles].RankName}]}) {
 		/varset SnareSpell ${Spell[Atol's Spectral Shackles].RankName}

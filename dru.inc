@@ -60,9 +60,9 @@ Sub dru_main
 		/call get_target
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
-		/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
-		}
+		|/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
+		|	/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) /call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
+		|}
 		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID}) {
 			/if (${validate_cast[FALSE, alt, "Blessing of Ro", ${Target.ID}]}) /call core_cast2 "Blessing of Ro" alt ${Target.ID} FALSE
 		}
@@ -75,9 +75,9 @@ Sub dru_main
 			}
 		} else /if (${Me.PctMana} > ${hybridManaLimit}) {
 			/call get_target
-			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
-				/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-					/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
+				/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 					/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
 				}
 			}
@@ -269,12 +269,12 @@ Sub dru_debuff_xtarget
 		/if (!${Target.Type.Equal[NPC]}) /return
 		
 		| How will you handle the AA?
-		/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
+		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID}) {
 			
-			/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) {
-				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${SingleFrostAtkDebuff} \ax <<=
-				/call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
-				/call check_cast_events "${SingleFrostAtkDebuff}" CAST_IMMUNE ${Target.ID}
+			/if (${validate_cast[FALSE, spell, "${SingleFireAtkDebuff}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Attack debuff \ar ${Target.Name} \ax with =>> \ag ${SingleFireAtkDebuff} \ax <<=
+				/call core_cast2 "${SingleFireAtkDebuff}" spell ${Target.ID} FALSE
+				/call check_cast_events "${SingleFireAtkDebuff}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 

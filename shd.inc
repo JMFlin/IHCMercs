@@ -20,12 +20,9 @@ Sub shd_main
 		/call shd_disc
 
 		|/while (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${Target.ID} && ${Me.XTarget}) {
-		/if (${validate_cast[FALSE, alt, "Encroaching Darkness", ${Target.ID}]}) {
-			/call core_cast2 "Encroaching Darkness" alt ${Target.ID} FALSE
-			/call check_cast_events CAST_IMMUNE "Encroaching Darkness"
-		} else {
-			/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
+			/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events CAST_IMMUNE "${SnareSpell}"
 			}
 		}

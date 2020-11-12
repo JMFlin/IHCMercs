@@ -241,10 +241,12 @@ Sub ber_combat
 	}
 
 	/call use_skill_melee FALSE ${Target.ID}
-	|/if (!${Target.Snared.ID} && ${Target.Fleeing} && ${FindItemCount[${SnareAxeName}]} > 0 && !${immuneSet.Contains[${Target.ID}]}) {
-	|	/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) /call core_cast2 "${Snare}" disc ${Target.ID} FALSE
-	|	/call check_cast_events "${Snare}" CAST_IMMUNE ${Target.ID}
-	|}
+	/if (!${Target.Snared.ID} && ${FindItemCount[${SnareAxeName}]} > 0 && !${immuneSet.Contains[${Target.ID}]}  && ${doSnare}) {
+		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) {
+			/call core_cast2 "${Snare}" disc ${Target.ID} FALSE
+			/call check_cast_events "${Snare}" CAST_IMMUNE ${Target.ID}
+		}
+	}
 
 	|/if (${Me.CombatAbilityReady[${BloodDisc}]} && !${Target.Buff[${BloodDisc}].ID}) {
 	|	/Disc ${BloodDisc}

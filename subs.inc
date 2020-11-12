@@ -197,6 +197,9 @@ Sub var_setup
 	/declare druDoNotBuffShm 	bool outer FALSE
 	/declare doNotBuff 			bool outer FALSE
 
+|- Snares
+	/declare doSnare 			bool outer False	
+
 	/declare MainTargetID			int outer 0
 
 /return 

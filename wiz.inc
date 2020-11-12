@@ -25,19 +25,22 @@ Sub wiz_main
 			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
 		}
 
-		|**
-		/if (${Me.Book[${SnareSpell}]} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+		
+		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
+			/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
 			}
-		} else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
+		} 
+		|**
+		else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
 				/call check_cast_events "${RootSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
 		**|
+		
 
 		|/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
 		|	/call core_cast2 "${SelfRune1}" spell 0 FALSE

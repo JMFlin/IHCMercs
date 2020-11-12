@@ -15,6 +15,10 @@ Sub mag_main
 		
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call mag_burn_routine
 		/call get_target
+		/if (${Int[${Target.Beneficial.ID}]}) {
+			/if (${validate_cast[FALSE, alt, "Eradicate Magic", ${Target.ID}]}) /call core_cast2 "Eradicate Magic" alt ${Target.ID} FALSE
+		}
+		
 		/if (!${validate_combat[${Target.ID}]}) /continue
 		
 		/call pet_attack ${Target.ID}

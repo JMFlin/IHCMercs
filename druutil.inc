@@ -625,7 +625,9 @@ BALANCED:
 	}
 **|
 	
-	/if (${Me.Level}>=${Spell[Bonds of Tunare].Level} && ${Me.Book[${Spell[Bonds of Tunare].RankName}]}) {
+	/if (${Me.AltAbility[Entrap].Rank} >= 1) {
+		/varset SnareSpell Entrap
+	} else /if (${Me.Level}>=${Spell[Bonds of Tunare].Level} && ${Me.Book[${Spell[Bonds of Tunare].RankName}]}) {
 		/varset SnareSpell ${Spell[Bonds of Tunare].RankName}
 	} else /if (${Me.Level}>=${Spell[Tangle].Level} && ${Me.Book[${Spell[Tangle].RankName}]}) {
 		/varset SnareSpell ${Spell[Tangle].RankName}

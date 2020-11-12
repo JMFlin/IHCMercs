@@ -365,7 +365,9 @@ Sub shd_abilities
 
 	| Darkness
 	
-	/if (${Me.Level}>=61 && ${Me.Book[${Spell[Festering Darkness].RankName}]}) {
+	/if (${Me.AltAbility[Encroaching Darkness].Rank} >= 1) {
+		/varset SnareSpell Encroaching Darkness
+	} else /if (${Me.Level}>=61 && ${Me.Book[${Spell[Festering Darkness].RankName}]}) {
 		/varset SnareSpell ${Spell[Festering Darkness].RankName}
 	} else /if (${Me.Level}>=44 && ${Me.Book[${Spell[Dooming Darkness].RankName}]}) {
 		/varset SnareSpell ${Spell[Dooming Darkness].RankName}
