@@ -151,6 +151,22 @@ Sub mag_mana_check
 		}
 	}
 
+	| Do (self) modrod here
+
+	|**
+	/if (${Me.PctMana} < 90) {
+		/if (${validate_cast[FALSE, alt, "Azure Mind Crystal", ${Me.ID}]}) {
+			/call core_cast2 "Azure Mind Crystal" alt 0 FALSE
+
+			/if (${Me.FreeInventory} >= 1) /autoinventory
+
+			/if (${validate_cast[FALSE, item, "Azure Mind Crystal ${AzureMindCrystalRank}", ${Me.ID}]}) {
+				/call core_cast2 "Azure Mind Crystal ${AzureMindCrystalRank}" item 0 FALSE
+			}
+		}
+	}
+	**|
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: combat
