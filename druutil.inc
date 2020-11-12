@@ -51,14 +51,13 @@ Sub dru_setup
 	/declare Mask 				string outer NULL
 	/declare TwincastSpell 		string outer NULL
 	/declare ShmAllianceBuff 	string outer NULL
+	/declare SpellSet			string outer Balanced
 
 	/declare PosseSpell				string outer NULL
 
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
 
-	/declare LoadoutType 			string outer NULL
-	/varset LoadoutType Balanced
 /return 
 |* ------------------------------------------------------------------------------------------
 | SUB: ${Me.Class.ShortName.Lower}_load_spellbar
@@ -68,7 +67,7 @@ Sub dru_load_spellbar
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
 
-	/if (${LoadoutType.Equal["Balanced"]}) {
+	/if (${SpellSet.Equal[Balanced]}) {
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
 			/call LoadSpellGem "${Revitalization}" 1
 			/call LoadSpellGem "${Adrenaline}" 2
@@ -144,7 +143,7 @@ Sub dru_load_spellbar
 			/call LoadSpellGem "${DichoSpell}" 7
 			/call LoadSpellGem "${Cyclonic}" 8
 		}
-	} else /if (${LoadoutType.Equal["Heal"]}) {
+	} else /if (${SpellSet.Equal[Heal]}) {
 		/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
 			/call LoadSpellGem "${Revitalization}" 1
 			/call LoadSpellGem "${Adrenaline}" 2

@@ -63,6 +63,8 @@ TODO:
 		Frostreave Breath
 		Skin to Sumac
 		Glistening Frost
+
+	Add SpellSet for Dots vs Nukes
 **|
 
 Sub dru_main
