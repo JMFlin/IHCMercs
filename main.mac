@@ -264,6 +264,7 @@ Sub go_sell
 		/target id ${_nearestMerchant}
 		/autoloot sell
 		/delay 1m  ${Window[MerchantWnd].Open}
+		/delay 5s
 		/if (${Mode} == 8) /varset Mode 0
 		/return TRUE
 	}
