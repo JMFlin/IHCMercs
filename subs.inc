@@ -181,8 +181,6 @@ Sub var_setup
 	/declare worstHurtId 		int outer 0
 
 	/declare powerLevel 		bool outer FALSE
-	/declare goSell 			bool outer FALSE
-	/declare Sold				bool outer FALSE
 
 	/declare newPosseXY			int outer 100
 	/declare oldPosseXY			int outer 100
