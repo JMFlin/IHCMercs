@@ -289,32 +289,33 @@ Sub ber_combat
 
 	/if (${validate_cast[FALSE, disc, "${Dvolley}", ${Target.ID}]}) /call core_cast2 "${Dvolley}" disc ${Target.ID} FALSE
 
-	|**
-	/if (${stunTurn} && ${classTotal} > 1) {
+	/if (${berDoStun} && !${immuneSet.Contains[${Target.ID}]} && ${stunTurn} && ${classTotal} > 1) {
 		/if (${validate_cast[FALSE, disc, "${Stun}", ${Target.ID}]}) {
 			
 			| Cast stun
 			/call core_cast2 "${Stun}" disc ${Target.ID} FALSE
-			/delay 5
+			/call check_cast_events "${Stun}" CAST_IMMUNE ${Target.ID}
 
-			| Get next in rotation
-			/call get_next_in_rotation
-			/varset berStunCaster ${Macro.Return}
-			
-			| Announce the next one
-			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt ******** NEXT SHOULD BE ${berStunCaster} *********
+			/if (!${immuneSet.Contains[${Target.ID}]}) {
+				
+				| Get next in rotation
+				/call ber_stun_get_next_in_rotation
+				/varset berStunCaster ${Macro.Return}
+				
+				| Announce the next one
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt ******** NEXT SHOULD BE ${berStunCaster} *********
 
-			| Tell the next one in line that it is their turn
-			/squelch /dex ${berStunCaster} /varset stunTurn 1
-			/squelch /dex ${berStunCaster} /varset berStunCounter ${berStunCounter}
+				| Tell the next one in line that it is their turn
+				/squelch /dex ${berStunCaster} /varset stunTurn 1
+				/squelch /dex ${berStunCaster} /varset berStunCounter ${berStunCounter}
 
-			| Done casting for this round
-			/varset stunTurn 0
+				| Done casting for this round
+				/varset stunTurn 0
+			}
 		}
 	} else {
-		**|
-	/if (${validate_cast[FALSE, disc, "${Daxethrow}", ${Target.ID}]}) /call core_cast2 "${Daxethrow}" disc ${Target.ID} FALSE
-	|}
+		/if (${validate_cast[FALSE, disc, "${Daxethrow}", ${Target.ID}]}) /call core_cast2 "${Daxethrow}" disc ${Target.ID} FALSE
+	}
 
 	/if (${validate_cast[FALSE, disc, "${Daxeof}", ${Target.ID}]}) /call core_cast2 "${Daxeof}" disc ${Target.ID} FALSE
 
@@ -353,8 +354,8 @@ Sub make_axes(string AxeName, string AxeComponents)
 	
 /return
 
-|**
-Sub get_next_in_rotation
+
+Sub ber_stun_get_next_in_rotation
 
   	/declare _counter   int local 1
   	/declare si setiterator local
@@ -380,4 +381,3 @@ Sub get_next_in_rotation
 	}
 
 /return ${berStunCaster}
-**|

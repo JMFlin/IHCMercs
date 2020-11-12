@@ -23,7 +23,7 @@ Sub wiz_setup
 	/declare DichoSpell				string 	outer	NULL
 	/declare ClawNuke				string 	outer	NULL
 	/declare CloudburstNuke			string 	outer	NULL
-	/declare FuseNuke				string 	outer	NULL
+	/declare BraidNuke				string 	outer	NULL
 	/declare FireEtherealNuke		string 	outer	NULL
 	/declare MagmaticAENuke			string 	outer	NULL
 	/declare ChaosNuke				string 	outer	NULL
@@ -32,6 +32,7 @@ Sub wiz_setup
 	/declare ColdEtherealNuke		string 	outer	NULL
 	/declare GambitSpell			string 	outer	NULL
 	/declare WildNuke				string 	outer	NULL
+	/declare LowerWildNuke 			string 	outer 	NULL
 	/declare FastNuke1				string 	outer	NULL
 	/declare GeneralNuke1			string 	outer	NULL
   |-Pet
@@ -75,7 +76,7 @@ Sub wiz_load_spellbar
 		/call LoadSpellGem "${ColdEtherealNuke}" 3
 
 		/call LoadSpellGem "${FireEtherealNuke}" 4
-		/call LoadSpellGem "${FuseNuke}" 5
+		/call LoadSpellGem "${BraidNuke}" 5
 
 		/call LoadSpellGem "${TwincastSpell}" 6
 		/call LoadSpellGem "${DichoSpell}" 7
@@ -95,7 +96,7 @@ Sub wiz_load_spellbar
 		/call LoadSpellGem "${ColdEtherealNuke}" 3
 
 		/call LoadSpellGem "${FireEtherealNuke}" 4
-		/call LoadSpellGem "${FuseNuke}" 5
+		/call LoadSpellGem "${BraidNuke}" 5
 
 		/call LoadSpellGem "${TwincastSpell}" 6
 		/call LoadSpellGem "${DichoSpell}" 7
@@ -112,7 +113,7 @@ Sub wiz_load_spellbar
 		/call LoadSpellGem "${CloudburstNuke}" 2
 		/call LoadSpellGem "${ColdEtherealNuke}" 3
 		/call LoadSpellGem "${FireEtherealNuke}" 4
-		/call LoadSpellGem "${FuseNuke}" 5
+		/call LoadSpellGem "${BraidNuke}" 5
 		/call LoadSpellGem "${TwincastSpell}" 6
 		/call LoadSpellGem "${JoltSpell}" 7
 		/call LoadSpellGem "${HarvestSpell1}" 8
@@ -383,34 +384,43 @@ Sub wiz_abilities
 		/varset CloudburstNuke ${Spell[Cloudburst Strike].RankName}
 	} 
 
-|-FuseNuke
+|-BraidNuke
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Confluence].RankName}]}) {
-		/varset FuseNuke ${Spell[Ethereal Confluence].RankName}
+		/varset BraidNuke ${Spell[Ethereal Confluence].RankName}
 	} else /if (${Me.Level}>=110 && ${Me.Book[${Spell[Ethereal Braid].RankName}]}) {
-		/varset FuseNuke ${Spell[Ethereal Braid].RankName}
+		/varset BraidNuke ${Spell[Ethereal Braid].RankName}
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Ethereal Fuse].RankName}]}) {
-		/varset FuseNuke ${Spell[Ethereal Fuse].RankName}
+		/varset BraidNuke ${Spell[Ethereal Fuse].RankName}
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Ethereal Weave].RankName}]}) {
-		/varset FuseNuke ${Spell[Ethereal Weave].RankName}
+		/varset BraidNuke ${Spell[Ethereal Weave].RankName}
 	}
 |-WildNuke: Kizant uses Wildether barrage and wild spark barrage in TBL with fury of gods
-	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Wildflash Strike].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Wildflash Strike].Level} && ${Me.Book[${Spell[Wildflash Strike].RankName}]}) {
 		/varset WildNuke ${Spell[Wildflash Strike].RankName}
-	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Wildflash Barrage].RankName}]}) {
+		/varset LowerWildNuke ${Spell[Wildflash Barrage].RankName}
+	} else /if (${Me.Level}>=${Spell[Wildflash Barrage].Level} && ${Me.Book[${Spell[Wildflash Barrage].RankName}]}) {
 		/varset WildNuke ${Spell[Wildflash Barrage].RankName}
-	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Wildether Barrage].RankName}]}) {
+		/varset LowerWildNuke ${Spell[Wildether Barrage].RankName}
+	} else /if (${Me.Level}>=${Spell[Wildether Barrage].Level} && ${Me.Book[${Spell[Wildether Barrage].RankName}]}) {
 		/varset WildNuke ${Spell[Wildether Barrage].RankName}
-	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Wildspark Barrage].RankName}]}) {
+		/varset LowerWildNuke ${Spell[Wildspark Barrage].RankName}
+	} else /if (${Me.Level}>=${Spell[Wildspark Barrage].Level} && ${Me.Book[${Spell[Wildspark Barrage].RankName}]}) {
 		/varset WildNuke ${Spell[Wildspark Barrage].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Wildmana Barrage].RankName}]}) {
+		/varset LowerWildNuke ${Spell[Wildmana Barrage].RankName}
+	} else /if (${Me.Level}>=${Spell[Wildmana Barrage].Level} && ${Me.Book[${Spell[Wildmana Barrage].RankName}]}) {
 		/varset WildNuke ${Spell[Wildmana Barrage].RankName}
-	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Wildmagic Blast].RankName}]}) {
+		/varset LowerWildNuke ${Spell[Wildmagic Blast].RankName}
+	} else /if (${Me.Level}>=${Spell[Wildmagic Blast].Level} && ${Me.Book[${Spell[Wildmagic Blast].RankName}]}) {
 		/varset WildNuke ${Spell[Wildmagic Blast].RankName}
-	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Wildmagic Burst].RankName}]}) {
+		/varset LowerWildNuke ${Spell[Wildmagic Burst].RankName}
+	} else /if (${Me.Level}>=${Spell[Wildmagic Burst].Level} && ${Me.Book[${Spell[Wildmagic Burst].RankName}]}) {
 		/varset WildNuke ${Spell[Wildmagic Burst].RankName}
-	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Wildmagic Strike].RankName}]}) {
+		/varset LowerWildNuke ${Spell[Wildmagic Strike].RankName}
+	} else /if (${Me.Level}>=${Spell[Wildmagic Strike].Level} && ${Me.Book[${Spell[Wildmagic Strike].RankName}]}) {
 		/varset WildNuke ${Spell[Wildmagic Strike].RankName}
 	}
+
+
 |-VortexNuke
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Stormjolt Vortex].RankName}]}) {
 		/varset VortexNuke ${Spell[Stormjolt Vortex].RankName}
@@ -539,8 +549,8 @@ Sub wiz_abilities
 
 	| This is for using Ice Comet line during lower levels of play before having access to Fuse. 
 	| This keeps the weave correct in combatdps. 
-	/if (!${Me.Book[${FuseNuke}]}) {
-		/varset FuseNuke ${ColdEtherealNuke}
+	/if (!${Me.Book[${BraidNuke}]}) {
+		/varset BraidNuke ${ColdEtherealNuke}
 	}
 
 	/if (${Me.Level}>=83 && ${Me.Book[${Spell[Nethermist Guard].RankName}]}) {

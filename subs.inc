@@ -198,7 +198,8 @@ Sub var_setup
 	/declare doNotBuff 			bool outer FALSE
 
 |- Snares
-	/declare doSnare 			bool outer False	
+	/declare doSnare 			bool outer False
+	/declare berDoStun 			bool outer False
 
 	/declare MainTargetID			int outer 0
 

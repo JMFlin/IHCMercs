@@ -1,6 +1,32 @@
 |----------------------------------------------------------------------------
 |- SUB: wiz_main
 |----------------------------------------------------------------------------
+|**
+First burn:
+	Focus of Arcanum
+	Fury of the Gods
+	Arcane Fury
+	second spire
+	glyph of the cataclysm
+	Twincast spell
+
+	Unitl the spell version of your twincast runs out:
+	claw > braid > wildether barrage > wildspark barrage
+
+Second burn:
+	Arcane Destruction
+	Frenzied Devastation
+	Improved Twincast
+
+	braid > dichotomic > ethereal skyfire > ethereal Icefloe
+	After braid, Alliance, Dissident, use Forceful Rejuvenation.
+
+Non-burn:
+	claw > braid > cloudburst thunderbolt / Dissident > fire ethereal
+
+	Alliance & Vortex need to fit in as well, i manually cast these.  Try to cast them as much as possible.
+**|
+
 Sub wiz_main
 	/if (${powerLevel}) {
 		/return
@@ -21,43 +47,66 @@ Sub wiz_main
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
+		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call wiz_burn_routine
+
 		/if (${Target.Named} || ${Target.PctHPs} > 90) {
 			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
 		}
 
-		
 		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
 			/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
 			}
-		} 
-		|**
-		else /if (${Target.PctHPs} < 40 && !${Target.Rooted.ID} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			/if (${validate_cast[FALSE, spell, "${RootSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${RootSpell}" spell ${Target.ID} FALSE
-				/call check_cast_events "${RootSpell}" CAST_IMMUNE ${Target.ID}
-			}
 		}
-		**|
-		
-
-		|/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
-		|	/call core_cast2 "${SelfRune1}" spell 0 FALSE
-		|}
 		
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" spell 0 FALSE
 		
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call wiz_aa_and_disc
 
-		/if (${Me.Buff[Improved Twincast].ID}) {
-
-			/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
-				/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
+		/if (${Me.Buff[${TwincastSpell}].ID}) {
+			|** 
+				claw > braid > wildether barrage > wildspark barrage
+			**|
+			/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
 			}
-			
+
+			/if (${validate_cast[FALSE, spell, "${BraidNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${BraidNuke}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, spell, "${LowerWildNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${LowerWildNuke}" spell ${Target.ID} FALSE
+			}
+
+		} else /if (${Me.Buff[Improved Twincast].ID}) {
+			|** 
+				braid > dichotomic > foreful rejuvenation > braid > dichotomic > ethereal skyfire > ethereal Icefloe
+			**|
+			/if (${validate_cast[FALSE, spell, "${BraidNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${BraidNuke}" spell ${Target.ID} FALSE
+			}
+
 			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+				
+				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+
+				/if (${validate_cast[FALSE, spell, "${BraidNuke}", ${Target.ID}]}) {
+					/call core_cast2 "${BraidNuke}" spell ${Target.ID} FALSE
+				}
+
+				/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
+				}
 			}
 
 			/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
@@ -68,38 +117,37 @@ Sub wiz_main
 				/call core_cast2 "${ColdEtherealNuke}" spell ${Target.ID} FALSE
 			}
 
-		} else /if (${Me.Buff[Twincast].ID} && ${Me.Buff[Fury of the Gods].ID}) {
-
-			/if (${validate_cast[FALSE, spell, "${WildNuke}", ${Target.ID}]}) {
-				/call core_cast2 "${WildNuke}" spell ${Target.ID} FALSE
-			}
-
-			/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
-				/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
-			}
-
-			/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
-				/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
-			}
-
 		} else {
-		
+			|** 
+				claw > braid > cloudburst thunderbolt / Dissident > fire ethereal
+			**|
+			
+			| ROTATION
+			/if (${validate_cast[FALSE, spell, "${VortexNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${VortexNuke}" spell ${Target.ID} FALSE
+			}
+			
 			/if (${validate_cast[FALSE, spell, "${ClawNuke}", ${Target.ID}]}) {
 				/call core_cast2 "${ClawNuke}" spell ${Target.ID} FALSE
 			}
 
-			/if (${validate_cast[FALSE, spell, "${FuseNuke}", ${Target.ID}]}) {
-				/call core_cast2 "${FuseNuke}" spell ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${BraidNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${BraidNuke}" spell ${Target.ID} FALSE
 			}
 
-			/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
-				/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+			/if (${Me.PctMana} > 50 && ${Target.PctHPs} > 20) {
+				/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
+				}
+			} else {
+				/if (${validate_cast[FALSE, spell, "${CloudburstNuke}", ${Target.ID}]}) {
+					/call core_cast2 "${CloudburstNuke}" spell ${Target.ID} FALSE
+				}
 			}
-
+			
 			/if (${validate_cast[FALSE, spell, "${FireEtherealNuke}", ${Target.ID}]}) {
 				/call core_cast2 "${FireEtherealNuke}" spell ${Target.ID} FALSE
 			}
-
 		}
 		
 		/call wiz_manage_aggro
@@ -157,6 +205,47 @@ Sub wiz_debuff
 			/call CastSpell "${StripBuffSpell}" ${autotargetid} dbf
 		}
 	}
+/return
+
+|----------------------------------------------------------------------------
+|- SUB: AANDisc
+|---------------------------------------------------------------------------- 
+Sub wiz_burn_routine
+
+	/if (${burnRotation} == 1) {
+		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${TwincastSpell}" spell 0 FALSE
+		}
+		/if (${validate_cast[FALSE, alt, "Focus of Arcanum", ${Me.ID}]}) {
+			/call core_cast2 "Focus of Arcanum" alt 0 FALSE
+		}
+		/if (${validate_cast[FALSE, alt, "Fury of the Gods", ${Me.ID}]}) {
+			/call core_cast2 "Fury of the Gods" alt 0 FALSE
+		}
+		/if (${validate_cast[FALSE, alt, "Arcane Fury", ${Me.ID}]}) {
+			/call core_cast2 "Arcane Fury" alt 0 FALSE
+		}
+		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) { ||||second spire
+			/call core_cast2 "${TwincastSpell}" spell 0 FALSE
+		}
+		/if (!${Me.Buff[${TwincastSpell}].ID}) {
+			/varcalc burnRotation ${burnRotation} + 1
+		}
+	} else /if (${burnRotation} == 2) {
+		/if (${validate_cast[FALSE, alt, "Arcane Destruction", ${Me.ID}]}) {
+			/call core_cast2 "Arcane Destruction" alt 0 FALSE
+		}
+		/if (${validate_cast[FALSE, alt, "Frenzied Devastation", ${Me.ID}]}) {
+			/call core_cast2 "Frenzied Devastation" alt 0 FALSE
+		}
+		/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
+			/call core_cast2 "Improved Twincast" alt 0 FALSE
+		}
+		/if (!${Me.Buff[Improved Twincast].ID}) {
+			/varcalc burnRotation ${burnRotation} - 1
+		}
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
@@ -247,16 +336,16 @@ Sub wiz_combat
 	|	/call CastSpell "${VortexNuke}" ${autotargetid} dps
 	|} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID}) && !${Me.Song[${GambitSpell}].ID} && !${Me.Buff[Twincast].ID} && !${Me.Buff[Improved Twincast].ID} && (${Me.SpellReady[${DichoSpell}]}) && ${Me.CurrentMana}>${Spell[${DichoSpell}].Mana}) {
 	|	/call CastSpell "${DichoSpell}" ${autotargetid} dps
-	|} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${FuseNuke}]}) && ${Me.CurrentMana}>${Spell[${FuseNuke}].Mana}) {
-	|	/call CastSpell "${FuseNuke}" ${autotargetid} dps
+	|} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${BraidNuke}]}) && ${Me.CurrentMana}>${Spell[${BraidNuke}].Mana}) {
+	|	/call CastSpell "${BraidNuke}" ${autotargetid} dps
 	|} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${FireEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${FireEtherealNuke}].Mana}) {
 	|	/call CastSpell "${FireEtherealNuke}" ${autotargetid} dps
 	|} else /if ((${Me.Song[Gift of Mana].ID} || ${Me.Song[Gracious Gift of Mana (105)].ID} || ${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && (${Me.SpellReady[${ColdEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${ColdEtherealNuke}].Mana}) {
 	|	/call CastSpell "${ColdEtherealNuke}" ${autotargetid} dps
 	|} else /if (${Me.Level}>=96 && (${Me.SpellReady[${ClawNuke}]}) && ${Me.CurrentMana}>${Spell[${ClawNuke}].Mana}) {
 	|	/call CastSpell "${ClawNuke}" ${autotargetid} dps
-	|} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FuseNuke}]}) && ${Me.CurrentMana}>${Spell[${FuseNuke}].Mana}) {
-	|	/call CastSpell "${FuseNuke}" ${autotargetid} dps
+	|} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${BraidNuke}]}) && ${Me.CurrentMana}>${Spell[${BraidNuke}].Mana}) {
+	|	/call CastSpell "${BraidNuke}" ${autotargetid} dps
 	|} else /if (!${Me.Song[${GambitSpell}].ID} && (${Me.SpellReady[${FireEtherealNuke}]}) && ${Me.CurrentMana}>${Spell[${FireEtherealNuke}].Mana}) {
 	|	/call CastSpell "${FireEtherealNuke}" ${autotargetid} dps
 	|}
