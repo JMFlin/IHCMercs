@@ -19,21 +19,18 @@ Sub shd_main
 		
 		/call shd_disc
 
-		/if (${Group.MainTank.ID} == ${Me.ID} && !${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			/if (${Me.AltAbilityReady[Encroaching Darkness]}) {
-				/echo ${validate_cast[FALSE, alt, "Encroaching Darkness", ${Target.ID}]}
-				/if (${validate_cast[FALSE, alt, "Encroaching Darkness", ${Target.ID}]}) {
-					/call core_cast2 "Encroaching Darkness" alt ${Target.ID} FALSE
-					/call check_cast_events CAST_IMMUNE "Encroaching Darkness"
-				}
-			} else {
-				/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
-					/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
-					/call check_cast_events CAST_IMMUNE "${SnareSpell}"
-				}
+		|/while (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${Target.ID} && ${Me.XTarget}) {
+		/if (${validate_cast[FALSE, alt, "Encroaching Darkness", ${Target.ID}]}) {
+			/call core_cast2 "Encroaching Darkness" alt ${Target.ID} FALSE
+			/call check_cast_events CAST_IMMUNE "Encroaching Darkness"
+		} else {
+			/if (${validate_cast[FALSE, spell, "${SnareSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${SnareSpell}" spell ${Target.ID} FALSE
+				/call check_cast_events CAST_IMMUNE "${SnareSpell}"
 			}
 		}
-		/call get_target
+		|}
+		
 		/call get_target
 	
 		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
@@ -79,7 +76,15 @@ Sub shd_main
 		/call shd_get_aggro
 
 		/if (${Me.PctHPs} < 65) {
-			/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) /call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
+			/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) {
+				/call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
+			}
+		}
+
+		/if (${Me.PctHPs} < 55) {
+			/if (${validate_cast[FALSE, alt, "Leech Touch", ${Target.ID}]}) {
+				/call core_cast2 "Leech Touch" alt ${Target.ID} FALSE
+			}
 		}
 
 	}
@@ -226,6 +231,11 @@ Sub shd_disc
 			} else {
 				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
 			}
+		}
+
+		/call get_target
+		/if (${validate_cast[FALSE, alt, "Harm Touch", ${Target.ID}]}) {
+			/call core_cast2 "Harm Touch" alt ${Target.ID} FALSE
 		}
 	}
 	

@@ -52,6 +52,8 @@ Sub bst_setup
 	/declare HHEFuryDisc		string outer NULL
 	/declare DmgModDisc			string outer NULL
 	/declare EndRegenProcDisc	string outer NULL
+	/declare Smash 				string outer NULL 
+	
 	
 |-Declare spell variables
 	/declare spellmisc 			int outer 8
@@ -67,53 +69,121 @@ Sub bst_setup
 |* ------------------------------------------------------------------------------------------
 | SUB: ${Me.Class.ShortName.Lower}_load_spellbar
 |------------------------------------------------------------------------------------------ *|
+|**
+Dichotomic Fury, Visoracius’ Maelstrom, Frozen Miasma, Glistenwing Blood, and Kirchen’s Chill
+On my spell bar, you will never see a time where I’m without the following spells loaded: Dichotomic Fury, Visoracius’ Maelstrom, Frozen Miasma, Glistenwing Blood, and Kirchen’s Chill. 
+The rest of the spell bar usually varies based on what I need and what event I’m doing, but those are the standard five that I will always have loaded when I want to do damage.
+
+To actually use this combination of spells, you’re essentially going to treat Glistenwing Blood as another “nuke” while only using Kirchen’s Chill when the mob is going to live long enough to warrant it. 
+Then, just weave in a nuke before each use of a DOT. This will make your real-time spell usage look like the following:
+
+Maelstrom > Glistenwing > Miasma > Glistenwing > Maelstrom > Glistenwing > Miasma … etc.
+
+If you encounter a mob that’s going to live for the better portion of 50 seconds (the duration of Kirchen’s Chill), 
+you’re then going to make use of an audio trigger that searches for the phrase “Your Kirchen’s Chill Rk. III spell has worn off of” and re-apply it only when it fades. 
+That will make your real-time spell usage look like the following:
+
+Maelstrom > Chill > Miasma > Glistenwing > Maelstrom > Glistenwing > Miasma > Glistenwing … … … [Chill fades] … Hit whatever nuke is up > Chill > Hit whatever nuke is up > Glistenwing > Hit whatever nuke is up > 
+Glistenwing (and so on and so forth with the typical weave from before).
+
+As for Dichotomic Fury, you’ll want to make an audio trigger that searches for the phase “The fury fades” since it will let you know when both Dichotomic and Ruaabri’s fade. 
+They are both the same exact Hundred Hands Effect (HHE) modifier for your group, and since Dichotomic is reusable every 60 seconds, this spell single-handedly makes Beastlords one of the best -- 
+if not the best -- ADPS in the entire game. That said, this is exactly why I will use Dichotomic every single time it’s up. 
+In fact, this spell is so good that if there ever comes a time where I must make a choice between using damaging spells and using Dichotomic due to low resources, 
+I’ll actually save the very last 7% of my mana bar for Dichotomic Fury (unless Quick Time happens to be running from the group’s Bard).
+
+Even in the instances where I want to use Ruaabri’s Fury, I’ll be sure to start with Dichotomic Fury first. 
+
+Method 3
+
+Slot 1: Dichotomic Fury (DichoSpell)
+Slot 2: Maelstrom (MaelstromNuke)
+Slot 3: Glistenwing (BloodDoT)
+(Unlinked) Slot 4: Miasma (FrozenNuke)
+(Unlinked) Slot 5: Kirchen’s Chill (ChillDoT)
+
+Result: This is the option that I like to go with, where only the first three slots are linked to the keybind. 
+This will make sure that Maelstrom is always cast before Glistenwing, and then I will manually cast Miasma each time that Maelstrom is on lockout. As discussed, I’ll hit Chill only when it’s warranted.
+
+
+**|
+
 Sub bst_load_spellbar
 	
 	/if (${Me.Standing}) /sit
 	/delay 10 ${Me.Sitting}
 	/echo \aw Loading Spell Bar
-	/call LoadSpellGem "${Mending}" 1
-	/call LoadSpellGem "${AtkBuff}" 2
-	/call LoadSpellGem "${FrozenNuke}" 3
-	/call LoadSpellGem "${MaelstromNuke}" 4
-	/call LoadSpellGem "${BloodDoT}" 5
 	
-	/call LoadSpellGem "${ChillDoT}" 6
-	/call LoadSpellGem "${SlowSpell}" 7
-	/call LoadSpellGem "${SwarmPet}" 8	
 
-|**
-	/call LoadSpellGem "${Mending}" 1
-	/call LoadSpellGem "${AtkBuff}" 2
-	/call LoadSpellGem "${FrozenNuke}" 3
-	/call LoadSpellGem "${MaelstromNuke}" 4
-	/call LoadSpellGem "${BloodDoT}" 5
-	
-	/call LoadSpellGem "${ChillDoT}" 6
-	/call LoadSpellGem "${SlowSpell}" 7
-	/call LoadSpellGem "${SwarmPet}" 8	
-**|
-	
-	|**
-	else /if (${Me.Level}>72 && ${Me.Level}<75) {
-		/call LoadSpellGem "${SwarmPet}" 6
+	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+		/call LoadSpellGem "${Mending}" 1
+		/call LoadSpellGem "${AtkBuff}" 2
+		/call LoadSpellGem "${FrozenNuke}" 3
+		/call LoadSpellGem "${MaelstromNuke}" 4
+		/call LoadSpellGem "${BloodDoT}" 5
+		/call LoadSpellGem "${ChillDoT}" 6
 		/call LoadSpellGem "${SlowSpell}" 7
-		/call LoadSpellGem "${NukeSpell3}" 8
-		/call LoadSpellGem "${PetGrowl}" 9
-		/varset miscspellremem ${PetGrowl}
-	} else /if (${Me.Level}>67 && ${Me.Level}<73) {
-		/call LoadSpellGem "${SwarmPet}" 6
+		/call LoadSpellGem "${SwarmPet}" 8
+		/call LoadSpellGem "${DichoSpell}" 9
+		/call LoadSpellGem "${AllianceSpell}" 10
+
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
+		/call LoadSpellGem "${Mending}" 1
+		/call LoadSpellGem "${AtkBuff}" 2
+		/call LoadSpellGem "${FrozenNuke}" 3
+		/call LoadSpellGem "${MaelstromNuke}" 4
+		/call LoadSpellGem "${BloodDoT}" 5
+		/call LoadSpellGem "${ChillDoT}" 6
 		/call LoadSpellGem "${SlowSpell}" 7
-		/call LoadSpellGem "${PetGrowl}" 8
-	} 
+		/call LoadSpellGem "${SwarmPet}" 8
+		/call LoadSpellGem "${DichoSpell}" 9
+		/call LoadSpellGem "${AllianceSpell}" 10
 	
-	|else {
-	|	/call LoadSpellGem "${PetDamageProc}" 6
-	|	/call LoadSpellGem "${SlowSpell}" 7
-	|	/call LoadSpellGem "${PetSpell}" 8
-	|	/if (${Me.Level}<=55) /varset miscspellremem ${PetSpell}
-	|}
-	**|
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==3) {
+		/call LoadSpellGem "${Mending}" 1
+		/call LoadSpellGem "${AtkBuff}" 2
+		/call LoadSpellGem "${FrozenNuke}" 3
+		/call LoadSpellGem "${MaelstromNuke}" 4
+		/call LoadSpellGem "${BloodDoT}" 5
+		/call LoadSpellGem "${ChillDoT}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${SwarmPet}" 8
+		/call LoadSpellGem "${DichoSpell}" 9
+		/call LoadSpellGem "${AllianceSpell}" 10
+
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==2) {
+		/call LoadSpellGem "${Mending}" 1
+		/call LoadSpellGem "${AtkBuff}" 2
+		/call LoadSpellGem "${FrozenNuke}" 3
+		/call LoadSpellGem "${MaelstromNuke}" 4
+		/call LoadSpellGem "${BloodDoT}" 5
+		/call LoadSpellGem "${ChillDoT}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${SwarmPet}" 8
+		/call LoadSpellGem "${DichoSpell}" 9
+		/call LoadSpellGem "${AllianceSpell}" 10
+
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==1) {
+		/call LoadSpellGem "${Mending}" 1
+		/call LoadSpellGem "${AtkBuff}" 2
+		/call LoadSpellGem "${FrozenNuke}" 3
+		/call LoadSpellGem "${MaelstromNuke}" 4
+		/call LoadSpellGem "${BloodDoT}" 5
+		/call LoadSpellGem "${ChillDoT}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${SwarmPet}" 8
+		/call LoadSpellGem "${DichoSpell}" 9
+	} else {
+		/call LoadSpellGem "${Mending}" 1
+		/call LoadSpellGem "${AtkBuff}" 2
+		/call LoadSpellGem "${FrozenNuke}" 3
+		/call LoadSpellGem "${MaelstromNuke}" 4
+		/call LoadSpellGem "${BloodDoT}" 5
+		/call LoadSpellGem "${ChillDoT}" 6
+		/call LoadSpellGem "${SlowSpell}" 7
+		/call LoadSpellGem "${SwarmPet}" 8
+	}
+
 	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -753,6 +823,12 @@ Sub bst_abilities
 	} else /if (${Me.Level}>=${Spell[Flurry of Claws].Level} && ${Me.CombatAbility[${Spell[Flurry of Claws].RankName}]}) {
 		/varset AEClaws ${Spell[Flurry of Claws].RankName}
 	}
+
+|-Smash
+	/if (${Me.Level}>=${Spell[Gorilla Smash].Level} && ${Me.CombatAbility[${Spell[Gorilla Smash].RankName}]}) {
+		/varset Smash ${Spell[Gorilla Smash].RankName}
+	}
+	
 |-Single target claws*
 	/if (${Me.Level}>=${Spell[Focused Clamor of Claws].Level} && ${Me.CombatAbility[${Spell[Focused Clamor of Claws].RankName}]}) {
 		/varset SingleClaws ${Spell[Focused Clamor of Claws].RankName}

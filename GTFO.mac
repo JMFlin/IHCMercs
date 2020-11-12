@@ -25,7 +25,7 @@
 | Step 1) edit mq2posse.ini and change Radius + ZRadius for each character
 | Step 2) edit each character's kissassist.ini and set "AFKPCRadius". Make it the same as MQ2Posse's radius.
 | All character's radius settings must match.
-------------------------------------------------------------
+| ------------------------------------------------------------
 Sub Main
 	/declare MacroName      string outer GTFO
 	/declare IniFileName      string outer GTFO.ini

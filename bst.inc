@@ -8,21 +8,52 @@ Sub bst_main
 	/while (${Me.XTarget}) {
 		
 		/call get_target
-	
+
 		/if (!${validate_combat[${Target.ID}]}) /continue
+
+		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call bst_burn_routine
 
 		/call engage
 		/call pet_attack ${Target.ID}
+		
+		/if (${validate_cast[FALSE, alt, "Enduring Frenzy", ${Target.ID}]}) {
+			/call core_cast2 "Enduring Frenzy" alt 0 FALSE
+		}
+
+		/if (${Target.Named} || ${Target.PctHPs} > 80) {
+			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
+		}
 
 		/call use_skill_melee ${Target.ID} FALSE
 
-		/if (!${Target.Buff[${BloodDoT}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${BloodDoT}", ${Target.ID}]}) /call core_cast2 "${BloodDoT}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 		}
 
-		/if (${Target.PctHPs} > 30) {
-			/if (${validate_cast[FALSE, spell, "${SwarmPet}", ${Target.ID}]}) /call core_cast2 "${SwarmPet}" spell ${Target.ID} FALSE
+
+		/if (${validate_cast[FALSE, spell, "${MaelstromNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${MaelstromNuke}" spell ${Target.ID} FALSE
 		}
+
+		/if (!${Target.Buff[${BloodDoT}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${BloodDoT}", ${Target.ID}]}) {
+				/call core_cast2 "${BloodDoT}" spell ${Target.ID} FALSE
+			}
+		}
+
+		/if (${validate_cast[FALSE, spell, "${FrozenNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${FrozenNuke}" spell ${Target.ID} FALSE
+		}
+
+		/if (!${Target.Buff[${ChillDoT}].ID} && ${Target.Named}) {
+			/if (${validate_cast[FALSE, spell, "${ChillDoT}", ${Target.ID}]}) {
+				/call core_cast2 "${ChillDoT}" spell ${Target.ID} FALSE
+			}
+		}
+
+		|/if (${Target.PctHPs} > 30) {
+		|	/if (${validate_cast[FALSE, spell, "${SwarmPet}", ${Target.ID}]}) /call core_cast2 "${SwarmPet}" spell ${Target.ID} FALSE
+		|}
 
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
 			
@@ -36,12 +67,28 @@ Sub bst_main
 		/call engage
 		/call pet_attack ${Target.ID}
 
-		/if (${Me.CombatAbilityReady[${Maul}]}) {
-			/if (${validate_cast[FALSE, disc, ${Maul}, ${Target.ID}]}) /call core_cast2 ${Maul} disc ${Target.ID} FALSE
+		|/if (${Me.CombatAbilityReady[${Maul}]}) {
+		/if (${validate_cast[FALSE, disc, ${Maul}, ${Target.ID}]}) /call core_cast2 ${Maul} disc ${Target.ID} FALSE
+		|}
+
+		/if (${validate_cast[FALSE, disc, "Bestial Evulsing", ${Target.ID}]}) {
+			/call core_cast2 "Bestial Evulsing" disc ${Target.ID} FALSE
 		}
 
-		/if (!${Target.Buff[${FrozenNuke}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${FrozenNuke}", ${Target.ID}]}) /call core_cast2 "${FrozenNuke}" spell ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${Smash}", ${Target.ID}]}) {
+			/call core_cast2 "${Smash}" disc ${Target.ID} FALSE
+		}
+
+		/if (${validate_cast[FALSE, alt, "Roaring Strike", ${Target.ID}]}) {
+			/call core_cast2 "Roaring Strike" alt ${Target.ID} FALSE
+		}
+
+		/if (${validate_cast[FALSE, disc, "${SingleClaws}", ${Target.ID}]}) {
+			/call core_cast2 "${SingleClaws}" disc ${Target.ID} FALSE
+		}
+
+		/if (${validate_cast[FALSE, alt, "Attack of the Warders", ${Target.ID}]}) {
+			/call core_cast2 "Attack of the Warders" alt ${Target.ID} FALSE
 		}
 
 		/call get_target
@@ -59,7 +106,8 @@ Sub bst_main
 				/call core_cast2 "${Mending}" spell ${worstHurtId} FALSE
 			}
 		}
-
+		/call bst_mana_check
+		/call bst_pet_hp_check
 		/call move_to_camp
 	}
 	
@@ -70,6 +118,8 @@ Sub bst_main
 |---------------------------------------------------------------------------- 
 Sub bst_self_buff_check
 	/declare CastCheck			int local 0
+
+	| Feralist's Unity
 	
 	/if (${Me.XTarget}) /return
 
@@ -107,6 +157,12 @@ Sub bst_self_buff_check
 				/varset CastCheck 1
 			}
 		}
+
+		/if (!${Me.Pet.Buff[${Me.AltAbility[Companion's Aegis].Rank}]}) {
+			/if (${validate_cast[FALSE, alt, "Companion's Aegis", ${Me.Pet.ID}]}) {
+				/call core_cast2 "Companion's Aegis" alt ${Me.Pet.ID} FALSE
+			}
+		}
 	}
 
 	/if (${validate_cast[FALSE, spell, "${FocusSpell}", ${Me.ID}]}) {
@@ -120,14 +176,73 @@ Sub bst_self_buff_check
 	}
 
 /return
-Sub bst_combat_buffs
+
+
+|----------------------------------------------------------------------------
+|- SUB: AANDisc
+|---------------------------------------------------------------------------- 
+Sub bst_mana_check
+	/if (${Me.PctMana} < 80) {
+		/if (${validate_cast[FALSE, alt, "Consumption of Spirit", ${Me.ID}]}) {
+			/call core_cast2 "Consumption of Spirit" alt 0 FALSE
+		}
+	}
+
+/return
+
+
+|----------------------------------------------------------------------------
+|- SUB: combat 
+|---------------------------------------------------------------------------- 
+Sub bst_pet_hp_check
+	/if (${Me.Pet.ID} < 50) {
+		/if (${validate_cast[FALSE, alt, "Companion's Shielding", ${Me.Pet.ID}]}) {
+			/call core_cast2 "Companion's Shielding" alt 0 FALSE
+		}
+	}
+	/if (${Me.Pet.ID} < 20) {
+		/if (${validate_cast[FALSE, alt, "Second Wind Ward", ${Me.Pet.ID}]}) {
+			/call core_cast2 "Second Wind Ward" alt 0 FALSE
+		}
+	}
+
+	/if (${Me.Pet.ID} < 70) {
+		/if (${validate_cast[FALSE, alt, "Mend Companion", ${Me.Pet.ID}]}) {
+			/call core_cast2 "Mend Companion" alt 0 FALSE
+		}
+	}
 
 /return
 |----------------------------------------------------------------------------
 |- SUB: combat 
 |---------------------------------------------------------------------------- 
-Sub bst_combat
+Sub bst_burn_routine(int _tmpID)
+| Bestial Alignment
+| Bloodlust
+| Enduring Frenzy
+| Frenzy of Spirit
+| Frenzied Swipes + Al'ele's Vindication
 
+	/if (${validate_cast[FALSE, alt, "Bestial Alignment", ${Me.ID}]}) {
+		/call core_cast2 "Bestial Alignment" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Bloodlust", ${Me.ID}]}) {
+		/call core_cast2 "Bloodlust" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Frenzy of Spirit", ${Me.ID}]}) {
+		/call core_cast2 "Frenzy of Spirit" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Frenzied Swipes", ${Me.ID}]}) {
+		/call core_cast2 "Frenzied Swipes" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, disc, "Al'ele's Vindication", ${Me.ID}]}) {
+		/call core_cast2 "Al'ele's Vindication" disc 0 FALSE
+	}
+	
 	
 
 /return

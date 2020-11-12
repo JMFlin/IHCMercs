@@ -75,7 +75,9 @@ Sub ber_main
 		
 		/call use_skill_melee FALSE ${Target.ID}
 
-		/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceDisc}" ${Target.ID}
+		/if (${Target.Named} || ${Target.PctHPs} > 80) {
+			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
+		}
 
 		/call use_skill_melee FALSE ${Target.ID}
 
@@ -135,7 +137,7 @@ Sub ber_main
 				/if (${Me.ActiveDisc.ID} == ${DisconDiscID}) {
 					/stopdisc
 				}
-				/call core_cast2 "${BrutalDisc}" disc 0 FALSE	
+				/call core_cast2 "${BrutalDisc}" disc 0 FALSE
 			}
 			/varset inBetween 1
 		}
@@ -172,7 +174,6 @@ Sub ber_main
 		}
 
 		/if (!${Me.ActiveDisc.ID}) {
-			
 			/if (${inBetween} == 1) {
 				/if (${Me.CombatAbility[${Spell[Disconcerting Discipline].RankName}]}) {
 					/if (${validate_cast[FALSE, disc, "${DisconDisc}", ${Me.ID}]}) {
@@ -223,15 +224,6 @@ Sub ber_main
 	}
 	
 /return
-|----------------------------------------------------------------------------
-|- SUB: AANDisc
-|---------------------------------------------------------------------------- 
-Sub ber_aa_and_disc
-
-	
-	
-	
- /return
 |----------------------------------------------------------------------------
 |- SUB: Combatdps
 |---------------------------------------------------------------------------- 

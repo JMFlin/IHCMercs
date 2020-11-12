@@ -53,6 +53,7 @@ Sub shm_main
 			}
 		}
 
+		/call get_target
 		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
 			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
@@ -137,6 +138,15 @@ Sub shm_main
 				/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
 			}
 		}
+
+		/call get_target
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
+			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
+				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
+				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
+				/call check_cast_events "${SlowSpell}" CAST_IMMUNE ${Target.ID}
+			}
+		}
 		
 		/call get_heal_target 85
 		/varset worstHurtId ${Macro.Return}
@@ -162,23 +172,6 @@ Sub shm_main
 
 	}
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: Single Heal
-|---------------------------------------------------------------------------- 
-Sub shm_single_target_heals
-
-	
-/return
-|----------------------------------------------------------------------------
-|- SUB: HealthToMana
-|---------------------------------------------------------------------------- 
-Sub shm_health_to_mana
-	/if (${Me.PctHPs} >= 40) {
-		/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
-			/call core_cast2 "Cannibalization" alt 0 FALSE
-		}
-	}
 /return
 |----------------------------------------------------------------------------
 |- SUB: debuff_xtarget

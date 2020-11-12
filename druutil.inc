@@ -27,6 +27,7 @@ Sub dru_setup
 	/declare SelfUnity 			string outer NULL
 	/declare RezSpell 				string outer NULL
 	/declare MassRezSpell			string outer NULL
+	/declare TravelSpell 			string outer NULL
 
 	/declare Revitalization 	string outer NULL
 	/declare Curavida 			string outer NULL
@@ -66,10 +67,15 @@ Sub dru_load_spellbar
 	|/call LoadSpellGem "${Lunasalve}" 4
 	/call LoadSpellGem "${Survival}" 5
 	/call LoadSpellGem "${Reptile}" 6
-
+	
 	/call LoadSpellGem "${NBW}" 7
 	/call LoadSpellGem "${SingleFrostAtkDebuff}" 8
 	
+	|/call LoadSpellGem "${Sunflame}" 9 |Sunflame
+	|/call LoadSpellGem "${DoTSpell1}" 10 |Horde of Polybiads
+	|/call LoadSpellGem "${Chill}" 11 |Chill of the Wildtender
+	|/call LoadSpellGem "${Moonbeam}" 12 | Pearlescent Moonbeam
+	|/call LoadSpellGem "${Cyclonic}" 13
 	
 	/if (${Me.Sitting}) /stand
 	/delay 10 ${Me.Standing}
@@ -110,6 +116,8 @@ BALANCED:
 12-   Pearlescent Moonbeam (Cycle with the spell Bosquetener’s Fortitude for a short-burn event) OR Overwhelming Sunray (Cycle with the spell Twincast for extra Twin burn)
 13-   Cyclonic Roar (Cycle with the spell Frostreave Aura or Wildspark Aura for extra cold/fire burst procs for your group)
 **|
+
+	/varset TravelSpell Communion of the Cheetah
 
 	/if (${Me.Level} >= ${Spell[Circle of Knowledge].Level} && ${Me.Book[${Spell[Circle of Knowledge].RankName}]}) {
 		/varset PosseSpell ${Spell[Circle of Knowledge].RankName}
@@ -248,6 +256,10 @@ BALANCED:
 		/varset Curavida ${Spell[Nature's Touch].RankName}
 	} else /if (${Me.Level}>=${Spell[Tunare's Renewal].Level} && ${Me.Book[${Spell[Tunare's Renewal].RankName}]}) {
 		/varset Curavida ${Spell[Tunare's Renewal].RankName}
+	} else /if (${Me.Level}>=${Spell[Forest's Renewal].Level} && ${Me.Book[${Spell[Forest's Renewal].RankName}]}) {
+		/varset Curavida ${Spell[Forest's Renewal].RankName}
+	} else /if (${Me.Level}>=${Spell[Nature's Renewal].Level} && ${Me.Book[${Spell[Nature's Renewal].RankName}]}) {
+		/varset Curavida ${Spell[Nature's Renewal].RankName}
 	}
 
 
@@ -486,7 +498,6 @@ BALANCED:
 		/varset DamageShield ${Spell[Shield of Thistles].RankName}
 	}
 
-
 	/if (${Me.Level}>=${Spell[Icebriar Coat].Level} && ${Me.Book[${Spell[Icebriar Coat].RankName}]}) {
 		/varset SelfDamageShield ${Spell[Icebriar Coat].RankName}
 	} else /if (${Me.Level}>=${Spell[Daggerspike Coat].Level} && ${Me.Book[${Spell[Daggerspike Coat].RankName}]}) {
@@ -523,14 +534,17 @@ BALANCED:
 		/varset SelfDamageShield ${Spell[Thistlecoat].RankName}
 	}
 
-	/if (${Me.Level}>=${Spell[Wildtender's Unity].Level} && ${Me.Book[${Spell[Wildtender's Unity].RankName}]}) {
+	|| CHECK THIS ONCE YOU HAVE THE AAS
+	/if (${Me.AltAbility[Wildtender's Unity].Rank} >= 1) {
+		/varset SelfUnity Wildtender's Unity
+	} else /if (${Me.Level}>=${Spell[Wildtender's Unity].Level} && ${Me.Book[${Spell[Wildtender's Unity].RankName}]}) {
 		/varset SelfUnity ${Spell[Wildtender's Unity].RankName}
 	} else /if (${Me.Level}>=${Spell[Copsetender's Unity].Level} && ${Me.Book[${Spell[Copsetender's Unity].RankName}]}) {
 		/varset SelfUnity ${Spell[Copsetender's Unity].RankName}
 	} else /if (${Me.Level}>=${Spell[Natural Unity].Level} && ${Me.Book[${Spell[Natural Unity].RankName}]}) {
 		/varset SelfUnity ${Spell[Natural Unity].RankName}
 	}
-
+	|| How does this work with FireACDebuff aa?
 	/if (${Me.Level}>=${Spell[Restless Frost].Level} && ${Me.Book[${Spell[Restless Frost].RankName}]}) {
 		/varset SingleFrostAtkDebuff ${Spell[Restless Frost].RankName}
 	} else /if (${Me.Level}>=${Spell[Glistening Frost].Level} && ${Me.Book[${Spell[Glistening Frost].RankName}]}) {
@@ -676,6 +690,16 @@ BALANCED:
 		/varset Mask ${Spell[Mask of the Hunter].RankName}
 	} else /if (${Me.Level}>=${Spell[Mask of the Stalker].Level} && ${Me.Book[${Spell[Mask of the Hunter].RankName}]}) {
 		/varset Mask ${Spell[Mask of the Hunter].RankName}
+	}
+
+	|- AllianceBuff
+	/if (${Me.Level}>=${Spell[Bosquetender's Alliance].Level} && ${Me.Book[${Spell[Bosquetender's Alliance].RankName}]}) {
+		/varset AllianceBuff ${Spell[Bosquetender's Alliance].RankName}
+	}
+
+	|- Growth Buff
+	/if (${Me.Level}>=${Spell[Nourishing Growth].Level} && ${Me.Book[${Spell[Nourishing Growth].RankName}]}) {
+		/varset GrowthBuff ${Spell[Nourishing Growth].RankName}
 	}
 
 	/delay 1s

@@ -4,18 +4,36 @@
 Sub mag_main
 	/if (${powerLevel}) {
 		/return
-	} 
+	}
 
 	/call mag_self_buff_check FALSE
 
 	/while (${Me.XTarget}) {
-
+		
+		/call mag_mana_check
+		/call mag_pet_hp_check
+		
+		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call mag_burn_routine
 		/call get_target
 		/if (!${validate_combat[${Target.ID}]}) /continue
+		
 		/call pet_attack ${Target.ID}
 
+		/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) {
+			/call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
+		}
+
+		/if (${Target.Named} || ${Target.PctHPs} > 80) {
+			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
+		}
+
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${TwincastSpell}" spell ${Target.ID} FALSE
+			/call core_cast2 "${TwincastSpell}" spell 0 FALSE
+		}
+		/if (${Me.Buff[Improved Twincast].ID} && ${Me.Buff[Twincast].ID}) {
+			/if (${validate_cast[FALSE, spell, "Companion's Fury", ${Me.Pet.ID}]}) {
+				/call core_cast2 "Companion's Fury" spell 0 FALSE
+			}
 		}
 
 		/if (${Me.Buff[Improved Twincast].ID}) {
@@ -26,6 +44,19 @@ Sub mag_main
 
 			/if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {
 				/call core_cast2 "${ManySpell}" spell ${Target.ID} FALSE
+			}
+
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+				
+				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+
+				/if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
+				}
+
+				/if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {
+					/call core_cast2 "${ManySpell}" spell ${Target.ID} FALSE
+				}
 			}
 			
 			/if (${validate_cast[FALSE, spell, "${SpearSpell1}", ${Target.ID}]}) {
@@ -79,30 +110,46 @@ Sub mag_main
 			/if (${validate_cast[FALSE, spell, "${ChaoticSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${ChaoticSpell}" spell ${Target.ID} FALSE
 			}
-
+		}
+		/if (${Target.PctAggro} > 70) {
+			/if (${validate_cast[FALSE, alt, "Arcane Whisper", ${Target.ID}]}) {
+				/call core_cast2 "Arcane Whisper" alt ${Target.ID} FALSE
+			}
 		}
 	}
 	
 /return
 |----------------------------------------------------------------------------
-|- SUB: DebuffMobs
+|- SUB: AANDisc
 |---------------------------------------------------------------------------- 
-Sub mag_debuff
-	/if (${Me.Casting.ID}) /return
-	/if (${Target.Beneficial.ID} && !${Me.Moving} && !${Target.Type.Equal[Corpse]} && ${Target.LineOfSight}) {
-		/if (${Me.AltAbilityReady[${StripBuffSpell}]}) {
-			/alt act ${Me.AltAbility[${StripBuffSpell}].ID}
-			/delay 10 ${Window[CastingWindow].Open}
-			/delay 10 !${Me.Casting.ID}
-		} else /if (${Me.SpellReady[${StripBuffSpell}]}) {
-			/call CastSpell "${StripBuffSpell}" ${autotargetid} dbf
+Sub mag_pet_hp_check
+	/if (${Me.Pet.ID} < 50) {
+		/if (${validate_cast[FALSE, alt, "Companion's Shielding", ${Me.Pet.ID}]}) {
+			/call core_cast2 "Companion's Shielding" alt 0 FALSE
 		}
 	}
+	/if (${Me.Pet.ID} < 20) {
+		/if (${validate_cast[FALSE, alt, "Second Wind Ward", ${Me.Pet.ID}]}) {
+			/call core_cast2 "Second Wind Ward" alt 0 FALSE
+		}
+	}
+
+	/if (${Me.Pet.ID} < 70) {
+		/if (${validate_cast[FALSE, alt, "Mend Companion", ${Me.Pet.ID}]}) {
+			/call core_cast2 "Mend Companion" alt 0 FALSE
+		}
+	}
+
 /return
 |----------------------------------------------------------------------------
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
-Sub mag_aa_and_disc
+Sub mag_mana_check
+	/if (${Me.PctMana} < 25) {
+		/if (${validate_cast[FALSE, alt, "Elemental Conversion", ${Me.ID}]}) {
+			/call core_cast2 "Elemental Conversion" alt 0 FALSE
+		}
+	}
 
 /return
 |----------------------------------------------------------------------------
@@ -125,48 +172,100 @@ Sub mag_self_buff_check(bool _debug)
 	
 	/if (${Me.XTarget}) /return
 
+	/if (${validate_cast[FALSE, alt, "Thaumaturge's Unity", ${Me.ID}]}) {
+		/call core_cast2 "Thaumaturge's Unity" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Elemental Form", ${Me.ID}]}) {
+		/call core_cast2 "Elemental Form" alt 0 FALSE
+	}
+
 	/if (${validate_cast[FALSE, FIND, "${SelfHPBuff}", ${Me.ID}]}) {
-		/call core_cast2 "${SelfHPBuff}" FIND ${Me.ID} FALSE
+		/while (!${Me.Buff[${SelfHPBuff}].ID}) {
+			/call core_cast2 "${SelfHPBuff}" FIND 0 FALSE
+		}
+		/varset CastCheck 1
+	}
+
+	/if (${validate_cast[FALSE, spell, "${BodyguardSpell}", ${Me.ID}]}) {
+		/while (!${Me.Buff[${BodyguardSpell}].ID}) {
+			/call core_cast2 "${BodyguardSpell}" spell 0 FALSE
+		}
+		/varset CastCheck 1
+	}
+
+	/if (${validate_cast[FALSE, spell, "${ShieldSpell}", ${Me.ID}]}) {
+		/while (!${Me.Buff[${ShieldSpell}].ID}) {
+			/call core_cast2 "${ShieldSpell}" spell 0 FALSE
+		}
 		/varset CastCheck 1
 	}
 
     /if (!${Me.Pet.ID}) {
 		/if (${validate_cast[FALSE, spell, "${PetSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${PetSpell}" spell ${Me.ID} FALSE
+			/while (!${Me.Pet.ID}) {
+				/call core_cast2 "${PetSpell}" spell 0 FALSE
+			}
 			/varset CastCheck 1
 		}
 	}
 
 	/if (${Me.Pet.ID}) {
 		
-		/call cast_summon_weapons
+		|/call cast_summon_weapons
 
 		/if (!${Me.Pet.Buff[${BurnoutSpell}]}) {
 			/if (${validate_cast[FALSE, spell, "${BurnoutSpell}", ${Me.Pet.ID}]}) {
-				/call core_cast2 "${BurnoutSpell}" spell ${Me.Pet.ID} FALSE
+				/while (!${Me.Pet.Buff[${BurnoutSpell}]}) {
+					/call core_cast2 "${BurnoutSpell}" spell ${Me.Pet.ID} FALSE
+				}
 				/varset CastCheck 1
 			}
 		}
 
 		/if (!${Me.Pet.Buff[${PetProc}]}) {
 			/if (${validate_cast[FALSE, spell, "${PetProc}", ${Me.Pet.ID}]}) {
-				/call core_cast2 "${PetProc}" spell ${Me.Pet.ID} FALSE
+				/while (!${Me.Pet.Buff[${PetProc}]}) {
+					/call core_cast2 "${PetProc}" spell ${Me.Pet.ID} FALSE
+				}
 				/varset CastCheck 1
 			}
 		}
 
-		/if (!${Me.Pet.Buff[${PetMalo}]}) {
-			/if (${validate_cast[FALSE, spell, "${PetMalo}", ${Me.Pet.ID}]}) {
-				/call core_cast2 "${PetMalo}" spell ${Me.Pet.ID} FALSE
+		/if (!${Me.Pet.Buff[${Iceflame}]}) {
+			/if (${validate_cast[FALSE, spell, "${Iceflame}", ${Me.Pet.ID}]}) {
+				/while (!${Me.Pet.Buff[${Iceflame}]}) {
+					/call core_cast2 "${Iceflame}" spell ${Me.Pet.ID} FALSE
+				}
 				/varset CastCheck 1
 			}
 		}
 
 		/if (${validate_cast[FALSE, spell, "${ChaoticHeal}", ${Me.ID}]}) {
-			/call core_cast2 "${ChaoticHeal}" spell ${Me.ID} FALSE
+			/while (!${Me.Buff[${ChaoticHeal}].ID}) {
+				/call core_cast2 "${ChaoticHeal}" spell ${Me.ID} FALSE
+			}
 			/varset CastCheck 1
 		}
-		
+
+		/if (!${Me.Pet.Buff[${Me.AltAbility[Velocity].Rank}]}) {
+			/if (${validate_cast[FALSE, alt, "Velocity", ${Me.Pet.ID}]}) {
+				/call core_cast2 "Velocity" alt 0 FALSE
+			}
+		}
+
+
+		/if (!${Me.Pet.Buff[${Me.AltAbility[Host in the Shell].Rank}]}) {
+			/if (${validate_cast[FALSE, alt, "Host in the Shell", ${Me.Pet.ID}]}) {
+				/call core_cast2 "Host in the Shell" alt 0 FALSE
+			}
+		}
+
+		/if (!${Me.Pet.Buff[${Me.AltAbility[Companion's Aegis].Rank}]}) {
+			/if (${validate_cast[FALSE, alt, "Companion's Aegis", ${Me.Pet.ID}]}) {
+				/call core_cast2 "Companion's Aegis" alt 0 FALSE
+			}
+		}
 	}
 
 	/if (${CastCheck}) {
@@ -178,7 +277,43 @@ Sub mag_self_buff_check(bool _debug)
 |----------------------------------------------------------------------------
 |- SUB: BurnRoutine
 |---------------------------------------------------------------------------- 
+
 Sub mag_burn_routine
+
+	/if (${validate_cast[FALSE, alt, "Silent Casting", ${Me.ID}]}) {
+		/call core_cast2 "Silent Casting" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Dimensional Shield", ${Me.ID}]}) {
+		/call core_cast2 "Dimensional Shield" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Heart of Skyfire", ${Me.ID}]}) {
+		/call core_cast2 "Heart of Skyfire" alt 0 FALSE
+	}
+	/if (${validate_cast[FALSE, alt, "Heart of Froststone", ${Me.ID}]}) {
+		/call core_cast2 "Heart of Froststone" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Spire of Elements", ${Me.ID}]}) {
+		/call core_cast2 "Spire of Elements" alt 0 FALSE
+	}
+	/if (${validate_cast[FALSE, alt, "Shield of the Elements", ${Me.ID}]}) {
+		/call core_cast2 "Shield of the Elements" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Focus of Arcanum", ${Me.ID}]}) {
+		/call core_cast2 "Focus of Arcanum" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Thaumaturge's Focus", ${Me.ID}]}) {
+		/call core_cast2 "Thaumaturge's Focus" alt 0 FALSE
+	}
+
+	/if (!${Me.Buff[Twincast].ID} && ${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
+		/call core_cast2 "Improved Twincast" alt 0 FALSE
+	}
+	
 
 /return
 |----------------------------------------------------------------------------
@@ -202,7 +337,6 @@ Sub mag_manage_aggro
  *	NOTE: 0 on full bag inventory, you can pass an optional name to find an item in a top slot
  ***|
 sub get_open_pack_slot(string _orFind, bool _debug)
-	DEBUG get_open_pack_slot()
 
 	/declare _count int local 0
 
@@ -222,7 +356,6 @@ sub get_open_pack_slot(string _orFind, bool _debug)
  *	NOTE: 1 item at a fucking time.. seriously people...
  ***|
 sub give_to_pet(string _item)
-	DEBUG give_to_pet(${_item})
 	
 	| get pet as target
 	/if (${Target.ID} != ${Me.Pet.ID}) {
@@ -251,7 +384,6 @@ sub give_to_pet(string _item)
  *	NOTE: 
  ***|
 sub cast_summon_weapons
-	DEBUG cast_summon_weapons
 
 	| Check if spell level less than 76 because mage pets auto equipped after that.
 
@@ -269,7 +401,7 @@ sub cast_summon_weapons
 
 	| need a non bag inventory slot or ur fuckled!
 	/varset _openPackSlot ${get_open_pack_slot[None]}
-	DEBUG _openPackSlot ${_openPackSlot}
+
 	/if (!${_openPackSlot} && !${FindItemCount[=${setMAGPetWepName}]}) {
 		| OUT ${onotice} ${sep} You have no TOP inventory slots that are not bags.
 		| OUT Clean up your damn inventory then you can give your pet some weapons.

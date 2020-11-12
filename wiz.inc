@@ -2,7 +2,9 @@
 |- SUB: wiz_main
 |----------------------------------------------------------------------------
 Sub wiz_main
-
+	/if (${powerLevel}) {
+		/return
+	} 
 	/call wiz_self_buff_check FALSE
 
 	/call wiz_check_mana
@@ -10,8 +12,6 @@ Sub wiz_main
 	/while (${Me.XTarget}) {
 
 		/call move_to_camp
-
-		/call wiz_check_mana
 
 		/call get_target
 
@@ -42,15 +42,10 @@ Sub wiz_main
 		|/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
 		|	/call core_cast2 "${SelfRune1}" spell 0 FALSE
 		|}
-
-		/if (${Me.PctMana} < 70) {
-			
-			| Trigger first harvest
-			/if (${validate_cast[FALSE, spell, "${GambitSpell}", ${Me.ID}]}) /call core_cast2 "${GambitSpell}" spell 0 FALSE
-		}
 		
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" spell 0 FALSE
 		
+		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call wiz_aa_and_disc
 
 		/if (${Me.Buff[Improved Twincast].ID}) {
 
@@ -105,6 +100,7 @@ Sub wiz_main
 		}
 		
 		/call wiz_manage_aggro
+		/call wiz_check_mana
 	}
 	
 |-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0) /call BegForCure
@@ -120,15 +116,26 @@ sub wiz_check_mana
 	/if (${Me.PctMana} < 80) {
 		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
 	}
-	
+	/if (${Me.PctMana} < 70) {
+		/if (${validate_cast[FALSE, spell, "${GambitSpell}", ${Me.ID}]}) /call core_cast2 "${GambitSpell}" spell 0 FALSE
+		/return
+	}
 	/if (${Me.PctMana} < 70) {
 		/if (${validate_cast[FALSE, alt, "Harvest of Druzzil", ${Me.ID}]}) /call core_cast2 "Harvest of Druzzil" alt 0 FALSE
+		/return
 	}
-	
-	/if (${Me.PctMana} < 20 || ${Me.PctMana} < ${Limit}) {
-			
-		| Trigger first harvest
-		/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) /call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
+	/if (${Me.PctMana} < 45 || ${Me.PctMana} < ${Limit}) {
+
+		/if (!${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) {
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+			}
+			/if (${validate_cast[FALSE, FIND, "${HarvestSpell1}", ${Me.ID}]}) {
+				/call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
+			}
+		} else {
+			/call core_cast2 "${HarvestSpell1}" FIND 0 FALSE
+		}
 	}
 
 /return
@@ -152,20 +159,15 @@ Sub wiz_debuff
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
 Sub wiz_aa_and_disc
-	/if (${Target.PctHPs}>20 && ${Me.PctAggro}>50 && ${Me.AltAbilityReady[Concussive Intuition]}) {
-		/alt act ${Me.AltAbility[Concussive Intuition].ID}
-		/delay 5
-	} else /if ((${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${Target.PctHPs}>10 && ${Me.AltAbilityReady[Arcane Whisper]}) {
+	/if (${Me.AltAbilityReady[Arcane Whisper]}) {
 		/alt act ${Me.AltAbility[Arcane Whisper].ID}
 		/delay 5
-	} else /if ((${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${Target.PctHPs}>10 && ${Me.AltAbilityReady[Mind Crash]}) {
+	} else /if (${Target.PctHPs}>10 && ${Me.AltAbilityReady[Mind Crash]}) {
 		/alt act ${Me.AltAbility[Mind Crash].ID}
 		/delay 5
-	} else /if ((${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${Me.AltAbilityReady[Silent Casting]}) {
+	} else /if (${Me.AltAbilityReady[Silent Casting]}) {
 		/alt act ${Me.AltAbility[Silent Casting].ID}
 		/delay 5
-	} else /if (${Target.PctHPs}>20 && ${Me.PctAggro}>=80 && (${Me.SpellReady[${JoltSpell}]}) && ${Me.CurrentMana}>${Spell[${JoltSpell}].Mana}) {
-		/call CastSpell "${JoltSpell}" ${autotargetid} AANDisc
 	} else /if (${Target.PctHPs}>20 && ${Me.PctAggro}>=99 && ${Me.AltAbilityReady[A Hole In Space]}) {
 		/alt act ${Me.AltAbility[A Hole In Space].ID}
 		/delay 5
@@ -178,19 +180,11 @@ Sub wiz_aa_and_disc
 		/alt act ${Me.AltAbility[Focus of Arcanum].ID}
 		/delay 5
 	}
-	/if (${Me.PctMana}<45 && ((!${Me.SpellReady[${GambitSpell}]} && ${Me.Gem[${GambitSpell}]}) || (!${Me.SpellReady[${HarvestSpell}]} && ${Me.Gem[${HarvestSpell}]})) && ${Me.AltAbilityReady[Forceful Rejuvenation]}) {
-		/alt act ${Me.AltAbility[Forceful Rejuvenation].ID}
-		/delay 5
-	}
 	/if (${Cast.Ready[${ChestItemName}]} && ${Me.PctMana}<${HarvestManaPct} && ${ChestCombatCast} && ${FindItem[${ChestItemName}].ID} && !${Me.Song[${GambitSpell}].ID}) {
 		/useitem "${ChestItemName}"
 		/delay 10
 	} else /if (${Me.PctMana}<${HarvestManaPct} && !${Me.Song[${GambitSpell}].ID} && !${Me.Song[Evoker's Synergy I].ID} && ${Me.AltAbilityReady[Harvest of Druzzil]}) {
 		/alt act ${Me.AltAbility[Harvest of Druzzil].ID}
-		/delay 5
-	}
-	/if (${Target.ID} && ${Target.PctHPs}>=50 && ${Target.PctHPs}<=99 && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${Me.AltAbilityReady[Call of Xuzl]}) {
-		/alt act ${Me.AltAbility[Call of Xuzl].ID}
 		/delay 5
 	}
 	/if (${Target.ID} && ${Target.PctHPs}>=80 && ${Target.PctHPs}<=99 && !${Target.Buff[Lower Element III].ID} && ${Me.AltAbilityReady[Lower Element]}) {
@@ -200,11 +194,11 @@ Sub wiz_aa_and_disc
 	/if (!${Me.Song[Arcane Destruction].ID} && ${Me.AltAbilityReady[Frenzied Devastation]}) {
 		/alt act ${Me.AltAbility[Frenzied Devastation].ID}
 		/delay 5
-	} else /if (!${Me.Song[Frenzied Devastation].ID} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${Me.AltAbilityReady[Arcane Destruction]}) {
+	} else /if (!${Me.Song[Frenzied Devastation].ID} && ${Me.AltAbilityReady[Arcane Destruction]}) {
 		/alt act ${Me.AltAbility[Arcane Destruction].ID}
 		/delay 5
 	}
-	/if (${Target.ID} && ${Target.PctHPs} > 1 && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && !${Me.Song[Chromatic Haze].ID} && !${Me.Song[Gift of Chromatic Haze].ID} && (${Me.Song[Arcane Destruction].ID} || ${Me.Song[Frenzied Devastation].ID}) && ${Me.AltAbilityReady[Arcane Fury]}) {
+	/if (!${Me.Song[Chromatic Haze].ID} && !${Me.Song[Gift of Chromatic Haze].ID} && (${Me.Song[Arcane Destruction].ID} || ${Me.Song[Frenzied Devastation].ID}) && ${Me.AltAbilityReady[Arcane Fury]}) {
 		/alt act ${Me.AltAbility[Arcane Fury].ID}
 		/delay 5
 	}
@@ -212,13 +206,13 @@ Sub wiz_aa_and_disc
 		/alt act ${Me.AltAbility[Fundament: Second Spire of Arcanum].ID}
 		/delay 5
 	}
-	/if (${Target.ID} && ${Target.PctHPs}>1 && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && !${Me.Buff[Twincast].ID} && ${Me.AltAbilityReady[Improved Twincast]}) {
+	/if (!${Me.Buff[Twincast].ID} && ${Me.AltAbilityReady[Improved Twincast]}) {
 		/alt act ${Me.AltAbility[Improved Twincast].ID}
 		/delay 5
 	} else /if (!${Me.Buff[Twincast].ID} && !${Me.Buff[Improved Twincast].ID} && (${Me.SpellReady[${TwincastSpell}]}) && ${Me.CurrentMana}>${Spell[${TwincastSpell}].Mana}) {
 		/call CastSpell "${TwincastSpell}" ${autotargetid} dps
 	}
-	/if (${Target.ID} && (${Me.XTarget}>=${BurnMobCount} || (${Target.Named} && ${BurnNamed}) || ${BurnAlways} || ${burnnow}) && ${Target.PctHPs}>=20 && ${Target.PctHPs}<=96 && ${Target.BuffsPopulated} && !${Target.Buff[Mana Burn].ID} && ${Me.AltAbilityReady[Mana Burn]} && ${UseManaBurn}) {
+	/if (${Target.PctHPs}>=20 && ${Target.PctHPs}<=96 && ${Target.BuffsPopulated} && !${Target.Buff[Mana Burn].ID} && ${Me.AltAbilityReady[Mana Burn]}) {
 		/alt act ${Me.AltAbility[Mana Burn].ID}
 		/delay 5
 	}

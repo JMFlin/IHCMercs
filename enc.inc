@@ -6,6 +6,9 @@ Sub enc_main
 	|/call check_resources FALSE "Azure Mind Crystal" alt ${Me.ID} 40
 	|/call check_resources FALSE "${ChestItemName}" item ${Me.ID} 80
 
+	/if (${powerLevel}) {
+		/return
+	} 
 	/call enc_self_buffs
 	/if (!${doNotBuff}) /call enc_group_buffs
 	/call enc_check_mana
@@ -14,8 +17,6 @@ Sub enc_main
 	/while (${Me.XTarget}) {
 
 		/call move_to_camp
-
-		/call enc_check_mana
 
 		| Have we assisted MA?
 		/call get_target
@@ -106,7 +107,7 @@ Sub enc_main
 		/if (${timeForDebuff} == 0 &&  ${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
-		
+		/call enc_check_mana
 	}
 |	/call CheckMana
 |	/if (${UseModRods}) /call ClickModRoD

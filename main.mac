@@ -77,6 +77,7 @@ Sub Main
 
 	/call ${Me.Class.ShortName.Lower}_setup
 	/call ${Me.Class.ShortName.Lower}_abilities
+	/call alliance_rotations
 	/call ${Me.Class.ShortName.Lower}_rotations
 	
 
@@ -108,7 +109,7 @@ Sub afk_radius_camping
     /call remove_travel_buffs
 	/target clear
 	/if (${Group.Puller.ID} == ${Me.ID}) /call ignore_mobs_to_pull
-	/if (${Me.Pet.ID}) /pet guard
+	| /if (${Me.Pet.ID}) /pet guard
 	/if (${Select[${Me.Class.ShortName},CLR,SHM,DRU,BST,ENC]}) /call group_checker
 
 	/while (${Mode} == 3) {
@@ -119,6 +120,8 @@ Sub afk_radius_camping
 		/doevents
 
 		/call misc
+		/if (${Mode} != 0) /call force_create_campfire
+		/if (${goSell}) /call vendor_items
 
 		/call move_to_camp
 		
@@ -199,8 +202,6 @@ sub misc
 	/if (${Window[TaskTemplateSelectWnd].Open}) /notify TaskTemplateSelectWnd TSEL_AcceptButton leftmouseup
  	/if (${Window[ProgressionTemplateSelectWnd].Open}) /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
 	
-	| drop a campfire
-	/if (${Mode} != 0) /call create_campfire
 
 	| pop your merc
 	/if (${Mode} != 0) {
@@ -216,9 +217,6 @@ sub misc
 			}
 		}
 	}
-
-	/if (${goSell}) /call vendor_items
-	
 
 /return
 
@@ -330,6 +328,7 @@ sub validate_fellowship_creation(bool _debug)
 	/if (${Zone.ID} == 202) /return FALSE
 	/if (${Zone.ID} == 344) /return FALSE
 	/if (${Zone.ID} == 345) /return FALSE
+	/if (${Me.Fellowship.Members} == 0) /return FALSE
 
 	/for _count 1 to 10
 
@@ -354,12 +353,12 @@ sub validate_fellowship_creation(bool _debug)
 
 sub force_create_campfire
 	
+	/if (!${validate_fellowship_creation[FALSE]}) /return
+
 	/if (${Me.ID} != ${Group.Leader.ID}) {
 		/delay 30s
 		/return
 	}
-	
-	/if (!${validate_fellowship_creation[FALSE]}) /return
 
 	/while (${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
@@ -546,7 +545,6 @@ Sub check_state(bool _debug)
 					/call ${Me.Class.ShortName.Lower}_load_spellbar
 				}
 			}
-
 		}
 	}
 
@@ -567,7 +565,7 @@ Sub check_state(bool _debug)
 	}
 
 |		/call check_illusion FALSE ${illusionItem}
-	/if (${Me.Standing} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+	/if (${Me.Standing} && !${Me.Casting.ID} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
 	
 /return
 
@@ -599,6 +597,7 @@ Sub move_to_camp
 			/return
 		}
 		/varset _autoCampRadius ${autoCampRadius} * ${Int[${Me.Speed}]} / 100
+		/delay 3
 	}
 
 	/if (${Navigation.Active}) /nav stop
@@ -710,36 +709,30 @@ sub group_checker
 
 	/for _count 0 to ${Group}
 
-		/if (${Select[${Group.Member[${_count}].Class.ShortName},SHM]} && ${Select[${Me.Class.ShortName},BST]}) {
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},SHM]} && ${Select[${Me.Class.ShortName},BST]} && !${bstDoNotBuffShm}) {
 			/varset bstDoNotBuffShm TRUE
-			/break
 		}
 
-		/if (${Select[${Group.Member[${_count}].Class.ShortName},DRU]} && ${Select[${Me.Class.ShortName},BST]}) {
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},DRU]} && ${Select[${Me.Class.ShortName},BST]} && !${bstDoNotBuffDru}) {
 			/varset bstDoNotBuffDru TRUE
-			/break
 		}
 
-		/if (${Select[${Group.Member[${_count}].Class.ShortName},ENC]} && ${Select[${Me.Class.ShortName},BST]}) {
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},ENC]} && ${Select[${Me.Class.ShortName},BST]} && !${bstDoNotBuffEnc}) {
 			/varset bstDoNotBuffEnc TRUE
-			/break
 		}
 
-		/if (${Select[${Group.Member[${_count}].Class.ShortName},ENC]} && ${Select[${Me.Class.ShortName},SHM]}) {
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},ENC]} && ${Select[${Me.Class.ShortName},SHM]} && !${shmDoNotBuffEnc}) {
 			/varset shmDoNotBuffEnc TRUE
-			/break
 		}
 
-		/if (${Select[${Group.Member[${_count}].Class.ShortName},SHM]} && ${Select[${Me.Class.ShortName},DRU]}) {
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},SHM]} && ${Select[${Me.Class.ShortName},DRU]} && !${druDoNotBuffShm}) {
 			/varset druDoNotBuffShm TRUE
-			/break
 		}
 
-		/if (${Select[${Group.Member[${_count}].Class.ShortName},${Me.Class.ShortName}]}) {
+		/if (${Select[${Group.Member[${_count}].Class.ShortName},${Me.Class.ShortName}]} && !${doNotBuff}) {
 			
 			/if (${Group.Member[${_count}].Level} > ${Me.Level}) {
 				/varset doNotBuff TRUE
-				/break
 			}
 		}
 		

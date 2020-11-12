@@ -88,8 +88,10 @@ Sub ber_abilities
 	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Phantom Assailant].RankName}]}) /varset Phantom ${Spell[Phantom Assailant].RankName}
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Mangler's Alliance].RankName}]}) {
 		/varset AllianceDisc ${Spell[Mangler's Covenant].RankName}
+		/varset AllianceSpellRankCheck ${Spell[Mangler's Covenant]}
 	} else /if (${Me.Level}>=105 && ${Me.CombatAbility[${Spell[Demolisher's Alliance].RankName}]}) {
 		/varset AllianceDisc ${Spell[Demolisher's Alliance].RankName}
+		/varset AllianceSpellRankCheck ${Spell[Demolisher's Alliance]}
 	}
 |---Cry Havoc - Crit Buff
 	/if (${Me.Level}>=98 && ${Me.CombatAbility[Cry Carnage]}) {

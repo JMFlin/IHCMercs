@@ -104,7 +104,6 @@ Sub var_setup
 |- core_cast2
 	/declare castReturn 		string outer NULL
 	/declare castBreak 			bool outer TRUE
-	/declare allowedFizzleCount int outer 3
 
 |- timers
 	/declare timeForMez					timer outer	0
@@ -318,7 +317,7 @@ Sub Travel
 		/if (${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} < 20) /nav stop
 	}
 
-	/if (${Select[${Me.Class.ShortName},SHM]}) {
+	/if (${Select[${Me.Class.ShortName},SHM,DRU]}) {
 		/call core_cast2 "${TravelSpell}" FIND ${Me.ID} FALSE
 	}
 
@@ -428,7 +427,7 @@ Sub afk_pull
 	/if (!(${Group.Puller.ID} == ${Me.ID})) /return FALSE
 	/if (!${Navigation.MeshLoaded}) /return FALSE
 	/if (${Me.Snared.ID}) /return FALSE
-	/if (${Me.PctHPs} < 90) /return FALSE
+	/if (${Me.PctHPs} < 80) /return FALSE
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return FALSE
 	/if (!${SpawnCount[npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}]}) /return FALSE
 	/if (${checkResourcesTimer} != 0) /return FALSE
@@ -1673,6 +1672,7 @@ sub validate_target_buff(string _spell)
  *	Note3: lets be honest. i dont think i would trust any note anywhere in this script.
  ***|
 sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug)
+	/declare _allowedFizzleCount int local 5
 	|DEBUG \a-tcore_cast2\ax(\a-w${_spell}, ${_type}, ${_tmpID}, ${_sub}\ax)
 	| /if ((${Me.Casting.ID} || ${Window[CastingWindow].Open}) && !${Select[${Me.Class.ShortName},BRD]}) /return
 	|AMIDEAD
@@ -1778,8 +1778,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
 				/varset _fizzle ${Macro.Return}
 				
-				/if (!${_fizzle} || ${_fizzleCount} == ${allowedFizzleCount}) {
-					/varcalc _castLoop ${_castLoop} - 1
+				/if (${_fizzle} || ${_fizzleCount} == ${_allowedFizzleCount}) {
+					/varset _castLoop ${_castLoop} - 1
 				} else {
 					/varcalc _fizzleCount ${_fizzleCount} + 1
 				}
@@ -1789,7 +1789,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 
 	| AA
 	} else /if (${Select[${_type},alt]}) {
-		|DEBUG ${dep}alt${dep}${_spell}
 		
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
@@ -1834,7 +1833,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/return
 	| item
 	} else /if (${Select[${_type},item,epicitem]}) {
-	|	DEBUG ${dep}item,epicitem${dep}${_spell}
+
 		/declare _castLoop int local 1
 		/varset castReturn CAST_NOTREADY
 
@@ -1889,7 +1888,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/return
 	| bard song	
 	} else /if (${Select[${_type},pulse]}) {
-	|	DEBUG ${dep}pulse${dep}${_spell}
+
 		/declare _fizzle bool local FALSE
 		/declare _fizzleCount int local 0
 		/declare _castLoop int local 1
@@ -1931,7 +1930,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
 				/varset _fizzle ${Macro.Return}
 				
-				/if (!${_fizzle} || ${_fizzleCount} == ${allowedFizzleCount}) {
+				/if (!${_fizzle} || ${_fizzleCount} == ${_allowedFizzleCount}) {
 					/varcalc _castLoop ${_castLoop} - 1
 				} else {
 					/varcalc _fizzleCount ${_fizzleCount} + 1
@@ -1980,18 +1979,40 @@ Sub global_cooldown_spells(int _tmpID)
 		/if (${validate_cast[FALSE, alt, "Eradicate Magic", ${_tmpID}]}) /alt act ${Me.AltAbility[Eradicate Magic].ID}
 	}
 
-	/if (${validate_cast[FALSE, alt, "Force of Flame", ${_tmpID}]}) {
-		/alt act ${Me.AltAbility[Force of Flame].ID}
-		/return
+	/if (${Select[${Me.Class.ShortName},WIZ]}) {
+		/if (${validate_cast[FALSE, alt, "Force of Flame", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Force of Flame].ID}
+			/return
+		}
+		/if (${validate_cast[FALSE, alt, "Force of Ice", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Force of Ice].ID}
+			/return
+		}
+		/if (${validate_cast[FALSE, alt, "Force of Will", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Force of Will].ID}
+			/return
+		}
 	}
-	/if (${validate_cast[FALSE, alt, "Force of Ice", ${_tmpID}]}) {
-		/alt act ${Me.AltAbility[Force of Ice].ID}
-		/return
+
+	/if (${Select[${Me.Class.ShortName},MAG]}) {
+		
+		/if (${validate_cast[FALSE, alt, "Force of Elements", ${_tmpID}]}) {
+			/alt act ${Me.AltAbility[Force of Elements].ID}
+			/return
+		}
+		|${Target.Named}
+		/if (${Spawn[id ${_tmpID}].PctHPs} > 20 || (${Spawn[id ${_tmpID}].PctHPs} > 5 && ${Spawn[id ${_tmpID}].Named})) {
+			/if (${validate_cast[FALSE, alt, "Servant of Ro", ${_tmpID}]}) {
+				/alt act ${Me.AltAbility[Servant of Ro].ID}
+				/return
+			}
+			/if (${validate_cast[FALSE, alt, "Host of the Elements", ${_tmpID}]}) {
+				/alt act ${Me.AltAbility[Host of the Elements].ID}
+				/return
+			}
+		}
 	}
-	/if (${validate_cast[FALSE, alt, "Force of Will", ${_tmpID}]}) {
-		/alt act ${Me.AltAbility[Force of Will].ID}
-		/return
-	}
+
 /return
 
 |***
@@ -2624,7 +2645,7 @@ sub setup_skill_melee(bool _debug)
 			/varset autoAssistAt 90
 			/varset assistRange 100
 		} else {
-			/varset autoAssistAt 100
+			/varset autoAssistAt 99
 			/varset assistRange 100
 		}
 	}
@@ -2653,7 +2674,7 @@ sub setup_skill_melee(bool _debug)
 			/varset autoAssistAt 90
 			/varset assistRange 100
 		} else {
-			/varset autoAssistAt 99
+			/varset autoAssistAt 98
 			/varset assistRange 100
 		}
 	}

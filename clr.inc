@@ -3,6 +3,9 @@
 |---------------------------------------------------------------------------- 
 Sub clr_main
 	
+	/if (${powerLevel}) {
+		/return
+	} 
 	/if (!${doNotBuff}) /call clr_group_buffs
 	/call clr_self_buffs
 	/if (!${doNotBuff}) /call clr_combat_tank_buffs

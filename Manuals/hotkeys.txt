@@ -30,7 +30,8 @@ AFK Pull
 /varset assistRangeZ 80
 
 
-
+Travel to target
+/nav id ${Target.ID}
 
 
 Camp Desktop
