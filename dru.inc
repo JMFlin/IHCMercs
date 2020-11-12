@@ -3,6 +3,9 @@
 |---------------------------------------------------------------------------- 
 
 |**
+
+https://docs.google.com/document/d/1XQK_4SpSfrRjlZLt9CC_oKQPoF_D14CNJHDDZlf_lO0/edit#
+
 Single-target heals
 	Revitalization -> Adrenaline Barrage-> Curavida
 
@@ -106,11 +109,13 @@ Sub dru_main
 				}
 			}
 		}
-
-		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
-			/if (${validate_cast[FALSE, FIND, "${SingleFireAtkDebuffSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${SingleFireAtkDebuffSpell}" FIND ${Target.ID} FALSE
-				/call check_cast_events "${SingleFireAtkDebuffSpell}" CAST_IMMUNE ${Target.ID}
+		/call dru_heal_spam
+		/if (${check_hurt[FALSE, group, 80]} < 1) {
+			/if (!${Target.Buff[${SingleFireAtkDebuff}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+				/if (${validate_cast[FALSE, FIND, "${SingleFireAtkDebuffSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${SingleFireAtkDebuffSpell}" FIND ${Target.ID} FALSE
+					/call check_cast_events "${SingleFireAtkDebuffSpell}" CAST_IMMUNE ${Target.ID}
+				}
 			}
 		}
 		
@@ -118,11 +123,13 @@ Sub dru_main
 		/call dru_group_heals
 		/call dru_debuff_xtarget
 
-		/call get_target
-		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
-			/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
-				/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
+		/if (${check_hurt[FALSE, group, 80]} < 1) {
+			/call get_target
+			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
+				/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
+					/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
+				}
 			}
 		}
 		
@@ -147,11 +154,14 @@ Sub dru_main
 			/if (${validate_cast[FALSE, spell, "${Cyclonic}", ${Target.ID}]}) {
 				/call core_cast2 "${Cyclonic}" spell ${Target.ID} FALSE
 			}
-			/if (${validate_cast[FALSE, spell, "${LowerCyclonic}", ${Target.ID}]}) {
-				/call core_cast2 "${LowerCyclonic}" spell ${Target.ID} FALSE
-			}
-			/if (${validate_cast[FALSE, spell, "${Winter}", ${Target.ID}]}) {
-				/call core_cast2 "${Winter}" spell ${Target.ID} FALSE
+			/call dru_heal_spam
+			/if (${check_hurt[FALSE, group, 80]} < 1) {
+				/if (${validate_cast[FALSE, spell, "${LowerCyclonic}", ${Target.ID}]}) {
+					/call core_cast2 "${LowerCyclonic}" spell ${Target.ID} FALSE
+				}
+				/if (${validate_cast[FALSE, spell, "${Winter}", ${Target.ID}]}) {
+					/call core_cast2 "${Winter}" spell ${Target.ID} FALSE
+				}
 			}
 		}
 
@@ -660,6 +670,11 @@ Sub dru_group_heals
 	/if (${check_hurt[FALSE, group, 45]} >= 1) {
 		/if (${validate_cast[FALSE, spell, "${Survival}", ${Me.ID}]}) {
 			/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
+		} else {
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+				/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
+			}
 		}
 	}
 
