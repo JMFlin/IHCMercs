@@ -979,9 +979,9 @@ Sub BuySpells(string _minLevel, int _maxLevel)
 | SUB: ScribeSpells
 | --------------------------------------------------------------------------------------------
 Sub ScribeSpells
-	/declare Bag int local
-	/declare Slot int local
-	/declare MaxInvSlots int local 10
+	/declare _bag int local
+	/declare _slot int local
+	/declare _maxInvSlots int local 10
 
 	/if (${Cursor.ID}) /autoinv
 	|** Opening your inventory for access bag slots **|
@@ -991,35 +991,34 @@ Sub ScribeSpells
 	|** Open all bags **|
 	/keypress OPEN_INV_BAGS
 
-	
 	|** Check Top Level Inventory Slot for bag/no bag **|
-	/for Bag 1 to ${MaxInvSlots}
+	/for _bag 1 to ${_maxInvSlots}
 		|** If it's a bag do this **|
-		/if (${InvSlot[pack${Bag}].Item.Container}) {
-			/if (!${Window[Pack${Bag}].Open}) /itemnotify pack${Bag} rightmouseup
-			/delay 1s ${Window[Pack${Bag}].Open}
+		/if (${InvSlot[pack${_bag}].Item.Container}) {
+			/if (!${Window[Pack${_bag}].Open}) /itemnotify pack${_bag} rightmouseup
+			/delay 1s ${Window[Pack${_bag}].Open}
 			/delay 5
 
-			/for Slot 1 to ${InvSlot[pack${Bag}].Item.Container}
-				/if (${InvSlot[pack${Bag}].Item.Item[${Slot}].Type.Equal[Scroll]} && ${InvSlot[pack${Bag}].Item.Item[${Slot}].Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${Bag}].Item.Item[${Slot}].Spell.Name}]}) {
-					/nomodkey /ctrlkey /itemnotify in pack${Bag} ${Slot} rightmouseup
+			/for _slot 1 to ${InvSlot[pack${_bag}].Item.Container}
+				/if (${InvSlot[pack${_bag}].Item.Item[${_slot}].Type.Equal[Scroll]} && ${InvSlot[pack${_bag}].Item.Item[${_slot}].Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${_bag}].Item.Item[${_slot}].Spell.Name}]}) {
+					/nomodkey /ctrlkey /itemnotify in pack${_bag} ${_slot} rightmouseup
 					/delay 1s ${Cursor.ID}
 					/if (${Cursor.ID}) /call doScribe
 				}
-			/next Slot
+			/next _slot
 			|** Close the bag I just checked **|
-			/if (${Window[Pack${Bag}].Open}) /itemnotify pack${Bag} rightmouseup
+			/if (${Window[Pack${_bag}].Open}) /itemnotify pack${_bag} rightmouseup
 		} else {
 			|** If it's not a bag, do this **|
 			| Debug message /echo TopLevel Inv Slot ~ IsAScroll: ${InvSlot[pack${Bag}].Item.Type.Equal[Scroll]} && Item Spell level: ${InvSlot[pack${Bag}].Item.Spell.Level} <= My Level: ${Me.Level} && Scribed Already: !${Me.Book[${InvSlot[pack${Bag}].Item.Spell.Name}]}
-			/if (${InvSlot[pack${Bag}].Item.Type.Equal[Scroll]} && ${InvSlot[pack${Bag}].Item.Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${Bag}].Item.Spell.Name}]}) {
-				/echo Scribing: ${InvSlot[Pack${Bag}].Item.Name}
-				/nomodkey /ctrlkey /itemnotify pack${Bag} rightmouseup
+			/if (${InvSlot[pack${_bag}].Item.Type.Equal[Scroll]} && ${InvSlot[pack${_bag}].Item.Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${_bag}].Item.Spell.Name}]}) {
+				/echo Scribing: ${InvSlot[Pack${_bag}].Item.Name}
+				/nomodkey /ctrlkey /itemnotify pack${_bag} rightmouseup
 				/delay 1s ${Cursor.ID}
 				/if (${Cursor.ID}) /call doScribe
 			}
 		}
-	/next Bag
+	/next _bag
 
 	/if (${Window[SpellBookWnd].Open}) /squelch /windowstate SpellBookWnd close
 /return
@@ -1106,41 +1105,40 @@ Sub BuyTomes(string _minLevel, int _maxLevel)
 | SUB: ScribeTomes
 | --------------------------------------------------------------------------------------------
 Sub ScribeTomes
-	/declare Bag int local
-	/declare Slot int local
-	/declare MaxInvSlots int local 10
-	/declare HasVoA int outer 0
-	/declare InvScribeSlot int local 1
+	/declare _bag int local
+	/declare _slot int local
+	/declare _maxInvSlots int local 10
+	/declare _hasVoA int outer 0
+	/declare _invScribeSlot int local 1
 
-	/if (${Me.HaveExpansion[Veil of Alaris]}) /varset HasVoA 1
+	/if (${Me.HaveExpansion[Veil of Alaris]}) /varset _hasVoA 1
 
 	/if (${Cursor.ID}) /autoinv
 
-	/if (!${HasVoA} && ${InvSlot[pack${InvScribeSlot}].Item.Type.Equal[Scroll]} && ${InvSlot[pack${InvScribeSlot}].Item.Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${InvScribeSlot}].Item.Spell.Name}]}) /nomodkey /ctrlkey /itemnotify ${InvSlot[pack${InvScribeSlot}]} rightmouseup
+	/if (!${_hasVoA} && ${InvSlot[pack${_invScribeSlot}].Item.Type.Equal[Scroll]} && ${InvSlot[pack${_invScribeSlot}].Item.Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${_invScribeSlot}].Item.Spell.Name}]}) /nomodkey /ctrlkey /itemnotify ${InvSlot[pack${_invScribeSlot}]} rightmouseup
 
-	/for Bag 1 to ${MaxInvSlots}
-		/if (${InvSlot[pack${Bag}].Item.Container}) {
-			/if (!${Window[Pack${Bag}].Open}) /itemnotify pack${Bag} rightmouseup
-			/delay 1s ${Window[Pack${Bag}].Open}
-			/for Slot 1 to ${InvSlot[pack${Bag}].Item.Container}
-				/if (${InvSlot[pack${Bag}].Item.Item[${Slot}].Name.Find[Tome]} && ${InvSlot[pack${Bag}].Item.Item[${Slot}].Type.Equal[Scroll]} && ${InvSlot[pack${Bag}].Item.Item[${Slot}].Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${Bag}].Item.Item[${Slot}].Spell.Name}]}) {
-					/if (${HasVoA}) {
-						/nomodkey /ctrlkey /itemnotify in pack${Bag} ${Slot} rightmouseup
-						/delay 1s !${InvSlot[pack${Bag}].Item.Item[${Slot}].ID}
+	/for _bag 1 to ${_maxInvSlots}
+		/if (${InvSlot[pack${_bag}].Item.Container}) {
+			/if (!${Window[Pack${_bag}].Open}) /itemnotify pack${_bag} rightmouseup
+			/delay 1s ${Window[Pack${_bag}].Open}
+			/for _slot 1 to ${InvSlot[pack${_bag}].Item.Container}
+				/if (${InvSlot[pack${_bag}].Item.Item[${_slot}].Name.Find[Tome]} && ${InvSlot[pack${_bag}].Item.Item[${_slot}].Type.Equal[Scroll]} && ${InvSlot[pack${_bag}].Item.Item[${_slot}].Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${_bag}].Item.Item[${_slot}].Spell.Name}]}) {
+					/if (${_hasVoA}) {
+						/nomodkey /ctrlkey /itemnotify in pack${_bag} ${_slot} rightmouseup
+						/delay 1s !${InvSlot[pack${_bag}].Item.Item[${_slot}].ID}
 					} else {
-						/nomodkey /ctrlkey /itemnotify in pack${Bag} ${Slot} leftmouseup
+						/nomodkey /ctrlkey /itemnotify in pack${_bag} ${_slot} leftmouseup
 						/delay 1s ${Cursor.ID}
-						/nomodkey /ctrlkey /itemnotify ${InvSlot[pack${InvScribeSlot}]} leftmouseup
+						/nomodkey /ctrlkey /itemnotify ${InvSlot[pack${_invScribeSlot}]} leftmouseup
 						/delay 1s !${Cursor.ID}
-						/nomodkey /ctrlkey /itemnotify ${InvSlot[pack${InvScribeSlot}]} rightmouseup
-						/delay 1s !${InvSlot[pack${InvScribeSlot}].ID}
+						/nomodkey /ctrlkey /itemnotify ${InvSlot[pack${_invScribeSlot}]} rightmouseup
+						/delay 1s !${InvSlot[pack${_invScribeSlot}].ID}
 					}
 				}
-			/next Slot
-
+			/next _slot
 		}
-		/if (${Window[Pack${Bag}].Open}) /itemnotify pack${Bag} rightmouseup
-	/next Bag
+		/if (${Window[Pack${_bag}].Open}) /itemnotify pack${_bag} rightmouseup
+	/next _bag
 	/if (${Cursor.ID}) /autoinv
 /return
 
@@ -1717,9 +1715,9 @@ Sub ClassMerchantOverthere(string _zoneName)
 		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Cromslor"
 	}
 	/if (${Me.Class.ShortName.Equal[PAL]}) {
-		/declare PALMerchant${_zoneName}[2] string outer 0
-		/varset PALMerchant${_zoneName}[1] "Frinshalor"
-		/varset PALMerchant${_zoneName}[2] "Cromslor"
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[2] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Frinshalor"
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[2] "Cromslor"
 	}	
 	/if (${Me.Class.ShortName.Equal[SHD]}) {
 		/declare ${Me.Class.ShortName}Merchant${_zoneName}[2] string outer 0
