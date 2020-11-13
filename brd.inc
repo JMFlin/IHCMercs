@@ -269,8 +269,6 @@ Sub brd_combat
 			/call pulse_stop itemcaster FALSE
 			/call core_cast2 "Blade of Vesagran" item 0 FALSE
 		}
-
-		
 	}
 	
 /return
@@ -290,9 +288,8 @@ Sub brd_aa_and_disc
 		/delay 10
 	}
 
-
-
 /return
+
 |***
  *	DES: quit singing.
  *	USE: 

@@ -1,35 +1,28 @@
 |----------------------------------------------------------------------------
-|- SUB: ManualPullCamping
-|---------------------------------------------------------------------------- 
+|- SUB: Cleric
+|----------------------------------------------------------------------------
+|**
+https://forums.daybreakgames.com/eq/index.php?threads/basic-healing-setup-for-raid-clerics-for-ros-multi-bind-method.247597/
+
+Sequence 1
+	Merciful Remedy -> Spiritual Remedy -> Merciful Intervention -> Mystical Intervention -> Virtuous Intervention
+
+Sequence 2 
+	Merciful Remedy -> Spiritual Remedy -> Graceful Remedy
+
+Sequence 3
+	Syllable of Mending -> Word of Greater Restoration
+**|
+
 Sub clr_main
 	
 	/if (${powerLevel}) {
+		/call check_for_corpse FALSE
 		/return
 	} 
 	/if (!${doNotBuff}) /call clr_group_buffs
 	/call clr_self_buffs
 	/if (!${doNotBuff}) /call clr_combat_tank_buffs
-
-	|/if (${powerLevel}) {
-	|	/call check_for_corpse FALSE
-	|	/return
-	|} 
-
-	/call get_heal_target 90
-	/varset worstHurtId ${Macro.Return}
-	/if (${worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${worstHurtId}]}) {
-			/call core_cast2 "${Remedy1}" spell ${worstHurtId} FALSE
-		}
-	}
-
-	/call get_heal_target 90
-	/varset worstHurtId ${Macro.Return}
-	/if (${worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${worstHurtId}]}) {
-			/call core_cast2 "${Remedy2}" spell ${worstHurtId} FALSE
-		}
-	}
 
 	/call check_for_corpse FALSE
 	
@@ -51,57 +44,13 @@ Sub clr_main
 				}
 			}
 		}
-		
-		/call get_heal_target 90
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Remedy1}", ${worstHurtId}]}) {
-				/call core_cast2 "${Remedy1}" spell ${worstHurtId} FALSE
-			}
-		}
 
-		/call get_heal_target 90
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Remedy2}", ${worstHurtId}]}) {
-				/call core_cast2 "${Remedy2}" spell ${worstHurtId} FALSE
-			}
-		}
+		/call clr_heal_spam
 
 		/if (${check_hurt[FALSE, group, 80]} >= 3) {
-			/if (${validate_cast[FALSE, spell, "${SyllableSpell}", ${Me.ID}]}) /call core_cast2 "${SyllableSpell}" spell ${Me.ID} FALSE
-		}
-
-		/call get_heal_target 75
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention1}", ${worstHurtId}]}) {
-				/call core_cast2 "${Intervention1}" spell ${worstHurtId} FALSE
+			/if (${validate_cast[FALSE, spell, "${MendingSplash}", ${Group.MainAssist.ID}]}) {
+				/call core_cast2 "${MendingSplash}" spell ${Group.MainAssist.ID} FALSE
 			}
-		}
-
-		/if (${check_hurt[FALSE, group, 80]} >= 3) {
-			/if (${validate_cast[FALSE, spell, "${MendingSplash}", ${Group.MainAssist.ID}]}) /call core_cast2 "${MendingSplash}" spell ${Group.MainAssist.ID} FALSE
-		}
-
-		/call get_heal_target 75
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention2}", ${worstHurtId}]}) {
-				/call core_cast2 "${Intervention2}" spell ${worstHurtId} FALSE
-			}
-		}
-
-		/call get_heal_target 75
-		/varset worstHurtId ${Macro.Return}
-		/if (${worstHurtId} > 0) {
-			/if (${validate_cast[FALSE, spell, "${Intervention3}", ${worstHurtId}]}) {
-				/call core_cast2 "${Intervention3}" spell ${worstHurtId} FALSE
-			}
-		}
-
-		/if (${check_hurt[FALSE, group, 85]} >= 3) {
-			/if (${validate_cast[FALSE, spell, "${GroupWordSpell}", ${Me.ID}]}) /call core_cast2 "${GroupWordSpell}" spell ${Me.ID} FALSE
 		}
 
 		/call get_heal_target 40
@@ -111,6 +60,8 @@ Sub clr_main
 				/call core_cast2 "${DichoSpell}" spell ${worstHurtId} FALSE
 			}
 		}
+
+		/call clr_heal_spam_2
 
 		/if (!${doNotBuff}) {
 			/if (${validate_tank_heal[90]}) {
@@ -123,9 +74,11 @@ Sub clr_main
 		}
 
 		/if (${check_for_named[FALSE]}) {
-			/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
+			/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) {
+				/call core_cast2 "${ChestItemName}" item 0 FALSE
+			}
 		}
-		
+		/call clr_heal_spam_3
 		|**
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
 		
@@ -139,11 +92,14 @@ Sub clr_main
 		**|
 	}
 
-|	/call cures
+|	/call clr_cures
 	/doevents
 	
 /return
 
+|----------------------------------------------------------------------------
+|- SUB: buffs
+|---------------------------------------------------------------------------- 
 Sub clr_self_buffs
 	/declare CastCheck			int local 0
 
@@ -158,82 +114,105 @@ Sub clr_self_buffs
 			/varset CastCheck 1
 		}
 	}
-|**
-	/if (!${Me.Buff[${Retaliation}].ID}) {
-		/if (${validate_cast[FALSE, spell, ${Retaliation}, ${Me.ID}]}) {
-			/call core_cast2 "${Retaliation}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
-	}
 
-	/if (!${Me.Buff[${TankBuff}].ID}) {
-		/if (${validate_cast[FALSE, spell, ${TankBuff}, ${Me.ID}]}) {
-			/call core_cast2 "${TankBuff}" spell ${Me.ID} FALSE
-			/varset CastCheck 1
-		}
-	}
-**|
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 	}
 
 /return
-|-------------------------------------------------------------------------
-|- SUB: ConfigHeal
+
+|----------------------------------------------------------------------------
+|- SUB: Merciful Remedy -> Spiritual Remedy -> Merciful Intervention -> Mystical Intervention -> Virtuous Intervention
 |---------------------------------------------------------------------------- 
-Sub clr_config_heal
-	/if (${Select[${Zone.ID},795,796]}==0 && !${Raid.Members}) {
-		/if (${Me.XTarget}>4 || ${Me.XTarget[1].Named}) {
-			/if (${tankhealpoint}!=95) {
-				/varset tankhealpoint 95
-				/varset grouphealpoint 95
-				/varset bighealpoint 95
-			}
-		} else /if (${Me.XTarget[1].Level}>=${Me.Level}) {
-			/if (${tankhealpoint}!=85) {
-				/varset tankhealpoint 95
-				/varset grouphealpoint 95
-				/varset bighealpoint 95
-			}
-		} else /if (${Me.XTarget[1].Level}>=${Math.Calc[${Me.Level}-5]}) {
-			/if (${tankhealpoint}!=80) {
-				/varset tankhealpoint 95
-				/varset grouphealpoint 95
-				/varset bighealpoint 95
-			}
-		} else {
-			/if (${tankhealpoint}!=70) {
-				/varset tankhealpoint 95
-				/varset grouphealpoint 95
-				/varset bighealpoint 95
-			}
+Sub clr_heal_spam
+
+	/call get_heal_target 90
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${worstHurtId}]}) {
+			/call core_cast2 "${Remedy1}" spell ${worstHurtId} FALSE
 		}
-	} else /if (${tankhealpoint}!=${tbmhealpoint} && !${Raid.Members}) {
-		/varset healpoint ${tbmhealpoint}
-		/varset tankhealpoint ${tbmhealpoint}
-		/varcalc grouphealpoint ${tbmhealpoint}-5
-		/varcalc bighealpoint ${tbmhealpoint}-10
-	} else /if (${tankhealpoint}!=${raidhealpoint} && ${Raid.Members}) {
-		/varset healpoint ${raidhealpoint}
-		/varset tankhealpoint ${raidhealpoint}
-		/varcalc grouphealpoint ${raidhealpoint}-5
-		/varcalc bighealpoint ${raidhealpoint}-10
 	}
+
+	/call get_heal_target 90
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${worstHurtId}]}) {
+			/call core_cast2 "${Remedy2}" spell ${worstHurtId} FALSE
+		}
+	}
+
+	/call get_heal_target 75
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Intervention1}", ${worstHurtId}]}) {
+			/call core_cast2 "${Intervention1}" spell ${worstHurtId} FALSE
+		}
+	}
+
+	/call get_heal_target 75
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Intervention2}", ${worstHurtId}]}) {
+			/call core_cast2 "${Intervention2}" spell ${worstHurtId} FALSE
+		}
+	}
+
+	/call get_heal_target 75
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Intervention3}", ${worstHurtId}]}) {
+			/call core_cast2 "${Intervention3}" spell ${worstHurtId} FALSE
+		}
+	}
+
 /return
 
-Sub clr_cures
-	/declare _count			int local 0
-	/for _count 1 to ${Group}
-		/if (!${${Group.Member[1].Name.Lower}_TotalCounters}) /continue
+|----------------------------------------------------------------------------
+|- SUB: Merciful Remedy -> Spiritual Remedy -> Graceful Remedy
+|---------------------------------------------------------------------------- 
+Sub clr_heal_spam_2
 
-		/if (${${Group.Member[1].Name.Lower}_CountersDisease}) /echo Use Disease cure
-		/if (${${Group.Member[1].Name.Lower}_CountersCurse})	/echo Use Curse cure
-		/if (${${Group.Member[1].Name.Lower}_CountersPoison}) 	/echo Use Poison cure
-		/if (${${Group.Member[1].Name.Lower}_CountersCorruption}) /echo Use Corruption cure
+	/call get_heal_target 90
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${worstHurtId}]}) {
+			/call core_cast2 "${Remedy1}" spell ${worstHurtId} FALSE
+		}
+	}
 
-	/next _count
-		
-/return	
+	/call get_heal_target 90
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${worstHurtId}]}) {
+			/call core_cast2 "${Remedy2}" spell ${worstHurtId} FALSE
+		}
+	}
+
+	/call get_heal_target 90
+	/varset worstHurtId ${Macro.Return}
+	/if (${worstHurtId} > 0) {
+		/if (${validate_cast[FALSE, spell, "${Remedy3}", ${worstHurtId}]}) {
+			/call core_cast2 "${Remedy2}" spell ${worstHurtId} FALSE
+		}
+	}
+
+/return
+
+|----------------------------------------------------------------------------
+|- SUB: Syllable of Mending -> Word of Greater Restoration
+|---------------------------------------------------------------------------- 
+Sub clr_heal_spam_3
+
+	/if (${check_hurt[FALSE, group, 80]} >= 3) {
+		/if (${validate_cast[FALSE, spell, "${SyllableSpell}", ${Me.ID}]}) /call core_cast2 "${SyllableSpell}" spell ${Me.ID} FALSE
+	}
+
+	/if (${check_hurt[FALSE, group, 85]} >= 3) {
+		/if (${validate_cast[FALSE, spell, "${GroupWordSpell}", ${Me.ID}]}) /call core_cast2 "${GroupWordSpell}" spell ${Me.ID} FALSE
+	}
+
+/return
 |----------------------------------------------------------------------------
 |- SUB: group_buffs
 |---------------------------------------------------------------------------- 
@@ -366,6 +345,7 @@ Sub clr_group_buffs
 			}
 		}
 	/next _count
+
 	|- Delete variable's
 	/if (${Defined[tmpbuffid]}) /deletevar tmpbuffid
 	/if (${Defined[tmpskinid]}) /deletevar tmpskinid
@@ -412,135 +392,20 @@ Sub clr_combat_tank_buffs
 
 /return
 |----------------------------------------------------------------------------
-|- SUB: single_target_heals
+|- SUB: cures
 |---------------------------------------------------------------------------- 
-Sub clr_single_target_heals
-	
+Sub clr_cures
+	/declare _count			int local 0
+	/for _count 1 to ${Group}
+		/if (!${${Group.Member[1].Name.Lower}_TotalCounters}) /continue
 
+		/if (${${Group.Member[1].Name.Lower}_CountersDisease}) /echo Use Disease cure
+		/if (${${Group.Member[1].Name.Lower}_CountersCurse})	/echo Use Curse cure
+		/if (${${Group.Member[1].Name.Lower}_CountersPoison}) 	/echo Use Poison cure
+		/if (${${Group.Member[1].Name.Lower}_CountersCorruption}) /echo Use Corruption cure
 
-/return
-|----------------------------------------------------------------------------
-|- SUB: group_heals
-|---------------------------------------------------------------------------- 
-Sub clr_group_heals
-
-
-/return
-	
-
-|-Group Healing
- |   /if (${HurtMember}>=${grouphealcount} && ${Me.AltAbilityReady[Beacon of Life]} && ${Group}) {
-|		/call AANow ${Me.AltAbility[Beacon of Life].ID} ${Me.ID}
-|	} else /if (${HurtMember}>=${grouphealcount} && ${Me.SpellReady[${SyllableSpell}]}) {
-|		/call SpellQueue "${SyllableSpell}" ${Me.ID}
-|	} else /if (${HurtMember}>=${grouphealcount} && ${Me.SpellReady[${groupheal}]} && ${NoCures}!=1) {
-|		/call SpellQueue "${groupheal}" ${Me.ID}
-|	} else /if (${HurtMember}>=${grouphealcount} && ${Me.SpellReady[${grouphealnocure}]} && ${NoCures}==1) {
-|		/call SpellQueue "${grouphealnocure}" ${Me.ID}
-|	} else /if (${Me.PctHPs}<=${grouphealpoint}) {
-|		/varset healpoint ${grouphealpoint}
-|		/call HealQueue ${Me.ID}
-|	} else /if ((${usepromheals}==1) && (${PromisedTimer}==0) && (${Group.Member[${assistname}]${TnKCond}Distance}<=${promhealrange}) && ${Me.XTarget[1].ID} && ${Group.Member[${assistname}]${TnKCond}PctHPs}>=1 && ${Me.GemTimer[${promheal}]}==0 && (${Group.Member[${assistname}]${TnKCond}PctHPs}>${bighealpoint})) {
-|		/call SpellQueue "${promheal}" ${assistid}
-|		/if ((${Macro.Return.Equal[CAST_SUCCESS]}) || (${Macro.Return.Equal[CAST_TAKEHOLD]})) /varset PromisedTimer 21s
-|	} else /if ((${Group.Member[${assistname}]${TnKCond}Distance}<=${healspellrange}) && (${Group.Member[${assistname}]${TnKCond}PctHPs}<=${tankhealpoint}) && ${Group.Member[${assistname}]${TnKCond}PctHPs}>=1) {
-|		/varset healpoint ${tankhealpoint}
-|		/call HealQueue ${assistid}
-|	} else /if ((${Group.Member[${worsthurtname}]${GrPCond}Distance}<=${healspellrange}) && (${worsthp}<=${grouphealpoint} || ${petworsthp}<=${grouphealpoint}) && ${Group.Member[${worsthurtname}]${GrPCond}PctHPs}>=1) {
-|		/varset healpoint ${grouphealpoint}
-|		/call HealQueue ${worstHurtId}
-|	} else /if ((${Me.Corrupted.ID} || ${Me.Snared.ID}) && ${NoCures}!=1 && (${Me.AltAbilityReady[Purify Soul]} || ${Me.AltAbilityReady[Group Purify Soul ]} || ${Me.AltAbilityReady[Purified Spirits]}) && ${CureTimer}==0 && !${Me.Casting.ID} && ${CureOther}) {
-|		/call OtherCure ${Me.ID}
-|	} else /if (${Target.Type.Equal[PC]} && ${Target.BuffsPopulated}==TRUE && ${NoCures}!=1 && (${Target.Corrupted.ID} || ${Target.Snared.ID} || ${Target.Mezzed.ID} || ${Target.Charmed.ID}) && (${Me.AltAbilityReady[Purify Soul]} || ${Me.AltAbilityReady[Group Purify Soul ]}) && ${CureTimer}==0 && !${Me.Casting.ID} && ${CureOther}) {
-|		/call OtherCure ${Target.ID}
-|	} else /if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID}) && ${NoCures}!=1 && (${Me.AltAbilityReady[Radiant Cure]} || ${Me.AltAbilityReady[Purify Soul]} || ${Me.AltAbilityReady[Group Purify Soul ]} || ${Me.AltAbilityReady[Purified Spirits]}) && ${CureTimer}==0 && !${Me.Casting.ID}) {
-|		/call GroupCure ${Me.ID}
-|	} else /if (${Target.Type.Equal[PC]} && ${Target.BuffsPopulated}==TRUE && ${NoCures}!=1 && (${Target.Poisoned.ID} || ${Target.Diseased.ID} || ${Target.Cursed.ID}) && (${Me.AltAbilityReady[Radiant Cure]} || ${Me.AltAbilityReady[Purify Soul]} || ${Me.AltAbilityReady[Group Purify Soul ]}) && ${CureTimer}==0 && !${Me.Casting.ID}) {
-|		/call GroupCure ${Target.ID}
-|	} else /if (${Target.Buff[Gift of Living Death].ID} && ${CureTimer}==0 && !${Me.Casting.ID}) {
-|||		/call SingleCure ${Target.ID}
-	|} else /if ((${DivineBuffOn}==1 )&& (${DivineBuffRecast}==1) && (!${Me.Casting.ID}) && (${Spell[${DivineBuff}].Range}>${Group.Member[${assistname}]${TnKCond}Distance}) && (${Group.Member[${assistname}]${TnKCond}PctHPs}>=1) && (!${Group.Member[${assistname}]${TnKCond}Hovering}) && (${Group.Member[${assistname}]${TnKCond}PctHPs}>${tankhealpoint}) && ${bufftimer}==0) {
-	|		/call DivineUsage
-|	} else /if ((${Me.PctMana}>=${Manatonuke}) && (${Me.XTarget[1].ID}) && (!${Raid.Members}) && (${UseMelee}==1 || ${UseReverseDS}==1)) {
-|		/call Offense
-|	} else /if (${CureCount} && ${CureID}) {
-|		/call GroupCure ${CureID}
-|	}
-|	/varset GrPCond .
-
-|----------------------------------------------------------------------------
-|- SUB: BuffCheck
-|----------------------------------------------------------------------------
-Sub BuffCheck
-	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
-	/if (${SpawnCount[pccorpse group raid ${setMaxRezRange}]}) /return
-
-	/if (${Me.Buff[Spiritual Vi].ID}) /blockspell add me ${Spell[${Me.Buff[Spiritual Vi]}].ID}
-	/if (${Me.Buff[Focus].ID}) /blockspell add me ${Spell[${Me.Buff[Focus]}].ID}
-	/if (!${Me.Buff[${SelfBuff}].ID} && !${Me.Casting.ID} && ${Spell[${SelfBuff}].Stacks} && ${usedruid}==0 && ${Me.Book[${SelfBuff}]} && ${Me.CurrentMana}>${Spell[${SelfBuff}].Mana}) {
-		/call SpellQueue "${SelfBuff}" ${Me.ID}
-	} else /if (!${Me.Buff[${GroupHealProcBuff}].ID} && !${Me.Casting.ID} && ${Spell[${GroupHealProcBuff}].Stacks} && ${Me.Book[${GroupHealProcBuff}]} && ${Me.CurrentMana}>${Spell[${GroupHealProcBuff}].Mana}) {
-		/call SpellQueue "${GroupHealProcBuff}" ${Me.ID}
-	} else /if (!${Me.Aego.ID} && !${Me.Skin.ID} && !${Me.Symbol.ID} && ${Me.Book[${GroupBuff}]} && !${Spell[${Me.Buff[${GroupBuff}]}].ID} && ${Me.CurrentMana}>${Spell[${GroupBuff}].Mana}) {
-		/call SpellQueue "${GroupBuff}" ${Me.ID}
-	} else /if (!${Me.Casting.ID} && ${Spell[${SymbolBuff}].Range}>${Spawn[${SymbolBuffRecast}].Distance} && ${Spawn[${SymbolBuffRecast}].ID} && !${Spawn[${SymbolBuffRecast}].Hovering} && ${Me.Book[${SymbolBuff}]} && ${Me.CurrentMana}>${Spell[${SymbolBuff}].Mana} && ${bufftimer}==0) {
-		/call SpellQueue "${SymbolBuff}" ${Spawn[${SymbolBuffRecast}].ID}
-		/varset SymbolBuffRecast 0
-	} else /if (!${Me.Casting.ID} && ${Spell[${HPBuff}].Range}>${Spawn[${HPBuffRecast}].Distance} && ${Spawn[${HPBuffRecast}].ID} && !${Spawn[${HPBuffRecast}].Hovering} && ${Me.Book[${HPBuff}]} && ${Me.CurrentMana}>${Spell[${HPBuff}].Mana} && ${bufftimer}==0) {
-		/call SpellQueue "${HPBuff}" ${Spawn[${HPBuffRecast}].ID}
-		/varset HPBuffRecast 0
-	} else /if (!${Me.Casting.ID} && ${Spell[${TankBuff}].Range}>${Spawn[${ShiningBuffRecast}].Distance} && ${Spawn[${ShiningBuffRecast}].ID} && !${Spawn[${ShiningBuffRecast}].Hovering} && ${Me.Book[${TankBuff}]} && ${Me.CurrentMana}>${Spell[${TankBuff}].Mana} && ${bufftimer}==0) {
-		/call SpellQueue "${TankBuff}" ${Spawn[${ShiningBuffRecast}].ID}
-		/varset ShiningBuffRecast 0
-	}
-/return	
-|----------------------------------------------------------------------------
-|- SUB: DA Logic 
-|----------------------------------------------------------------------------
-Sub DALogic
-	/if (${Me.Song["Touch of the Divine"].ID}) {
-		/echo Touch of the Divine detected!
-		/removebuff Touch of the Divine
-		/delay 5 !${Me.Song["Touch of the Divine"].ID}
-    }
-	/call AggroCheck
-/return
-|----------------------------------------------------------------------------
-|- SUB: Aggro Check
-|----------------------------------------------------------------------------
-Sub AggroCheck
-	/if (${Me.AltAbilityReady[Divine Peace]}) {
-		/call AANow ${Me.AltAbility[Divine Peace].ID}
-	} else /if (${Me.AltAbilityReady[Sanctuary]}) {
-		/call AANow ${Me.AltAbility[Sanctuary].ID}
-	} else /if (${Me.AltAbilityReady[Silent Casting]}) {
-		/call AANow ${Me.AltAbility[Silent Casting].ID}
-	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: Misc Events
-|----------------------------------------------------------------------------
-Sub Event_GoMana
-	/varset GoMana 1
-	/timed 180 /varset GoMana 0
-	/call Healgroup
-/return
-
-Sub Event_GoMoff
-/varset GoMana 0
-/return
-|----------------------------------------------------------------------------
-|- SUB: Symbol - HP Buff Single use
-|----------------------------------------------------------------------------
-Sub Event_Chat(string ChatType,string ChatSender,string ChatText)
-	/if (${Spawn[pc ${ChatSender}].ID} && ${ChatType.Equal[tell]}) /mqlog ${ChatSender} -- ${ChatText}
-	/if (${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}) {
-		/if (${Select[${ChatText},symbol,Symbol,SYMBOL]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<100)) /varset SymbolBuffRecast ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
-		/if (${Select[${ChatText},hpbuff,HPBuff,HPBUFF,HpBuff,Hpbuff,HPbuff]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<100)) /varset HPBuffRecast ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
-		/if (${Select[${ChatText},Shining,shining]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<100)) /varset ShiningBuffRecast ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
-		/if (${Select[${ChatText},Cure,cure,CURE]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<200)) /call SingleCure ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
-		/if (${Select[${ChatText},RC,Radiant,GC]} && (${Spawn[${ChatSender.Right[-2].Left[-1]}].Distance}<200)) /call GroupCure ${Spawn[${ChatSender.Right[-2].Left[-1]}].ID}
-	}
+	/next _count
+		
 /return
 |----------------------------------------------------------------------------
 |- SUB: SingleCure
@@ -582,17 +447,4 @@ Sub OtherCure(int cureid)
 	} else /if (${Me.AltAbilityReady[Purify Soul]} && !${Me.Casting.ID}) {
 		/call AANow ${Me.AltAbility[Purify Soul].ID} ${cureid}
 	}
-/return
-|----------------------------------------------------------------------------
-|- SUB: Buff Event
-|----------------------------------------------------------------------------
-Sub Event_Buff(string line, string Mybuff)
-    /if (${Mybuff.Equal[${TankBuffMatch}]})	/varset TankBuffRecast 1
-	/if (${Mybuff.Equal[${DivineBuff}]}) 	/varset DivineBuffRecast 1
-/return
-|----------------------------------------------------------------------------
-|- SUB: ReactCure - 
-|----------------------------------------------------------------------------
-Sub Event_ReactCure
-	/call GroupCure
 /return

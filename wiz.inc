@@ -158,7 +158,9 @@ Sub wiz_main
 	/doevents
 	
 /return
-
+|----------------------------------------------------------------------------
+|- SUB: wiz_check_mana
+|---------------------------------------------------------------------------- 
 sub wiz_check_mana
 
 	| if mana is below the puller check limit

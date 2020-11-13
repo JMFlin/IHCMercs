@@ -608,7 +608,9 @@ Sub bst_abilities
 		/varset AtkHPBuff ${Spell[Spiritual Brawn].RankName}
 	}
  |-Pet Dmg Absorb + HoT buff*
-	/if (${Me.Level}>=${Spell[Natural Cooperation].Level} && ${Me.Book[${Spell[Natural Cooperation].RankName}]}) {
+	/if (${Me.AltAbility[Feralist's Unity].Rank} >= 1) {
+		/varset KillShotBuff Feralist's Unity
+	} else /if (${Me.Level}>=${Spell[Natural Cooperation].Level} && ${Me.Book[${Spell[Natural Cooperation].RankName}]}) {
 		/varset KillShotBuff ${Spell[Natural Cooperation].RankName}
 	} else /if (${Me.Level}>=${Spell[Natural Affiliation].Level} && ${Me.Book[${Spell[Natural Affiliation].RankName}]}) {
 		/varset KillShotBuff ${Spell[Natural Affiliation].RankName}

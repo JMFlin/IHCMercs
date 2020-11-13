@@ -172,13 +172,13 @@ Sub clr_load_spellbar
 Sub clr_abilities
 	|---Ward Spell Slot 1 or Heal over time for low level
 	
-	/if (${Me.Level}>=112 && ${Me.Book[${Spell[Ward of Righteousness].RankName}]})  {
+	/if (${Me.Level}>=112 && ${Me.Book[${Spell[Ward of Righteousness].RankName}]}) {
 		/varset WardSpell ${Spell[Ward of Assurance].RankName}
-	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Ward of Assurance].RankName}]})  {
+	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Ward of Assurance].RankName}]}) {
 		/varset WardSpell ${Spell[Ward of Assurance].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Ward of Surety].RankName}]})  {
+	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Ward of Surety].RankName}]}) {
 		/varset WardSpell ${Spell[Ward of Surety].RankName}
-	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Ward of Certitude].RankName}]})  {
+	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Ward of Certitude].RankName}]}) {
 		/varset WardSpell ${Spell[Ward of Certitude].RankName}
 	}
 

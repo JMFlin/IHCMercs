@@ -887,15 +887,15 @@ Sub go_scribe(string _zoneName)
 | --------------------------------------------------------------------------------------------
 | SUB: NavTo
 | --------------------------------------------------------------------------------------------
-Sub NavTo(MerchantName)
+Sub NavTo(string _merchantName)
 	
-	/nav spawn npc ${MerchantName}
+	/nav spawn npc ${_merchantName}
     /while (${Navigation.Active}) {
-        /if (${Spawn[${MerchantName}].Distance3D} < 20) /break
+        /if (${Spawn[${_merchantName}].Distance3D} < 20) /break
         /delay 5
     }
-    /squelch /target npc ${MerchantName}
-    /delay 2s ${Target.ID}==${Spawn[${MerchantName}].ID}
+    /squelch /target npc ${_merchantName}
+    /delay 2s ${Target.ID}==${Spawn[${_merchantName}].ID}
     /face
 /return
 
