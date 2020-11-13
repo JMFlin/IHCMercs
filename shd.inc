@@ -39,6 +39,7 @@ Sub shd_main
 		}
 		
 		/call shd_aoe_aggro
+		/call get_target
 
 		/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
 			/call core_cast2 "Visage of Death" alt 0 FALSE
@@ -47,10 +48,12 @@ Sub shd_main
 		/if (${Me.PctHPs} < 99) {
 			/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 		}
-		/call shd_get_aggro
 		/if (${Me.PctHPs} < 90) {
 			/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 		}
+		
+		/call shd_get_aggro
+		/call get_target
 
 		/if (!${Me.Buff[${Recourse}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
@@ -81,11 +84,11 @@ Sub shd_main
 Sub shd_self_buffs
 	/declare CastCheck			int local 0
 
+	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) {
 		/call core_cast2 "${Skin}" spell ${Me.ID} FALSE
 		/varset CastCheck 1
 	}
-	/if (${Me.XTarget}) /return
 
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) {
@@ -93,13 +96,11 @@ Sub shd_self_buffs
 		/varset CastCheck 1
 	}
 	
-
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Cloak}", ${Me.ID}]}) {
 		/call core_cast2 "${Cloak}" spell ${Me.ID} FALSE
 		/varset CastCheck 1
 	}
-	
 
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${HPShroud}", ${Me.ID}]}) {
@@ -112,7 +113,6 @@ Sub shd_self_buffs
 		/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
 		/varset CastCheck 1
 	}
-	
 
 	/if (${Me.XTarget}) /return
 	/if (${Group.MainTank.ID} == ${Me.ID}) {
@@ -230,6 +230,8 @@ Sub shd_disc
 Sub shd_get_aggro
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
+
+	/call engage
 
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {
 		/call core_cast2 "${Terror1}" spell ${Target.ID} FALSE

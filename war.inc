@@ -25,6 +25,7 @@ Sub war_main
 		/call war_get_aggro
 		/call war_disc
 		/call engage
+		/call use_skill_melee FALSE ${Target.ID}
 		/if (!${Me.Song[Battle Leap].ID}) {
 			/if (${validate_cast[FALSE, alt, "Battle Leap", ${Target.ID}]}) /call core_cast2 "Battle Leap" alt 0 FALSE
 		}
@@ -114,7 +115,6 @@ Sub war_combat_buffs
 			/if (${validate_cast[FALSE, item, "Diplomatic Papers", ${Me.ID}]})  /call core_cast2 "Diplomatic Papers" item 0 FALSE	
 		}
 	}
-
 
 	| Pain Doesn't Hurt > Brace for Impact > Diplo Papers
 	/if (!${Me.Song[Pain Doesn't Hurt].ID} && !${Me.Buff[Brace for Impact].ID}) {
@@ -220,8 +220,6 @@ Sub war_get_aggro
 	
 	/call engage
 
-	/call use_skill_melee FALSE ${Target.ID}
-
 	/if (${validate_cast[FALSE, alt, "Call of Challenge", ${Target.ID}]}) /call core_cast2 "Call of Challenge" alt ${Target.ID} FALSE	
 
 	/if (${validate_cast[FALSE, disc, "${shout}", ${Target.ID}]}) /call core_cast2 "${shout}" disc ${Target.ID} FALSE
@@ -229,8 +227,6 @@ Sub war_get_aggro
 	/if (${validate_cast[FALSE, disc, "${insult}", ${Target.ID}]}) /call core_cast2 "${insult}" disc ${Target.ID} FALSE
 	
 	/if (${validate_cast[FALSE, disc, "${roar}", ${Target.ID}]}) /call core_cast2 "${roar}" disc ${Target.ID} FALSE
-	
-	/call use_skill_melee FALSE ${Target.ID}
 
 	/if (${Me.SecondaryPctAggro} > 10) {
 		/if (${validate_cast[FALSE, disc, "${PhantomDisc}", ${Target.ID}]}) /call core_cast2 "${PhantomDisc}" disc ${Target.ID} FALSE
