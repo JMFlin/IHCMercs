@@ -22,7 +22,7 @@ Sub shd_main
 		/call shd_disc
 
 		|/while (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${Target.ID} && ${Me.XTarget}) {
-		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
+		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${shdDoSnare}) {
 			/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events CAST_IMMUNE "${SnareSpell}"

@@ -53,7 +53,7 @@ Sub wiz_main
 			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
 		}
 
-		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
+		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${wizDoSnare}) {
 			/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}

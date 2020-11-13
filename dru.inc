@@ -125,7 +125,7 @@ Sub dru_main
 
 		/if (${check_hurt[FALSE, group, 80]} < 1) {
 			/call get_target
-			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${doSnare}) {
+			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${druDoSnare}) {
 				/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
 					/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 					/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}

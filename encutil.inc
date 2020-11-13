@@ -115,6 +115,9 @@ Sub enc_setup
 
 	/declare AzureMindCrystalRank 	string outer NULL
 	/declare MentalContortionRank 	string outer NULL
+	/declare IllusionsOfGrandeurRank	string outer NULL
+	/declare ChromaticHazeRank		string outer NULL
+	
 |- Below Code is only needed for using ihcxtenchmez.inc
 |-	/declare MezCount[13]           			int         outer 	0
 |-	/declare MezArray[50,3]			            string      outer       NULL
@@ -202,6 +205,44 @@ Sub enc_abilities
 		/varset AzureMindCrystalRank VIII
 	} else /if (${Me.AltAbility[Azure Mind Crystal].Rank} == 10) {
 		/varset AzureMindCrystalRank X
+	}
+
+	/if (${Me.AltAbility[Chromatic Haze].Rank} == 1) {
+		/varset ChromaticHazeRank I
+	} else /if (${Me.AltAbility[Chromatic Haze].Rank} == 2) {
+		/varset ChromaticHazeRank II
+	} else /if (${Me.AltAbility[Chromatic Haze].Rank} == 3) {
+		/varset ChromaticHazeRank III
+	} else /if (${Me.AltAbility[Chromatic Haze].Rank} == 4) {
+		/varset ChromaticHazeRank IV
+	} else /if (${Me.AltAbility[Chromatic Haze].Rank} == 5) {
+		/varset ChromaticHazeRank V
+	} else /if (${Me.AltAbility[Chromatic Haze].Rank} == 6) {
+		/varset ChromaticHazeRank VI
+	} else /if (${Me.AltAbility[Chromatic Haze].Rank} == 7) {
+		/varset ChromaticHazeRank VII
+	} else /if (${Me.AltAbility[Chromatic Haze].Rank} == 8) {
+		/varset ChromaticHazeRank VIII
+	} else /if (${Me.AltAbility[Chromatic Haze].Rank} == 9) {
+		/varset ChromaticHazeRank VIII
+	}
+
+	/if (${Me.AltAbility[Illusions of Grandeur].Rank} == 1) {
+		/varset IllusionsOfGrandeurRank I
+	} else /if (${Me.AltAbility[Illusions of Grandeur].Rank} == 2) {
+		/varset IllusionsOfGrandeurRank II
+	} else /if (${Me.AltAbility[Illusions of Grandeur].Rank} == 3) {
+		/varset IllusionsOfGrandeurRank III
+	} else /if (${Me.AltAbility[Illusions of Grandeur].Rank} == 4) {
+		/varset IllusionsOfGrandeurRank IV
+	} else /if (${Me.AltAbility[Illusions of Grandeur].Rank} == 5) {
+		/varset IllusionsOfGrandeurRank V
+	} else /if (${Me.AltAbility[Illusions of Grandeur].Rank} == 6) {
+		/varset IllusionsOfGrandeurRank VI
+	} else /if (${Me.AltAbility[Illusions of Grandeur].Rank} == 7) {
+		/varset IllusionsOfGrandeurRank VII
+	} else /if (${Me.AltAbility[Illusions of Grandeur].Rank} == 8) {
+		/varset IllusionsOfGrandeurRank VIII
 	}
 
 	/if (${Me.AltAbility[Mental Contortion].Rank} == 12) {
@@ -430,7 +471,11 @@ Sub enc_abilities
 		/varset CrippleSpell1 ${Spell[Attenuating Helix].RankName}
 	} else /if (${Me.Level}>=88 && ${Me.Book[${Spell[Curtailing Helix].RankName}]}) {
 		/varset CrippleSpell1 ${Spell[Curtailing Helix].RankName}
-	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Splintered Consciousness].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Demolished Consciousness].Level} && ${Me.Book[${Spell[Demolished Consciousness].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Demolished Consciousness].RankName}
+	} else /if (${Me.Level}>=${Spell[Slivered Consciousness].Level} && ${Me.Book[${Spell[Slivered Consciousness].RankName}]}) {
+		/varset CrippleSpell1 ${Spell[Slivered Consciousness].RankName}
+	} else /if (${Me.Level}>=${Spell[Splintered Consciousness].Level} && ${Me.Book[${Spell[Splintered Consciousness].RankName}]}) {
 		/varset CrippleSpell1 ${Spell[Splintered Consciousness].RankName}
 	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Fragmented Consciousness].RankName}]}) {
 		/varset CrippleSpell1 ${Spell[Fragmented Consciousness].RankName}
@@ -929,7 +974,7 @@ Sub enc_abilities
 		/varset CharmSpell1 ${Spell[Charm].RankName}
 	}
 |-Strip Buff Spell * Var Name: StripBuffSpell string outer
-	/if (${Me.Level}>=100 && ${Me.AltAbilityReady[Eradicate Magic]}) {
+	/if (${Me.Level}>=100 && ${Me.AltAbility[Eradicate Magic].Rank} >= 1) {
 		/varset StripBuffSpell Eradicate Magic
 	} else /if (${Me.Level}>=53 && ${Me.Book[${Spell[Recant Magic].RankName}]}) {
 		/varset StripBuffSpell ${Spell[Recant Magic].RankName}
@@ -1329,74 +1374,4 @@ Sub enc_abilities
 	
 	/call enc_load_spellbar
 
-/return 
-
-|----------------------------------------------------------------------------
-|-SUB: BIND  - SingleBanish
-|----------------------------------------------------------------------------
-Sub Bind_SingleBanish(string BanishID)
-	/target id ${BanishID}
-	/delay 10 ${Target.ID}==${BanishID}
-	/if (!${Target.LineOfSight}) {
-		/docommand /dgt I Can Not See the Target
-	} else /if (${Me.AltAbilityReady[Beguiler's Directed Banishment]} && ${BanishID}) {
-		/docommand /dgt \ar BANISHING \ag -> \ay ${Spawn[${BanishID}].CleanName} \ag <- \ar ID:${BanishID} \ax
-		/face fast
-		/delay 5
-		/casting "Beguiler's Directed Banishment" alt -targetid|${BanishID}
-        /delay 10
-	} else {
-		/docommand /dgt \ar COOL DOWN \ag >> \aw Beguiler's Directed Banishment \ag << 
-	}
-	/target clear
-/return
-|----------------------------------------------------------------------------
-|-SUB: BIND  - 
-|----------------------------------------------------------------------------
-Sub Bind_AEBanish(string AEBanishID)
-	/target id ${AEBanishID}
-	/delay 10 ${Target.ID}==${AEBanishID}
-	/if (!${Target.LineOfSight}) {
-		/docommand /dgt I Can Not See the Target
-	} else /if (${Me.AltAbilityReady[Beguiler's Banishment]} && ${AEBanishID}) {
-		/docommand /dgt \ar AE Banishing \ag -> \ay ${Spawn[${AEBanishID}].CleanName} \ag <- \ar ID:${AEBanishID} \ax
-		/face fast
-		/delay 5
-		/casting "Beguiler's Banishment" alt -targetid|${AEBanishID}
-        /delay 10
-	} else {
-		/docommand /dgt \ar COOL DOWN \ag >> \aw Beguiler's Banishment \ag << 
-	}
-	/target clear
-/return
-|----------------------------------------------------------------------------
-|- SUB: BIND CmdList - 
-|----------------------------------------------------------------------------
-Sub Bind_CmdList
-/call CommonHelp
-/echo \ag===${MacroName} Commands=== 
-/echo \ag/autodebuffat\aw - HP % to start debuffing at
-/echo \ag/blurpct\aw - Aggro % to use blur spell 
-/echo \ag/charmstun\aw - toggles use of stun before charming mob
-/echo \ag/charmtash\aw - toggles use of tash before charming mob
-/echo \ag/maxmezcount\aw - Maximum # of mobs to CC ( Default is 13 )
-/echo \ag/mezaecount\aw - Sets # of mobs needed on aggro and in range to AE Mez ( Default 3 )
-/echo \ag/mezmaxlevel\aw - Maximum Level a mob must be to Mez - Above this lvl are ignored
-/echo \ag/mezminlevel\aw - Minimum Level a mob must be to Mez - Below this lvl are ignored
-/echo \ag/mezradius\aw - Radius for mobs to be in to start Mezing, An area twice this size is monitored for aggro mobs
-/echo \ag/mezstartcount\aw - Sets # of mobs needed on aggro to start mezzing at ( Default 2 )
-/echo \ag/mezstophp\aw - Mob HP% to stop trying to mez
-/echo \ag/tglblur\aw - Toggle use of memblur spell
-/echo \ag/tglcharm\aw - Toggles use of Charm
-/echo \ag/tglcrip\aw - Toggle use of Cripple spell
-/echo \ag/tgldicho\aw - Toggle use of Dicho spell
-/echo \ag/tgldots\aw - Turns use of DoT spells On/Off
-/echo \ag/tgldps\aw - Turns ALL DPS On/Off
-/echo \ag/tglmez\aw - Turns Mez On/Off
-/echo \ag/tglmezmsg\aw - Turns Target Mez Messages On/Off
-/echo \ag/tglndt\aw - Turns NDT (Melee proc) Buffing On/Off
-/echo \ag/tglpet\aw - Pet toggle...cause sometimes they arent allowed
-/echo \ag/tglslow\aw - Turns Slow Debuff On/Off
-/echo \ag/tglstrip\aw - Turns Enemy Buff stripping On/Off
-/echo \ag/tgltash\aw - Turns Tash Debuff On/Off
 /return 

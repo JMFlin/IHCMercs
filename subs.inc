@@ -196,8 +196,13 @@ Sub var_setup
 	/declare doNotBuff 			bool outer FALSE
 
 |- Snares
-	/declare doSnare 			bool outer False
+	/declare wizDoSnare 		bool outer False
+	/declare druDoSnare 		bool outer False
+	/declare shdDoSnare 		bool outer False
+
+|- Stuns
 	/declare berDoStun 			bool outer False
+	/declare encDoStun			bool outer False
 
 |- Scribe
 	/declare getSpellsFromZone 	string outer 0
@@ -3181,6 +3186,9 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			}
 
 			/if (${Select[${Me.Class.ShortName},ENC]}) {
+				/if (${validate_cast[FALSE, alt, "Noctambulate", ${Me.ID}]}) {
+					/call core_cast2 "Noctambulate" alt 0 FALSE
+				}
 				| If target is not tashed then tash
 				/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 					/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
