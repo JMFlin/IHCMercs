@@ -110,16 +110,16 @@ Sub bst_main
 
 		/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
 				
-				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+			/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
 
-				/if (${validate_cast[FALSE, spell, "${MaelstromNuke}", ${Target.ID}]}) {
-					/call core_cast2 "${MaelstromNuke}" spell ${Target.ID} FALSE
-				}
-
-				/if (${validate_cast[FALSE, spell, "${FrozenNuke}", ${Target.ID}]}) {
-					/call core_cast2 "${FrozenNuke}" spell ${Target.ID} FALSE
-				}
+			/if (${validate_cast[FALSE, spell, "${MaelstromNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${MaelstromNuke}" spell ${Target.ID} FALSE
 			}
+
+			/if (${validate_cast[FALSE, spell, "${FrozenNuke}", ${Target.ID}]}) {
+				/call core_cast2 "${FrozenNuke}" spell ${Target.ID} FALSE
+			}
+		}
 
 		/if (!${Target.Buff[${ChillDoT}].ID} && ${Target.Named} && !${Me.Buff[Frenzy of Spirit].ID} && !${Me.Buff[Bestial Alignment].ID}) {
 			/if (${validate_cast[FALSE, spell, "${ChillDoT}", ${Target.ID}]}) {
@@ -172,6 +172,7 @@ Sub bst_self_buff_check
 	/if (!${Me.Buff[${KillShotBuff}]}) {
 		/if (${validate_cast[FALSE, FIND, "Feralist's Unity", ${Me.ID}]}) {
 			/call core_cast2 "Feralist's Unity" FIND ${Me.ID} FALSE
+			/varset CastCheck 1
 		}
 	}
 
@@ -195,14 +196,6 @@ Sub bst_self_buff_check
 				/varset CastCheck 1
 			}
 		}
-		|**
-		/if (!${Me.Pet.Buff[${PetDefenseBuff}]}) {
-			/if (${validate_cast[FALSE, spell, "${PetDefenseBuff}", ${Me.Pet.ID}]}) {
-				/call core_cast2 "${PetDefenseBuff}" spell ${Me.Pet.ID} FALSE
-				/varset CastCheck 1
-			}
-		}
-		**|
 		/if (!${Me.Pet.Buff[${PetHaste}]}) {
 			/if (${validate_cast[FALSE, spell, "${PetHaste}", ${Me.Pet.ID}]}) {
 				/call core_cast2 "${PetHaste}" spell ${Me.Pet.ID} FALSE

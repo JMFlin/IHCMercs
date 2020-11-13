@@ -16,6 +16,8 @@ Sub shd_main
 		/if (!${validate_combat[${Target.ID}]}) /continue
 		
 		/call engage
+
+		/call use_skill_melee ${Target.ID} FALSE
 		
 		/call shd_disc
 
@@ -27,8 +29,6 @@ Sub shd_main
 			}
 		}
 		|}
-		
-		/call get_target
 	
 		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
 			/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
@@ -39,7 +39,6 @@ Sub shd_main
 		}
 		
 		/call shd_aoe_aggro
-		/call get_target
 
 		/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
 			/call core_cast2 "Visage of Death" alt 0 FALSE
@@ -48,29 +47,20 @@ Sub shd_main
 		/if (${Me.PctHPs} < 99) {
 			/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
 		}
-		/call get_target
 		/call shd_get_aggro
-		/call get_target
 		/if (${Me.PctHPs} < 90) {
 			/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
 		}
 
-		/call get_target
-
 		/if (!${Me.Buff[${Recourse}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
 		}
-
-		/call shd_aoe_aggro
-		/call get_target
 
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
 			/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {
 				/call core_cast2 "${Withstand}" disc 0 FALSE
 			}
 		}
-		/call get_target
-		/call shd_get_aggro
 
 		/if (${Me.PctHPs} < 65) {
 			/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) {
@@ -83,7 +73,6 @@ Sub shd_main
 				/call core_cast2 "Leech Touch" alt ${Target.ID} FALSE
 			}
 		}
-
 	}
 /return
 |----------------------------------------------------------------------------
@@ -92,11 +81,11 @@ Sub shd_main
 Sub shd_self_buffs
 	/declare CastCheck			int local 0
 
-	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) {
 		/call core_cast2 "${Skin}" spell ${Me.ID} FALSE
 		/varset CastCheck 1
 	}
+	/if (${Me.XTarget}) /return
 
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) {
@@ -241,8 +230,6 @@ Sub shd_disc
 Sub shd_get_aggro
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
-
-	/call use_skill_melee ${Target.ID} FALSE
 
 	/if (${validate_cast[FALSE, spell, "${Terror1}", ${Target.ID}]}) {
 		/call core_cast2 "${Terror1}" spell ${Target.ID} FALSE
