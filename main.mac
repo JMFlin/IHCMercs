@@ -99,6 +99,7 @@ Sub Main
 	/if (${Mode} == 5) /call DoEvent
 	/if (${Mode} == 7) /call mode_posse_afk
 	/if (${Mode} == 8) /call go_sell
+	/if (${Mode} == 9) /call go_scribe ${getSpellsFromZone}
 /goto :mainloop 
 /return
 |----------------------------------------------------------------------------
@@ -124,7 +125,6 @@ Sub afk_radius_camping
 		/if (${Mode} != 0) /call force_create_campfire
 
 		/call move_to_camp
-		
 		
 		/if (!${powerLevel}) {
 			/if (${validate_pull_start[FALSE]}) /call afk_pull
@@ -177,16 +177,18 @@ Sub set_mode
 
 sub misc
 
-	/varset newPosseXY ${pullRadiusXY}
-	/varset newPosseZ ${pullRadiusZ}
+	/if (${Mode} > 0) {
+		/varset newPosseXY ${pullRadiusXY}
+		/varset newPosseZ ${pullRadiusZ}
 
-	/if (${newPosseXY} != ${oldPosseXY} || ${newPosseZ} != ${oldPosseZ}) {
-		/posse radius ${pullRadiusXY} 
-		/posse zradius ${pullRadiusZ}
-		/posse save
-		/varset oldPosseXY ${newPosseXY}
-		/varset oldPosseZ ${newPosseZ}
-		DEBUG Set MQ2Posse radius: ${Posse.Radius}
+		/if (${newPosseXY} != ${oldPosseXY} || ${newPosseZ} != ${oldPosseZ}) {
+			/posse radius ${pullRadiusXY} 
+			/posse zradius ${pullRadiusZ}
+			/posse save
+			/varset oldPosseXY ${newPosseXY}
+			/varset oldPosseZ ${newPosseZ}
+			DEBUG Set MQ2Posse radius: ${Posse.Radius}
+		}
 	}
 
 	| Close windows trying to get you to buy
@@ -206,7 +208,7 @@ sub misc
 	
 
 	| pop your merc
-	/if (${Mode} != 0) {
+	/if (${Mode} > 0) {
 		/if (${useMerc} && ${Me.CombatState.NotEqual[COMBAT]}) {
 			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) {
 				/if (!${Window[MMGW_ManageWnd].Open}) /windowstate MMGW_ManageWnd open
@@ -746,4 +748,1041 @@ sub group_checker
 		
 	/next _count
 	
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: Main
+| --------------------------------------------------------------------------------------------
+Sub go_scribe(string _zoneName)
+	|**
+	TODO
+		MinLevel
+		MaxLevel
+		As Aliases for input ie /scribeminlevel /zone Argath
+
+		EasternWastesTwoButton
+
+		spells and translocation AAs and items
+	**|
+	/if (${_zoneName.Equal[0]}) {
+		/echo "Please set variable getSpellsFromZone to a supported zone, i.e. Stratos"
+		/delay 5s
+		/return
+	}
+	/declare _minLevel int local 1
+	/declare _maxLevel int local ${Me.Level}
+	/varset _minLevel 91
+	/varset _maxLevel 91
+	/declare _getSpellsFromZone string local 0
+
+	/if (${_zoneName.Equal[All]}) {
+		/declare _getSpellsFromZoneList[7] string local 0
+		/varset _getSpellsFromZoneList[1] PoKnowledge
+		/varset _getSpellsFromZoneList[2] PoTranquility
+		/varset _getSpellsFromZoneList[3] Argath
+		/varset _getSpellsFromZoneList[4] ShardsLanding
+		/varset _getSpellsFromZoneList[5] Lceanium
+		/varset _getSpellsFromZoneList[6] Overthere
+		/varset _getSpellsFromZoneList[7] Stratos
+	} else {
+		/declare _getSpellsFromZoneList[1] string local 0
+		/varset _getSpellsFromZoneList[1] ${_zoneName}
+	}
+	
+	/declare DoLoop int local 0
+	/declare mName string local
+	/declare Merchant1 string local 0
+	/declare MLoop int local 0
+	/declare _count int local 0
+
+	/if (!${Zone.ShortName.Equal[PoKnowledge]} && !${Zone.ShortName.Equal[GuildLobby]} && !${Zone.ShortName.Equal[GuildHall]}) /call go_to_pok
+	
+	/for _count 1 to ${_getSpellsFromZoneList.Size}
+
+		/if (${Select[${Me.Class.ShortName},SHM,DRU]}) {
+			/call core_cast2 "${TravelSpell}" FIND ${Me.ID} FALSE
+		}
+		
+		/varset _getSpellsFromZone ${_getSpellsFromZoneList[${_count}]}
+
+		/echo \ag--\atNext destination is ${_getSpellsFromZone} for levels ${_minLevel} - ${_maxLevel} \ag--
+		/echo
+
+		/if (!${Zone.ShortName.Equal[${_getSpellsFromZone}]} && !${Zone.ShortName.Equal[${_getSpellsFromZone}two]}) {
+		
+			/if (${_getSpellsFromZone.Equal[PoTranquility]}) {
+				/call go_to_pok
+				/call pot
+				/return
+			}
+			/if (${_getSpellsFromZone.Equal[PoKnowledge]}) {
+				/call go_to_pok
+				/return
+			}
+
+			/call go_to_guildhall
+		
+			/call NavTo "Zeflmin Werlikanin"
+			/delay 5
+			/click right target
+			/delay 5s ${Merchant.Open}
+			/if (${Merchant.Open}) {
+				/delay 10s ${Merchant.ItemsReceived}
+			}
+			/delay 2s
+			/if (${Window[PortalSetterWindow].Open}) /notify PortalSetterWindow ${_getSpellsFromZone}Button leftmouseup
+			/delay 1s
+			/if (${Window[InventoryWindow].Open}) /notify InventoryWindow IW_DoneButton leftmouseup
+			/delay 1s
+			/call portalpool ${_getSpellsFromZone}
+		}
+
+		/call ClassMerchant${_getSpellsFromZone} ${_getSpellsFromZone}
+
+		:Start
+		/varset DoLoop 0
+		/for MLoop 1 to ${${Me.Class.ShortName}Merchant${_getSpellsFromZone}.Size}
+		/echo \ag--\atNavigating to class merchant ${${Me.Class.ShortName}Merchant${_getSpellsFromZone}[${MLoop}]} \ag--
+		/call NavTo ${${Me.Class.ShortName}Merchant${_getSpellsFromZone}[${MLoop}]}
+		/if (!${Merchant.Open}) {	
+		:NavLoop
+			/if (${Navigation.Active}) /goto :NavLoop
+			/click right target
+			/delay 5s ${Merchant.Open}
+		}
+		/if (${Merchant.Open}) {
+			/delay 10s ${Merchant.ItemsReceived}
+			/varset mName ${Merchant.Name}
+			/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC,SHD,BRD,BST]}) /call BuyTomes ${_minLevel} ${_maxLevel}
+			/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG,SHD,BRD,BST]}) /call BuySpells ${_minLevel} ${_maxLevel}
+			/delay 2s
+		}
+		/if (${Merchant.Open}) {
+			/notify MerchantWnd MW_Done_Button leftmouseup
+			/delay 1s !${Merchant.Open}
+		}
+		/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC,SHD,BRD,BST]}) /call ScribeTomes
+		/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG,SHD,BRD,BST]}) /call ScribeSpells
+		/if (${DoLoop}) {
+			/target ${mName}
+			/delay 2s ${Target.ID}
+			/click right target
+			/delay 1s
+			/goto :Start
+		}
+		/next MLoop
+		/if (${Window[BookWindow].Open}) /notify BookWindow BOOK_DoneButton leftmouseup
+		/if (${Window[InventoryWindow].Open}) /notify InventoryWindow IW_DoneButton leftmouseup
+	/next _count
+
+	/if (!${Zone.ShortName.Equal[PoKnowledge]}) /call go_to_pok
+	/varset Mode 0
+	
+	/echo
+	/echo \ag--\atSpells and tomes bought and scribed \ag--
+	/echo
+
+/return
+| --------------------------------------------------------------------------------------------
+| SUB: NavTo
+| --------------------------------------------------------------------------------------------
+Sub NavTo(MerchantName)
+	
+	/nav spawn npc ${MerchantName}
+    /while (${Navigation.Active}) {
+        /if (${Spawn[${MerchantName}].Distance3D} < 20) /break
+        /delay 5
+    }
+    /squelch /target npc ${MerchantName}
+    /delay 2s ${Target.ID}==${Spawn[${MerchantName}].ID}
+    /face
+/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: BuySpells
+| --------------------------------------------------------------------------------------------
+Sub BuySpells(string _minLevel, int _maxLevel)
+	/if (!${Merchant.Open}) /return
+	|Modified to Merchant.ItemsReceived
+|    /delay 10s ${Merchant.ItemsReceived}
+    /if (!${Merchant.Items}) /return
+
+	/declare a int local
+	/declare b int local
+	/declare c int local
+	/declare SpellName string local
+	/declare MyDeity string local ${Me.Deity}
+
+	/for a 1 to ${Merchant.Items}
+		/if (!${Me.FreeInventory}) /return
+		/if (!${Merchant.Open}) /return
+		/varset c 0
+		/varset SpellName ${Merchant.Item[${a}].Spell.Name}
+		/if (${SpellName.Find[ Rk. II ]}) /varset SpellName ${Merchant.Item[${a}].Spell.Name.Replace[ Rk. II ,]}
+		/if (${SpellName.Find[ Rk. III ]}) /varset SpellName ${Merchant.Item[${a}].Spell.Name.Replace[ Rk. III ,]}
+
+		/if (${Merchant.Item[${a}].Type.Equal[Scroll]} && ${Merchant.Item[${a}].Spell.Level} >= ${_minLevel} && ${Merchant.Item[${a}].Spell.Level} <= ${_maxLevel} && ${Math.Calc[${Merchant.Item[${a}].BuyPrice}\1000]} < ${Me.Platinum} && !${Me.Book[${Merchant.Item[${a}].Spell.Name}]} && !${FindItemCount[${Merchant.Item[${a}]}]}) {
+			/if (${Me.CombatAbility[${SpellName}]}) {
+				/echo :: I already know ${SpellName}
+			/continue
+			}
+
+			/if (${FindItemCount[${Merchant.Item[${a}]}]}) {
+				/echo :: I already have ${Merchant.Item[${a}]} in inventory
+			/continue
+			}
+
+			/if (${Me.CombatAbility[${SpellName} Rk. II]} || ${FindItemCount[${Merchant.Item[${a}]} Rk. II]}) {
+				/echo :: Skipping lower rank of ${SpellName}
+			/continue
+			}
+
+			/if (${Me.CombatAbility[${SpellName} Rk. III]} || ${FindItemCount[${Merchant.Item[${a}]} Rk. III]}) {
+				/echo :: Skipping lower rank of ${SpellName}
+			/continue
+			}
+
+			/if (${Merchant.Item[${a}].Deities} && ${MyDeity.NotEqual[${Merchant.Item[${a}].Deity[1]}]}) {
+				/echo Unable to use ${SpellName} because of deity
+			/continue
+			}
+			/if (${Me.Book[${SpellName} Rk. II]} || ${FindItemCount[${SpellName} Rk. II]}) {
+				/echo Skipping lower rank of ${SpellName}
+			/continue
+			}
+			/if (${Me.Book[${SpellName} Rk. III]} || ${FindItemCount[${SpellName} Rk. III]}) {
+				/echo Skipping lower rank of ${SpellName}
+			/continue
+			}
+
+		| this loop is needed because the merchant item number doesn't match up to the interface line number
+			/for b 1 to ${Window[MerchantWnd].Child[MW_ItemList].Items}
+				/if (${Window[MerchantWnd].Child[MW_ItemList].List[${b},2].Equal[${Merchant.Item[${a}]}]}) /varset c ${b}
+			/next b
+
+		| merchant line number matches what we are looking to buy, buy 1 copy of it
+			/if (${c}) {
+				/echo Buying ${Window[MerchantWnd].Child[MW_ItemList].List[${c},2]}
+				/notify MerchantWnd MW_ItemList listselect ${c}
+				/nomodkey /ctrlkey /notify MerchantWnd MW_Buy_Button leftmouseup
+				/delay 1s
+				/doevents
+			}
+		}
+	/next a
+
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: ScribeSpells
+| --------------------------------------------------------------------------------------------
+Sub ScribeSpells
+	/declare Bag int local
+	/declare Slot int local
+	/declare MaxInvSlots int local 10
+
+	/if (${Cursor.ID}) /autoinv
+	|** Opening your inventory for access bag slots **|
+	/if (!${Window[InventoryWindow].Open}) {
+		/windowstate InventoryWindow open
+	}
+	|** Open all bags **|
+	/keypress OPEN_INV_BAGS
+
+	
+	|** Check Top Level Inventory Slot for bag/no bag **|
+	/for Bag 1 to ${MaxInvSlots}
+		|** If it's a bag do this **|
+		/if (${InvSlot[pack${Bag}].Item.Container}) {
+			/if (!${Window[Pack${Bag}].Open}) /itemnotify pack${Bag} rightmouseup
+			/delay 1s ${Window[Pack${Bag}].Open}
+			/delay 5
+
+			/for Slot 1 to ${InvSlot[pack${Bag}].Item.Container}
+				/if (${InvSlot[pack${Bag}].Item.Item[${Slot}].Type.Equal[Scroll]} && ${InvSlot[pack${Bag}].Item.Item[${Slot}].Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${Bag}].Item.Item[${Slot}].Spell.Name}]}) {
+					/nomodkey /ctrlkey /itemnotify in pack${Bag} ${Slot} rightmouseup
+					/delay 1s ${Cursor.ID}
+					/if (${Cursor.ID}) /call doScribe
+				}
+			/next Slot
+			|** Close the bag I just checked **|
+			/if (${Window[Pack${Bag}].Open}) /itemnotify pack${Bag} rightmouseup
+		} else {
+			|** If it's not a bag, do this **|
+			| Debug message /echo TopLevel Inv Slot ~ IsAScroll: ${InvSlot[pack${Bag}].Item.Type.Equal[Scroll]} && Item Spell level: ${InvSlot[pack${Bag}].Item.Spell.Level} <= My Level: ${Me.Level} && Scribed Already: !${Me.Book[${InvSlot[pack${Bag}].Item.Spell.Name}]}
+			/if (${InvSlot[pack${Bag}].Item.Type.Equal[Scroll]} && ${InvSlot[pack${Bag}].Item.Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${Bag}].Item.Spell.Name}]}) {
+				/echo Scribing: ${InvSlot[Pack${Bag}].Item.Name}
+				/nomodkey /ctrlkey /itemnotify pack${Bag} rightmouseup
+				/delay 1s ${Cursor.ID}
+				/if (${Cursor.ID}) /call doScribe
+			}
+		}
+	/next Bag
+
+	/if (${Window[SpellBookWnd].Open}) /squelch /windowstate SpellBookWnd close
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: doScribe
+| --------------------------------------------------------------------------------------------
+Sub doScribe
+	/declare tOut timer local 10s
+
+:WaitFinished
+	/if (${Window[ConfirmationDialogBox].Open} && ${Window[ConfirmationDialogBox].Child[CD_TextOutput].Text.Find[${Cursor.Spell.Name} will replace]}) /notify ConfirmationDialogBox Yes_Button leftmouseup
+	/if (!${tOut}) /autoinv
+	/delay 2
+	/doevents
+	/if (${Cursor.ID}) /goto :WaitFinished
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: BuyTomes
+| --------------------------------------------------------------------------------------------
+Sub BuyTomes(string _minLevel, int _maxLevel)
+	/if (!${Merchant.Open}) /return
+	|Modified to Merchant.ItemsReceived
+|	/delay 10s ${Merchant.ItemsReceived}
+    /if (!${Merchant.Items}) /return
+
+	/declare a int local
+	/declare b int local
+	/declare c int local
+	/declare SpellName string local
+
+	/for a 1 to ${Merchant.Items}
+		/if (!${Me.FreeInventory}) /return
+		/varset c 0
+		/varset SpellName ${Merchant.Item[${a}].Spell.Name}
+		/if (${SpellName.Find[ Rk. II ]}) /varset SpellName ${Merchant.Item[${a}].Spell.Name.Replace[ Rk. II ,]}
+		/if (${SpellName.Find[ Rk. III ]}) /varset SpellName ${Merchant.Item[${a}].Spell.Name.Replace[ Rk. III ,]}
+	|/echo Item ${a} is ${Merchant.Item[${a}].Spell.Name}
+
+		/if (${Merchant.Item[${a}].Type.Equal[Scroll]} && ${Merchant.Item[${a}].Spell.Level} >= ${_minLevel} && ${Merchant.Item[${a}].Spell.Level} <= ${_maxLevel} && ${Math.Calc[${Merchant.Item[${a}].BuyPrice}\1000]} < ${Me.Platinum}) {
+
+			/if (${Me.CombatAbility[${SpellName}]}) {
+				/echo :: I already know ${SpellName}
+			/continue
+			}
+
+			/if (${FindItemCount[${Merchant.Item[${a}]}]}) {
+				/echo :: I already have ${Merchant.Item[${a}]} in inventory
+			/continue
+			}
+
+			/if (${Me.CombatAbility[${SpellName} Rk. II]} || ${FindItemCount[${Merchant.Item[${a}]} Rk. II]}) {
+				/echo :: Skipping lower rank of ${SpellName}
+			/continue
+			}
+
+			/if (${Me.CombatAbility[${SpellName} Rk. III]} || ${FindItemCount[${Merchant.Item[${a}]} Rk. III]}) {
+				/echo :: I already have the highest rank of ${SpellName}
+			/continue
+			}
+
+		| this loop is needed because the merchant item number doesn't match up to the interface line number
+			/for b 1 to ${Window[MerchantWnd].Child[MW_ItemList].Items}
+				/if (${Window[MerchantWnd].Child[MW_ItemList].List[${b},2].Equal[${Merchant.Item[${a}]}]}) /varset c ${b}
+			/next b
+
+		| merchant line number matches what we are looking to buy, buy 1 copy of it
+			/if (${c}) {
+				/echo Buying ${Window[MerchantWnd].Child[MW_ItemList].List[${c},2]}
+				/notify MerchantWnd MW_ItemList listselect ${c}
+				/nomodkey /ctrlkey /notify MerchantWnd MW_Buy_Button leftmouseup
+				/delay 1s
+				/doevents
+			}
+		}
+	/next a
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: ScribeTomes
+| --------------------------------------------------------------------------------------------
+Sub ScribeTomes
+	/declare Bag int local
+	/declare Slot int local
+	/declare MaxInvSlots int local 10
+	/declare HasVoA int outer 0
+	/declare InvScribeSlot int local 1
+
+	/if (${Me.HaveExpansion[Veil of Alaris]}) /varset HasVoA 1
+
+	/if (${Cursor.ID}) /autoinv
+
+	/if (!${HasVoA} && ${InvSlot[pack${InvScribeSlot}].Item.Type.Equal[Scroll]} && ${InvSlot[pack${InvScribeSlot}].Item.Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${InvScribeSlot}].Item.Spell.Name}]}) /nomodkey /ctrlkey /itemnotify ${InvSlot[pack${InvScribeSlot}]} rightmouseup
+
+	/for Bag 1 to ${MaxInvSlots}
+		/if (${InvSlot[pack${Bag}].Item.Container}) {
+			/if (!${Window[Pack${Bag}].Open}) /itemnotify pack${Bag} rightmouseup
+			/delay 1s ${Window[Pack${Bag}].Open}
+			/for Slot 1 to ${InvSlot[pack${Bag}].Item.Container}
+				/if (${InvSlot[pack${Bag}].Item.Item[${Slot}].Name.Find[Tome]} && ${InvSlot[pack${Bag}].Item.Item[${Slot}].Type.Equal[Scroll]} && ${InvSlot[pack${Bag}].Item.Item[${Slot}].Spell.Level} <= ${Me.Level} && !${Me.Book[${InvSlot[pack${Bag}].Item.Item[${Slot}].Spell.Name}]}) {
+					/if (${HasVoA}) {
+						/nomodkey /ctrlkey /itemnotify in pack${Bag} ${Slot} rightmouseup
+						/delay 1s !${InvSlot[pack${Bag}].Item.Item[${Slot}].ID}
+					} else {
+						/nomodkey /ctrlkey /itemnotify in pack${Bag} ${Slot} leftmouseup
+						/delay 1s ${Cursor.ID}
+						/nomodkey /ctrlkey /itemnotify ${InvSlot[pack${InvScribeSlot}]} leftmouseup
+						/delay 1s !${Cursor.ID}
+						/nomodkey /ctrlkey /itemnotify ${InvSlot[pack${InvScribeSlot}]} rightmouseup
+						/delay 1s !${InvSlot[pack${InvScribeSlot}].ID}
+					}
+				}
+			/next Slot
+
+		}
+		/if (${Window[Pack${Bag}].Open}) /itemnotify pack${Bag} rightmouseup
+	/next Bag
+	/if (${Cursor.ID}) /autoinv
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: Event_NotGold
+| --------------------------------------------------------------------------------------------
+Sub Event_NotGold
+	/autoinv
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: Event_WrongDiety
+| --------------------------------------------------------------------------------------------
+Sub Event_WrongDiety
+	/autoinv
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: Event_FullInventory
+| --------------------------------------------------------------------------------------------
+Sub Event_FullInventory
+	/if (${Merchant.Open}) {
+		/notify MerchantWnd MW_Done_Button leftmouseup
+		/delay 1s !${Merchant.Open}
+	}
+	/varset DoLoop 1
+
+/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: Zone ${_destination.Equal[PoKnowledge]}
+| --------------------------------------------------------------------------------------------
+Sub go_to_pok(string _destination)
+	/if (!${Select[${Zone.ShortName},PoKnowledge,moors,crescent]}) /call useorigin
+	/while (!${Zone.ShortName.Equal[PoKnowledge]}) {
+	
+		/if (${Zone.ShortName.Equal[moors]}) /call moors
+		/if (${Zone.ShortName.Equal[crescent]}) /call crescent
+		/if (${Zone.ShortName.Equal[PoKnowledge]}) /call PoKnowledge
+		/delay 2
+	}
+/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: Zone2
+| --------------------------------------------------------------------------------------------
+Sub go_to_guildhall
+	/if (!${Select[${Zone.ShortName},GuildLobby,GuildHall,PoKnowledge,moors,crescent]}) /call go_to_pok
+	/while (!${Zone.ShortName.Equal[GuildHall]}) {
+		/if (${Zone.ShortName.Equal[PoKnowledge]}) /call guildlobby
+		/if (${Zone.ShortName.Equal[GuildLobby]}) /call guildhall
+		/delay 2
+	}
+/return
+| --------------------------------------------------------------------------------------------
+| SUB: useorigin
+| --------------------------------------------------------------------------------------------
+Sub useorigin
+	/while (!${Me.AltAbilityReady[Origin]} && !${Me.AltAbilityReady[Gate]}) {
+		/echo \ag--\atOrigin or Gate not ready, re-checking in 30s\ag
+		/delay 30s
+	}
+	/echo \ag--\atUsing Origin to get to your Origin Home\ag--
+	/echo \ag--\atSince you are not within a zone we know\ag--
+	/if (${validate_cast[FALSE, alt, "Gate", ${Me.ID}]}) {
+		/call core_cast2 "Gate" alt ${Me.ID} FALSE
+	}
+	/if (${Me.AltAbilityReady[Origin]}) /alt act 331
+	/delay 5
+	/while (${Me.Casting.ID}) {
+		/delay 1s
+	}
+	/delay 15s ${Me.Zoning}
+	/delay 2
+/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: PoKnowledge
+| --------------------------------------------------------------------------------------------
+Sub PoKnowledge
+	|/echo \ag--\atYou are in PoK, starting to get spells/tomes\ag--
+/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: moors
+| --------------------------------------------------------------------------------------------
+Sub moors
+	/echo \ag--\atZoning into PoK \ag--
+	/squelch /nav door id 68 click
+	/while (${Navigation.Active}) {
+		/delay 1s
+	}
+	/delay 15s ${Zone.ShortName.Equal[PoKnowledge]}==TRUE
+	/delay 1s
+/return
+ 
+| --------------------------------------------------------------------------------------------
+| SUB: crescent
+| --------------------------------------------------------------------------------------------
+Sub crescent
+	/echo \ag--\atZoning to Moors \ag--
+	/squelch /nav loc -631 -2868 -29
+	/while (${Navigation.Active}) {
+		/delay 1s
+	}
+	/delay 15s ${Zone.ShortName.Equal[Moors]}==TRUE
+	/delay 1s
+/return
+| --------------------------------------------------------------------------------------------
+| SUB: guild lobby
+| --------------------------------------------------------------------------------------------
+Sub guildlobby
+	/echo \ag--\atZoning to Guild Lobby \ag--
+	/squelch /nav loc -369 1409 -114
+	/while (${Navigation.Active}) {
+		/delay 1s
+	}
+	/doortarget
+	/delay 2
+	/click left door
+	/delay 15s ${Zone.ShortName.Equal[GuildLobby]}==TRUE
+	/delay 1s
+/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: guild hall
+| --------------------------------------------------------------------------------------------
+Sub guildhall
+	/echo \ag--\atZoning to Guild Hall \ag--
+	/squelch /nav loc 617 -46 -2
+	/while (${Navigation.Active}) {
+		/delay 1s
+	}
+	/doortarget
+	/delay 2
+	/click left door
+	/delay 15s ${Zone.ShortName.Equal[GuildHall]}==TRUE
+	/delay 1s
+/return
+
+
+| --------------------------------------------------------------------------------------------
+| SUB: moors
+| --------------------------------------------------------------------------------------------
+Sub pot
+	/echo \ag--\atZoning into PoT \ag--
+	/squelch /nav loc -139.96 -337 -152.87
+	/while (${Navigation.Active}) {
+		/delay 1s
+	}
+	/doortarget
+	/delay 2
+	/click left door
+	/delay 15s ${Zone.ShortName.Equal[PoTranquility]}==TRUE
+	/delay 1s
+/return
+
+| --------------------------------------------------------------------------------------------
+| SUB: guild hall
+| --------------------------------------------------------------------------------------------
+Sub portalpool(string _zoneName)
+	/declare checker bool local TRUE
+	/echo \ag--\atZoning to Portal Pool \ag--
+	/squelch /nav loc -22.19 -133.72 2.31
+	/while (${Navigation.Active}) {
+		/delay 1s
+	}
+	/delay 1s
+	/while (${checker}) {
+		/echo Waiting for LargeDialogWindow...
+		/delay 3
+		/if (${Window[LargeDialogWindow].Open}) /notify LargeDialogWindow LDW_YesButton leftmouseup
+		/if (${Me.Zoning}) /delay 4s
+		/if (${Zone.ShortName.Equal[${_zoneName}]} || ${Zone.ShortName.Equal[${_zoneName}two]}) /varset checker FALSE
+	}
+	/if (${Me.Zoning}) /delay 4s
+	/delay 5s ${Zone.ShortName.Equal[${_zoneName}]}==TRUE
+	/delay 1s
+/return
+| --------------------------------------------------------------------------------------------
+| SUB: ClassMerchantPoK
+| --------------------------------------------------------------------------------------------
+Sub ClassMerchantPoKnowledge(string _zoneName)
+	/if (${Me.Class.ShortName.Equal[WAR]}) {
+		/declare WARMerchant[1] string outer 0
+		/varset WARMerchant[1] "Heldin Swordbreaker"
+	}
+	/if (${Me.Class.ShortName.Equal[PAL]}) {
+		/declare PALMerchant${_zoneName}[7] string outer 0
+		|Paladin Spells 1-25
+		/varset PALMerchant${_zoneName}[1] "Cavalier Waut"
+		|Paladin Spells 26-50
+		/varset PALMerchant${_zoneName}[2] "Cavalier Aodus"
+		|Paladin Spells 51-60
+		/varset PALMerchant${_zoneName}[3] "Cavalier Preradus"
+		|Paladin Spells 61-70
+		/varset PALMerchant${_zoneName}[4] "Cavalier Cerakor"
+		|Paladin Spells 71-81
+		/varset PALMerchant${_zoneName}[5] "Cavalier Ethigom"
+		|Paladin Spells 81+
+		/varset PALMerchant${_zoneName}[6] "Cavalier Tummings"
+		|Paladin Tomes
+		/varset PALMerchant${_zoneName}[7] "Ulin Velnik"
+	}	
+	/if (${Me.Class.ShortName.Equal[SHD]}) {
+		/declare SHDMerchant${_zoneName}[7] string outer 0
+		|SK Spells 1-25
+		/varset SHDMerchant${_zoneName}[1] "Reaver Nydlil"
+		|SK Spells 26-50
+		/varset SHDMerchant${_zoneName}[2] "Reaver Uledrith"
+		|SK Spells 51-60
+		/varset SHDMerchant${_zoneName}[3] "Reaver Thirlan"
+		|SK Spells 61-70
+		/varset SHDMerchant${_zoneName}[4] "Reaver Muron"
+		|SK Spells 71-80
+		/varset SHDMerchant${_zoneName}[5] "Reaver Praden"
+		|SK Spells 81+
+		/varset SHDMerchant${_zoneName}[6] "Reaver Enold"
+		|SK Tomes
+		/varset SHDMerchant${_zoneName}[7] "Zhao V`karin"
+	}
+	/if (${Me.Class.ShortName.Equal[BST]}) {
+		/declare BSTMerchant${_zoneName}[7] string outer 0
+		|Beast Spells 1-25
+		/varset BSTMerchant${_zoneName}[1] "Primalist Saosith"
+		|Beast Spells 26-50
+		/varset BSTMerchant${_zoneName}[2] "Primalist Worenon"
+		|Beast Spells 51-60
+		/varset BSTMerchant${_zoneName}[3] "Primalist Nydalith"
+		|Beast Spells 61-70
+		/varset BSTMerchant${_zoneName}[4] "Primalist Loerith"
+		|Beast Spells 71-80
+		/varset BSTMerchant${_zoneName}[5] "Primalist Uliag"
+		|Beast Spells 81+
+		/varset BSTMerchant${_zoneName}[6] "Primalist Beal"
+		|Beast Tomes
+		/varset BSTMerchant${_zoneName}[7] "Tana Clawguard"
+	}
+	/if (${Me.Class.ShortName.Equal[BER]}) {
+		/declare BERMerchant${_zoneName}[2] string outer 0
+		|Berserker Tomes
+		/varset BERMerchant${_zoneName}[1] "Gaddi Buruca"
+		|Berserker Tomes
+		/varset BERMerchant${_zoneName}[2] "Kurlond Axebringer"
+	}
+	/if (${Me.Class.ShortName.Equal[MNK]}) {
+		/declare MNKMerchant${_zoneName}[1] string outer 0
+		|Monk Tomes
+		/varset MNKMerchant${_zoneName}[1] "Beorobin Amondson"
+	}
+	/if (${Me.Class.ShortName.Equal[RNG]}) {
+		/declare RNGMerchant${_zoneName}[7] string outer 0
+		|Ranger Spells 1-25
+		/varset RNGMerchant${_zoneName}[1] "Pathfinder Viliken"
+		|Ranger Spells 26-50
+		/varset RNGMerchant${_zoneName}[2] "Pathfinder Vaered"
+		|Ranger Spells 51-60
+		/varset RNGMerchant${_zoneName}[3] "Pathfinder Thoajin"
+		|Ranger Spells 61-70
+		/varset RNGMerchant${_zoneName}[4] "Pathfinder Naend"
+		|Ranger Spells 71-80
+		/varset RNGMerchant${_zoneName}[5] "Pathfinder Arelat"
+		|Ranger Spells 81+
+		/varset RNGMerchant${_zoneName}[6] "Pathfinder Sweeneph"
+		|Ranger Tomes
+		/varset RNGMerchant${_zoneName}[7] "Keshyk Wardorn"
+	}
+	/if (${Me.Class.ShortName.Equal[ROG]}) {		
+		/declare ROGMerchant${_zoneName}[1] string outer 0
+		|Rogue Tomes
+		/varset ROGMerchant${_zoneName}[1] "Blane Darkblade"
+	}
+	/if (${Me.Class.ShortName.Equal[MAG]}) {
+		/declare MAGMerchant${_zoneName}[6] string outer 0
+		|Mage Spells 1-25
+		/varset MAGMerchant${_zoneName}[1] "Elementalist Somat"
+		|Mage Spells 26-50
+		/varset MAGMerchant${_zoneName}[2] "Elementalist Kaeob"
+		|Mage Spells 51-60
+		/varset MAGMerchant${_zoneName}[3] "Elementalist Padan"
+		|Mage Spells 61-70
+		/varset MAGMerchant${_zoneName}[4] "Elementalist Siewth"
+		|Mage Spells 71-80
+		/varset MAGMerchant${_zoneName}[5] "Elementalist Onaec"
+		|Mage Spells 81+
+		/varset MAGMerchant${_zoneName}[6] "Elementalist Bartbur"
+	}
+	/if (${Me.Class.ShortName.Equal[NEC]}) {
+		/declare NECMerchant${_zoneName}[6] string outer 0
+		|Nec Spells 1-25
+		/varset NECMerchant${_zoneName}[1] "Heretic Drahur"
+		|Nec Spells 26-50
+		/varset NECMerchant${_zoneName}[2] "Heretic Elirev"
+		|Nec Spells 51-60
+		/varset NECMerchant${_zoneName}[3] "Heretic Edalith"
+		|Nec Spells 61-70
+		/varset NECMerchant${_zoneName}[4] "Heretic Ceikon"
+		|Nec Spells 71-80
+		/varset NECMerchant${_zoneName}[5] "Heretic Niraf"
+		|Nec Spells 81+
+		/varset NECMerchant${_zoneName}[6] "Heretic Lartman"
+	}
+	/if (${Me.Class.ShortName.Equal[WIZ]}) {
+		/declare WIZMerchant${_zoneName}[6] string outer 0
+		|Wiz Spells 1-25
+		/varset WIZMerchant${_zoneName}[1] "Channeler Olaemos"
+		|Wiz Spells 25-50
+		/varset WIZMerchant${_zoneName}[2] "Channeler Lariland"
+		|Wiz Spells 51-60
+		/varset WIZMerchant${_zoneName}[3] "Channeler Cerakoth"
+		|Wiz Spells 61-70
+		/varset WIZMerchant${_zoneName}[4] "Channeler Alyrianne"
+		|Wiz Spells 71-80
+		/varset WIZMerchant${_zoneName}[5] "Channeler Keatrem"
+		|Wiz Spells 81+
+		/varset WIZMerchant${_zoneName}[6] "Channeler Larkord"
+	}
+	/if (${Me.Class.ShortName.Equal[BRD]}) {
+		/declare BRDMerchant${_zoneName}[7] string outer 0
+		|Bard Spells 1-25
+		/varset BRDMerchant${_zoneName}[1] "Minstrel Eoweril"
+		|Bard Spells 26-50
+		/varset BRDMerchant${_zoneName}[2] "Minstrel Joet"
+		|Bard Spells 51-60
+		/varset BRDMerchant${_zoneName}[3] "Minstrel Gwiar"
+		|Bard Spells 61-70
+		/varset BRDMerchant${_zoneName}[4] "Minstrel Silnon"
+		|Bard Spells 71-80
+		/varset BRDMerchant${_zoneName}[5] "Minstrel Cirsaelle"
+		|Bard Spells 81+
+		/varset BRDMerchant${_zoneName}[6] "Minstrel Franchot"
+		|Bard Tomes
+		/varset BRDMerchant${_zoneName}[7] "Larquin Julinok"
+	}
+	/if (${Me.Class.ShortName.Equal[ENC]}) {
+		/declare ENCMerchant${_zoneName}[6] string outer 0
+		|Enchanter Spells 1-25
+		/varset ENCMerchant${_zoneName}[1] "Illusionist Jerup"
+		|Enchanter Spells 26-50
+		/varset ENCMerchant${_zoneName}[2] "Illusionist Sevat"
+		|Enchanter Spells 51-60
+		/varset ENCMerchant${_zoneName}[3] "Illusionist Lobaen"
+		|Enchanter Spells 61-70
+		/varset ENCMerchant${_zoneName}[4] "Illusionist Acored"
+		|Enchanter Spells 71-80
+		/varset ENCMerchant${_zoneName}[5] "Illusionist Warek"
+		|Enchanter Spells 81+
+		/varset ENCMerchant${_zoneName}[6] "Illusionist Phili"
+	}
+	/if (${Me.Class.ShortName.Equal[CLR]}) {
+		/declare CLRMerchant${_zoneName}[6] string outer 0
+		|Cleric Spells 1-25
+		/varset CLRMerchant${_zoneName}[1] "Vicar Ceraen"
+		|Cleric Spells 26-50
+		/varset CLRMerchant${_zoneName}[2] "Vicar Thiran"
+		|Cleric Spells 51-60
+		/varset CLRMerchant${_zoneName}[3] "Vicar Delin"
+		|Cleric Spells 61-70
+		/varset CLRMerchant${_zoneName}[4] "Vicar Diarin"
+		|Cleric Spells 71-80
+		/varset CLRMerchant${_zoneName}[5] "Vicar Glaunn"
+		|Cleric Spells 81+
+		/varset CLRMerchant${_zoneName}[6] "Vicar Feyl"
+	}
+	/if (${Me.Class.ShortName.Equal[DRU]}) {
+		/declare DRUMerchant${_zoneName}[6] string outer 0
+		|Druid Spells 1-25
+		/varset DRUMerchant${_zoneName}[1] "Wanderer Astobin"
+		|Druid Spells 26-50
+		/varset DRUMerchant${_zoneName}[2] "Wanderer Qenda"
+		|Druid Spells 51-60
+		/varset DRUMerchant${_zoneName}[3] "Wanderer Frardok"
+		|Druid Spells 61-70
+		/varset DRUMerchant${_zoneName}[4] "Wanderer Kedrisan"
+		|Druid Spells 71-80
+		/varset DRUMerchant${_zoneName}[5] "Wanderer Thermon"
+		|Druid Spells 81+
+		/varset DRUMerchant${_zoneName}[6] "Wanderer Abel"
+	}
+	/if (${Me.Class.ShortName.Equal[SHM]}) {
+		/declare SHMMerchant${_zoneName}[6] string outer 0
+		|Shaman Spells 1-25
+		/varset SHMMerchant${_zoneName}[1] "Mystic Abomin"
+		|Shaman Spells 26-50
+		/varset SHMMerchant${_zoneName}[2] "Mystic Goharkor"
+		|Shaman Spells 51-60
+		/varset SHMMerchant${_zoneName}[3] "Mystic Ryrin"
+		|Shaman Spells 61-70
+		/varset SHMMerchant${_zoneName}[4] "Mystic Pikor"
+		|Shaman Spells 71-80
+		/varset SHMMerchant${_zoneName}[5] "Mystic Somas"
+		|Shaman Spells 81+
+		/varset SHMMerchant${_zoneName}[6] "Mystic Voskovek"
+	}
+/return
+
+Sub ClassMerchantArgath(string _zoneName)
+	/if (${Me.Class.ShortName.Equal[WAR]}) {
+		/declare WARMerchant${_zoneName}[2] string outer 0
+		/varset WARMerchant${_zoneName}[1] "Danibi"
+		/varset WARMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[PAL]}) {
+		/declare PALMerchant${_zoneName}[3] string outer 0
+		/varset PALMerchant${_zoneName}[1] "Ephinia"
+		/varset PALMerchant${_zoneName}[2] "Danibi"
+		/varset PALMerchant${_zoneName}[3] "Prilt the Summoner"
+	}	
+	/if (${Me.Class.ShortName.Equal[SHD]}) {
+		/declare SHDMerchant${_zoneName}[3] string outer 0
+		/varset SHDMerchant${_zoneName}[1] "Shelif"
+		/varset SHDMerchant${_zoneName}[2] "Danibi"
+		/varset SHDMerchant${_zoneName}[3] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[BST]}) {
+		/declare BSTMerchant${_zoneName}[3] string outer 0
+		/varset BSTMerchant${_zoneName}[1] "Stup"
+		/varset BSTMerchant${_zoneName}[2] "Danibi"
+		/varset BSTMerchant${_zoneName}[3] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[BER]}) {
+		/declare BERMerchant${_zoneName}[2] string outer 0
+		/varset BERMerchant${_zoneName}[1] "Danibi"
+		/varset BERMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[MNK]}) {
+		/declare MNKMerchant${_zoneName}[2] string outer 0
+		/varset MNKMerchant${_zoneName}[1] "Danibi"
+		/varset MNKMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[RNG]}) {
+		/declare RNGMerchant${_zoneName}[2] string outer 0
+		/varset RNGMerchant${_zoneName}[1] "Wonav"
+		/varset RNGMerchant${_zoneName}[2] "Danibi"
+	}
+	/if (${Me.Class.ShortName.Equal[ROG]}) {		
+		/declare ROGMerchant${_zoneName}[2] string outer 0
+		/varset ROGMerchant${_zoneName}[1] "Danibi"
+		/varset ROGMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[MAG]}) {
+		/declare MAGMerchant${_zoneName}[2] string outer 0
+		/varset MAGMerchant${_zoneName}[1] "Matima"
+		/varset MAGMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[NEC]}) {
+		/declare NECMerchant${_zoneName}[2] string outer 0
+		/varset NECMerchant${_zoneName}[1] "Shelif"
+		/varset NECMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[WIZ]}) {
+		/declare WIZMerchant${_zoneName}[2] string outer 0
+		/varset WIZMerchant${_zoneName}[1] "Matima"
+		/varset WIZMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[BRD]}) {
+		/declare BRDMerchant${_zoneName}[3] string outer 0
+		/varset BRDMerchant${_zoneName}[1] "Nori"
+		/varset BRDMerchant${_zoneName}[2] "Danibi"
+		/varset BRDMerchant${_zoneName}[3] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[ENC]}) {
+		/declare ENCMerchant${_zoneName}[2] string outer 0
+		/varset ENCMerchant${_zoneName}[1] "Nori"
+		/varset ENCMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[CLR]}) {
+		/declare CLRMerchant${_zoneName}[2] string outer 0
+		/varset CLRMerchant${_zoneName}[1] "Ephinia"
+		/varset CLRMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[DRU]}) {
+		/declare DRUMerchant${_zoneName}[2] string outer 0
+		/varset DRUMerchant${_zoneName}[1] "Wonav"
+		/varset DRUMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+	/if (${Me.Class.ShortName.Equal[SHM]}) {
+		/declare SHMMerchant${_zoneName}[2] string outer 0
+		/varset SHMMerchant${_zoneName}[1] "Matima"
+		/varset SHMMerchant${_zoneName}[2] "Prilt the Summoner"
+	}
+/return
+
+
+Sub ClassMerchantShardsLanding(string _zoneName)
+	/if (${Me.Class.ShortName.Equal[WAR]}) {
+		/declare WARMerchant${_zoneName}[1] string outer 0
+		/varset WARMerchant${_zoneName}[1] "Went Steelshaft"
+	}
+	/if (${Me.Class.ShortName.Equal[PAL]}) {
+		/declare PALMerchant${_zoneName}[2] string outer 0
+		/varset PALMerchant${_zoneName}[1] "Olivia Dawnlight"
+		/varset PALMerchant${_zoneName}[2] "Went Steelshaft"
+	}	
+	/if (${Me.Class.ShortName.Equal[SHD]}) {
+		/declare SHDMerchant${_zoneName}[2] string outer 0
+		/varset SHDMerchant${_zoneName}[1] "Lirit T`Prakk"
+		/varset SHDMerchant${_zoneName}[2] "Went Steelshaft"
+	}
+	/if (${Me.Class.ShortName.Equal[BST]}) {
+		/declare BSTMerchant${_zoneName}[2] string outer 0
+		/varset BSTMerchant${_zoneName}[1] "Varille Alyrinshar"
+		/varset BSTMerchant${_zoneName}[2] "Went Steelshaft"
+	}
+	/if (${Me.Class.ShortName.Equal[BER]}) {
+		/declare BERMerchant${_zoneName}[1] string outer 0
+		/varset BERMerchant${_zoneName}[1] "Went Steelshaft"
+	}
+	/if (${Me.Class.ShortName.Equal[MNK]}) {
+		/declare MNKMerchant${_zoneName}[1] string outer 0
+		/varset MNKMerchant${_zoneName}[1] "Went Steelshaft"
+	}
+	/if (${Me.Class.ShortName.Equal[RNG]}) {
+		/declare RNGMerchant${_zoneName}[1] string outer 0
+		/varset RNGMerchant${_zoneName}[1] "Noel Gladestrider"
+	}
+	/if (${Me.Class.ShortName.Equal[ROG]}) {		
+		/declare ROGMerchant${_zoneName}[1] string outer 0
+		/varset ROGMerchant${_zoneName}[1] "Went Steelshaft"
+	}
+	/if (${Me.Class.ShortName.Equal[MAG]}) {
+		/declare MAGMerchant${_zoneName}[1] string outer 0
+		/varset MAGMerchant${_zoneName}[1] "Gilab Flamesphere"
+	}
+	/if (${Me.Class.ShortName.Equal[NEC]}) {
+		/declare NECMerchant${_zoneName}[1] string outer 0
+		/varset NECMerchant${_zoneName}[1] "Lirit T`Prakk"
+	}
+	/if (${Me.Class.ShortName.Equal[WIZ]}) {
+		/declare WIZMerchant${_zoneName}[1] string outer 0
+		/varset WIZMerchant${_zoneName}[1] "Gilab Flamesphere"
+	}
+	/if (${Me.Class.ShortName.Equal[BRD]}) {
+		/declare BRDMerchant${_zoneName}[2] string outer 0
+		/varset BRDMerchant${_zoneName}[1] "Gilbert Songcryer"
+		/varset BRDMerchant${_zoneName}[2] "Went Steelshaft"
+	}
+	/if (${Me.Class.ShortName.Equal[ENC]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Gilbert Songcryer"
+	}
+	/if (${Me.Class.ShortName.Equal[CLR]}) {
+		/declare CLRMerchant${_zoneName}[1] string outer 0
+		/varset CLRMerchant${_zoneName}[1] "Olivia Dawnlight"
+	}
+	/if (${Me.Class.ShortName.Equal[DRU]}) {
+		/declare DRUMerchant${_zoneName}[1] string outer 0
+		/varset DRUMerchant${_zoneName}[1] "Noel Gladestrider"
+	}
+	/if (${Me.Class.ShortName.Equal[SHM]}) {
+		/declare SHMMerchant${_zoneName}[1] string outer 0
+		/varset SHMMerchant${_zoneName}[1] "Varille Alyrinshar"
+	}
+
+/return
+
+Sub ClassMerchantPoTranquility(string _zoneName)
+	/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+	/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Warlowe Rida"
+	
+/return
+
+Sub ClassMerchantLceanium(string _zoneName)
+	/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+	/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Janeil Mon`estra"
+/return
+
+Sub ClassMerchantOverthere(string _zoneName)
+	/if (${Me.Class.ShortName.Equal[WAR]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Cromslor"
+	}
+	/if (${Me.Class.ShortName.Equal[PAL]}) {
+		/declare PALMerchant${_zoneName}[2] string outer 0
+		/varset PALMerchant${_zoneName}[1] "Frinshalor"
+		/varset PALMerchant${_zoneName}[2] "Cromslor"
+	}	
+	/if (${Me.Class.ShortName.Equal[SHD]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[2] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Druwdav Nporto"
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[2] "Cromslor"
+	}
+	/if (${Me.Class.ShortName.Equal[BST]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[2] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Pinskidan"
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[2] "Cromslor"
+	}
+	/if (${Me.Class.ShortName.Equal[BER]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Cromslor"
+	}
+	/if (${Me.Class.ShortName.Equal[MNK]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Cromslor"
+	}
+	/if (${Me.Class.ShortName.Equal[RNG]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Zowikinski"
+	}
+	/if (${Me.Class.ShortName.Equal[ROG]}) {		
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Cromslor"
+	}
+	/if (${Me.Class.ShortName.Equal[MAG]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Kris Tawalalin"
+	}
+	/if (${Me.Class.ShortName.Equal[NEC]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Druwdav Nporto"
+	}
+	/if (${Me.Class.ShortName.Equal[WIZ]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Kris Tawalalin"
+	}
+	/if (${Me.Class.ShortName.Equal[BRD]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[2] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Irarae"
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[2] "Cromslor"
+	}
+	/if (${Me.Class.ShortName.Equal[ENC]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Irarae"
+	}
+	/if (${Me.Class.ShortName.Equal[CLR]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Frinshalor"
+	}
+	/if (${Me.Class.ShortName.Equal[DRU]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Zowikinski"
+	}
+	/if (${Me.Class.ShortName.Equal[SHM]}) {
+		/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+		/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Pinskidan"
+	}
+/return
+
+Sub ClassMerchantStratos(string _zoneName)
+	/declare ${Me.Class.ShortName}Merchant${_zoneName}[1] string outer 0
+	/varset ${Me.Class.ShortName}Merchant${_zoneName}[1] "Fairelwil Amsapi"
 /return

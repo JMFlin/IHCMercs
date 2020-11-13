@@ -2322,3 +2322,9 @@ Sub Event_BerStunRotation
   }
 
 /return
+
+
+#event FullInventory "#*#Your inventory appears full!#*#"
+#event NotGold "#*#you do not have at least a gold membership#*#"
+#event WrongDiety "#*#You do not worship#*#"
+#Event GetOrigin		"Origin Location: #1#"

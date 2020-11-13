@@ -64,6 +64,7 @@ Sub var_setup
 	/declare illusionItem 		string outer "Bone Mask of Horror"
 
 	/declare autoCampRadius 	int outer 10
+
 |- Rezzing
 	/declare setCombatRadius	int outer 50
 	/declare setMaxRezRange 	int outer 150
@@ -79,7 +80,6 @@ Sub var_setup
     /declare pullAutoCampY		int outer 0
 	/declare pullAutoCampZ		int outer 0
 	/declare pullDistance 		int outer 0
-	/declare chainPullLimit 	int outer 20
 	/declare resourceChecker 	int outer 1
 	/declare Limit 				int outer 40
 	/declare LimitUpper 		int outer 40
@@ -145,6 +145,7 @@ Sub var_setup
 	/declare immuneSet			 set outer
 	/declare immuneSetIterator	 setiterator outer
 	/declare debuffSet 			 set outer
+
 |- verbose
 	/declare verboseSHD 		bool outer FALSE
 	/declare verboseWAR 		bool outer FALSE
@@ -161,8 +162,6 @@ Sub var_setup
 
 	/declare berHealPct			int outer 80
 
-|- classes
-	/declare casterCasting 		int outer 0
 
 |- travel
 	/declare Invis				bool outer FALSE
@@ -199,6 +198,9 @@ Sub var_setup
 |- Snares
 	/declare doSnare 			bool outer False
 	/declare berDoStun 			bool outer False
+
+|- Scribe
+	/declare getSpellsFromZone 	string outer 0
 
 
 /return 
@@ -314,9 +316,11 @@ Sub Travel
 	/if (${pullAutoCampX} != 0) /varset pullAutoCampX 0
 	/if (${pullAutoCampZ} != 0) /varset pullAutoCampZ 0
 
-	/if (${Navigation.MeshLoaded} && ${Group.Leader.ID} != ${Me.ID} && !${Group.Member[${Group.Leader.ID}].OtherZone}) {
-		/if (!${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} > 50) /nav id ${Group.Leader.ID}
-		/if (${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} < 20) /nav stop
+	/if (${Group}) {
+		/if (${Navigation.MeshLoaded} && ${Group.Leader.ID} != ${Me.ID} && !${Group.Member[${Group.Leader.ID}].OtherZone}) {
+			/if (!${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} > 50) /nav id ${Group.Leader.ID}
+			/if (${Navigation.Active} && ${Navigation.PathLength[id ${Group.Leader.ID}]} < 20) /nav stop
+		}
 	}
 
 	/if (${Select[${Me.Class.ShortName},SHM,DRU]}) {
@@ -342,6 +346,7 @@ Sub Travel
 Sub puller_check_group_resources
 	
 	/declare _count	int local 0
+	/declare _casterCasting int local 0
 
 	/if (${Me.XTarget[1].ID}) /return
 	/if (${Group.Puller.ID} != ${Me.ID}) /return
@@ -349,7 +354,6 @@ Sub puller_check_group_resources
 	/if (${Limit} == ${LimitLower} && ${resourceChecker} == 0) /varset Limit ${LimitUpper}
 	/if (${Limit} == ${LimitUpper} && ${resourceChecker} == 1) /varset Limit ${LimitLower}
 	/varset resourceChecker 1
-	/varset casterCasting 0
 
 	/for _count 0 to ${Group}
 
@@ -361,7 +365,7 @@ Sub puller_check_group_resources
 
 
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "ResPct" "int"
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Casting.ID" "casterCasting" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Casting.ID" "_casterCasting" "int"
 
 				DEBUG Asking ${Group.Member[${_count}].DisplayName} about mana ${ResPct} < ${Limit}
 
@@ -372,7 +376,7 @@ Sub puller_check_group_resources
 				DEBUG Asking ${Group.Member[${_count}].DisplayName} about endurance ${ResPct} < ${Limit}
 
 			}
-			/if (${ResPct} < ${Limit} || ${casterCasting}) {
+			/if (${ResPct} < ${Limit} || ${_casterCasting}) {
 				/varset resourceChecker 0 
 				/delay 5
 			}
@@ -501,16 +505,18 @@ Sub afk_pull
  /return
 
 sub validate_chain_pull_start(bool _debug)
+	/declare _chainPullLimit 	int local 20
+
 	/if (${Posse.Strangers} > 0) /return FALSE
 	/if (${Me.XTarget}) /return FALSE
 	/if (${Me.Casting.ID}) /return FALSE
 	/if (!(${Group.Puller.ID} == ${Me.ID})) /return FALSE
 	/if (!${Navigation.MeshLoaded}) /return FALSE
-	/if (${Me.PctEndurance} < ${chainPullLimit}) {
-		/varset chainPullLimit 80
+	/if (${Me.PctEndurance} < ${_chainPullLimit}) {
+		/varset _chainPullLimit 80
 		/return FALSE
 	} else {
-		/varset chainPullLimit 20
+		/varset _chainPullLimit 20
 		/return TRUE
 	}
 

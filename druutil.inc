@@ -37,6 +37,7 @@ Sub dru_setup
 	/declare Curavida 			string outer NULL
 	/declare Adrenaline 		string outer NULL
 
+	/declare SingleFireAtkDebuffSpell 	string outer NULL
 	/declare SingleFireAtkDebuff 		string outer NULL
 	/declare AEFireAtkDebuff			string outer NULL
 	/declare SingleFrostAtkDebuff 		string outer NULL
@@ -51,6 +52,11 @@ Sub dru_setup
 	/declare Mask 				string outer NULL
 	/declare TwincastSpell 		string outer NULL
 	/declare ShmAllianceBuff 	string outer NULL
+	/declare DichoSpell 		string outer NULL
+	/declare Moonbeam 		string outer NULL
+	/declare Chill 		string outer NULL
+	/declare Sunflame 		string outer NULL
+	
 	/declare SpellSet			string outer Balanced
 
 	/declare PosseSpell				string outer NULL
@@ -268,7 +274,9 @@ BALANCED:
 		/varset PosseSpell ${Spell[Circle of Knowledge].RankName}
 	}
 
-	/if (${Me.Level} >= ${Spell[Froststone Aura].Level} && ${Me.Book[${Spell[Froststone Aura].RankName}]}) {
+	/if (${Me.Level} >= ${Spell[Frostreave Aura].Level} && ${Me.Book[${Spell[Frostreave Aura].RankName}]}) {
+		/varset Aura1 ${Spell[Frostreave Aura].RankName}
+	} else /if (${Me.Level} >= ${Spell[Froststone Aura].Level} && ${Me.Book[${Spell[Froststone Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Froststone Aura].RankName}
 	}
 
