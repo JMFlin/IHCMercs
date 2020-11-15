@@ -1,7 +1,7 @@
 
 Sub mnk_main
 	
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 		/call move_to_camp
 		/call get_target
 		/call engage

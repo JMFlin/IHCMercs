@@ -29,10 +29,10 @@ Method 3
 **|
 Sub bst_main
 	
-	/call bst_self_buff_check
-	/if (!${doNotBuff}) /call bst_buff_group
+	/if (!${Me.XTarget}) /call bst_self_buffs
+	/if (!${doNotBuff}) /call bst_group_buffs
 
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 		
 		/call get_target
 
@@ -166,7 +166,7 @@ Sub bst_main
 |----------------------------------------------------------------------------
 |- SUB: self_buff_check
 |---------------------------------------------------------------------------- 
-Sub bst_self_buff_check
+Sub bst_self_buffs
 	/declare CastCheck			int local 0
 
 	/if (!${Me.Buff[${KillShotBuff}]}) {
@@ -236,6 +236,9 @@ Sub bst_mana_check
 			/call core_cast2 "Consumption of Spirit" alt 0 FALSE
 		}
 	}
+
+	/call bag_mod_rod
+	/call use_mod_rod
 
 /return
 |----------------------------------------------------------------------------
@@ -370,10 +373,11 @@ Sub bst_debuff_xtarget
 |----------------------------------------------------------------------------
 |- SUB: BuffGroup
 |---------------------------------------------------------------------------- 
-Sub bst_buff_group
+Sub bst_group_buffs
 	/declare _count			int local 0
 	/declare CastCheck			int local 0
 
+	/if (!${Group}) /return
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return

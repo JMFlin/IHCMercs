@@ -13,7 +13,7 @@ TODO:
 spawn	SecondaryPctAggroPlayer	spawninfo for secondary aggro player
 **|
 
-#turbo 80
+#turbo 120
 #warning
 
 #define DEBUG /echo
@@ -21,42 +21,11 @@ spawn	SecondaryPctAggroPlayer	spawninfo for secondary aggro player
 #include IHCMercs\subs.inc
 #include IHCMercs\events.inc
 #include IHCMercs\config.inc
+#include IHCMercs\hotkeys.inc
+#include IHCMercs\binds.inc
 
-#include IHCMercs\warutil.inc
-#include IHCMercs\war.inc
-
-#include IHCMercs\shdutil.inc
-#include IHCMercs\shd.inc
-
-#include IHCMercs\berutil.inc
-#include IHCMercs\ber.inc
-
-#include IHCMercs\wizutil.inc
-#include IHCMercs\wiz.inc
-
-#include IHCMercs\magutil.inc
-#include IHCMercs\mag.inc
-
-#include IHCMercs\bstutil.inc
-#include IHCMercs\bst.inc
-
-#include IHCMercs\brdutil.inc
-#include IHCMercs\brd.inc
-
-#include IHCMercs\encutil.inc
-#include IHCMercs\enc.inc
-
-#include IHCMercs\druutil.inc
-#include IHCMercs\dru.inc
-
-#include IHCMercs\clrutil.inc
-#include IHCMercs\clr.inc
-
-#include IHCMercs\shmutil.inc
-#include IHCMercs\shm.inc
-
-#include IHCMercs\mnkutil.inc
-#include IHCMercs\mnk.inc
+#include IHCMercs\${Me.Class.ShortName.Lower}util.inc
+#include IHCMercs\${Me.Class.ShortName.Lower}.inc
 
 #Chat group
 #Chat tell
@@ -68,6 +37,7 @@ Sub Main
 	/doevents flush
 	/call setup_plugins
 	/call var_setup
+	/if (${createHotkeys}) /call ClearSocials 1 7
 
 |-Cursor ID
 	/if (${Cursor.ID}) {
@@ -96,10 +66,10 @@ Sub Main
 	/if (${Mode} == 2) /call ManualRunAndGun
 	/if (${Mode} == 3) /call afk_radius_camping
 	/if (${Mode} == 4) /call AFKRunAndGun
-	/if (${Mode} == 5) /call DoEvent
+	/if (${Mode} == 5) /call event
 	/if (${Mode} == 7) /call mode_posse_afk
 	/if (${Mode} == 8) /call go_sell
-	/if (${Mode} == 9) /call go_scribe ${getSpellsFromZone}
+	/if (${Mode} == 9) /call go_scribe ${getSpellsFromZone} ${minScribeLevel} ${maxScribeLevel}
 /goto :mainloop 
 /return
 |----------------------------------------------------------------------------
@@ -109,20 +79,19 @@ Sub afk_radius_camping
 	/call setup_skill_melee FALSE
     /call make_camp
     /call remove_travel_buffs
-	/target clear
+	/if (${Target.ID}) /target clear
 	/if (${Group.Puller.ID} == ${Me.ID}) /call ignore_mobs_to_pull
-	| /if (${Me.Pet.ID}) /pet guard
 	/if (${Select[${Me.Class.ShortName},CLR,SHM,DRU,BST,ENC]}) /call group_checker
 
 	/while (${Mode} == 3) {
 
-		| /delay 1s
-		| DEBUG CYCLE START
+		|/delay 1s
+		|DEBUG CYCLE START
 
 		/doevents
 
-		/call misc
-		/if (${Mode} != 0) /call force_create_campfire
+		/if (!${Me.XTarget}) /call misc
+		/if (!${Me.XTarget}) /call create_campfire FALSE FALSE
 
 		/call move_to_camp
 		
@@ -135,13 +104,18 @@ Sub afk_radius_camping
 			}
 		}
 
-		/call check_state FALSE
+		/if (!${Me.XTarget}) /call check_state FALSE
 		
 		/if (${Balance}) /call balance_mob_hitpoints
 
-		/call ${Me.Class.ShortName.Lower}_main
+		/if (!${Balance}) {
+			/if (!${powerLevel} || ${Me.Level} >= 105) {
+				/call ${Me.Class.ShortName.Lower}_main
+			}
+		}
 
-		/call dummy_mode
+		/if (!${Me.XTarget}) /call dummy_mode
+
 	}
 	/doevents
 /return
@@ -155,7 +129,7 @@ Sub set_mode
 	/if (${PreviousMode} == 2) /varset PreviousModeName ManualRunAndGun
 	/if (${PreviousMode} == 3) /varset PreviousModeName AFKPullCamping
 	/if (${PreviousMode} == 4) /varset PreviousModeName AFKRunAndGun
-	/if (${PreviousMode} == 5) /varset PreviousModeName DoEvent
+	/if (${PreviousMode} == 5) /varset PreviousModeName event
 	/if (${PreviousMode} == 6) /varset PreviousModeName Raid
 	/if (${PreviousMode} == 7) /varset PreviousModeName PosseAFK
 	/if (${PreviousMode} == 8) /varset PreviousModeName Sell
@@ -165,7 +139,7 @@ Sub set_mode
 	/if (${Mode} == 2) /varset ModeName ManualRunAndGun
 	/if (${Mode} == 3) /varset ModeName AFKPullCamping
 	/if (${Mode} == 4) /varset ModeName AFKRunAndGun
-	/if (${Mode} == 5) /varset ModeName DoEvent
+	/if (${Mode} == 5) /varset ModeName event
 	/if (${Mode} == 6) /varset ModeName Raid
 	/if (${Mode} == 7) /varset ModeName PosseAFK
 	/if (${Mode} == 8) /varset ModeName Sell
@@ -177,6 +151,7 @@ Sub set_mode
 
 sub misc
 
+	| Posse configurations
 	/if (${Mode} > 0) {
 		/varset newPosseXY ${pullRadiusXY}
 		/varset newPosseZ ${pullRadiusZ}
@@ -191,11 +166,39 @@ sub misc
 		}
 	}
 
+	| Only have hud on group leader
+	/if (${Group}) {
+		/if (${Group.Leader.ID} != ${Me.ID}) {
+			/if (${Plugin[MQ2Hud].Name.Length}) /call UnCheckPlugin MQ2Hud
+		} else /if (!${Plugin[MQ2Hud].Name.Length}) {
+			/call CheckPlugin MQ2Hud
+			/delay 5
+			/loadhud Player
+			/loadhud Posse
+			/loadhud Target
+			/loadhud Nearest
+			/loadhud XTarget
+			/loadhud General
+		}
+	} else /if (!${Plugin[MQ2Hud].Name.Length}) {
+		/call CheckPlugin MQ2Hud
+		/delay 5
+		/loadhud Player
+		/loadhud Posse
+		/loadhud Target
+		/loadhud Nearest
+		/loadhud XTarget
+		/loadhud General
+	}
+
 	| Close windows trying to get you to buy
 	/if (${Window[AlertWnd].Open}) /notify AlertWnd ALW_Dismiss_Button leftmouseup
 	/if (${Window[LargeDialogWindow].Open}) /notify LargeDialogWindow LDW_YesButton leftmouseup
+	/if (${Window[LargeDialogWindow].Open}) /notify LargeDialogWindow LDW_OkButton leftmouseup
  	/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox Yes_Button leftmouseup
  	/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox OK_Button leftmouseup
+	/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
+	/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox CD_OK_Button leftmouseup
  	
 	| Accept trades 
 	/if (${Window[TradeWND].Open}) /notify TradeWND TRDW_Trade_Button leftmouseup
@@ -206,15 +209,20 @@ sub misc
 	/if (${Window[TaskTemplateSelectWnd].Open}) /notify TaskTemplateSelectWnd TSEL_AcceptButton leftmouseup
  	/if (${Window[ProgressionTemplateSelectWnd].Open}) /notify ProgressionTemplateSelectWnd ProgressionTemplateSelectAcceptButton leftmouseup
 	
+	| Accept raid invite
+	/if (${Window[RaidWindow].Open}) /notify RaidWindow RAID_AcceptButton leftmouseup
 
-	| pop your merc
+	| Task progression
+	/if (${Window[ProgressionSelectionWnd].Open}) /notify ProgressionSelectionWnd ProgressionTemplateSelectAcceptButton leftmouseup ; /notify TaskSelectWnd TSEL_AcceptButton leftmouseup
+
+	| Pop your merc
 	/if (${Mode} > 0) {
 		/if (${useMerc} && ${Me.CombatState.NotEqual[COMBAT]}) {
 			/if (${Mercenary.State.Equal[DEAD]} || ${Mercenary.State.Equal[SUSPENDED]}) {
 				/if (!${Window[MMGW_ManageWnd].Open}) /windowstate MMGW_ManageWnd open
 				/delay 1s
 				/if (${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Revive]} || ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.Equal[Unsuspend]}) {
-					/notify MMGW_ManageWnd MMGW_SuspendButton leftmouseup
+					/if (${Window[MMGW_ManageWnd].Open}) /notify MMGW_ManageWnd MMGW_SuspendButton leftmouseup
 					/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Unsuspend]}
 					/delay 5s ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Text.NotEqual[Revive]}
 				}
@@ -309,7 +317,7 @@ sub mode_posse_afk
 			/delay 1m !${Me.Zoning}
 			/delay 5m ${SpawnCount[pc group radius 50]}>=3
 			/if (${Spawn[gm].ID} || ${Posse.Strangers} > 0) {
-				/call force_create_campfire
+				/call create_campfire FALSE TRUE
 				/call port_class_checker
 				/varset _portClassID ${Macro.Return}
 				/call get_me_out ${_portClassID}
@@ -323,87 +331,6 @@ sub mode_posse_afk
 		/varcalc _counter ${_counter} + 1
 		/delay 1s
 	}
-
-/return
-
-sub validate_fellowship_creation(bool _debug)
-	/declare _fellowCount int local 0
-	/declare _enoughPeople bool local FALSE
-	/declare _count int local 0
-    /declare i int local
-    /declare j int local
-
-	/if (${Me.XTarget}) /return FALSE
-	/if (${Navigation.Active}) /return FALSE
-	/if (${Me.ID} != ${Group.Leader.ID}) /return FALSE
-	/if (${Zone.ID} == 202) /return FALSE
-	/if (${Zone.ID} == 344) /return FALSE
-	/if (${Zone.ID} == 345) /return FALSE
-	/if (${Me.Fellowship.Members} == 0) /return FALSE
-
-	/for _count 1 to 10
-
-		/for i 1 to ${SpawnCount[pc group radius 50]}
-			/for j 1 to ${Me.Fellowship.Members}
-				/if (${NearestSpawn[${i},PC group radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc _fellowCount ${_fellowCount}+1
-			/next j
-		/next i
-
-		/if (${_fellowCount} < 3) {
-			/varset _fellowCount 0
-			/delay 10s
-		} else {
-			/break
-		}
-
-	/next _count
-
-    /if (${_fellowCount} < 3) /return FALSE
-
-/return TRUE
-
-sub force_create_campfire
-	
-	/if (!${validate_fellowship_creation[FALSE]}) /return
-
-	/if (${Me.ID} != ${Group.Leader.ID}) {
-		/delay 30s
-		/return
-	}
-
-	/while (${Me.Fellowship.Campfire}) {
-		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 5
-		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
-		/delay 5
-		/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox Yes_Button leftmouseup
-		/delay 5
-	}
-	
-	/delay 1s
-
-	/while (!${Me.Fellowship.Campfire}) {
-		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
-		/delay 5 ${Me.Fellowship.Campfire}
-		/if (!${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
-		/windowstate FellowshipWnd close
-    }
 
 /return
 
@@ -439,32 +366,63 @@ sub vendor_items
 	}
 /return
 
-|----------------------------------------------------------------------------
-|- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
-|----------------------------------------------------------------------------
-Sub create_campfire
+sub validate_fellowship_creation(bool _debug)
+	/declare _fellowCount int local 0
+	/declare _count int local 0
+    /declare i int local
+    /declare j int local
+	
+	/if (${Group} && !${Raid}) {
+		/if (${Me.ID} != ${Group.Leader.ID}) /return FALSE
+	}
+	/if (${Me.XTarget}) /return FALSE
+	/if (${Navigation.Active}) /return FALSE
+	/if (${Zone.ID} == 202) /return FALSE
+	/if (${Zone.ID} == 344) /return FALSE
+	/if (${Zone.ID} == 345) /return FALSE
+	/if (${Me.Fellowship.Members} == 0) /return FALSE
 
+	/for _count 1 to ${SpawnCount[pc radius 50]}
+
+		/for i 1 to ${SpawnCount[pc radius 50]}
+			/for j 1 to ${Me.Fellowship.Members}
+				/if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) {
+					/varcalc _fellowCount ${_fellowCount}+1
+					/if (${_fellowCount} >= 3) /return TRUE
+				}
+			/next j
+		/next i
+
+	/next _count
+
+/return FALSE
+
+sub create_campfire(bool _debug, string _forceCreate)
+	
 	/if (!${validate_fellowship_creation[FALSE]}) /return
 
-	/if (${Zone.Name.Equal[${Me.Fellowship.CampfireZone}]}) {
-		/if (${Math.Distance[${pullAutoCampY}, ${pullAutoCampX}, ${pullAutoCampZ}:${Me.Fellowship.CampfireY}, ${Me.Fellowship.CampfireX}, ${Me.Fellowship.CampfireZ}]} < 200) {
-			/if (${Me.Fellowship.CampfireDuration} > 600) {
-				/return
+	/if (!${_forceCreate}) {
+		/if (${Zone.Name.Equal[${Me.Fellowship.CampfireZone}]}) {
+			/if (${Math.Distance[${pullAutoCampY}, ${pullAutoCampX}, ${pullAutoCampZ}:${Me.Fellowship.CampfireY}, ${Me.Fellowship.CampfireX}, ${Me.Fellowship.CampfireZ}]} < 200) {
+				/if (${Me.Fellowship.CampfireDuration} > 600) {
+					/return
+				}
 			}
 		}
 	}
 
-	/if (${Me.Fellowship.CampfireDuration}) {
+	| Destroy old campfire
+	/while (${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
+		/delay 3s ${Window[FellowshipWnd].Open}
+		/if (${Window[FellowshipWnd].Open}) /nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
 		/delay 5
-		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/if (${Window[FellowshipWnd].Open}) /nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
 		/delay 5
-		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		/if (${Window[FellowshipWnd].Open}) /nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 5
-		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 5
+		/if (${Window[FellowshipWnd].Open}) /nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
+		/delay 3s ${Window[ConfirmationDialogBox].Open}
 		/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox CD_Yes_Button leftmouseup
 		/delay 5
 		/if (${Window[ConfirmationDialogBox].Open}) /notify ConfirmationDialogBox Yes_Button leftmouseup
@@ -473,25 +431,26 @@ Sub create_campfire
 		/delay 5
 	}
 	
-	/delay 5
+	/delay 1s
 
-	/if (!${Me.Fellowship.CampfireDuration}) {
+	| Create new campfire
+	/while (!${Me.Fellowship.Campfire}) {
 		/if (!${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd open
+		/delay 3s ${Window[FellowshipWnd].Open}
+		/if (${Window[FellowshipWnd].Open}) /nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
 		/delay 5
-		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
+		/if (${Window[FellowshipWnd].Open}) /nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
 		/delay 5
-		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
+		/if (${Window[FellowshipWnd].Open}) /nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
 		/delay 5
-		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 5
-		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
-		/delay 5s ${Me.Fellowship.CampfireDuration}
-		/if (!${Me.Fellowship.CampfireDuration}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
-		/windowstate FellowshipWnd close
-    }
+		/if (${Window[FellowshipWnd].Open}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/delay 3s ${Me.Fellowship.Campfire}
+		/if (${Window[FellowshipWnd].Open} && !${Me.Fellowship.Campfire}) /nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
+		/delay 3s ${Me.Fellowship.Campfire}
+		/if (${Window[FellowshipWnd].Open}) /windowstate FellowshipWnd close
+	}
 
 /return
-
 
 Sub check_state(bool _debug)
 
@@ -546,7 +505,8 @@ Sub check_state(bool _debug)
 
 	/if (${Me.Book[${Aura1}]} || ${Me.CombatAbilityReady[${Aura1}]} || ${Me.AltAbilityReady[${Aura1}]}) {
 		| check aura one
-		/if (!${Me.Song[${Aura1}].ID} && !${Me.Aura[2].Name.Equal[${Aura1}]} && !(${Me.Aura[1].Name.Equal[${Aura1}]} || ${Me.Aura[1].Name.Equal[Mana Rev. Aura]} || ${Me.Aura[1].Name.Equal[Mana Recursion Aura]})) {
+		
+		/if (!${Me.Aura[2].Name.Equal[${Aura1}]} && !${Me.Aura[1].Name.Equal[${Aura1}]} && !${Me.Aura[1].Name.Equal[${Aura1Name}]} && !${Me.Aura[2].Name.Equal[${Aura1Name}]}) {
 			
 			/if (${validate_cast[FALSE, FIND, ${Aura1}, ${Me.ID}]}) {
 				/call core_cast2 "${Aura1}" FIND ${Me.ID} FALSE
@@ -559,17 +519,19 @@ Sub check_state(bool _debug)
 		}
 	}
 
-	/if (${Me.Book[${Aura2}]} && ${Me.AltAbility[Auroria Mastery].Rank} >= 1) {
-		
-		| check aura two
-		/if (!${Me.Song[${Aura2}].ID} && !${Me.Aura[1].Name.Equal[${Aura2}]} && !${Me.Aura[2].Name.Equal[${Aura2}]}) {
+	/if (${Me.AltAbility[Auroria Mastery].Rank} >= 1) {
+		/if (${Me.Book[${Aura2}]}) {
+			
+			| check aura two
+			/if (!${Me.Aura[1].Name.Equal[${Aura2}]} && !${Me.Aura[2].Name.Equal[${Aura2}]} && !${Me.Aura[1].Name.Equal[${Aura2Name}]} && !${Me.Aura[2].Name.Equal[${Aura2Name}]}) {
 
-			/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) {
-				/call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
-				/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
-				
-					| reload the spell if i just memmed aura
-					/call ${Me.Class.ShortName.Lower}_load_spellbar
+				/if (${validate_cast[FALSE, FIND, ${Aura2}, ${Me.ID}]}) {
+					/call core_cast2 "${Aura2}" FIND ${Me.ID} FALSE
+					/if (!${Select[${Me.Class.ShortName},WAR,ROG,MNK,BER]}) {
+					
+						| reload the spell if i just memmed aura
+						/call ${Me.Class.ShortName.Lower}_load_spellbar
+					}
 				}
 			}
 		}
@@ -754,7 +716,7 @@ sub group_checker
 | --------------------------------------------------------------------------------------------
 | SUB: Main
 | --------------------------------------------------------------------------------------------
-Sub go_scribe(string _zoneName)
+Sub go_scribe(string _zoneName, int _minLevel, int _maxLevel)
 	|**
 	TODO
 		MinLevel
@@ -766,14 +728,12 @@ Sub go_scribe(string _zoneName)
 		spells and translocation AAs and items
 	**|
 	/if (${_zoneName.Equal[0]}) {
-		/echo "Please set variable getSpellsFromZone to a supported zone, i.e. Stratos"
+		/echo Current supported zones are All, PoKnowledge, PoTranquility, Argath, ShardsLanding, Lceanium, Overthere and Stratos
+		/echo Your current selection is ${_zoneName} ${_minLevel} ${_maxLevel}
 		/delay 5s
 		/return
 	}
-	/declare _minLevel int local 1
-	/declare _maxLevel int local ${Me.Level}
-	/varset _minLevel 91
-	/varset _maxLevel 91
+
 	/declare _getSpellsFromZone string local 0
 
 	/if (${_zoneName.Equal[All]}) {
@@ -795,6 +755,10 @@ Sub go_scribe(string _zoneName)
 	/declare Merchant1 string local 0
 	/declare MLoop int local 0
 	/declare _count int local 0
+
+	|- Scribe what you have in backpack
+	/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC,SHD,BRD,BST]}) /call ScribeTomes
+	/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG,SHD,BRD,BST]}) /call ScribeSpells
 
 	/if (!${Zone.ShortName.Equal[PoKnowledge]} && !${Zone.ShortName.Equal[GuildLobby]} && !${Zone.ShortName.Equal[GuildHall]}) /call go_to_pok
 	
@@ -854,16 +818,16 @@ Sub go_scribe(string _zoneName)
 		/if (${Merchant.Open}) {
 			/delay 10s ${Merchant.ItemsReceived}
 			/varset mName ${Merchant.Name}
-			/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC,SHD,BRD,BST]}) /call BuyTomes ${_minLevel} ${_maxLevel}
-			/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG,SHD,BRD,BST]}) /call BuySpells ${_minLevel} ${_maxLevel}
+			/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC]}) /call BuyTomes ${_minLevel} ${_maxLevel}
+			/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG]}) /call BuySpells ${_minLevel} ${_maxLevel}
 			/delay 2s
 		}
 		/if (${Merchant.Open}) {
 			/notify MerchantWnd MW_Done_Button leftmouseup
 			/delay 1s !${Merchant.Open}
 		}
-		/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC,SHD,BRD,BST]}) /call ScribeTomes
-		/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG,SHD,BRD,BST]}) /call ScribeSpells
+		/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC]}) /call ScribeTomes
+		/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG]}) /call ScribeSpells
 		/if (${DoLoop}) {
 			/target ${mName}
 			/delay 2s ${Target.ID}
@@ -1175,13 +1139,28 @@ Sub Event_FullInventory
 | SUB: Zone ${_destination.Equal[PoKnowledge]}
 | --------------------------------------------------------------------------------------------
 Sub go_to_pok(string _destination)
-	/if (!${Select[${Zone.ShortName},PoKnowledge,moors,crescent]}) /call useorigin
-	/while (!${Zone.ShortName.Equal[PoKnowledge]}) {
+	/if (!${Select[${Zone.ShortName},PoKnowledge,moors,crescent,guildlobby,guildhall]}) /call useorigin
 	
-		/if (${Zone.ShortName.Equal[moors]}) /call moors
-		/if (${Zone.ShortName.Equal[crescent]}) /call crescent
-		/if (${Zone.ShortName.Equal[PoKnowledge]}) /call PoKnowledge
-		/delay 2
+	/if (${Zone.ShortName.Equal[crescent]}) {
+		/while (!${Zone.ShortName.Equal[PoKnowledge]}) {
+		
+			/if (${Zone.ShortName.Equal[crescent]}) /call crescent
+			/if (${Zone.ShortName.Equal[moors]}) /call moors
+			/if (${Zone.ShortName.Equal[PoKnowledge]}) /call PoKnowledge
+			/delay 2
+		}
+	} else /if (${Zone.ShortName.Equal[guildlobby]}) {
+		/while (!${Zone.ShortName.Equal[PoKnowledge]}) {
+			/squelch /nav loc -58 21 5
+			/while (${Navigation.Active}) {
+				/delay 1s
+			}
+			/doortarget
+			/delay 2
+			/click left door
+		}
+		/delay 4s ${Me.Zoning}
+		/delay 5s ${Zone.ShortName.Equal[PoKnowledge]}==TRUE
 	}
 /return
 

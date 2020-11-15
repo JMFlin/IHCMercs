@@ -9,20 +9,13 @@ https://docs.google.com/document/d/1FgtwmnaaHV86kfl-vTN08wgJyCToLDAOI8vQC9_XlnU/
 TODO
 	MGB
 	tranq blessing
+	visionarys unity
 **|
-
 Sub shm_main
 
-|**
-	/if (${powerLevel}) {
-		/call check_for_corpse FALSE
-		/return
-	} 
-	**|
-	/call shm_self_buffs
+	/if (!${Me.XTarget}) /call shm_self_buffs
 	/if (!${doNotBuff}) /call shm_group_buffs
-	/call check_for_corpse FALSE
-
+	/if (!${Me.XTarget}) /call check_for_corpse FALSE
 
 	/if (${Me.PctHPs} >= 40 && ${Me.PctMana} < 70) {
 		/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
@@ -32,8 +25,9 @@ Sub shm_main
 
 	/call shm_heal_spam
 	/call shm_group_heals
+	/call shm_mana_check
 
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 
 		/call get_target
 		/if (${Target.Named}) {
@@ -62,7 +56,6 @@ Sub shm_main
 		/call shm_heal_spam
 		/call shm_group_heals
 		
-
 		/if (${Me.XTarget} > 1) /call shm_debuff_xtarget
 
 		/if (${check_hurt[FALSE, group, 80]} < 1) {
@@ -81,7 +74,7 @@ Sub shm_main
 				/call core_cast2 "Cannibalization" alt 0 FALSE
 			}
 		}
-
+		/call shm_mana_check
 		/call move_to_camp
 	}
 
@@ -380,6 +373,7 @@ Sub shm_group_buffs
 	/declare _count			int local 0
 	/declare CastCheck			int local 0
 
+	/if (!${Group}) /return
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
@@ -604,7 +598,6 @@ Sub shm_self_buffs
 	|	/call core_cast2 "Visionary's Unity" alt 0 FALSE
 	|	/varset CastCheck 1
 	|}
-
 	
 	/if (!${Me.Buff[${GroupHealProcBuff}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${GroupHealProcBuff}", ${Me.ID}]}) {
@@ -613,100 +606,20 @@ Sub shm_self_buffs
 		}
 	}
 	
-
-	|**
-	/if (!${Spell[${Me.Aura[1]}].ID} && ${Me.AltAbilityReady[${ShamanAura}]}) {
-		/alt act ${Me.AltAbility[${ShamanAura}].ID}
-		/delay 5
-		/varset CastCheck 1
-	} else /if (${UsePet} && !${Me.Pet.ID} && ${Cast.Status.Equal[I]} && ${Me.Book[${PetSpell}]} && ${Me.CurrentMana}>${Spell[${PetSpell}].Mana}) {
-		/call SpellQueue "${PetSpell}" 0
-		/varset CastCheck 1
-	} else /if (!${Me.Buff[${GroupHealProcBuff}].ID} && !${Me.Casting.ID} && ${Spell[${GroupHealProcBuff}].Stacks} && ${Me.Book[${GroupHealProcBuff}]} && ${Me.CurrentMana}>${Spell[${GroupHealProcBuff}].Mana}) {
-		/call SpellQueue "${GroupHealProcBuff}" 0
-		/varset CastCheck 1
-	} else /if (${Me.AltAbilityReady[Preincarnation]} && ${Me.AltAbility[Preincarnation].Rank}>=2 && !${Me.Buff[Preincarnation].ID}) {
-		/alt act ${Me.AltAbility[Preincarnation].ID}
-		/delay 15
-		/varset CastCheck 1
-	}
-	/if (!${Me.Buff[${Me.Focus.ID}].ID}) /call BuffGroupMember "${FocusSpell}" ${Group.Member[0].ID}
-	|-else /if (${Me.AltAbilityReady[Visionary's Unity]} && !${Me.Buff[Pack of Aina].ID}) {
-|-		/alt act ${Me.AltAbility[Visionary's Unity].ID}
-|-		/delay 15
-|-	}
-**|
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
 /return
-|----------------------------------------------------------------------------
-|- SUB: ConfigHeal
-|---------------------------------------------------------------------------- 
-Sub shm_config_heal
-	/if (${Me.XTarget}>2 || ${check_for_named[FALSE]}) {
-		/if (${TankHealPoint}!=95) {
-			/varset TankHealPoint 95
-			/varset GroupHealPoint 85
-			/varset BigHealPoint 80
-		}
-	} else /if (${Me.XTarget[1].Level}>=${Me.Level}) {
-		/if (${TankHealPoint}!=85) {
-			/varset TankHealPoint 85
-			/varset GroupHealPoint 80
-			/varset BigHealPoint 70
-		}
-	} else /if (${Me.XTarget[1].Level}>=${Math.Calc[${Me.Level}-5]}) {
-		/if (${TankHealPoint}!=80) {
-			/varset TankHealPoint 80
-			/varset GroupHealPoint 75
-			/varset BigHealPoint 60
-		}
-	} else {
-		/if (${TankHealPoint}!=70) {
-			/varset TankHealPoint 70
-			/varset GroupHealPoint 75
-			/varset BigHealPoint 60
-		}
-	}
-	
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: Rez Check
-|-------------------------------------------------------------------------------------
-Sub RezCheck
-    /declare RezID int local
-	/declare RezName string local
-	
-    /if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID} && !${Me.Combat} && !${Me.XTarget[1].ID}) {
-		/hidecorpse npc
-		/varset RezID ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}
-		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
-		/target id ${RezID}
-		/delay 5 ${Target.ID}==${RezID}
-		/if (${Target.Distance}>25) /corpse
-		/delay 5 ${Target.Distance}<25
-		/if (${Me.AltAbilityReady[Rejuvenation of Spirit]}) {
-			/docommand /dgt \ag Rezzing ${RezName}
-			/alt act 2051
-			/delay 6s !${Me.Casting.ID}
-		} 
-	}
 
-	/if (${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID} && ${Me.XTarget[1].ID}) {
-		/hidecorpse npc
-		/varset RezID ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].ID}
-		/varset RezName ${Spawn[pccorpse noalert 3 group radius 100 zradius 50].Name}
-		/target id ${RezID}
-		/delay 5 ${Target.ID}==${RezID}
-		/if (${Target.Distance}>25) /corpse
-		/delay 5 ${Target.Distance}<25
-		/if (${Me.AltAbilityReady[Call of the Wild]}) {
-			/docommand /dgt \ag Battle rezzing ${RezName}
-			/alt act 404
-			/delay 6s !${Me.Casting.ID}
-		} 
+Sub shm_mana_check
+	/call bag_mod_rod
+	/call use_mod_rod
+
+	/if (${Me.PctHPs} >= 40 && ${Me.PctMana} < 70) {
+		/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
+			/call core_cast2 "Cannibalization" alt 0 FALSE
+		}
 	}
 /return
 |----------------------------------------------------------------------------

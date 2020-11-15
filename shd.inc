@@ -3,9 +3,10 @@
 |---------------------------------------------------------------------------- 
 Sub shd_main
 
-	/call shd_self_buffs
+	/if (!${Me.XTarget}) /call shd_self_buffs
+	/call shd_mana_check
 
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 
 		/call get_target
 		
@@ -76,6 +77,7 @@ Sub shd_main
 				/call core_cast2 "Leech Touch" alt ${Target.ID} FALSE
 			}
 		}
+		/call shd_mana_check
 	}
 /return
 |----------------------------------------------------------------------------
@@ -291,4 +293,9 @@ Sub shd_aoe_aggro
 		} 
 	}
 
+/return
+
+Sub shd_mana_check
+	/call bag_mod_rod
+	/call use_mod_rod
 /return

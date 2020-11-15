@@ -54,6 +54,7 @@ Sub wiz_setup
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
 	/declare ChestItemName			string outer ${Me.Inventory[17].Name}
+	/declare ImprovedTwincastRank		string outer NULL
 /return
 |* ------------------------------------------------------------------------------------------
 | SUB: load_spellbar
@@ -127,6 +128,18 @@ Sub wiz_abilities
 		/varset PosseSpell ${Spell[Knowledge Portal].RankName}
 	}
 	
+	/if (${Me.AltAbility[Improved Twincast].Rank} == 12) {
+		/varset ImprovedTwincastRank VI
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 13) {
+		/varset ImprovedTwincastRank VII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 14) {
+		/varset ImprovedTwincastRank VIII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 15) {
+		/varset ImprovedTwincastRank VIII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 16) {
+		/varset ImprovedTwincastRank X
+	}
+
 |-Familiar Buff
 	/if (${Me.AltAbility[Improved Familiar].Rank} >= 1) {
 		/varset FamiliarBuff Improved Familiar
@@ -140,7 +153,9 @@ Sub wiz_abilities
 		/varset FamiliarBuff ${Spell[Minor Familiar].RankName}
 	}
 |-Self HP Buff * Var Name: SelfHPBuff string outer
-	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Shield of Scales].RankName}]}) {
+	/if (${Me.AltAbility[Etherealist's Unity].Rank} >= 1) {
+		/varset SelfHPBuff Etherealist's Unity
+	} else /if (${Me.Level}>=106 && ${Me.Book[${Spell[Shield of Scales].RankName}]}) {
 		/varset SelfHPBuff ${Spell[Shield of Scales].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Shield of the Pellarus].RankName}]}) {
 		/varset SelfHPBuff ${Spell[Shield of the Pellarus].RankName}
@@ -176,6 +191,20 @@ Sub wiz_abilities
 		/varset SelfHPBuff ${Spell[Lesser Shielding].RankName}
 	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Minor Shielding].RankName}]}) {
 		/varset SelfHPBuff ${Spell[Minor Shielding].RankName}
+	}
+
+	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Shield of Scales].RankName}]}) {
+		/varset SelfHPBuffName "Shield of Scales"
+	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Shield of the Pellarus].RankName}]}) {
+		/varset SelfHPBuffName "Shield of the Pellarus"
+	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Shield of the Dauntless].RankName}]}) {
+		/varset SelfHPBuffName "Shield of the Dauntless"
+	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Shield of Bronze].RankName}]}) {
+		/varset SelfHPBuffName "Shield of Bronze"
+	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Shield of Dreams].RankName}]}) {
+		/varset SelfHPBuffName "Shield of Dreams"
+	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Shield of the Void].RankName}]}) {
+		/varset SelfHPBuffName "Shield of the Void"
 	}
 |-Self Rune 1 * Var Name: SelfRune1 string outer
 	/if (${Me.Level}>=108 && ${Me.Book[${Spell[Armor of Wirn].RankName}]}) {
@@ -242,8 +271,8 @@ Sub wiz_abilities
 		/varset TwincastSpell ${Spell[Twincast].RankName}
 	}
 |-SnareSpell
-	/if (${Me.AltAbility[Atol's Unresistable Shackles].Rank} >= 1) {
-		/varset SnareSpell Atol's Unresistable Shackles
+	/if (${Me.AltAbility[Atol's Shackles].Rank} >= 1) {
+		/varset SnareSpell Atol's Shackles
 	} else /if (${Me.Level}>=93 && ${Me.Book[${Spell[Atol's Concussive Shackles].RankName}]}) {
 		/varset SnareSpell ${Spell[Atol's Concussive Shackles].RankName}
 	} else /if (${Me.Level}>=51 && ${Me.Book[${Spell[Atol's Spectral Shackles].RankName}]}) {
@@ -630,6 +659,10 @@ Sub wiz_abilities
 
 	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
 		/alt act 25
+		/delay 5
+	}
+	/if (${Me.AltAbility[514].Name.Find[disabled]} && ${Me.AltAbilityReady[514]}) {
+		/alt act 514
 		/delay 5
 	}
 	

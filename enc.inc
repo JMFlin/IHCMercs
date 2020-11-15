@@ -23,7 +23,8 @@ CO1 is for fulminating Alliance, low mana pools, or during Calculated Insanity (
 CO2 is for everything else. It is mana intensive, does not fulminate alliance, and will not use all 27 CI charges.
 This is largely preference. I swap between the two on the fly.
 
-Auras - Twincast, Mana Reciprocation, and Bolstering Aura. 
+Auras 
+Twincast, Mana Reciprocation, and Bolstering Aura. 
 In events where the group is burning "off the top," both Mana Reciprocation and Bolstering Aura should be up and running at least 3 ticks before the event starts. 
 Activating them later than that will result in no benefit because they take time to actually pulse.
 
@@ -31,33 +32,33 @@ Once the Enchanter's own ITC (Improved Twincast) has faded, immediately drop Bol
 I generally keep all three of these auras on my spell bar at the start of the event so I don't have to bother with hotswapping.
 
 TODO:
-	Auras
 	Glyph Spray
 	Eldrich Rune
 	Arcane Whisper
 	Dimensional Shield
 
 **|
+
 Sub enc_main
 
-	/if (${powerLevel}) {
-		/return
-	} 
-	/call enc_self_buffs
+	/if (!${Me.XTarget}) /call enc_self_buffs
 	/if (!${doNotBuff}) /call enc_group_buffs
-	/call enc_check_mana
+	/if (!${Me.XTarget}) /call enc_check_mana
 
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 
+		| If we have been knocked back then run back to camp
 		/call move_to_camp
 
 		| Have we assisted MA?
 		/call get_target
 
+		| If target has beneficial spells we should dispell
 		/if (${Int[${Target.Beneficial.ID}]}) {
 			/if (${validate_cast[FALSE, alt, "Eradicate Magic", ${Target.ID}]}) /call core_cast2 "Eradicate Magic" alt ${Target.ID} FALSE
 		}
 
+		| If target is close enough then dicho
 		/if (${Navigation.PathLength[id ${Target.ID}]} <= 200) {
 			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 		}
@@ -68,13 +69,15 @@ Sub enc_main
 		| Before nuking check if we have to debuff
 		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
 
-		| Start dpsing
+		| Tash target if not tashed
 		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
 
+		| If adds verify that they are mezzed
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
 
+		| Slow the target
 		/if (!${Target.Buff[${SlowSpellName}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
 			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpellName} \ax <<=
@@ -83,13 +86,16 @@ Sub enc_main
 			}
 		}
 
-		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-
 		| Do we have a valid target?
 		/if (!${validate_combat[${Target.ID}]}) /continue
+
+		| Send the pet in
 		/call pet_attack
+
+		| If there is a named or there are too many mobs then start burning
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call enc_burn_routine
 
+		| If target is named then hard debuff else stun
 		/if (${Target.Named}) {
 			/if (!${Target.Buff[${Constriction}].ID}) {
 				/if (${validate_cast[FALSE, spell, "${Constriction}", ${Target.ID}]}) /call core_cast2 "${Constriction}" spell ${Target.ID} FALSE
@@ -108,7 +114,11 @@ Sub enc_main
 				}
 			}
 		}
+
+		| If adds verify that they are mezzed
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
+
+		| If adds verify that they are debuffed
 		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		|**
@@ -122,11 +132,11 @@ Sub enc_main
 		/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
 		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
 
+		| Check mana even though we are in combat
 		/call enc_check_mana
 	}
 |	/call CheckMana
 |	/if (${UseModRods}) /call ClickModRoD
-	
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	/doevents
 	
@@ -138,6 +148,18 @@ Sub enc_burn_routine
 		Calculated Insanity gives you 100% crit rate regardless of additional modifiers, so try to use it when nothing else is running.
 		Some groups may want Third Spire along with IoG if there is no Auspice running.
 	**|
+	| /notify QuantityWnd QTYW_slider newvalue #                                         Adjust the value of the slider in Quantity Window.
+	| /notify BuffWindow Buff${Math.Calc[${Me.Buff[BuffName].ID}-1].Int} leftmouseup     Cancels the buff called "BuffName"
+	| /notify AuraWindow AW_AuraList listselect 1
+	| /notify AuraWindow AW_AuraList leftmouse 1
+	| /notify AuraWindow Remove_Aura leftmouseup
+
+	
+	/if (!${Me.Buff[Improved Twincast ${ImprovedTwincastRank}].ID}) {
+		/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
+			/call core_cast2 "Improved Twincast" alt 0 FALSE
+		}
+	}
 	/if (${validate_cast[FALSE, spell, "Focus of Arcanum", ${Me.ID}]}) {
 		/call core_cast2 "Focus of Arcanum" alt 0 FALSE
 	}
@@ -220,11 +242,16 @@ Sub enc_debuff_xtarget
 
 /return
 
-
+|----------------------------------------------------------------------------
+|- SUB: enc_check_mana
+|---------------------------------------------------------------------------- 
 sub enc_check_mana
 
 	| if mana is below the puller check limit
 	/if (${Spawn[${Me.Name} pccorpse radius 50].ID}) /return
+
+	/call bag_mod_rod
+	/call use_mod_rod
 
 	/if (${Me.PctMana} < 80) {
 		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
@@ -253,16 +280,13 @@ Sub enc_self_buffs
 	/declare CastCheck			int local 0
 
 	/if (${Me.XTarget}) /return
-
 	
-	/if (!${Me.Buff[${SelfHPBuff}].ID} && (${Spell[${SelfHPBuff}].Stacks}) && ${Me.Book[${SelfHPBuff}]} && ${Me.CurrentMana}>${Spell[${SelfHPBuff}].Mana} && ${Me.AltAbilityReady[Orator's Unity]}) {
-		/alt act ${Me.AltAbility[Orator's Unity].ID}
-	} else /if (!${Me.Buff[${SelfHPBuff}].ID} && !${Me.AltAbilityReady[Orator's Unity]}) {
-		/if (${validate_cast[FALSE, spell, "${SelfHPBuff}", ${Me.ID}]}) {
-			/call core_cast2 "${SelfHPBuff}" spell ${Me.ID} FALSE
+	/if (!${Me.Buff[${SelfHPBuff}].ID} && !${Me.Buff[${SelfHPBuffName}].ID}) {
+		/if (${validate_cast[FALSE, FIND, "${SelfHPBuff}", ${Me.ID}]}) {
+			/call core_cast2 "${SelfHPBuff}" FIND ${Me.ID} FALSE
 			/varset CastCheck 1
 		}
-	} 
+	}
 
 	/if (!${Me.Pet.ID} && ${FindItem[=Tiny Dagger].ID}) {
 		/if (${validate_cast[FALSE, spell, "${PetSpell}", ${Me.ID}]}) {
@@ -270,15 +294,15 @@ Sub enc_self_buffs
 			/varset CastCheck 1
 		}
 	}
-|**
-	/if (${Me.Pet.ID} && !${Me.Pet.Buff[${PetBuffSpell}]}) {
+
+	/if (${Me.Pet.ID} && !${Me.Pet.Buff[${PetBuffSpell}]} && !${Me.Pet.Buff[${PetBuffName}]}) {
 		/if (${validate_cast[FALSE, spell, "${PetBuffSpell}", ${Me.Pet.ID}]}) {
 			/call core_cast2 "${PetBuffSpell}" spell ${Me.Pet.ID} FALSE
 			/varset CastCheck 1
 		}
 	}
-**|
-	/if (!${Me.Buff[${MezBuff}].ID}) {
+
+	/if (!${Me.Buff[${MezBuff}].ID} && !${Me.Buff[${MezBuffName}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${MezBuff}", ${Me.ID}]}) {
 			/call core_cast2 "${MezBuff}" spell ${Me.ID} FALSE
 			/varset CastCheck 1
@@ -292,14 +316,14 @@ Sub enc_self_buffs
 		}
 	} else {
 **|
-	/if (!${Me.Buff[${SelfRune1}].ID}) {
+	/if (!${Me.Buff[${SelfRune1}].ID} && !${Me.Buff[${SelfRune1Name}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${SelfRune1}", ${Me.ID}]}) {
 			/call core_cast2 "${SelfRune1}" spell ${Me.ID} FALSE
 			/varset CastCheck 1
 		}
 	} 
 
-	/if (!${Me.Buff[${SelfRune2}].ID}) {
+	/if (!${Me.Buff[${SelfRune2}].ID} && !${Me.Buff[${SelfRune2Name}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${SelfRune2}", ${Me.ID}]}) {
 			/call core_cast2 "${SelfRune2}" spell ${Me.ID} FALSE
 			/varset CastCheck 1
@@ -320,6 +344,7 @@ Sub enc_group_buffs
 	/declare CastCheck			int local 0
 
 	/if (${Me.XTarget}) /return
+	/if (!${Group}) /return
 	/if (${Group.Member[${Group.MainTank}].OtherZone}) /return
 	
 	/for _count 0 to ${Group}

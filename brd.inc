@@ -9,11 +9,6 @@ https://docs.google.com/document/d/1m2hDtDxAdt7qxSLByIi3JEuZ97kOW_JQQ91u9Rplb4E/
 
 Sub brd_main
 
-	/if (${powerLevel}) {
-		/return
-	} 
-
-	
 	/if (${Me.Song[${ChorusRegenSong}].Duration.TotalSeconds} < 6) {
 		/if (${validate_cast[FALSE, pulse, "${ChorusRegenSong}", ${Me.ID}]}) {
 			/call core_cast2 "${ChorusRegenSong}" pulse 0 FALSE
@@ -26,7 +21,9 @@ Sub brd_main
 		}
 	}
 
-	/while (${Me.XTarget}) {
+	/call brd_mana_check
+
+	/while (${Me.XTarget} && ${Mode} == 3) {
 		
 		/call get_target
 		
@@ -135,6 +132,7 @@ Sub brd_main
 				/call core_cast2 "${StormBladeSong}" pulse 0 FALSE
 			}
 		}
+		/call brd_mana_check
 		/call move_to_camp
 	}
 
@@ -303,3 +301,12 @@ sub pulse_stop(string _marker, bool _debug)
 		/delay 10 !${Me.Casting.ID}
 	}	
 /return TRUE
+
+
+Sub brd_mana_check
+
+	/call bag_mod_rod
+	/call use_mod_rod
+
+/return
+

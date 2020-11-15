@@ -71,17 +71,18 @@ TODO:
 
 Sub dru_main
 
-|	/call check_for_corpse FALSE
+	/if (!${Me.XTarget}) /call check_for_corpse FALSE
 	/if (!${doNotBuff}) /call dru_group_buffs
 	/if (!${doNotBuff}) /call dru_combat_tank_buffs
-	/call dru_self_buffs
+	/if (!${Me.XTarget}) /call dru_self_buffs
 	/call dru_heal_spam
+	/call dru_mana_check
 	
 	/if (${validate_cast[FALSE, alt, "Wrath of the Wild", ${Group.MainTank.ID}]}) {
 		/call core_cast2 "Wrath of the Wild" alt ${Group.MainTank.ID} FALSE
 	}
 
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 
 		/call dru_heal_spam
 
@@ -139,7 +140,7 @@ Sub dru_main
 				ITC -> Dicho -> Remote Sunblaze -> Cyclonic Roar -> Anabatic Roar -> Winter's Wildblaze
 			**|
 
-			/if (!${Me.Buff[${TwincastSpell}].ID}) {
+			/if (!${Me.Song[Twincast Effect].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Improved Twincast ${ImprovedTwincastRank}].ID}) {
 				/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
 					/call core_cast2 "Improved Twincast" alt 0 FALSE
 				}
@@ -200,8 +201,9 @@ Sub dru_main
 				}
 			}
 		}
-
+		/call dru_mana_check
 		/call dru_group_heals
+		/call move_to_camp
 		
 		|**
 		else /if (${Me.PctMana} > ${hybridManaLimit}) {
@@ -441,6 +443,7 @@ Sub dru_group_buffs
 	/declare _count				int local 0
 	/declare CastCheck			int local 0
 
+	/if (!${Group}) /return
 	/if (${Me.XTarget}) /return
 	/if (${Me.Casting.ID}) /return
 
@@ -650,12 +653,9 @@ Sub dru_group_buffs
 	}
 
 /return
-|----------------------------------------------------------------------------
-|- SUB: Single Heal
-|---------------------------------------------------------------------------- 
-Sub dru_single_target_heals
-
-	
+Sub dru_mana_check
+	/call bag_mod_rod
+	/call use_mod_rod
 /return
 |----------------------------------------------------------------------------
 |- SUB: HealGroup

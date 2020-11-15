@@ -19,12 +19,6 @@ Bring back your own old PathLength code?
 
 
 **|
-#bind Campfire       /campfire
-#bind GroupBehindMe  /rallybehind
-#bind GroupFrontFace /rallyfront
-#bind KillMATarget   /killtarget
-#bind ad /ad
-
 |----------------------------------------------------------------------------
 |- SUB: Compatibility with KissAssist Aliases Old and New
 |----------------------------------------------------------------------------
@@ -162,6 +156,7 @@ Sub var_setup
 
 	/declare berHealPct			int outer 80
 
+	/declare useElixirOnPull 	bool outer FALSE
 
 |- travel
 	/declare Invis				bool outer FALSE
@@ -206,7 +201,11 @@ Sub var_setup
 
 |- Scribe
 	/declare getSpellsFromZone 	string outer 0
+	/declare minScribeLevel		int outer 0
+	/varcalc minScribeLevel		${Me.Level}-5
+	/declare maxScribeLevel		int outer ${Me.Level}
 
+	/declare createHotkeys 		bool outer TRUE
 
 /return 
 |----------------------------------------------------------------------------
@@ -291,7 +290,7 @@ Sub engage
 
 	/if (!${Target.Buff[Sarnak Finesse].ID}) {
 		/if (${Target.ID} && ${Target.Distance3D} < 50) /squelch /attack on
-		/call pet_attack ${Target.ID}
+		/if (${Target.ID} && ${Target.Distance3D} < 50) /call pet_attack ${Target.ID}
 	}
 
 
@@ -351,7 +350,6 @@ Sub Travel
 Sub puller_check_group_resources
 	
 	/declare _count	int local 0
-	/declare _casterCasting int local 0
 
 	/if (${Me.XTarget[1].ID}) /return
 	/if (${Group.Puller.ID} != ${Me.ID}) /return
@@ -369,19 +367,19 @@ Sub puller_check_group_resources
 			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
 
 
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "ResPct" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "_resPct" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Casting.ID" "_casterCasting" "int"
 
-				DEBUG Asking ${Group.Member[${_count}].DisplayName} about mana ${ResPct} < ${Limit}
+				DEBUG Asking ${Group.Member[${_count}].DisplayName} about mana ${_resPct} < ${Limit}
 
 			} else /if (${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 
-				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctEndurance" "ResPct" "int"
+				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctEndurance" "_resPct" "int"
 
-				DEBUG Asking ${Group.Member[${_count}].DisplayName} about endurance ${ResPct} < ${Limit}
+				DEBUG Asking ${Group.Member[${_count}].DisplayName} about endurance ${_resPct} < ${Limit}
 
 			}
-			/if (${ResPct} < ${Limit} || ${_casterCasting}) {
+			/if (${_resPct} < ${Limit} || ${_casterCasting}) {
 				/varset resourceChecker 0 
 				/delay 5
 			}
@@ -389,7 +387,8 @@ Sub puller_check_group_resources
 		}
 
 	/next _count
-
+	/if (${Defined[_casterCasting]}) /deletevar _casterCasting
+	/if (${Defined[_resPct]}) /deletevar _resPct
 /return
 |----------------------------------------------------------------------------
 |- SUB: AFKPull /varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
@@ -449,19 +448,21 @@ Sub afk_pull
 	}
 
 	/if (${Group.MainTank.ID} == ${Me.ID} && ${Group.Cleric.ID}) {
-		|**
-		/if (!${Me.Song[${elixirSpell}].ID}) {
-			
-			DEBUG
-			DEBUG Begging for ${elixirSpell}
-			
-			/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
-			/delay 1s
-			/squelch /dex ${Group.Cleric.Name.Lower} /cast "${elixirSpell}"
-			/delay ${elixirCastTime}s
-			/delay 1s
+		
+		/if (${useElixirOnPull}) {
+			/if (!${Me.Song[${elixirSpell}].ID}) {
+				
+				DEBUG
+				DEBUG Begging for ${elixirSpell}
+				
+				/squelch /dex ${Group.Cleric.Name.Lower} /target ${Me.Name}
+				/delay 1s
+				/squelch /dex ${Group.Cleric.Name.Lower} /cast "${elixirSpell}"
+				/delay ${elixirCastTime}s
+				/delay 1s
+			}
 		}
-	**|
+	
 		/if (!${Me.Buff[${promisedSpell}].ID}) {
 			
 			DEBUG Begging for ${promisedSpell}
@@ -803,16 +804,11 @@ Sub pet_attack(int _tmpID)
 	/if (!${Me.Pet.ID}) /return
 	/if (${petFollow}) /varset petFollow 0
 	/if (!${validate_combat[${_tmpID}]} ) /return
-	
-	|- Spirit call
-	/if (${Target.PctHPs} >= 30) {
-		/if (${validate_cast[FALSE, alt, "Spirit Call", ${_tmpID}]}) /call core_cast2 "Spirit Call" FIND ${_tmpID} FALSE
-	}
 
 	/if (!${Me.Pet.Combat}) {
-		/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet attack 
-		/if (${Target.Type.Equal[NPC]} && !${Target.Type.Equal[Corpse]}) /pet swarm
+		/pet attack 
 	}
+	/pet swarm
 
 	/if (!${Spawn[id ${Group.MainTank} pccorpse radius 40].ID} && ${Me.Pet.Taunt}) /pet taunt off
 	/if (${Spawn[id ${Group.MainTank} pccorpse radius 40].ID} && !${Me.Pet.Taunt}) /pet taunt on
@@ -852,45 +848,6 @@ sub check_buffs_mgb(bool _debug)
 	/if (${validate_cast[FALSE, spell, "${BuffMGBname}", ${Me.ID}]}) /call core_cast2 "${BuffMGBname}" ${buffgem} ${Me.ID} FALSE
 
 /return
-|----------------------------------------------------------------------------
-|- SUB: Campfire ${Window[FellowshipWnd].Child[FP_CampPage].Child[FP_CampsiteViewer].Text}
-|----------------------------------------------------------------------------
-Sub Bind_Campfire
-    /declare _fellowCount int local 0
-    /declare i int local
-    /declare j int local
-
-	/if (${Me.Fellowship.Campfire}) /return
-
-    /for i 1 to ${SpawnCount[pc radius 50]}
-        /for j 1 to ${Me.Fellowship.Members}
-            /if (${NearestSpawn[${i},PC radius 50].CleanName.Equal[${Me.Fellowship.Member[${j}]}]}) /varcalc _fellowCount ${_fellowCount}+1
-        /next j
-    /next i
-
-	/return
-	|**
-    /if (${_fellowCount}>=3) {
-        /windowstate FellowshipWnd open
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_Subwindows tabselect 2
-		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		|/delay 5s ${Window[ConfirmationDialogBox].Open}
-		|/if (${Window[ConfirmationDialogBox].Open}) /nomodkey /notify ConfirmationDialogBox Yes_Button leftmouseup
-		|/delay 5s !${Me.Fellowship.Campfire}
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_RefreshList leftmouseup
-		/delay 1s        
-		/nomodkey /notify FellowshipWnd FP_CampsiteKitList listselect 1
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_DestroyCampsite leftmouseup
-		/delay 1s
-		/nomodkey /notify FellowshipWnd FP_CreateCampsite leftmouseup
-		/delay 5s ${Me.Fellowship.Campfire}
-		/windowstate FellowshipWnd close
-    }
-
-**|
 |----------------------------------------------------------------------------
 |- SUB: Load Ini
 |----------------------------------------------------------------------------
@@ -957,26 +914,24 @@ Sub Gquery(string DnetName, string tmpquery, string varName, string varType)
 |----------------------------------------------------------------------------
 |- SUB: BagModRods
 |----------------------------------------------------------------------------
-Sub BagModRods
+Sub bag_mod_rod
+	| Cursor.Name.Equal[Transvergence]
 	/if (!${Cursor.ID} ) /return
-	/if ((${Cursor.ID}) && ${CursorTimer}==0 && ${ShitOnCursor.Equal[NULL]} && (${Me.FreeInventory}>1)) {
-		/varset ShitOnCursor ${Cursor}
-		/varset CursorTimer 1m
-	} else /if (${CursorTimer}==0 && ${ShitOnCursor.NotEqual[NULL]} && (${Me.FreeInventory}>1)) {
-		/echo \aw Something has been left on cursor for over a minute Bagging it
+	/if (${Cursor.Find[Transvergence]} && (${Me.FreeInventory}>1)) {
+		DEBUG \aw Bagging Mod Rod
 		/autoinventory
-		/varset ShitOnCursor NULL
-	} else /if (${ShitOnCursor.Find[Transvergence]} && (${Me.FreeInventory}>1)) {
-		/echo \aw Bagging Mod Rod
+	} else /if (${Cursor.Find[Modulation]} && (${Me.FreeInventory}>1)) {
+		DEBUG \aw Bagging Mod Rod
 		/autoinventory
-		/varset ShitOnCursor NULL
-	} else /if (${ShitOnCursor.Find[Modulation]} && (${Me.FreeInventory}>1)) {
-		/echo \aw Bagging Mod Rod
-		/autoinventory
-		/varset ShitOnCursor NULL
 	}
-	/if (${Cursor.Name.Equal[Azure Mind Crystal]} && ${Me.FreeInventory}>1) /autoinventory
 /return
+|-------------------------------------------------------------------------------------
+|- SUB: ClickModRoD - 
+|-------------------------------------------------------------------------------------
+Sub use_mod_rod
+	/if (${FindItem[Transvergence].ID} && ${FindItem[Transvergence].Timer}==0 && ${Me.PctMana}<=${ModRodManaPct} && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Transvergence]}"
+	/if (${FindItem[Modulation].ID} && ${FindItem[Modulation].Timer}==0 && ${Me.PctMana}<=${ModRodManaPct} && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Modulation]}"
+/return 
 |----------------------------------------------------------------------------
 |- SUB: Check Plugin
 |----------------------------------------------------------------------------
@@ -1022,104 +977,7 @@ Sub UnCheckPlugin(string pluginname)
         /squelch /plugin ${pluginname} unload
         /echo \aw ${pluginname} detected! Unloading ...
     }
-/return	
-|----------------------------------------------------------------------------
-|- SUB: DiscQueue
-|---------------------------------------------------------------------------- 
-Sub DiscQueue(string nextdisc)
-	/if (!${Me.Standing}) /stand
-	/delay 10 ${Me.Standing}
-	/if (${Window[SpellBookWnd]}) /book
-	/if (${Me.ActiveDisc.ID}) /stopdisc
-	/delay 20 !${Me.ActiveDisc.ID}
-	/squelch /disc ${nextdisc}
-	/delay 20 ${Me.ActiveDisc.ID}
-	/delay 8 !${Me.CombatAbilityReady[${nextdisc}]}
 /return
-|----------------------------------------------------------------------------
-|- SUB: DiscNow
-|---------------------------------------------------------------------------- 
-Sub DiscNow(string nextdisc)
-	/if (${Window[CastingWindow].Open}) /return
-	/if (!${Me.Standing}) /stand
-	/delay 10 ${Me.Standing}
-	/if (${Window[SpellBookWnd]}) /book
-	/squelch /disc ${nextdisc}
-	/delay 8 !${Me.CombatAbilityReady[${nextdisc}]}
-/return
-|----------------------------------------------------------------------------
-|- SUB: AANow
-|---------------------------------------------------------------------------- 
-Sub AANow(int nextaa,int aatargetid)
-	/if (${Spawn[ID ${aatargetid}].FeetWet}!=${Me.FeetWet} && ${Spawn[id ${aatargetid} npc].ID} && ${Window[CastingWindow].Open}) /return
-	/if (!${Me.Standing}) /stand
-	/delay 10 ${Me.Standing}
-	/if (${Window[SpellBookWnd]}) /book
-	/if (${Window[CastingWindow].Open}) /interrupt
-	/delay 5 !${Window[CastingWindow].Open}
-	/if (${Target.ID}!=${aatargetid} && ${Spawn[id ${aatargetid} npc].ID}) {
-		/target id ${aatargetid}
-		/delay 10 ${Target.ID}==${aatargetid}
-	}
-	/squelch /alt act ${nextaa}
-	/delay 8 !${Me.AltAbilityReady[${nextaa}]}
-|	/if (${acverbose}!=0) /docommand /dgt Casting \ao =>> \ag ${Me.AltAbility[${nextaa}].Name} \ao <<= \ax
-/return
-|----------------------------------------------------------------------------
-|- SUB: AbilityNow
-|---------------------------------------------------------------------------- 
-Sub AbilityNow(string nextability)
-	/squelch /doability ${nextability}
-	/delay 8 !${Me.AbilityReady[${nextability}]}
-|	/if (${acverbose}!=0) /echo \aw Casting \ag ${nextability}
-/return
-|----------------------------------------------------------------------------
-|- SUB: ItemNow
-|---------------------------------------------------------------------------- 
-Sub ItemNow(string nextitem)
-	/if (${Window[CastingWindow].Open}) /return
-	/if (!${Me.Standing}) /stand
-	/delay 10 ${Me.Standing}
-	/if (${Window[SpellBookWnd]}) /book
-	/if (${Window[CastingWindow].Open}) /interrupt
-	/delay 5 !${Window[CastingWindow].Open}
-	/useitem ${nextitem}
-	/delay 15 !${Me.ItemReady[${nextitem}]}
-|--Checks if item is used and does it again if not
-	/if (${Me.ItemReady[${nextitem}]}&&${FindItem[${nextitem}].ID}) {
-		/useitem ${nextitem}
-		/delay 15 !${Me.ItemReady[${nextitem}]}
-	}
-|	/if (${acverbose}!=0) /echo \aw Using Item \ag ${nextitem}
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: CastSpell - Taken from kissassist and modified. Better spell casting control for longer casting spells plus return messages for monitoring resists, interruptions, immune
-|-------------------------------------------------------------------------------------
-Sub CastSpell(string WhatSpell, int WhatID, string sentFrom)
-    /declare MaxTryNum int local 2
-	/varset CastResult CAST_NO_RESULT
-    /if (!${Target.CanSplashLand} && ${Spell[${WhatSpell}].TargetType.Equal[Free Target]}) {
-        /echo \ar Splash Spell will not cast at targets location. Skipping ${WhatSpell}
-        /return
-    }
-    /if (${Target.ID}!=${WhatID} && ${Spell[${WhatSpell}].TargetType.NotEqual[Self]} && ${Spawn[id ${WhatID}].ID}) /call CastTarget ${WhatID}
-    /if (${Me.Gem[${WhatSpell}]}) {
-		/if (${Me.GemTimer[${WhatSpell}]}==0) {
-            /casting "${WhatSpell}" -maxtries|${MaxTryNum}
-            /while (${Cast.Status.Equal[C]} && ${CastResult.NotEqual[CAST_CANCELLED]}) {
-                /delay 5
-				/if (${Target.Type.Equal[Corpse]} && ${UseSpellInterrupt}) /stopcast
-            }
-            /call CastWait "${WhatSpell}"
-            /if (${CastResult.NotEqual[CAST_CANCELLED]}) /varset CastResult ${Cast.Result}
-			/doevents
-        }
-    } else {
-        /echo \aw Skip Casting \ag ${WhatSpell}. \ar Sell Not Memed.
-        /varset CastResult CAST_CANCELLED
-    }
-	/delay 4s
-/return ${CastResult}  
 |------------------------------------------------------------------------------------------
 |- SUB: LoadSpellGem - Replaces memspell sub
 |------------------------------------------------------------------------------------------
@@ -1142,91 +1000,6 @@ Sub LoadSpellGem(string SpellToMem,int memgem)
     } else {
 		/echo \ar Invalid \aw SpellToMem ${SpellToMem} 
 	}
-/return
-|-------------------------------------------------------------------------------------
-|- SUB: ClickModRoD - 
-|-------------------------------------------------------------------------------------
-Sub ClickModRoD
-	/if (${FindItem[Transvergence].ID} && ${FindItem[Transvergence].Timer}==0 && ${Me.PctMana}<=${ModRodManaPct} && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Transvergence]}"
-	/if (${FindItem[Modulation].ID} && ${FindItem[Modulation].Timer}==0 && ${Me.PctMana}<=${ModRodManaPct} && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Modulation]}"
-/return 
-|----------------------------------------------------------------------------
-|- BIND: GroupFrontFace - Credit EQMules mod of kissassist
-|----------------------------------------------------------------------------
-Sub Bind_GroupFrontFace(string radius)
-	/declare GrpCount int local 0
-	/call PlayersInGroup
-	/varset GrpCount ${Macro.Return}
-	/if (!${GrpCount}) {
-		/echo no members in the group to order around, returning
-		/return
-	}
-	/declare i int local 0
-	/declare XOff float local 0
-	/declare YOff float local 0
-	/declare XMove float local 0
-	/declare YMove float local 0
-	/declare BaseRadians local
-	/declare Multiplier local 90
-	/if (${GrpCount}==2) {
-		/varset Multiplier 45
-	} else /if (${GrpCount}==3) {
-		/varset Multiplier 30
-	} else /if (${GrpCount}==4) {
-		/varset Multiplier 23
-	} else /if (${GrpCount}==5) {
-		/varset Multiplier 18
-	}
-	/declare MyHeading float local ${Math.Calc[${Me.Heading.Degrees} - ${Multiplier}]}
-	/declare BaseRadian float local ${Math.Calc[180 / ${GrpCount}]}
-	/for i 1 to ${Group.Members}
-		/if (${Group.Member[${i}].Type.Equal[PC]}) {
-			/varcalc XMove ${Math.Cos[ ${BaseRadian} * ${Float[${i}]} + (${MyHeading}) ]}
-			/varcalc YMove ${Math.Sin[ ${BaseRadian} * ${Float[${i}]} + (${MyHeading}) ]}
-			/varcalc XOff ${Me.X} + ( ${Int[${radius}]} * ${XMove} )
-			/varcalc YOff ${Me.Y} + ( ${Int[${radius}]} * ${YMove} )
-			/dexecute ${Group.Member[${i}]} /sheepmove ${Me.ID} ${YOff} ${XOff}
-		}
-	/next i
-/return
-|----------------------------------------------------------------------------
-|- BIND: GroupBehindMe - Credit EQMules mod of kissassist
-|----------------------------------------------------------------------------
-Sub Bind_GroupBehindMe(string radius)
-	/declare GrpCount int local 0
-	/call PlayersInGroup
-	/varset GrpCount ${Macro.Return}
-	/if (!${GrpCount}) {
-		/echo no members in the group to order around, returning
-		/return
-	}
-	/declare i int local 0
-	/declare XOff float local 0
-	/declare YOff float local 0
-	/declare XMove float local 0
-	/declare YMove float local 0
-	/declare BaseRadians local
-	/declare Multiplier local 270
-	/if (${GrpCount}==2) {
-		/varset Multiplier 224
-	} else /if (${GrpCount}==3) {
-		/varset Multiplier 208
-	} else /if (${GrpCount}==4) {
-		/varset Multiplier 200
-	} else /if (${GrpCount}==5) {
-		/varset Multiplier 196
-	}
-	/declare MyHeading float local ${Math.Calc[${Me.Heading.Degrees} - ${Multiplier}]}
-	/declare BaseRadian float local ${Math.Calc[180 / ${GrpCount}]}
-	/for i 1 to ${Group.Members}
-		/if (${Group.Member[${i}].Type.Equal[PC]}) {
-			/varcalc XMove ${Math.Cos[ ${BaseRadian} * ${Float[${i}]} + (${MyHeading}) ]}
-			/varcalc YMove ${Math.Sin[ ${BaseRadian} * ${Float[${i}]} + (${MyHeading}) ]}
-			/varcalc XOff ${Me.X} + ( ${Int[${radius}]} * ${XMove} )
-			/varcalc YOff ${Me.Y} + ( ${Int[${radius}]} * ${YMove} )
-			/dexecute ${Group.Member[${i}]} /sheepmove ${Me.ID} ${YOff} ${XOff}
-		}
-	/next i
 /return
 |-------------------------------------------------------------------------------------
 |- SUB: Welcome Message
@@ -1387,7 +1160,6 @@ sub validate_combat(int _tmpID)
  *	NOTE: This is designed tomake sure whatever we are attempting to cast, is castable. be it a disc, item, spell, booger flick.. whatever.. IS IT READY TO BE USED?
  ***|
 Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
-	|DEBUG \a-tvalidate_cast\ax(\a-w${_type}, ${_spell}, ${_tmpID}\ax)
 	
 	| _spell set to false
 	/if (!${Bool[${_spell}]}) /return FALSE
@@ -1399,16 +1171,18 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	/if (${_tmpID}) {
 		/if (!${Spawn[id ${_tmpID}].ID}) /return FALSE
 	}
-
+	
 	| line of sight?
 	/if (!${_type.Equal[item]}) {
 		/if (!${Spell[${_spell}].SpellType.Equal[Beneficial]}) {
-			/if (!${Spawn[npc los id ${_tmpID}].ID}) /return FALSE
+			/if (!${Spawn[npc los id ${_tmpID}].ID}) {
+				/if (${Select[${Me.Class.ShortName},DRU,SHM,CLR]} && !${Spawn[pc los id ${_tmpID}].ID}) {
+					/return FALSE
+				}
+			}
 		}
 	}
 
-	|CHECKINPUTS
-	
 	| what type is it?
 	/if (${_type.Equal[FIND]}) {
 		/if (${Me.Class.ShortName.Find[BRD]}) {
@@ -1424,12 +1198,10 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		} else {
 			/return FALSE
 		}
-|		DEBUG FOUND${dep}${_type}
 	}
 		
 	| check spell
 	/if (${_type.Equal[spell]}) {
-|		DEBUG ${dep}spell\ax${dep}name:${_spell}
 		
 		| buff on me i shouldnt cast with?
 |		/if (${check_no_cast_buff[FALSE]}) /return FALSE
@@ -1445,9 +1217,6 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			| are we moving?
 			/if (${Me.Moving}) /return FALSE
 		}
-		
-		
-		| /if (${Stick.Status.Equal[ON]}) /stick off
 
 		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
 			| are we moving?
@@ -1455,9 +1224,6 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		}
 		
 		/if (${AdvPath.Following}) /return FALSE
-		
-		| correct rank name
-|		/varset _spell ${Spell[${_spell}].RankName}
 		
 		| gem in cooldown?
 		/if (${Me.GemTimer[${_spell}]}) /return FALSE
@@ -1479,20 +1245,6 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		/if (${Spell[${_spell}].Range}) {
 			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
 		}
-		| check AE range
-|		/if (${Spell[${_spell}].TargetType.Equal[Group V2]}) {
-|			/if (${Spawn[${_tmpID}].Distance} > ${Spell[${_spell}].AERange}) /return FALSE
-|		}
-	
-		| restist types vs zone control
-|		/if (!${Spell[${_spell}].SpellType.Equal[Beneficial]}) {
-|			/if (${NoDiseaseList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Disease]}) /return FALSE
-|			/if (${NoMagicList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Magic]}) /return FALSE
-|			/if (${NoPoisonList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Poison]}) /return FALSE
-|			/if (${NoFireList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Fire]}) /return FALSE
-|			/if (${NoColdList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Cold]}) /return FALSE
-|			/if (${NoCorruptionList.Find[${Target.DisplayName}]} && ${Spell[${_spell}].ResistType.Equal[Corruption]}) /return FALSE
-|		}
 		
 		| check for stacking issues
 		/if (${_tmpID} == ${Me.ID}) {
@@ -1502,15 +1254,15 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 				/if (!${Me.Song[Twincast Effect].ID}) {
 					/if (${Me.Song[${_spell}].ID}) /return FALSE
 				}
+				/if (!${validate_self_buff[${_spell}]}) /return FALSE
 			}
 		}
 		
 		/if (!${Bool[${Me.Book[${_spell}]}]}) /return FALSE
-|		DEBUG ${dep}validate spell END: ${Spell[${_spell}].RankName}
 		
 	| check alt ability
 	} else /if (${_type.Equal[alt]}) {
-|		DEBUG ${dep}alt\ax${dep}name:${_spell}
+
 		/if (!${Me.AltAbilityReady[${_spell}]}) /return FALSE
 		
 		/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM,BST,SHD,PAL,RNG,CLR]}) {
@@ -1523,10 +1275,11 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			/if (${Spawn[id ${_tmpID}].Distance} > ${Spell[${_spell}].MyRange}) /return FALSE
 		}		
 		| stacking
-		/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && (${_tmpID} == ${Me.ID})) {
+		/if (${Spell[${_spell}].SpellType.Equal[Beneficial]} && ${_tmpID} == ${Me.ID}) {
 			/if (!${Spell[${_spell}].NewStacks}) /return FALSE
 			/if (${Me.Buff[${_spell}].ID}) /return FALSE
-			/if (${Me.Song[${_spell}].ID}) /return FALSE		
+			/if (${Me.Song[${_spell}].ID}) /return FALSE
+			/if (!${validate_self_buff[${_spell}]}) /return FALSE
 		}
 
 		| if not instant cast spell
@@ -1641,35 +1394,98 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 	
 |/return FALSE
 
-sub validate_target_buff(string _spell)
-	/declare _spellRank string local NULL
-	/declare _return 	bool local TRUE
+sub validate_self_buff(int _tmpID, string _spell)
+|**
+	1=I
+	2=II
+	3=III
+	4=IV=IIII
+	5=V
+	6=VI
+	7=VII
+	8=VIII=IIX
+	9=IX=VIIII
+	10=X
+	11=XI
+	12=XII
+	13=XIII
+	14=XIV
+	15=XV
+	16=XVI
+	17=XVII
+	18=XVIII
+	19=XIX
+	20=XX
+	21=XXI
+	22=XXII
+	23=XXIII
+	24=XXIV
+	25=XXV
+	26=XXVI
+	27=XXVII
+	28=XXVIII
+	29=XXIX
+	30=XXX
+**|	
+	/if (${Me.Buff[${_spell} I].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} II].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} III].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} IIII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} IV].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} VI].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} VII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} VIII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} IIX].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} X].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XI].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XIII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XIV].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XV].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XVI].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XVII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XVIII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XIX].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XX].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XXI].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XXII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XXIII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XXIV].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XXVI].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XXVIII].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XXIX].ID}) /return FALSE
+	/if (${Me.Buff[${_spell} XXX].ID}) /return FALSE
 
-	/if (${Me.AltAbility[${_spell}].Rank} == 1) {
-		/varset _spellRank I
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 2) {
-		/varset _spellRank II
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 3) {
-		/varset _spellRank III
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 4) {
-		/varset _spellRank IV
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 5) {
-		/varset _spellRank V
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 6) {
-		/varset _spellRank VI
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 7) {
-		/varset _spellRank VII
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 8) {
-		/varset _spellRank VIII
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 9) {
-		/varset _spellRank VIII
-	} else /if (${Me.AltAbility[${_spell}].Rank} == 10) {
-		/varset _spellRank X
-	}
-
-	/if (${Target.Buff[${_spell} ${_spellRank}].ID}) /varset _return FALSE
+	/if (${Me.Song[${_spell} I].ID}) /return FALSE
+	/if (${Me.Song[${_spell} II].ID}) /return FALSE
+	/if (${Me.Song[${_spell} III].ID}) /return FALSE
+	/if (${Me.Song[${_spell} IIII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} IV].ID}) /return FALSE
+	/if (${Me.Song[${_spell} VI].ID}) /return FALSE
+	/if (${Me.Song[${_spell} VII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} VIII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} IIX].ID}) /return FALSE
+	/if (${Me.Song[${_spell} X].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XI].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XIII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XIV].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XV].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XVI].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XVII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XVIII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XIX].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XX].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XXI].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XXII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XXIII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XXIV].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XXVI].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XXVIII].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XXIX].ID}) /return FALSE
+	/if (${Me.Song[${_spell} XXX].ID}) /return FALSE
 	
-/return ${_return}
+/return TRUE
 
 |***
  *	DES: spell/disc/aa/item cast wrapper
@@ -1680,14 +1496,9 @@ sub validate_target_buff(string _spell)
  ***|
 sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug)
 	/declare _allowedFizzleCount int local 5
-	|DEBUG \a-tcore_cast2\ax(\a-w${_spell}, ${_type}, ${_tmpID}, ${_sub}\ax)
-	| /if ((${Me.Casting.ID} || ${Window[CastingWindow].Open}) && !${Select[${Me.Class.ShortName},BRD]}) /return
-	|AMIDEAD
 
 	| obey invis
 	/if (${Me.Invis}) /return FALSE
-
-	|CLOSEBOOK
 	
 	| make sure we have our target 
 	/if (${Bool[${_tmpID}]}) {
@@ -1698,11 +1509,9 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	}
 
 	| what type is it?
-	| /if (${_type.Equal[FIND]}) {
 	/if (${Select[${_type},FIND,FORCE]} && ${Select[${Me.Class.ShortName},BRD]}) {
 		/varset _type pulse
 	} else /if (${Select[${_type},FIND,FORCE]}) {
-		|DEBUG ${dep}_type${dep}\a-w${_type}\ax
 		/if (${Me.AltAbilityReady[${_spell}]}) {	
 			/varset _type alt
 		} else /if (${Me.Book[${Spell[${_spell}].RankName}]}) {
@@ -1716,14 +1525,12 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		} else /if (${Me.ItemReady[${_spell}]}) {
 			/varset _type item
 		} else {
-		|	DEBUG FIND${dep}\arFAIL\ax${dep}${_spell}${dep}\a-wnot found or not ready\az
 			/return FALSE
 		}
 	}
 
 	| spell
 	/if (!${Select[${_type},alt,item,disc,pulse,epicitem,activedisc]}) {
-		|DEBUG ${dep}spell${dep}${_spell}
 		/declare _fizzle bool local FALSE
 		/declare _fizzleCount int local 0
 		/declare _castLoop int local 1
@@ -1732,7 +1539,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 
 		| check any subs? yes.. no.. maybe??
 		/if (${SubDefined[${_sub}]}) {
-		|	DEBUG ${dep}/call ${_sub}
 			/call ${_sub}
 			/if (${castBreak}) {
 				/varset castReturn CAST_BREAK
@@ -1777,19 +1583,16 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 						/return
 					}
 				}
-				/if (${Me.SpellInCooldown} && ${_tmpID} != 0 && !${Spell[${_spell}].SpellType.Equal[Beneficial]}) /call global_cooldown_spells ${_tmpID}
+				/if (${Me.SpellInCooldown} && ${_tmpID} != ${Me.ID} && ${_tmpID} != 0 && !${Spell[${_spell}].SpellType.Equal[Beneficial]}) /call global_cooldown_spells ${_tmpID}
 				/delay 1
 				/if (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) /goto :cast_in_progress
 
 				| check fizzle
 				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
 				/varset _fizzle ${Macro.Return}
-				
-				/if (${_fizzle} || ${_fizzleCount} == ${_allowedFizzleCount}) {
-					/varset _castLoop ${_castLoop} - 1
-				} else {
-					/varcalc _fizzleCount ${_fizzleCount} + 1
-				}
+				/if (!${_fizzle}) /return
+				/varcalc _fizzleCount ${_fizzleCount} + 1
+				/if (${_fizzleCount} == ${_allowedFizzleCount}) /return
 			}
 		}
 		/return
@@ -1821,9 +1624,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open}) {
 					/delay 3
 				}
- 				
- 				|CHECKINPUTS
-				| /call check_cast_events 2
 						
 				| good cast
 				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
@@ -1878,16 +1678,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		
 	| disc
 	} else /if (${Select[${_type},disc,activedisc]}) {
-		|DEBUG ${dep}disc,activedisc${dep}${_spell}
 		/varset _spell ${Spell[${_spell}].RankName}
-
-		|/if (${Select[${Me.Class.ShortName},BRD]} && ${Me.XTarget}) /call engage
-
-		|/if (${_tmpID} == 0) VDISC Disc ${sep} ${csp}${_spell}\ax
-		|/if (${_tmpID} != 0 && ${Target.ID}) VDISC Disc ${sep} ${csp}${_spell}\ax ${sep} [${ctar}${Spawn[ID ${_tmpID}].DisplayName}\ax]
-		|VBC Disc "${_spell}" ${_tmpID} 0 
 		/disc ${Me.CombatAbility[${Me.CombatAbility[${_spell}]}].ID}
-		| /disc ${_spell}
 		/delay 5
 		/while (${Me.Casting.ID} && ${Window[CastingWindow].Open}) {
 			/delay 5
@@ -1936,12 +1728,9 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				| check fizzle
 				/call check_cast_events "${_spell}" CAST_FIZZLE ${_tmpID}
 				/varset _fizzle ${Macro.Return}
-				
-				/if (!${_fizzle} || ${_fizzleCount} == ${_allowedFizzleCount}) {
-					/varcalc _castLoop ${_castLoop} - 1
-				} else {
-					/varcalc _fizzleCount ${_fizzleCount} + 1
-				}
+				/if (!${_fizzle}) /return
+				/varcalc _fizzleCount ${_fizzleCount} + 1
+				/if (${_fizzleCount} == ${_allowedFizzleCount}) /return
 			}
 		
 		|**
@@ -1980,7 +1769,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 |- SUB: global_cooldown_spells - Cast between spell casts (Weave)
 |---------------------------------------------------------------------------- 
 Sub global_cooldown_spells(int _tmpID)
-| ${Me.AltAbility[Force of Flame].Rank} >= 1
 
 	/if (${Int[${Target.Beneficial.ID}]}) {
 		/if (${validate_cast[FALSE, alt, "Eradicate Magic", ${_tmpID}]}) /alt act ${Me.AltAbility[Eradicate Magic].ID}
@@ -1999,16 +1787,14 @@ Sub global_cooldown_spells(int _tmpID)
 			/alt act ${Me.AltAbility[Force of Will].ID}
 			/return
 		}
-	}
-
-	/if (${Select[${Me.Class.ShortName},MAG]}) {
+	} else /if (${Select[${Me.Class.ShortName},MAG]}) {
 		
 		/if (${validate_cast[FALSE, alt, "Force of Elements", ${_tmpID}]}) {
 			/alt act ${Me.AltAbility[Force of Elements].ID}
 			/return
 		}
 		|${Target.Named}
-		/if (${Spawn[id ${_tmpID}].PctHPs} > 20 || (${Spawn[id ${_tmpID}].PctHPs} > 5 && ${Spawn[id ${_tmpID}].Named})) {
+		/if (${Spawn[id ${_tmpID}].PctHPs} > 80 || (${Spawn[id ${_tmpID}].PctHPs} > 5 && ${Spawn[id ${_tmpID}].Named})) {
 			/if (${validate_cast[FALSE, alt, "Servant of Ro", ${_tmpID}]}) {
 				/alt act ${Me.AltAbility[Servant of Ro].ID}
 				/return
@@ -2018,9 +1804,7 @@ Sub global_cooldown_spells(int _tmpID)
 				/return
 			}
 		}
-	}
-
-	/if (${Select[${Me.Class.ShortName},DRU]}) {
+	} else /if (${Select[${Me.Class.ShortName},DRU]}) {
 		
 		/if (${validate_cast[FALSE, alt, "Nature's Fire", ${_tmpID}]}) {
 			/alt act ${Me.AltAbility[Nature's Fire].ID}
@@ -2039,46 +1823,20 @@ Sub global_cooldown_spells(int _tmpID)
 			/return
 		}
 		/if (${validate_cast[FALSE, alt, "Nature's Guardian", ${_tmpID}]}) {
-			/alt act ${Me.AltAbility[Spirits of Nature].ID}
+			/alt act ${Me.AltAbility[Nature's Guardian].ID}
 			/return
+		}
+	} else /if (${Select[${Me.Class.ShortName},SHM]}) {
+		
+		/if (${Target.PctHPs} >= 30) {
+			/if (${validate_cast[FALSE, alt, "Spirit Call", ${_tmpID}]}) {
+				/alt act ${Me.AltAbility[Spirit Call].ID}
+				/return
+			}
 		}
 	}
 
 /return
-
-|***
- *	DES: process casting results from core_ cast2()
- *	USE: 
- *	NOTE: not for public consumption
- ***|
-|sub check_cast_events(bool _debug)
-
-|	/doevents CAST_BEGIN
-|	/doevents CAST_CANNOTSEE    
-|	/doevents CAST_COLLAPSE
-|	/doevents CAST_COMPONENTS
-|	/doevents CAST_DISTRACTED    
-|	/doevents CAST_FDFAIL    
-|	/doevents CAST_FIZZLE  
-|	/doevents CAST_IMMUNE
-|	/doevents CAST_INTERRUPTED
-|	/doevents CAST_NOMOUNT   
-|	/doevents CAST_NOTARGET
-|	/doevents CAST_NOTREADY
-|	/doevents CAST_OUTDOORS
-|	/doevents CAST_OUTOFMANA  
-|	/doevents CAST_OUTOFRANGE
-|	/doevents CAST_RECOVER    
-	| /varset CheckResisted 1
-	| /doevents CAST_RESISTED    
-	| /varset CheckResisted 0  
-	| /doevents CAST_RESISTEDYOU    
-|	/doevents CAST_STANDING 
-|	/doevents CAST_STUNNED
-|	/doevents CAST_TAKEHOLD    
-|	/varcalc _checkLoops ${_checkLoops}-1
-	
-|/return
 
 |***
  *	DES: Memorize a spell/song
@@ -2302,8 +2060,6 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 	|	/call timer_update timer_corpse_${_tmpID}} 30m
 	|	/return FALSE
 	|}
-		
-	| get the corpse close to us
 
 	/if (${_rez.Equal[${MassRezSpell}]}) {
 		/declare _corpsessInRadius 		int local 0
@@ -2357,22 +2113,7 @@ sub cast_rez(int _tmpID, string _rez, bool _debug)
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Rezzing with Token of Resurrection
 				/call core_cast2 "Token of Resurrection" item ${_tmpID} FALSE
 			}
-		}
-	
-		| if cast was good, set the timers.
-		|/if (${Select[${castReturn},CAST_SUCCESS]}) { 
-		|	/call timer_update timer_corpse_${_tmpID} ${tRez_Retry}
-		|	ECHOCHANNEL ${Me.Class.ShortName} Rez: ${Spawn[${_tmpID}].DisplayName}
-		|} else {
-		|	/if (${Select[${Me.Class.ShortName},CLR]}) {
-		|		/call timer_update timer_corpse_${_tmpID} 30s
-		|	} else /if (${Select[${Me.Class.ShortName},DRU,SHM,PAL]}) {
-		|		/call timer_update timer_corpse_${_tmpID} 45s
-		|	} else {
-		|		/call timer_update timer_corpse_${_tmpID} 1m
-		|	}
-		|}
-		
+		}	
 	}
 
 /return
@@ -3003,81 +2744,6 @@ Sub ignore_mobs_to_pull
 	}
 /return
 
-Sub Bind_ad(string Command)
-	
-	|		Write: /inix FileName Section Key Value
-	| 		https://www.macroquest2.com/wiki/index.php/TLO:Ini
-	|		https://www.redguides.com/community/threads/mq2inix.68308/
-	|		https://www.redguides.com/community/threads/pocketfarm-mac.67122/
-
-	/if (${Command.Equal[reload_ignore]}) {
-		/docommand /dgt \arReloading ignore list.
-		/call ignore_mobs_to_pull
-	} else /if (${Command.Equal[ignore]}) {
-		/docommand /dgt \awAdding \ar${Target.CleanName} \awto ignore and reloading ignore list.
-		| https://www.redguides.com/community/threads/ignore-mobs.70532/
-		/inix "IgnoreMobs.ini" "${Zone.ShortName}" "Ignore" "${Target.ID}|"
-		/alert add 1 "${Target.CleanName}"
-	} else /if (${Command.Equal[session_ignore]}) {
-		/docommand /dgt \awAdding \ar${Target.CleanName} \awto session ignore.
-		/alert add 1 "${Target.CleanName}"
-	}
-
-/return
-|**
-	/if (${Command.Equal[load]}) {
-		/message \arReloading INI.
-		/call IniFile
-	} else /if (${Command.Equal[clear]}) {
-		/if (${Command2.Equal[ignore]}) {
-			/squelch /alert clear 1
-			/message \arIgnore list cleared.
-		}
-		/if (${Command2.Equal[pull]}) {
-			/squelch /alert clear 10
-			/message \arPull list cleared.
-		}	
-	} else /if (${Command.Equal[list]}) {
-		/alert list 1
-		/alert list 10
-	} else /if (${Command.Equal[radius]}) {
-		/varset Radius ${Command2}
-		/if (${CampOn}) {
-			/squelch /maploc ${CampY} ${CampX} Size 20 width 5 color 0 0 255 radius ${Radius} color 0 0 255
-			/squelch /mapfilter SpellRadius 0
-		} else {
-			/squelch /mapfilter SpellRadius ${Radius}
-		}
-		/message \agSetting Radius to \at ${Radius}
-		/ini "PocketFarm.ini" "${Zone.ShortName}" "Radius" "${Radius}"
-	} else /if (${Command.Equal[zradius]}) {
-		/varset ZRadius ${Command2}
-		/message \agSetting Z-Radius to \at${ZRadius}
-		/ini "PocketFarm.ini" "${Zone.ShortName}" "ZRadius" "${ZRadius}"
-	} else /if (${Command.Equal[ignore]}) {
-		/alert add 1 "${Command2}"
-	} else /if (${Command.Equal[pull]}) {
-		/alert add 10 "${Command2}"
-	} else /if (${Command.Equal[go]}) {
-		/varset goFarming true
-		/message PocketFarm \agGO
-	} else /if (${Command.Equal[pause]}) {
-		/varset goFarming false
-		/message PocketFarm \arPause
-	} else {
-		/message \ag Commands while running:
-		/message \ag- \at/pkf go \agmakes PocketFarm start farming
-		/message \ag- \at/pkf pause \agmakes PocketFarm pause farming, but will self defend.
-		/message \ag- \at/pkf list \agShows both ignore and pull lists
-		/message \ag- \at/pkf ignore "<spawn search>" \ag- Add spawns to temp ignore list, remember to use " ". \arWill not be saved in ini.
-		/message \ag- \at/pkf pull "<spawn search>" \ag- Add spawns to temp pull list, remember to use " ". \arWill not be saved in ini.
-		/message \ag- \at/pkf clear <ignore/pull> ## \ag- Clear the ignore or pull list.
-		/message \ag- \at/pkf radius ## \ag- Change the radius around you to look for mobs in.
-		/message \ag- \at/pkf zradius ## \ag- Change the  Z radius.
-		/message \ag- \at/pkf load \ag load reload the ini.
-	}
-**|
-
 |----------------------------------------------------------------------------
 |- SUB: mezz_xtarget
 |---------------------------------------------------------------------------- 
@@ -3241,9 +2907,8 @@ sub cast_alliance(string _alliance, int _tmpID)
 	/if (${Target.Buff[${AllianceSpellRankCheck} Rk. II].ID}) /return
 	/if (${Target.Buff[${AllianceSpellRankCheck} Rk. III].ID}) /return
 
+	| Cast alliance
 	/if (${validate_cast[FALSE, FIND, "${_alliance}", ${_tmpID}]}) {
-
-		| Cast alliance
 		/call core_cast2 "${_alliance}" FIND ${_tmpID} FALSE
 	}
 
@@ -3252,7 +2917,7 @@ sub cast_alliance(string _alliance, int _tmpID)
 	/varset allianceCaster ${Macro.Return}
 
 	| Announce who the next one is
-	/if (${verbose${Me.Class.ShortName}}) /docommand /dgt ******** NEXT SHOULD BE ${allianceCaster} *********
+	/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Next Alliance caster is ${allianceCaster}
 
 	| Tell the next in line that it is their turn
 	/squelch /dex ${allianceCaster} /varset allianceTurn 1

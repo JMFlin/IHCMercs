@@ -10,7 +10,7 @@ Figure out when to use Spire.
 
 Sub war_main
 
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 		
 		/call move_to_camp
 
@@ -21,9 +21,7 @@ Sub war_main
 		/call war_get_aggro
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
-		
-		/call war_get_aggro
-		/call war_disc
+
 		/call engage
 		/call use_skill_melee FALSE ${Target.ID}
 		/if (!${Me.Song[Battle Leap].ID}) {
@@ -43,6 +41,7 @@ Sub war_main
 
 		/call war_aoe_aggro
 		/call get_target
+		/call war_get_aggro
 
 		/if (${Target.Named} || ${Me.PctHPs} < 61) {
 			/if (${validate_cast[FALSE, disc, "${knuckle}", ${Target.ID}]}) /call core_cast2 "${knuckle}" disc ${Target.ID} FALSE
@@ -53,7 +52,6 @@ Sub war_main
 		}
 		
 		/call war_combat_buffs
-
 		/call get_target
 
 	}

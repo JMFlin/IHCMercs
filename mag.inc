@@ -2,18 +2,22 @@
 |- SUB: wiz_main
 |----------------------------------------------------------------------------
 Sub mag_main
-	/if (${powerLevel}) {
-		/return
-	}
 
-	/call mag_self_buff_check FALSE
+	/if (!${Me.XTarget}) /call mag_self_buff_check FALSE
+	/if (!${Me.XTarget}) /call mag_mana_check
 
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 		
-		/call mag_mana_check
 		/call mag_pet_hp_check
-		
+
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call mag_burn_routine
+		
+		/if (!${Me.Song[Twincast Effect].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Improved Twincast ${ImprovedTwincastRank}].ID}) {
+			/if (${validate_cast[FALSE, alt, "Companion's Fury", ${Me.Pet.ID}]}) {
+				/call core_cast2 "Companion's Fury" alt 0 FALSE
+			}
+		}
+
 		/call get_target
 		/if (${Int[${Target.Beneficial.ID}]}) {
 			/if (${validate_cast[FALSE, alt, "Eradicate Magic", ${Target.ID}]}) /call core_cast2 "Eradicate Magic" alt ${Target.ID} FALSE
@@ -120,6 +124,8 @@ Sub mag_main
 				/call core_cast2 "Arcane Whisper" alt ${Target.ID} FALSE
 			}
 		}
+		/call mag_mana_check
+		/call move_to_camp
 	}
 	
 /return
@@ -156,21 +162,8 @@ Sub mag_mana_check
 	}
 
 	| Do (self) modrod here
-
-	|**
-	/if (${Me.PctMana} < 90) {
-		/if (${validate_cast[FALSE, alt, "Azure Mind Crystal", ${Me.ID}]}) {
-			/call core_cast2 "Azure Mind Crystal" alt 0 FALSE
-
-			/if (${Me.FreeInventory} >= 1) /autoinventory
-
-			/if (${validate_cast[FALSE, item, "Azure Mind Crystal ${AzureMindCrystalRank}", ${Me.ID}]}) {
-				/call core_cast2 "Azure Mind Crystal ${AzureMindCrystalRank}" item 0 FALSE
-			}
-		}
-	}
-	**|
-
+	/call bag_mod_rod
+	/call use_mod_rod
 /return
 
 |***
@@ -313,11 +306,11 @@ Sub mag_burn_routine
 	/if (${validate_cast[FALSE, alt, "Thaumaturge's Focus", ${Me.ID}]}) {
 		/call core_cast2 "Thaumaturge's Focus" alt 0 FALSE
 	}
-
-	/if (!${Me.Buff[Twincast].ID} && ${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
-		/call core_cast2 "Improved Twincast" alt 0 FALSE
-	}
-	
+	/if (!${Me.Song[Twincast Effect].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Improved Twincast ${ImprovedTwincastRank}].ID}) {
+		/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
+			/call core_cast2 "Improved Twincast" alt 0 FALSE
+		}
+	}	
 
 /return
 |----------------------------------------------------------------------------

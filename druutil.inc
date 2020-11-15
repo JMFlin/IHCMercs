@@ -41,6 +41,7 @@ Sub dru_setup
 	/declare SingleFireAtkDebuff 		string outer NULL
 	/declare AEFireAtkDebuff			string outer NULL
 	/declare SingleFrostAtkDebuff 		string outer NULL
+	/declare Winter 			string outer NULL
 	
 	/declare IceDebuff 			string outer NULL
 	/declare GroupWolfAtkBuff 	string outer NULL
@@ -51,6 +52,7 @@ Sub dru_setup
 	/declare Survival 			string outer NULL
 	/declare Mask 				string outer NULL
 	/declare TwincastSpell 		string outer NULL
+	/declare AllianceBuff 		string outer NULL
 	/declare ShmAllianceBuff 	string outer NULL
 	/declare DichoSpell 		string outer NULL
 	/declare Moonbeam 		string outer NULL
@@ -63,6 +65,7 @@ Sub dru_setup
 
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
+	/declare ImprovedTwincastRank		string outer NULL
 
 /return 
 |* ------------------------------------------------------------------------------------------
@@ -282,6 +285,18 @@ BALANCED:
 
 	/if (${Me.Level} >= ${Spell[Nature's Response].Level} && ${Me.Book[${Spell[Nature's Response].RankName}]}) {
 		/varset Response ${Spell[Nature's Response].RankName}
+	}
+
+	/if (${Me.AltAbility[Improved Twincast].Rank} == 12) {
+		/varset ImprovedTwincastRank VI
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 13) {
+		/varset ImprovedTwincastRank VII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 14) {
+		/varset ImprovedTwincastRank VIII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 15) {
+		/varset ImprovedTwincastRank VIII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 16) {
+		/varset ImprovedTwincastRank X
 	}
 
 	/if (${Me.Level}>=${Spell[Typhonic Roar].Level} && ${Me.Book[${Spell[Typhonic Roar].RankName}]}) {
@@ -992,6 +1007,11 @@ BALANCED:
 	/if (${Me.Level}>=${Spell[Bosquetender's Alliance].Level} && ${Me.Book[${Spell[Bosquetender's Alliance].RankName}]}) {
 		/varset AllianceBuff ${Spell[Bosquetender's Alliance].RankName}
 		/varset ShmAllianceBuff Ancient Alliance
+	}
+
+	/if (${Me.AltAbility[252].Name.Find[disabled]} && ${Me.AltAbilityReady[252]}) {
+		/alt act 252
+		/delay 5
 	}
 
 	/delay 1s

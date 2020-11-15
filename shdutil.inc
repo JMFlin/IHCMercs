@@ -431,6 +431,19 @@ Sub shd_abilities
 		/varset pullDistance 5
 	}
 
+	/if (${Me.AltAbility[865].Name.Find[disabled]} && ${Me.AltAbilityReady[865]}) {
+		/alt act 865
+		/delay 5
+	}
+	/if (${Me.AltAbility[1278].Name.Find[disabled]} && ${Me.AltAbilityReady[1278]}) {
+		/alt act 1278
+		/delay 5
+	}
+	/if (${Me.AltAbility[793].Name.Find[disabled]} && ${Me.AltAbilityReady[793]}) {
+		/alt act 793
+		/delay 5
+	}
+
 	/call shd_load_spellbar
 
 /return

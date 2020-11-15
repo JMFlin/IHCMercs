@@ -10,15 +10,23 @@ Sub enc_setup
   |-Buffs
 	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
+	/declare Aura3 					string outer NULL
+	/declare Aura1Name				string outer NULL
+	/declare Aura2Name				string outer NULL
+	/declare Aura3Name				string outer NULL
 	/declare GroupHaste				string 	outer	"NULL"
 	/declare GroupMana				string 	outer	"NULL"
 	/declare MezBuff				string 	outer	"NULL"
+	/declare MezBuffName				string 	outer	"NULL"
 	/declare ProcBuff				string 	outer	"NULL"
 	/declare ProcBuffCount			int		outer	0
 	/declare ProcBuffRecastTimer	timer	outer	0
 	/declare SelfHPBuff				string	outer	"NULL"
 	/declare SelfRune1				string	outer	"NULL"
 	/declare SelfRune2				string	outer	"NULL"
+	/declare SelfRune1Name				string	outer	"NULL"
+	/declare SelfRune2Name				string	outer	"NULL"
+	/declare ImprovedTwincastRank		string outer NULL
 	/declare SingleHaste			string	outer	"NULL"
 	/declare SingleMana				string	outer	"NULL"
 	/declare SingleRune				string	outer	"NULL"
@@ -42,9 +50,6 @@ Sub enc_setup
 	/declare CharmSpell1			string 	outer	"NULL"
 	/declare CharmMaxLvl			int		outer	0
 	/declare CharmMinMobs			int		outer	2
-	/declare CharmDelay				timer	outer 	0
-	/declare CharmedID				int		outer	0
-	/declare OldCharmedID			int		outer	0
   |-Debuff
 	/declare CrippleSpell1			string	outer	NULL
 	/declare SlowSpell				string	outer	NULL
@@ -63,9 +68,13 @@ Sub enc_setup
 	/declare MindNukeSub				string 	outer	"NULL"
 	/declare Chromatic				string 	outer	"NULL"
 	/declare NukeSpell4				string 	outer	"NULL"
+	/declare TwincastSpell				string 	outer	NULL
+	
   |-Pet
 	/declare PetSpell				string	outer	"NULL"
 	/declare PetBuffSpell			string	outer	"NULL"
+	/declare PetBuffName			string	outer	"NULL"
+	
 	/declare PetAssistTimer			timer 	outer	0
   |- Mez
 	/declare LastMobCount           int		outer	0
@@ -98,7 +107,8 @@ Sub enc_setup
 	/declare RootSpell				string	outer	"NULL"
 	/declare HarvestSpell1 			string 	outer	"NULL"
 	/declare UnityRune 				string 	outer	 NULL
-|-Config Options	
+	/declare SelfHPBuffName	 		string outer NULL
+|-Config Options
 
 	/declare ChestItemName		string outer ${Me.Inventory[17].Name}
 	|-Set AA DurationMod for mez timer from Spell Casting Reinforcement AA
@@ -136,6 +146,23 @@ Sub enc_load_spellbar
 	/echo \aw Loading Spell Bar
 	
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) {
+		/call LoadSpellGem "${MezSpell}" 1
+		/call LoadSpellGem "${AEMezSpell}" 2
+		/call LoadSpellGem "${DichoSpell}" 3
+		/call LoadSpellGem "${TashSpell}" 4
+		/if (!${Me.AltAbility[Slowing Helix].ID}) {
+			/call LoadSpellGem "${SlowSpell}" 5
+		} else {
+			/call LoadSpellGem "${Constriction}" 5
+		}
+		/call LoadSpellGem "${Drown}" 6
+		/call LoadSpellGem "${MindNukeSub}" 7
+		/call LoadSpellGem "${MindNukeMain}" 8
+		/call LoadSpellGem "${SingleStunSpell1}" 9
+
+		/call LoadSpellGem "${Aura1}" 11
+		/call LoadSpellGem "${Aura2}" 12
+		/call LoadSpellGem "${Aura3}" 13
 	
 	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
 	
@@ -255,6 +282,18 @@ Sub enc_abilities
 		/varset MentalContortionRank VIII
 	} else /if (${Me.AltAbility[Mental Contortion].Rank} == 16) {
 		/varset MentalContortionRank X
+	}
+
+	/if (${Me.AltAbility[Improved Twincast].Rank} == 12) {
+		/varset ImprovedTwincastRank VI
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 13) {
+		/varset ImprovedTwincastRank VII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 14) {
+		/varset ImprovedTwincastRank VIII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 15) {
+		/varset ImprovedTwincastRank VIII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 16) {
+		/varset ImprovedTwincastRank X
 	}
 
 |-Mez Spell * Var Name: MezSpell string	outer
@@ -652,22 +691,41 @@ Sub enc_abilities
 |-Aura Buff 1 * Var Name: AuraBuff1 string outer
 	/if (${Me.Level}>=84 && ${Me.Book[${Spell[Twincast Aura].RankName}]}) {
 		/varset Aura2 ${Spell[Twincast Aura].RankName}
+		/varset Aura2Name "Twincast Aura"
 	}
+
+	/if (${Me.Level}>=84 && ${Me.Book[${Spell[Bolstering Aura].RankName}]}) {
+		/varset Aura3 ${Spell[Bolstering Aura].RankName}
+		/varset Aura3Name "Bolstering Aura"
+	}
+
+|-TwincastSpell
+	|/if (${Me.Level}>=85 && ${Me.Book[${Spell[Twincast].RankName}]}) {
+	|	/varset TwincastSpell ${Spell[Twincast].RankName}
+	|}
+	
 |-Aura Buff 2 * Var Name: AuraBuff2 string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Mana Repetition Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Mana Repetition Aura].RankName}
+		/varset Aura1Name "Mana Repetition Aura"
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Mana Reciprocation Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Mana Reciprocation Aura].RankName}
+		/varset Aura1Name "Mana Reciprocation Aura"
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Mana Reverberation Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Mana Reverberation Aura].RankName}
+		/varset Aura1Name "Mana Reverberation Aura"
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Mana Repercussion Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Mana Repercussion Aura].RankName}
+		/varset Aura1Name "Mana Reverberation Aura"
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Mana Reiteration Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Mana Reiteration Aura].RankName}
+		/varset Aura1Name "Mana Reverberation Aura"
 	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Mana Reiterate Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Mana Reiterate Aura].RankName}
+		/varset Aura1Name "Mana Reverberation Aura"
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Mana Resurgence Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Mana Resurgence Aura].RankName}
+		/varset Aura1Name "Mana Reverberation Aura"
 	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Mystifier's Aura].RankName}]}) {
 		/varset Aura1 ${Spell[Mystifier's Aura].RankName}
 	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Entrancer's Aura].RankName}]}) {
@@ -678,7 +736,10 @@ Sub enc_abilities
 		/varset Aura1 ${Spell[Beguiler's Aura].RankName}
 	}
 |-Self HP Buff * Var Name: SelfHPBuff string outer
-	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Shield of Scales].RankName}]}) {
+
+	/if (${Me.AltAbility[Orator's Unity].Rank} >= 1) {
+		/varset SelfHPBuff Orator's Unity
+	} else /if (${Me.Level}>=106 && ${Me.Book[${Spell[Shield of Scales].RankName}]}) {
 		/varset SelfHPBuff ${Spell[Shield of Scales].RankName}
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Shield of the Pellarus].RankName}]}) {
 		/varset SelfHPBuff ${Spell[Shield of the Pellarus].RankName}
@@ -714,6 +775,14 @@ Sub enc_abilities
 		/varset SelfHPBuff ${Spell[Lesser Shielding].RankName}
 	} else /if (${Me.Level}>=1 && ${Me.Book[${Spell[Minor Shielding].RankName}]}) {
 		/varset SelfHPBuff ${Spell[Minor Shielding].RankName}
+	}
+
+	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Shield of Scales].RankName}]}) {
+		/varset SelfHPBuffName ${Spell[Shield of Scales].RankName}
+	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Shield of the Pellarus].RankName}]}) {
+		/varset SelfHPBuffName ${Spell[Shield of the Pellarus].RankName}
+	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Shield of the Dauntless].RankName}]}) {
+		/varset SelfHPBuffName ${Spell[Shield of the Dauntless].RankName}
 	}
 |-Group Mana * Var Name: GroupMana string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Voice of Perspicacity].RankName}]}) {
@@ -810,12 +879,16 @@ Sub enc_abilities
 |-Self Rune 1 * Var Name: SelfRune1 string outer
 	/if (${Me.Level}>=106 && ${Me.Book[${Spell[Transfixer's Rune].RankName}]}) {
 		/varset SelfRune1 ${Spell[Transfixer's Rune].RankName}
+		/varset SelfRune1Name "Transfixer's Rune"
 	} else /if (${Me.Level}>=101 && ${Me.Book[${Spell[Enticer's Rune].RankName}]}) {
 		/varset SelfRune1 ${Spell[Enticer's Rune].RankName}
+		/varset SelfRune1Name "Enticer's Rune"
 	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Mastermind's Rune].RankName}]}) {
 		/varset SelfRune1 ${Spell[Mastermind's Rune].RankName}
+		/varset SelfRune1Name "Mastermind's Rune"
 	} else /if (${Me.Level}>=91 && ${Me.Book[${Spell[Arcanaward's Rune].RankName}]}) {
 		/varset SelfRune1 ${Spell[Arcanaward's Rune].RankName}
+		/varset SelfRune1Name "Arcanaward's Rune"
 	} else /if (${Me.Level}>=86 && ${Me.Book[${Spell[Spectral Rune].RankName}]}) {
 		/varset SelfRune1 ${Spell[Spectral Rune].RankName}
 	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Pearlescent Rune].RankName}]}) {
@@ -837,8 +910,10 @@ Sub enc_abilities
 |-Self Rune 2 * Var Name: SelfRune2 string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Polyfluorescent Rune].RankName}]}) {
 		/varset SelfRune2 ${Spell[Polyfluorescent Rune].RankName}
+		/varset SelfRune2Name "Polyfluorescent Rune"
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Polyrefractive Rune].RankName}]}) {
 		/varset SelfRune2 ${Spell[Polyrefractive Rune].RankName}
+		/varset SelfRune2Name "Polyrefractive Rune"
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Polyiridescent Rune].RankName}]}) {
 		/varset SelfRune2 ${Spell[Polyiridescent Rune].RankName}
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Polyarcanic Rune].RankName}]}) {
@@ -888,10 +963,13 @@ Sub enc_abilities
 |-Mez Buff * Var Name: MezBuff string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Ward of the Transfixer].RankName}]}) {
 		/varset MezBuff ${Spell[Ward of the Transfixer].RankName}
+		/varset MezBuffName "Ward of the Transfixer"
 	} else /if (${Me.Level}>=105 && ${Me.Book[${Spell[Ward of the Enticer].RankName}]}) {
 		/varset MezBuff ${Spell[Ward of the Enticer].RankName}
+		/varset MezBuffName "Ward of the Enticer"
 	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Ward of the Mastermind].RankName}]}) {
 		/varset MezBuff ${Spell[Ward of the Mastermind].RankName}
+		/varset MezBuffName "Ward of the Mastermind"
 	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Ward of Arctending].RankName}]}) {
 		/varset MezBuff ${Spell[Ward of Arctending].RankName}
 	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Ward of Bafflement].RankName}]}) {
@@ -1040,8 +1118,10 @@ Sub enc_abilities
 |-Pet Buff Spell * Var Name: PetBuffSpell string outer
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Infused Minion].RankName}]}) {
 		/varset PetBuffSpell ${Spell[Infused Minion].RankName}
+		/varset PetBuffName "Infused Minion"
 	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Empowered Minion].RankName}]}) {
 		/varset PetBuffSpell ${Spell[Empowered Minion].RankName}
+		/varset PetBuffName "Empowered Minion"
 	} else {
 		/varset PetBuffSpell ${SingleHaste}
 	}

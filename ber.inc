@@ -47,13 +47,12 @@ Avenging Flurry Discipline
 |---------------------------------------------------------------------------- 
 Sub ber_main
 	
-	
 	/if (!${Me.XTarget}) /call make_axes "${JoltAxeName}" "${JoltAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${SnareAxeName}" "${SnareAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${StunAxeName}" "${StunAxeComponent}"
 	/if (!${Me.XTarget}) /call make_axes "${DichoAxeName}" "${DichoAxeComponent}"
 
-	/while (${Me.XTarget}) {
+	/while (${Me.XTarget} && ${Mode} == 3) {
 		/call get_target
 
 		/if (${Me.PctHPs} > 89) {

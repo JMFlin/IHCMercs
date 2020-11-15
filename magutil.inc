@@ -13,7 +13,7 @@ Sub mag_setup
   |-Debuff
 	/declare StripBuffSpell			string	outer	NULL
   |-DPS
-  	/declare Aura1					string  outer   NULL
+  	/declare Aura1					string outer ${Spell[Arcane Distillect].RankName}
 	/declare Aura2					string  outer   NULL
 	
     /declare AllianceSpell			string	outer	NULL
@@ -43,7 +43,10 @@ Sub mag_setup
     /declare PetToysJewlry			string 	outer	NULL
     /declare PetToysWeps			string 	outer	NULL
 	/declare PetToysFace 			string 	outer 	NULL
-
+	/declare ImprovedTwincastRank		string outer NULL
+	/declare AllianceSpellRankCheck	string outer NULL
+	/declare PetWepItem 			string outer NULL
+	
 	/declare GoMNuke				string outer NULL
 	/declare GoMNuke2				string outer NULL
 	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
@@ -140,7 +143,18 @@ Sub mag_load_spellbar
 |------------------------------------------------------------------------------------------ *|
 Sub mag_abilities
 
-    
+	/if (${Me.AltAbility[Improved Twincast].Rank} == 12) {
+		/varset ImprovedTwincastRank VI
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 13) {
+		/varset ImprovedTwincastRank VII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 14) {
+		/varset ImprovedTwincastRank VIII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 15) {
+		/varset ImprovedTwincastRank VIII
+	} else /if (${Me.AltAbility[Improved Twincast].Rank} == 16) {
+		/varset ImprovedTwincastRank X
+	}
+
     /if (${Me.Level}>=${Spell[Summon Coronal Orb].Level} && ${Me.Book[${Spell[Summon Coronal Orb].RankName}]}) {
 		/varset SummonOrbSpell ${Spell[Summon Coronal Orb].RankName}
 	} else /if (${Me.Level}>=${Spell[Summon Firebound Orb].Level} && ${Me.Book[${Spell[Summon Firebound Orb].RankName}]}) {
@@ -730,13 +744,6 @@ Sub mag_abilities
 	} else /if (${Me.Level}>=37 && ${Me.Book[${Spell[Concussion].RankName}]}) {
 		/varset JoltSpell ${Spell[Concussion].RankName}
 	}
-
-
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==2) /varset spellmisc 10
-	/if (${Me.AltAbility[Mnemonic Retention].Rank}==1) /varset spellmisc 9
 	
 	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
 		/alt act 25

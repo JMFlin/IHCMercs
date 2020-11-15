@@ -16,15 +16,11 @@ Sequence 3
 
 Sub clr_main
 	
-	/if (${powerLevel}) {
-		/call check_for_corpse FALSE
-		/return
-	} 
+	/if (!${Me.XTarget}) /call check_for_corpse FALSE
 	/if (!${doNotBuff}) /call clr_group_buffs
-	/call clr_self_buffs
+	/if (!${Me.XTarget}) /call clr_self_buffs
 	/if (!${doNotBuff}) /call clr_combat_tank_buffs
-
-	/call check_for_corpse FALSE
+	/call clr_mana_check
 	
 	|!${Me.Song[${GroupElixirSpell}].ID}
 	/if (${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID}) {
@@ -33,9 +29,7 @@ Sub clr_main
 		}
 	}
 
-	/while (${Me.XTarget}) {
-		
-		/call move_to_camp
+	/while (${Me.XTarget} && ${Mode} == 3) {
 
 		/if (!${doNotBuff}) {
 			/if (${validate_tank_heal[70]}) {
@@ -79,6 +73,8 @@ Sub clr_main
 			}
 		}
 		/call clr_heal_spam_3
+		/call clr_mana_check
+		/call move_to_camp
 		|**
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
 		
@@ -220,6 +216,7 @@ Sub clr_group_buffs
 	/declare _count			int local 0
 	/declare CastCheck			int local 0
 
+	/if (!${Group}) /return
 	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]}) /return
 	/if (${SpawnCount[pccorpse raid radius ${setMaxRezRange}]}) /return
 
@@ -390,6 +387,11 @@ Sub clr_combat_tank_buffs
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 	}
 
+/return
+
+Sub clr_mana_check
+	/call bag_mod_rod
+	/call use_mod_rod
 /return
 |----------------------------------------------------------------------------
 |- SUB: cures
