@@ -109,16 +109,13 @@ Sub shd_load_spellbar
 	} else {
 
 		/call LoadSpellGem "${Touch1}" 1
+		/call LoadSpellGem "${Touch2}" 2
+		/call LoadSpellGem "${DireTestemony}" 3
 
-		/if (${Me.Book[${Spell[${DireTestemony}].RankName}]}) {
-			/call LoadSpellGem "${DireTestemony}" 2
-		} else {
-			/call LoadSpellGem "${Touch2}" 2
-		}
-
-		/call LoadSpellGem "${Touch3}" 3
-		/call LoadSpellGem "${Terror1}" 4
-		/call LoadSpellGem "${Terror2}" 5
+		/call LoadSpellGem "${Power}" 4
+		|/call LoadSpellGem "${Touch3}" 3
+		/call LoadSpellGem "${Terror1}" 5
+		/call LoadSpellGem "${Terror2}" 6
 		|/call LoadSpellGem "${Bond}" 6
 		
 		/if (${Me.Book[${Spell[${Stance}].RankName}]}) {
@@ -127,7 +124,7 @@ Sub shd_load_spellbar
 			/if (!${Me.AltAbility[Encroaching Darkness].Rank} >= 1) /call LoadSpellGem "${SnareSpell}" 7
 		}
 
-		/call LoadSpellGem "${Skin}" 8
+		/call LoadSpellGem "${Spear}" 8
 	}
 	/delay 2s
 	/if (${Me.Sitting}) /stand
@@ -184,7 +181,7 @@ Sub shd_abilities
 		/varset Spear ${Spell[Malarian Spear].RankName}
 	} else /if (${Me.Level}>=${Spell[Rotmarrow Spear].Level} && ${Me.Book[${Spell[Rotmarrow Spear].RankName}]}) {
 		/varset Spear ${Spell[Rotmarrow Spear].RankName}
-	} /if (${Me.Level}>=${Spell[Rotroot Spear].Level} && ${Me.Book[${Spell[Rotroot Spear].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Rotroot Spear].Level} && ${Me.Book[${Spell[Rotroot Spear].RankName}]}) {
 		/varset Spear ${Spell[Rotroot Spear].RankName}
 	} else /if (${Me.Level}>=${Spell[Spear of Muram].Level} && ${Me.Book[${Spell[Spear of Muram].RankName}]}) {
 		/varset Spear ${Spell[Spear of Muram].RankName}
@@ -401,11 +398,19 @@ Sub shd_abilities
 		/varset Denial ${Spell[Dread Gaze].RankName}
 	} 
 
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Hateful Bargain].RankName}]}) {
+	
+	| AoE Hate Tap
+	/if (${Me.Level}>=${Spell[Abhorrent Bargain].Level} && ${Me.Book[${Spell[Abhorrent Bargain].RankName}]}) {
+		/varset Bargain ${Spell[Abhorrent Bargain].RankName}
+	} else /if (${Me.Level}>=${Spell[Hateful Bargain].Level} && ${Me.Book[${Spell[Hateful Bargain].RankName}]}) {
 		/varset Bargain ${Spell[Hateful Bargain].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Hateful Bargain].RankName}]}) {
-		/varset Bargain ${Spell[Hateful Bargain].RankName}
+	} else /if (${Me.Level}>=${Spell[Distasteful Bargain].Level} && ${Me.Book[${Spell[Distasteful Bargain].RankName}]}) {
+		/varset Bargain ${Spell[Distasteful Bargain].RankName}
+	} else /if (${Me.Level}>=${Spell[Repugnant Bargain].Level} && ${Me.Book[${Spell[Repugnant Bargain].RankName}]}) {
+		/varset Bargain ${Spell[Repugnant Bargain].RankName}
 	}
+
+	
 
 	| Torrent
 	/if (${Me.Level}>=${Spell[Torrent of Anguish].Level} && ${Me.Book[${Spell[Torrent of Anguish].RankName}]}) {
@@ -424,18 +429,27 @@ Sub shd_abilities
 	} else /if (${Me.Level}>=${Spell[Harmonious Disruption].Level}  && ${Me.Book[${Spell[Harmonious Disruption].RankName}]}) {
 		/varset Disruption ${Spell[Harmonious Disruption].RankName}
 	}
-
+	
+	
 	
 	| Skin
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Tylix's Skin].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Cadcane's Skin].Level} && ${Me.Book[${Spell[Cadcane's Skin].RankName}]}) {
+		/varset Skin ${Spell[Cadcane's Skin].RankName}
+	} else /if (${Me.Level}>=${Spell[Tylix's Skin].Level} && ${Me.Book[${Spell[Tylix's Skin].RankName}]}) {
 		/varset Skin ${Spell[Tylix's Skin].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Tylix's Skin].RankName}]}) {
-		/varset Skin ${Spell[Tylix's Skin].RankName}
-	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Malarian Skin].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Vizat's Skin].Level} && ${Me.Book[${Spell[Vizat's Skin].RankName}]}) {
+		/varset Skin ${Spell[Vizat's Skin].RankName}
+	} else /if (${Me.Level}>=${Spell[Grelleth's Skin].Level} && ${Me.Book[${Spell[Grelleth's Skin].RankName}]}) {
+		/varset Skin ${Spell[Grelleth's Skin].RankName}
+	} else /if (${Me.Level}>=${Spell[Sholothian Skin].Level} && ${Me.Book[${Spell[Sholothian Skin].RankName}]}) {
+		/varset Skin ${Spell[Sholothian Skin].RankName}
+	} else /if (${Me.Level}>=${Spell[Gorgon Skin].Level} && ${Me.Book[${Spell[Gorgon Skin].RankName}]}) {
+		/varset Skin ${Spell[Gorgon Skin].RankName}
+	} else /if (${Me.Level}>=${Spell[Malarian Skin].Level} && ${Me.Book[${Spell[Malarian Skin].RankName}]}) {
 		/varset Skin ${Spell[Malarian Skin].RankName}
-	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Umbral Skin].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Umbral Skin].Level} && ${Me.Book[${Spell[Umbral Skin].RankName}]}) {
 		/varset Skin ${Spell[Umbral Skin].RankName}
-	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Decrepit Skin].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Decrepit Skin].Level} && ${Me.Book[${Spell[Decrepit Skin].RankName}]}) {
 		/varset Skin ${Spell[Decrepit Skin].RankName}
 	}
 
