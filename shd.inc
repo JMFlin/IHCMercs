@@ -504,6 +504,13 @@ Sub shd_self_buffs
 		}
 	}
 
+	/if (!${Me.Pet.ID}) {
+		/if (${validate_cast[FALSE, spell, "${PetSpell}", ${Me.ID}]}) {
+			/call core_cast2 "${PetSpell}" spell 0 FALSE
+			/varset _castCheck 1
+		}
+	}
+
 	/if (${Me.XTarget}) /return
 	/if (${Group.MainTank.ID} == ${Me.ID}) {
 		/if (${validate_cast[FALSE, alt, "Voice of Thule", ${Me.ID}]}) {
