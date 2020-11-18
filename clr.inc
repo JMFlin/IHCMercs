@@ -17,11 +17,11 @@ Sequence 3
 Sub clr_main
 	
 	/if (!${Me.XTarget}) /call check_for_corpse FALSE
-	/if (!${doNotBuff}) /call clr_group_buffs
+	/if (!${doNotBuff} && !${timeForBuffs}) /call clr_group_buffs
 	/if (!${Me.XTarget}) /call clr_self_buffs
 	/if (!${doNotBuff}) /call clr_combat_tank_buffs
 	/call clr_mana_check
-	
+
 	|!${Me.Song[${GroupElixirSpell}].ID}
 	/if (${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID}) {
 		/if (${validate_cast[FALSE, spell, "${GroupElixirSpell}", ${Me.ID}]}) {
@@ -353,6 +353,7 @@ Sub clr_group_buffs
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 	}
+	/call set_timers
 	
 /return
 |----------------------------------------------------------------------------

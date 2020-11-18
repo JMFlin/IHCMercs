@@ -29,6 +29,7 @@ Sub brd_setup
 	/declare RecklessSong			string outer NULL
 	/declare StormBladeSong 		string outer NULL
 	/declare FateSong				string outer NULL
+	/declare PosseSpell				string 	outer 	Origin
 |-Special
 	/declare Epicsword				string outer NULL
 	/declare UseEpic 				int outer 1

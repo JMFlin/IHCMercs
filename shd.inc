@@ -4,12 +4,11 @@
 Sub shd_main
 
 	/if (!${Me.XTarget}) /call shd_self_buffs
-	/call shd_mana_check
+	/if (!${Me.XTarget}) /call shd_mana_check
 
 	/while (${Me.XTarget} && ${Mode} == 3) {
 
 		/call get_target
-		
 		/call shd_get_aggro
 	
 		/call shd_combat_buffs
@@ -22,6 +21,12 @@ Sub shd_main
 		
 		/call shd_disc
 
+		/if (${Target.Named} || ${Target.PctHPs} > 90) {
+			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
+		}
+		
+		/call shd_lifetap_spam ${Target.ID}
+
 		|/while (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${Target.ID} && ${Me.XTarget}) {
 		/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${shdDoSnare}) {
 			/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
@@ -30,7 +35,11 @@ Sub shd_main
 			}
 		}
 		|}
-	
+		
+		/call get_target
+		/call shd_get_aggro
+		/call shd_aoe_aggro
+
 		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
 			/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
 		}
@@ -38,27 +47,14 @@ Sub shd_main
 		/if (${validate_cast[FALSE, alt, "Vicious Bite of Chaos", ${Target.ID}]}) {
 			/call core_cast2 "Vicious Bite of Chaos" alt ${Target.ID} FALSE
 		}
-		
-		/call shd_aoe_aggro
-		/call get_target
 
 		/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
 			/call core_cast2 "Visage of Death" alt 0 FALSE
 		}
+		/call shd_lifetap_spam ${Target.ID}
 
-		/if (${Me.PctHPs} < 99) {
-			/if (${validate_cast[FALSE, spell, "${Touch1}", ${Target.ID}]}) /call core_cast2 "${Touch1}" spell ${Target.ID} FALSE
-		}
-		/if (${Me.PctHPs} < 90) {
-			/if (${validate_cast[FALSE, spell, "${Touch2}", ${Target.ID}]}) /call core_cast2 "${Touch2}" spell ${Target.ID} FALSE
-		}
-		
-		/call shd_get_aggro
 		/call get_target
-
-		/if (!${Me.Buff[${Recourse}].ID}) {
-			/if (${validate_cast[FALSE, spell, "${Touch3}", ${Target.ID}]}) /call core_cast2 "${Touch3}" spell ${Target.ID} FALSE
-		}
+		/call shd_get_aggro
 
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID}) {
 			/if (${validate_cast[FALSE, disc, "${Withstand}", ${Me.ID}]}) {
@@ -66,20 +62,54 @@ Sub shd_main
 			}
 		}
 
-		/if (${Me.PctHPs} < 65) {
-			/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${Target.ID}]}) {
-				/call core_cast2 "${DireTestemony}" spell ${Target.ID} FALSE
-			}
-		}
-
-		/if (${Me.PctHPs} < 55) {
-			/if (${validate_cast[FALSE, alt, "Leech Touch", ${Target.ID}]}) {
-				/call core_cast2 "Leech Touch" alt ${Target.ID} FALSE
-			}
-		}
+		/call shd_lifetap_spam ${Target.ID}
 		/call shd_mana_check
 	}
 /return
+
+Sub shd_lifetap_spam(int _tmpID)
+
+	/if (${Me.PctHPs} < 90 || ${Me.ActiveDisc.ID} == ${UnholyAuraID}) {
+		/if (${validate_cast[FALSE, spell, "${Touch1}", ${_tmpID}]}) {
+			/call core_cast2 "${Touch1}" spell ${_tmpID} FALSE
+		}
+	}
+	/if (${Me.PctHPs} < 90 || ${Me.ActiveDisc.ID} == ${UnholyAuraID}) {
+		/if (${validate_cast[FALSE, spell, "${Touch2}", ${_tmpID}]}) {
+			/call core_cast2 "${Touch2}" spell ${_tmpID} FALSE
+		}
+	}
+	/if (!${Me.Buff[${Recourse}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${Touch3}", ${_tmpID}]}) {
+			/call core_cast2 "${Touch3}" spell ${_tmpID} FALSE
+		}
+	}
+
+	/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]} && ${Me.ActiveDisc.ID} == ${UnholyAuraID}) {
+		/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+		/if (${validate_cast[FALSE, spell, "${Touch1}", ${_tmpID}]}) {
+			/call core_cast2 "${Touch1}" spell ${_tmpID} FALSE
+		}
+
+		/if (${validate_cast[FALSE, spell, "${Touch2}", ${_tmpID}]}) {
+			/call core_cast2 "${Touch2}" spell ${_tmpID} FALSE
+		}
+	}
+
+	/if (${Me.PctHPs} < 65) {
+		/if (${validate_cast[FALSE, spell, "${DireTestemony}", ${_tmpID}]}) {
+			/call core_cast2 "${DireTestemony}" spell ${_tmpID} FALSE
+		}
+	}
+
+	/if (${Me.PctHPs} < 55) {
+		/if (${validate_cast[FALSE, alt, "Leech Touch", ${_tmpID}]}) {
+			/call core_cast2 "Leech Touch" alt ${_tmpID} FALSE
+		}
+	}
+
+/return
+
 |----------------------------------------------------------------------------
 |- SUB: self_buffs 
 |---------------------------------------------------------------------------- 
@@ -88,46 +118,46 @@ Sub shd_self_buffs
 
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) {
-		/call core_cast2 "${Skin}" spell ${Me.ID} FALSE
+		/call core_cast2 "${Skin}" spell 0 FALSE
 		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) {
-		/call core_cast2 "${Stance}" spell ${Me.ID} FALSE
+		/call core_cast2 "${Stance}" spell 0 FALSE
 		/varset CastCheck 1
 	}
 	
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${Cloak}", ${Me.ID}]}) {
-		/call core_cast2 "${Cloak}" spell ${Me.ID} FALSE
+		/call core_cast2 "${Cloak}" spell 0 FALSE
 		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
 	/if (${validate_cast[FALSE, spell, "${HPShroud}", ${Me.ID}]}) {
-		/call core_cast2 "${HPShroud}" spell ${Me.ID} FALSE
+		/call core_cast2 "${HPShroud}" spell 0 FALSE
 		/varset CastCheck 1
 	}
 
 	/if (${Me.XTarget}) /return
-	/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
-		/call core_cast2 "${MPShroud}" spell ${Me.ID} FALSE
-		/varset CastCheck 1
+	/if (!${Me.Buff[${HPShroud}].ID}) {
+		/if (${validate_cast[FALSE, spell, "${MPShroud}", ${Me.ID}]}) {
+			/call core_cast2 "${MPShroud}" spell 0 FALSE
+			/varset CastCheck 1
+		}
 	}
 
 	/if (${Me.XTarget}) /return
 	/if (${Group.MainTank.ID} == ${Me.ID}) {
 		/if (${validate_cast[FALSE, alt, "Voice of Thule", ${Me.ID}]}) {
 			/call core_cast2 "Voice of Thule" alt ${Me.ID} FALSE
-			/varset CastCheck 1
 		}
 	}
 
 	/if (!${Me.Buff["Bobbing Corpse"].ID}) {
 		/if (${validate_cast[FALSE, alt, "Bobbing Corpse", ${Me.ID}]}) {
 			/call core_cast2 "Bobbing Corpse" alt ${Me.ID} FALSE
-			/varset CastCheck 1
 		}
 	}
 
@@ -143,13 +173,13 @@ Sub shd_self_buffs
 
 Sub shd_combat_buffs
 
-	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) /call core_cast2 "${Skin}" spell ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${Skin}", ${Me.ID}]}) /call core_cast2 "${Skin}" spell 0 FALSE
 
-	/if (!${Target.Buff[${Bond}].ID}) {
+	/if ((${Target.Named} || ${Me.XTarget}>=${BurnMobCount}) && !${Target.Buff[${Bond}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Bond}", ${Target.ID}]}) /call core_cast2 "${Bond}" spell ${Target.ID} FALSE
 	}
 
-	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) /call core_cast2 "${Stance}" spell ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, spell, "${Stance}", ${Me.ID}]}) /call core_cast2 "${Stance}" spell 0 FALSE
 
 	/if (${validate_cast[FALSE, spell, "${Disruption}", ${Me.ID}]}) /call core_cast2 "${Disruption}" spell ${Me.ID} FALSE
 
@@ -194,34 +224,34 @@ Sub shd_disc
 				/call core_cast2 "${IchorGuardDisc}" disc 0 FALSE
 			}
 		}
-	
-		/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
-			/if (${Me.ActiveDisc.ID}) {
-				/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
-					/stopdisc
-					/delay 1s !${Me.ActiveDisc.ID}
-					/call core_cast2 "${LeechcurseID}" disc 0 FALSE
-				}
-			} else {
-				/call core_cast2 "${LeechcurseID}" disc 0 FALSE
-			}
-		}
-	
-		/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
-			/if (${Me.ActiveDisc.ID}) {
-				/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
-					/stopdisc
-					/delay 1s !${Me.ActiveDisc.ID}
-					/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
-				}
-			} else {
-				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
-			}
-		}
 
 		/call get_target
 		/if (${validate_cast[FALSE, alt, "Harm Touch", ${Target.ID}]}) {
 			/call core_cast2 "Harm Touch" alt ${Target.ID} FALSE
+		}
+	}
+
+	/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/delay 1s !${Me.ActiveDisc.ID}
+				/call core_cast2 "${LeechcurseID}" disc 0 FALSE
+			}
+		} else {
+			/call core_cast2 "${LeechcurseID}" disc 0 FALSE
+		}
+	}
+
+	/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/delay 1s !${Me.ActiveDisc.ID}
+				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
+			}
+		} else {
+			/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
 		}
 	}
 	

@@ -14,7 +14,7 @@ TODO
 Sub shm_main
 
 	/if (!${Me.XTarget}) /call shm_self_buffs
-	/if (!${doNotBuff}) /call shm_group_buffs
+	/if (!${doNotBuff} && !${timeForBuffs}) /call shm_group_buffs
 	/if (!${Me.XTarget}) /call check_for_corpse FALSE
 
 	/if (${Me.PctHPs} >= 40 && ${Me.PctMana} < 70) {
@@ -358,15 +358,6 @@ Sub shm_combat_spam
 
 /return
 |----------------------------------------------------------------------------
-|- SUB: Combatdps
-|---------------------------------------------------------------------------- 
-Sub shm_combat
-
-	
-
-	
-/return
-|----------------------------------------------------------------------------
 |- SUB: BuffGroup 
 |---------------------------------------------------------------------------- 
 Sub shm_group_buffs
@@ -575,6 +566,7 @@ Sub shm_group_buffs
 	/if (${CastCheck}) {
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 	}
+	/call set_timers
 	
 /return
 

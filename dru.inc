@@ -72,31 +72,47 @@ TODO:
 Sub dru_main
 
 	/if (!${Me.XTarget}) /call check_for_corpse FALSE
-	/if (!${doNotBuff}) /call dru_group_buffs
-	/if (!${doNotBuff}) /call dru_combat_tank_buffs
+	/if (!${doNotBuff} && !${timeForBuffs} && !${Me.XTarget}) /call dru_group_buffs
+	/if (!${doNotBuff} && !${Me.XTarget}) /call dru_combat_tank_buffs
 	/if (!${Me.XTarget}) /call dru_self_buffs
-	/call dru_heal_spam
-	/call dru_mana_check
-	
-	/if (${validate_cast[FALSE, alt, "Wrath of the Wild", ${Group.MainTank.ID}]}) {
-		/call core_cast2 "Wrath of the Wild" alt ${Group.MainTank.ID} FALSE
+	/if (!${Me.XTarget}) /call dru_heal_spam
+	/if (!${Me.XTarget}) /call dru_mana_check
+	/if (!${Me.XTarget}) /call dru_group_heals
+	/if (!${Me.XTarget}) {
+		/if (${validate_cast[FALSE, alt, "Wrath of the Wild", ${Group.MainTank.ID}]}) {
+			/call core_cast2 "Wrath of the Wild" alt ${Group.MainTank.ID} FALSE
+		}
+	}
+
+	/if (${Me.XTarget}) {
+		|**
+		/if (!${Me.Buff[Spirit of the Great Wolf].ID}) {
+			/if (${validate_cast[FALSE, alt, "Group Spirit of the Great Wolf", ${Me.ID}]}) {
+				/call core_cast2 "Group Spirit of the Great Wolf" alt 0 FALSE
+			}
+		} else /if (!${Me.Buff["Group Spirit of the Great Wolf"].ID}) {
+			/if (${validate_cast[FALSE, alt, "Spirit of the Great Wolf", ${Me.ID}]}) {
+				/call core_cast2 "Spirit of the Great Wolf" alt 0 FALSE
+			}
+		}
+		**|
+		/if (${validate_cast[FALSE, alt, "Group Spirit of the Great Wolf", ${Me.ID}]}) {
+			/call core_cast2 "Group Spirit of the Great Wolf" alt 0 FALSE
+		}
+		/if (${validate_cast[FALSE, alt, "Spirit of the Great Wolf", ${Me.ID}]}) {
+			/call core_cast2 "Spirit of the Great Wolf" alt 0 FALSE
+		}
+		/call get_target
+		/if (!${validate_combat[${Target.ID}]}) /return
+		/call pet_attack ${Target.ID}
+	} else {
+		/return
 	}
 
 	/while (${Me.XTarget} && ${Mode} == 3) {
 
-		/call dru_heal_spam
-
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call dru_burn_routine
 
-		/if (${validate_cast[FALSE, alt, "Group Spirit of the White Wolf", ${Me.ID}]}) {
-			/call core_cast2 "Group Spirit of the White Wolf" alt ${Me.ID} FALSE
-		}
-
-		/call get_target
-		/if (!${validate_combat[${Target.ID}]}) /continue
-		
-		| Does this work?
-		/call get_target
 		/if (!${Target.Buff[${Me.AltAbility[Season's Wrath].Rank}].ID}) {
 			/if (${validate_cast[FALSE, alt, "Season's Wrath", ${Target.ID}]}) {
 				/call core_cast2 "Season's Wrath" alt ${Target.ID} FALSE
@@ -110,32 +126,153 @@ Sub dru_main
 				}
 			}
 		}
-		/call dru_heal_spam
-		/if (${check_hurt[FALSE, group, 80]} < 1) {
-			/if (!${Target.Buff[${SingleFireAtkDebuff}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
-				/if (${validate_cast[FALSE, FIND, "${SingleFireAtkDebuffSpell}", ${Target.ID}]}) {
-					/call core_cast2 "${SingleFireAtkDebuffSpell}" FIND ${Target.ID} FALSE
-					/call check_cast_events "${SingleFireAtkDebuffSpell}" CAST_IMMUNE ${Target.ID}
-				}
+
+		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+			/if (${validate_cast[FALSE, FIND, "${SingleFireAtkDebuffSpell}", ${Target.ID}]}) {
+				/call core_cast2 "${SingleFireAtkDebuffSpell}" FIND ${Target.ID} FALSE
+				/call check_cast_events "${SingleFireAtkDebuffSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-		
-		/call dru_heal_spam
-		/call dru_group_heals
-		/call dru_debuff_xtarget
 
-		/if (${check_hurt[FALSE, group, 80]} < 1) {
-			/call get_target
-			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]} && ${druDoSnare}) {
+		/call dru_rotation
+		
+		/if (${Me.XTarget} > 1) /call dru_debuff_xtarget
+		/if (${Me.PctMana} < 80) /call dru_mana_check
+		/call move_to_camp
+	}
+
+	/doevents
+	
+/return
+
+sub dru_rotation
+	/declare _worstHurtId int local 0
+	/declare _hurtCount int local 0
+
+	/call check_hurt FALSE group 45 1
+	/varset _hurtCount ${Macro.Return}
+
+	/if (${_hurtCount}) {
+		|** EMERGENCY HEALS **|
+		/if (${validate_cast[FALSE, spell, "${Survival}", ${Me.ID}]}) {
+			/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
+			/return
+		} else {
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+				/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
+				/return
+			}
+		}
+	
+		/if (${validate_cast[FALSE, alt, "Wildtender's Survival", ${Me.ID}]}) {
+			/call core_cast2 "Wildtender's Survival" alt ${Me.ID} FALSE
+			/return
+		}
+	}
+
+	/call check_hurt FALSE group 70 3
+	/varset _hurtCount ${Macro.Return}
+	
+	/if (${_hurtCount}) {
+		|** GROUP HEALS **|
+		/if (${validate_cast[FALSE, alt, "Blessing of Tunare", ${Me.ID}]}) {
+			/call core_cast2 "Blessing of Tunare" alt ${Me.ID} FALSE
+			/return
+		}
+	
+		/if (${validate_cast[FALSE, spell, "${Lunasalve}", ${Me.ID}]}) {
+			/call core_cast2 "${Lunasalve}" spell ${Me.ID} FALSE
+			/return
+		}
+
+	}
+
+	/call get_heal_target 80
+	/varset _worstHurtId ${Macro.Return}
+	
+	/if (${_worstHurtId}) {
+		|**
+			(Convergence of Spirit) -> Revitalization -> Adrenaline Barrage-> Curavida
+		**|
+		
+		|** SINGLE HEALS **|
+		/if (${validate_cast[FALSE, spell, "${Curavida}", ${_worstHurtId}]}) {
+			/call core_cast2 "${Curavida}" spell ${_worstHurtId} FALSE
+			/return
+		}
+
+		/if (${validate_cast[FALSE, spell, "${Revitalization}", ${_worstHurtId}]}) {
+			/call core_cast2 "${Revitalization}" spell ${_worstHurtId} FALSE
+			/return
+		}
+
+		/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${_worstHurtId}]}) {
+			/call core_cast2 "${Adrenaline}" spell ${_worstHurtId} FALSE
+			/return
+		}
+
+		/if (${validate_cast[FALSE, alt, "Convergence of Spirit", ${_worstHurtId}]}) {
+			/call core_cast2 "Convergence of Spirit" alt ${_worstHurtId} FALSE
+			/return
+		}
+
+		
+	} else /if (${Me.XTarget}) {
+		/if (${Me.PctMana} < ${hybridManaLimit}) /return
+		/call get_target
+		/if (!${Target.Type.Equal[NPC]}) /call get_target
+		/if (!${Target.Type.Equal[NPC]}) /return
+		/if (!${Me.Buff[Improved Twincast].ID}) {
+			|**
+				Spell Twincast -> Nature’s Blistering Wrath -> Horde of Polybiads -> Sunflame -> Chill of the Wildtender
+			**|
+			
+		/if (${druDoSnare}) {
+			|/if (${check_hurt[FALSE, group, 80]} < 1) {
+			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
 					/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
 					/call check_cast_events "${SnareSpell}" CAST_IMMUNE ${Target.ID}
+					/return
+				}
+			}
+			|}
+		}
+
+		/if (${Target.PctHPs} > 50) {
+			/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
+					/call core_cast2 "${TwincastSpell}" spell 0 FALSE
+				}
+				
+				/if (!${Target.Buff[${NBW}].ID}) {
+					/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) {
+						/call core_cast2 "${NBW}" spell ${Target.ID} FALSE
+						/return
+					}
+				}
+				/if (!${Target.Buff[${DoTSpell1}].ID}) {
+					/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) {
+						/call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
+						/return
+					}
+				}
+				/if (!${Target.Buff[${Sunflame}].ID}) {
+					/if (${validate_cast[FALSE, spell, "${Sunflame}", ${Target.ID}]}) {
+						/call core_cast2 "${Sunflame}" spell ${Target.ID} FALSE
+						/return
+					}
+				}
+				/if (!${Target.Buff[${Chill}].ID}) {
+					/if (${validate_cast[FALSE, spell, "${Chill}", ${Target.ID}]}) {
+						/call core_cast2 "${Chill}" spell ${Target.ID} FALSE
+						/return
+					}
 				}
 			}
 		}
-		
-		/call dru_heal_spam
-		/if (${Me.PctMana} > ${hybridManaLimit}) {
+
+		|/if (${Me.PctMana} > ${hybridManaLimit}) {
 			|**
 				ITC -> Dicho -> Remote Sunblaze -> Cyclonic Roar -> Anabatic Roar -> Winter's Wildblaze
 			**|
@@ -145,91 +282,35 @@ Sub dru_main
 					/call core_cast2 "Improved Twincast" alt 0 FALSE
 				}
 			}
-			/call get_target
 			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${Adrenaline}" spell ${Target.ID} FALSE
+				/return
 			}
 			/if (${validate_cast[FALSE, spell, "${RemoteSun}", ${Target.ID}]}) {
 				/call core_cast2 "${RemoteSun}" spell ${Target.ID} FALSE
+				/return
 			}
 			/if (${validate_cast[FALSE, spell, "${Cyclonic}", ${Target.ID}]}) {
 				/call core_cast2 "${Cyclonic}" spell ${Target.ID} FALSE
+				/return
 			}
-			/call dru_heal_spam
-			/if (${check_hurt[FALSE, group, 80]} < 1) {
-				/if (${validate_cast[FALSE, spell, "${LowerCyclonic}", ${Target.ID}]}) {
-					/call core_cast2 "${LowerCyclonic}" spell ${Target.ID} FALSE
-				}
-				/if (${validate_cast[FALSE, spell, "${Winter}", ${Target.ID}]}) {
-					/call core_cast2 "${Winter}" spell ${Target.ID} FALSE
-				}
+			
+			|/if (${check_hurt[FALSE, group, 80]} < 1) {
+			/if (${validate_cast[FALSE, spell, "${LowerCyclonic}", ${Target.ID}]}) {
+				/call core_cast2 "${LowerCyclonic}" spell ${Target.ID} FALSE
+				/return
 			}
-		}
-
-		/if (${Me.PctMana} > ${hybridManaLimit} && !${Me.Buff[Improved Twincast].ID}) {
-			|**
-				Spell Twincast -> Nature’s Blistering Wrath -> Horde of Polybiads -> Sunflame -> Chill of the Wildtender
-			**|
-			/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
-				/call core_cast2 "${TwincastSpell}" spell 0 FALSE
+			/if (${validate_cast[FALSE, spell, "${Winter}", ${Target.ID}]}) {
+				/call core_cast2 "${Winter}" spell ${Target.ID} FALSE
+				/return
 			}
-			/call get_target
-			/if (!${Target.Buff[${NBW}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${NBW}", ${Target.ID}]}) {
-					/call core_cast2 "${NBW}" spell ${Target.ID} FALSE
-				}
-			}
-			/call dru_heal_spam
-			/call get_target
-			/if (!${Target.Buff[${DoTSpell1}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${DoTSpell1}", ${Target.ID}]}) {
-					/call core_cast2 "${DoTSpell1}" spell ${Target.ID} FALSE
-				}
-			}
-			/call dru_heal_spam
-			/call get_target
-			/if (!${Target.Buff[${Sunflame}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${Sunflame}", ${Target.ID}]}) {
-					/call core_cast2 "${Sunflame}" spell ${Target.ID} FALSE
-				}
-			}
-			/call dru_heal_spam
-			/call get_target
-			/if (!${Target.Buff[${Chill}].ID}) {
-				/if (${validate_cast[FALSE, spell, "${Chill}", ${Target.ID}]}) {
-					/call core_cast2 "${Chill}" spell ${Target.ID} FALSE
-				}
-			}
-		}
-		/call dru_mana_check
-		/call dru_group_heals
-		/call move_to_camp
-		
-		|**
-		else /if (${Me.PctMana} > ${hybridManaLimit}) {
-			/call get_target
-			/if (${validate_cast[FALSE, alt, "Nature's Bolt", ${Target.ID}]}) {
-				/call core_cast2 "Nature's Bolt" alt ${Target.ID} FALSE
-			}
-		}
-		**|
-
-		|**
-		else /if (${Me.PctMana} > ${hybridManaLimit}) {
-			/call get_target
-			/if (${validate_cast[FALSE, alt, "Nature's Fire", ${Target.ID}]}) {
-				/call core_cast2 "Nature's Fire" alt ${Target.ID} FALSE
-			}
-			/if (${validate_cast[FALSE, alt, "Nature's Frost", ${Target.ID}]}) {
-				/call core_cast2 "Nature's Frost" alt ${Target.ID} FALSE
-			}
-		}
-		**|
+			|} else {
+			|	/call dru_heal_spam
+			|}
+		|}
 	}
-
-	/doevents
-	
 /return
+
 |----------------------------------------------------------------------------
 |- SUB: combat_tank_buffs
 |---------------------------------------------------------------------------- 
@@ -270,7 +351,41 @@ Sub dru_heal_spam
 		}
 	}
 
+/return
 
+|----------------------------------------------------------------------------
+|- SUB: HealGroup
+|---------------------------------------------------------------------------- 
+Sub dru_group_heals
+
+	/if (${check_hurt[FALSE, group, 85, 3]} >= 3) {
+		/if (${validate_cast[FALSE, alt, "Blessing of Tunare", ${Me.ID}]}) {
+			/call core_cast2 "Blessing of Tunare" alt ${Me.ID} FALSE
+		}
+	}
+
+	/if (${check_hurt[FALSE, group, 45, 1]} >= 1) {
+		/if (${validate_cast[FALSE, spell, "${Survival}", ${Me.ID}]}) {
+			/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
+		} else {
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+				/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
+			}
+		}
+	}
+
+	/if (${check_hurt[FALSE, group, 85, 3]} >= 3) {
+		/if (${validate_cast[FALSE, spell, "${Lunasalve}", ${Me.ID}]}) {
+			/call core_cast2 "${Lunasalve}" spell ${Me.ID} FALSE
+		}
+	}
+
+	/if (${check_hurt[FALSE, group, 35, 1]} >= 1) {
+		/if (${validate_cast[FALSE, alt, "Wildtender's Survival", ${Me.ID}]}) {
+			/call core_cast2 "Wildtender's Survival" alt ${Me.ID} FALSE
+		}
+	}
 
 /return
 |----------------------------------------------------------------------------
@@ -355,7 +470,6 @@ Sub dru_debuff_xtarget
 	/declare _count int local 1
 
 	/if (!${Me.XTarget}) /return
-	/if (${Me.XTarget} < 2) /return
 
 	/for _count 1 to ${Me.XTarget}
 
@@ -651,45 +765,10 @@ Sub dru_group_buffs
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
+	/call set_timers
 
 /return
 Sub dru_mana_check
 	/call bag_mod_rod
 	/call use_mod_rod
-/return
-|----------------------------------------------------------------------------
-|- SUB: HealGroup
-|---------------------------------------------------------------------------- 
-Sub dru_group_heals
-
-	/if (${check_hurt[FALSE, group, 85]} >= 3) {
-		/call get_heal_target 85
-		/if (${validate_cast[FALSE, alt, "Blessing of Tunare", ${Me.ID}]}) {
-			/call core_cast2 "Blessing of Tunare" alt ${Me.ID} FALSE
-		}
-	}
-
-	/if (${check_hurt[FALSE, group, 45]} >= 1) {
-		/if (${validate_cast[FALSE, spell, "${Survival}", ${Me.ID}]}) {
-			/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
-		} else {
-			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
-				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
-				/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
-			}
-		}
-	}
-
-	/if (${check_hurt[FALSE, group, 85]} >= 3) {
-		/if (${validate_cast[FALSE, spell, "${Lunasalve}", ${Me.ID}]}) {
-			/call core_cast2 "${Lunasalve}" spell ${Me.ID} FALSE
-		}
-	}
-
-	/if (${check_hurt[FALSE, group, 35]} >= 1) {
-		/if (${validate_cast[FALSE, alt, "Wildtender's Survival", ${Me.ID}]}) {
-			/call core_cast2 "Wildtender's Survival" alt ${Me.ID} FALSE
-		}
-	}
-
 /return

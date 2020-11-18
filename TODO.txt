@@ -1,0 +1,67 @@
+# TODO
+
+1. REMOVE while loops to casts and fix fizzle
+
+5. MQ2Login
+
+6. MQ2EasyFind style pathing to your zones
+
+7. Scribe.mac
+
+8. Cures
+
+9. Add:
+    /if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
+		/alt act 25
+		/delay 5
+	}
+
+To all ENABLED and DISABLED abilities
+
+10. Stromjolt vortex wiz roation
+
+11. druid summer rotation
+
+12. brd rotations
+
+13. _tmpID to all functions outside of get_target!
+
+14. Druid dont use alliance if shm in group or raid
+
+15. druid dont use growth if shm
+
+16. Finish BST discs and spells rotations
+
+17. Should main have burn rotations or spams?
+
+Twincast ranks and other spell rank checks same as with ench
+
+/if (!${Me.XTarget}) in all macs
+
+check rgmercs code for pet toys
+check rgmercs code for spell init rotations
+
+for settings modes see rgbind
+
+MQ2Autologin and window names to crl alt 1 Rayovac ctr alt 2 Sinnayven etc
+
+What is Parse command? Its a new TLO!
+
+
+Integrate /traveltozone with scribe mode?
+
+return merchant name from scribe subs
+
+wiz: if no ench then turn on AoE Ward!
+
+
+go invis when in dummy mode
+
+if target name is the same as pets in the group then return.
+	check that powerLevel still works that they med to 80!
+
+powerlevel by < 50 then attack
+
+TANK BACK TO CAMP IF NO LOS TO GROUPIES!!
+
+AOE AGGRO FIRST WITH TANKS LIKE DRU

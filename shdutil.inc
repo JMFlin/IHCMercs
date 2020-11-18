@@ -22,6 +22,9 @@ Sub shd_setup
 	/declare LeechcurseID	int outer 0
 	/declare Withstand 		string outer NULL
 	/declare WithstandID 	int outer 0
+
+	/declare AllianceSpell			string	outer	NULL
+	/declare AllianceSpellRankCheck string 	outer 	NULL
 |-Config Options
 	/declare ChestItemName string outer "${Me.Inventory[17].Name}"
 
@@ -41,6 +44,7 @@ Sub shd_setup
 	/declare SnareSpell 	string outer NULL
 	/declare Torrent		string outer NULL
 	/declare Disruption		string outer NULL
+	/declare PosseSpell				string 	outer 	Origin
 
 
 	/declare Cloak 			string outer NULL
@@ -102,7 +106,7 @@ Sub shd_load_spellbar
 		/if (${Me.Book[${Spell[${Stance}].RankName}]}) {
 			/call LoadSpellGem "${Stance}" 7
 		} else {
-			/call LoadSpellGem "${SnareSpell}" 7
+			/if (!${Me.AltAbility[Encroaching Darkness].Rank} >= 1) /call LoadSpellGem "${SnareSpell}" 7
 		}
 
 		/call LoadSpellGem "${Skin}" 8
@@ -118,24 +122,24 @@ Sub shd_abilities
 	| Spells
 
 	| Dicho
-	/if (${Me.Level}>=106 && ${Me.CombatAbility[${Spell[Dissident Fang].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Dissident Fang].Level} && ${Me.CombatAbility[${Spell[Dissident Fang].RankName}]}) {
 		/varset DichotomicFang ${Spell[Dissident Fang].RankName}
-	} else /if (${Me.Level}>=101 && ${Me.CombatAbility[${Spell[Dichotomic Fang].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Dichotomic Fang].Level} && ${Me.CombatAbility[${Spell[Dichotomic Fang].RankName}]}) {
 		/varset DichotomicFang ${Spell[Dichotomic Fang].RankName}
 	}
 
 	| Touches
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Touch of T'vem].Level} && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of T'vem].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
-		/varset Touch1 ${Spell[Touch of T'vem].RankName}
-	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Touch of Tharoff].RankName}]}) {
+	} /if (${Me.Level}>=${Spell[Touch of Lutzen].Level} && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Lutzen].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Tharoff].Level} && ${Me.Book[${Spell[Touch of Tharoff].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of Tharoff].RankName}
-	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Touch of Kildrukaun].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Touch of Kildrukaun].Level} && ${Me.Book[${Spell[Touch of Kildrukaun].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of Kildrukaun].RankName}
-	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Touch of the Wailing Three].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Touch of the Wailing Three].Level} && ${Me.Book[${Spell[Touch of the Wailing Three].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of the Wailing Three].RankName}
-	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Touch of Inruku].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Touch of Inruku].Level} && ${Me.Book[${Spell[Touch of Inruku].RankName}]}) {
 		/varset Touch1 ${Spell[Touch of Inruku].RankName}
 	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Drain Soul].RankName}]}) {
 		/varset Touch1 ${Spell[Drain Soul].RankName}
@@ -143,11 +147,9 @@ Sub shd_abilities
 		/varset Touch1 ${Spell[Life Leech].RankName}
 	} 
 
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
-		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
-		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
-	} else /if (${Me.Level}>=75 && ${Me.Book[${Spell[Touch of Severan].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Touch of Hemofax].Level} && ${Me.Book[${Spell[Touch of Hemofax].RankName}]}) {
+		/varset Touch2 ${Spell[Touch of Hemofax].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Severan].Level} && ${Me.Book[${Spell[Touch of Severan].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Severan].RankName}
 	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Touch of the Devourer].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of the Devourer].RankName}
@@ -159,19 +161,27 @@ Sub shd_abilities
 		/varset Touch2 ${Spell[Lifetap].RankName}
 	}
 
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Touch of Falsin].RankName}]}) {
-		/varset Touch3 ${Spell[Touch of Falsin].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Touch of Falsin].RankName}]}) {
-		/varset Touch3 ${Spell[Touch of Falsin].RankName}
-	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Touch of Lanys].RankName}]}) {
-		/varset Touch3 ${Spell[Touch of Lanys].RankName}
-		/varset Recourse "Gift of Lanys"
+	/if (${Me.Level}>=100 && ${Me.Book[${Spell[Touch of Holmein].RankName}]}) {
+		/varset Touch3 ${Spell[Touch of Holmein].RankName}
+		/varset Recourse "Gift of the Holmein"
+	} else /if (${Me.Level}>=100 && ${Me.Book[${Spell[Touch of Klonda].RankName}]}) {
+		/varset Touch3 ${Spell[Touch of Klonda].RankName}
+		/varset Recourse "Gift of the Klonda"
+	} else /if (${Me.Level}>=95 && ${Me.Book[${Spell[Touch of Piqiorn].RankName}]}) {
+		/varset Touch3 ${Spell[Touch of Piqiorn].RankName}
+		/varset Recourse "Gift of Piqiorn"
+	} else /if (${Me.Level}>=90 && ${Me.Book[${Spell[Touch of Dyalgem].RankName}]}) {
+		/varset Touch3 ${Spell[Touch of Dyalgem].RankName}
+		/varset Recourse "Gift of Dyalgem"
 	} else /if (${Me.Level}>=80 && ${Me.Book[${Spell[Touch of the Soulbleeder].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of the Soulbleeder].RankName}
+		/varset Recourse "Gift of the Soulbleeder"
 	} else /if (${Me.Level}>=62 && ${Me.Book[${Spell[Touch of Volatis].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Volatis].RankName}
+		/varset Recourse "Gift of Volatis"
 	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Touch of Draygun].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Draygun].RankName}
+		/varset Recourse "Gift of Draygun"
 	} else /if (${Me.Level}>=57 && ${Me.Book[${Spell[Drain Spirit].RankName}]}) {
 		/varset Touch3 ${Spell[Drain Spirit].RankName}
 	} else /if (${Me.Level}>=29 && ${Me.Book[${Spell[Lifedraw].RankName}]}) {
@@ -376,44 +386,56 @@ Sub shd_abilities
 	}
 
 	| Discs
-	/if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Malarian Mantle].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Malarian Mantle].Level} && ${Me.CombatAbility[${Spell[Malarian Mantle].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Malarian Mantle].RankName}
 		/varset IchorGuardID ${Spell[Malarian Mantle].ID}
-	} else /if (${Me.Level}>=78 && ${Me.CombatAbility[${Spell[Umbral Carapace].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Umbral Carapace].Level} && ${Me.CombatAbility[${Spell[Umbral Carapace].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Umbral Carapace].RankName}
 		/varset IchorGuardID ${Spell[Umbral Carapace].ID}
-	} else /if (${Me.Level}>=73 && ${Me.CombatAbility[${Spell[Soul Shield].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Soul Carapace].Level} && ${Me.CombatAbility[${Spell[Soul Carapace].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Soul Carapace].RankName}
+		/varset IchorGuardID ${Spell[Soul Carapace].ID}
+	} else /if (${Me.Level}>=${Spell[Soul Shield].Level} && ${Me.CombatAbility[${Spell[Soul Shield].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Soul Shield].RankName}
 		/varset IchorGuardID ${Spell[Soul Shield].ID}
-	} else /if (${Me.Level}>=61 && ${Me.CombatAbility[${Spell[Soul Guard].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Soul Guard].Level} && ${Me.CombatAbility[${Spell[Soul Guard].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Soul Guard].RankName}
 		/varset IchorGuardID ${Spell[Soul Guard].ID}
-	} else /if (${Me.Level}>=56 && ${Me.CombatAbility[${Spell[Ichor Guard].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Ichor Guard].Level} && ${Me.CombatAbility[${Spell[Ichor Guard].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Ichor Guard].RankName}
 		/varset IchorGuardID ${Spell[Ichor Guard].ID}
 	}
 
-	/if (${Me.Level}>=55 && ${Me.CombatAbility[${Spell[Unholy Aura Discipline].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Unholy Aura Discipline].Level} && ${Me.CombatAbility[${Spell[Unholy Aura Discipline].RankName}]}) {
 		/varset UnholyAuraDisc ${Spell[Unholy Aura Discipline].RankName}
 		/varset UnholyAuraID ${Spell[Unholy Aura Discipline].ID}
 	}
-	/if (${Me.Level}>=59 && ${Me.CombatAbility[${Spell[Deflection Discipline].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Deflection Discipline].Level} && ${Me.CombatAbility[${Spell[Deflection Discipline].RankName}]}) {
 		/varset DeflectionDisc ${Spell[Deflection Discipline].RankName}
 		/varset DeflectionID ${Spell[Deflection Discipline].ID}
 	}
 
-	/if (${Me.Level}>=60 && ${Me.CombatAbility[${Spell[Leechcurse Discipline].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Leechcurse Discipline].Level} && ${Me.CombatAbility[${Spell[Leechcurse Discipline].RankName}]}) {
 		/varset LeechcurseDisc ${Spell[Leechcurse Discipline].RankName}
 		/varset LeechcurseID ${Spell[Leechcurse Discipline].ID}
 	}
 
-	/if (${Me.Level}>=83 && ${Me.CombatAbility[${Spell[Withstand].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Withstand].Level} && ${Me.CombatAbility[${Spell[Withstand].RankName}]}) {
 		/varset Withstand ${Spell[Withstand].RankName}
 		/varset WithstandID ${Spell[Withstand].ID}
 	}
 
 	/if (${Me.AltAbilityReady[Hate's Attraction]}) {
 		/varset PullTowards Hate's Attraction
+	}
+
+	|-AllianceSpell
+	/if (${Me.Level}>=${Spell[Bloodletting Covenant].Level} && ${Me.Book[${Spell[Bloodletting Covenant].RankName}]}) {
+		/varset AllianceSpell ${Spell[Bloodletting Covenant].RankName}
+		/varset AllianceSpellRankCheck ${Spell[Bloodletting Covenant]}
+	} else /if (${Me.Level}>=${Spell[Bloodletting Alliance].Level} && ${Me.Book[${Spell[Bloodletting Alliance].RankName}]}) {
+		/varset AllianceSpell ${Spell[Bloodletting Alliance].RankName}
+		/varset AllianceSpellRankCheck ${Spell[Bloodletting Alliance]}
 	}
 
 	| Pull ability

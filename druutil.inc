@@ -273,6 +273,10 @@ BALANCED:
 
 	/varset TravelSpell Communion of the Cheetah
 
+	/if (${Me.AltAbility[Rejuvenation of Spirit].Rank}>=1) {
+		/varset RezSpell Rejuvenation of Spirit
+	}
+
 	/if (${Me.Level} >= ${Spell[Circle of Knowledge].Level} && ${Me.Book[${Spell[Circle of Knowledge].RankName}]}) {
 		/varset PosseSpell ${Spell[Circle of Knowledge].RankName}
 	}
@@ -597,6 +601,8 @@ BALANCED:
 		/varset Lunasalve ${Spell[Crescentbloom].RankName}
 	} else /if (${Me.Level}>=${Spell[Lunarlight].Level} && ${Me.Book[${Spell[Lunarlight].RankName}]}) {
 		/varset Lunasalve ${Spell[Lunarlight].RankName}
+	} else /if (${Me.Level}>=${Spell[Moonshadow].Level} && ${Me.Book[${Spell[Moonshadow].RankName}]}) {
+		/varset Lunasalve ${Spell[Moonshadow].RankName}
 	}
 
 	/if (${Me.Level}>=${Spell[Equinox Brand].Level} && ${Me.Book[${Spell[Equinox Brand].RankName}]}) {

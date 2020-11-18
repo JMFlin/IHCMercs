@@ -27,10 +27,12 @@ Sub mag_main
 		
 		/call pet_attack ${Target.ID}
 
-		/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) {
-			/call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
+		/if (!${Target.Maloed.ID} && !${Target.Buff[${Malo}].ID}) {
+			/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) {
+				/call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
+			}
 		}
-
+		
 		/if (${Target.Named} || ${Target.PctHPs} > 80) {
 			/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
 		}
@@ -45,7 +47,7 @@ Sub mag_main
 		}
 
 		/if (${Me.Buff[Improved Twincast].ID}) {
-
+			
 			/if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
 			}
@@ -98,9 +100,11 @@ Sub mag_main
 			}
 
 		} else {
-
-			/if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
+			
+			/if (${Target.Named} || ${Target.PctHPs} > 60) {
+				/if (${validate_cast[FALSE, spell, "${ServantSpell}", ${Target.ID}]}) {
+					/call core_cast2 "${ServantSpell}" spell ${Target.ID} FALSE
+				}
 			}
 
 			/if (${validate_cast[FALSE, spell, "${ManySpell}", ${Target.ID}]}) {

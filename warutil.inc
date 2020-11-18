@@ -40,6 +40,7 @@ Sub war_setup
 	/declare CulminatingStandID 	int outer 0
 	/declare ACDiscID				int outer 0
 	/declare PullTowards 	string outer NULL
+	/declare PosseSpell				string 	outer 	Origin
 
 	/declare ChestItemName				string outer "${Me.Inventory[17].Name}"
 	/declare ChestItemSpellName 		string outer NULL

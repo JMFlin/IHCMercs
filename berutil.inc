@@ -60,6 +60,7 @@ Sub ber_setup
 	/declare epicaxe				string outer NULL
 	/declare UseEpic				int outer 0
 	/declare CastResult             string outer
+	/declare PosseSpell				string 	outer 	Origin
 |- Check for epic
 	/if (${FindItem[Raging Taelosian Alloy Axe].ID}) {
 		/varset epicaxe		Raging Taelosian Alloy Axe

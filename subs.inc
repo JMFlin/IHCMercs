@@ -34,11 +34,7 @@ Sub var_setup
 |	/declare numoftargets		int outer 0
 |	/declare ChaseAssist		int outer 0		
 	|- IHC macro's common variables
-	/declare BurnMobCount		int outer 3
-	/declare BackOffFlag		int outer 0
-	/declare BeforeCombat		string outer NULL
-	/declare ShitOnCursor		string outer NULL
-	/declare CursorTimer		timer outer 0
+	/declare BurnMobCount		int outer 2
 	/declare NoDisease			int outer 0
 	/declare NoCorruption		int outer 0
 	/declare NoPoison			int outer 0
@@ -47,9 +43,6 @@ Sub var_setup
 	/declare NoChromatic		int outer 0
 	/declare NoMagic			int outer 0
 	/declare EventSetupFlag		int outer 0
-	/declare KillTargetID		int outer 0
-	/declare SpawnSearchType	string outer npc
-	/declare BegTimer			timer outer	0
 
 	/declare IllusionNum		int outer 0
 	/declare RunAndGunMedTimer	timer outer	0
@@ -74,13 +67,11 @@ Sub var_setup
     /declare pullAutoCampY		int outer 0
 	/declare pullAutoCampZ		int outer 0
 	/declare pullDistance 		int outer 0
-	/declare resourceChecker 	int outer 1
-	/declare Limit 				int outer 40
-	/declare LimitUpper 		int outer 40
-	/declare LimitLower 		int outer 75
+	/declare Limit 				int outer 20
+	/declare LimitUpper 		int outer 80
+	/declare LimitLower 		int outer 20
 	/declare DummyTime        	int outer 10
 	/declare DummyMsg         	string outer  "BRB, the roof is on fire."
-|	/declare PCRadiusCheck 		int outer 10
 
 |- Balance events
 	/declare HighHPID 					int outer 0
@@ -103,6 +94,7 @@ Sub var_setup
 	/declare timeForMez					timer outer	0
 	/declare timeForMezVariable			int outer 0
 	/declare checkResourcesTimer  		timer outer 0
+	/declare timeForBuffs 				timer outer 0
 	
 
 |- melee skills
@@ -125,7 +117,7 @@ Sub var_setup
 	/declare slowImmuneID 		int outer 0
 	/declare mezzImmuneID 		int outer 0
 	/declare stunImmuneID 		int outer 0
-	/declare hybridManaLimit 	int outer 80
+	/declare hybridManaLimit 	int outer 40
 	/declare cannotCast 		bool outer FALSE
 
 |- observers
@@ -207,6 +199,21 @@ Sub var_setup
 
 	/declare createHotkeys 		bool outer TRUE
 
+
+	/declare GroupLeaderOne string outer 0
+	/declare GroupLeaderTwo string outer 0
+	/declare GroupLeaderThree string outer 0
+	/declare GroupLeaderFour string outer 0
+	/declare GroupLeaderFive string outer 0
+	/declare GroupLeaderSix string outer 0
+	/declare GroupLeaderSeven string outer 0
+	/declare GroupLeaderEight string outer 0
+	/declare GroupLeaderNine string outer 0
+	/declare GroupLeaderTen string outer 0
+	/declare GroupLeaderEleven string outer 0
+
+	/declare DragAllVar 		bool outer TRUE
+
 /return 
 |----------------------------------------------------------------------------
 |- SUB: IllusionCheck - Check for Plaguebringer illusion
@@ -232,12 +239,12 @@ Sub set_timers
 	/if (${Group.Puller.ID} == ${Me.ID}) {
 
 		/if (${checkResourcesTimer} == 0) {
-			/varset checkResourcesTimer 20s
+			/varset checkResourcesTimer 10s
 		}
 	}
 
-	/if (${Select[${Me.Class.ShortName},ENC]}) {
-		/varset timeForDebuff 7s
+	/if (${Select[${Me.Class.ShortName},ENC,DRU,CLR,SHM,BST]}) {
+		/varset timeForBuffs 20s
 	}
 
 /return
@@ -348,17 +355,25 @@ Sub Travel
 |- SUB: puller_check_group_resources
 |---------------------------------------------------------------------------- 
 Sub puller_check_group_resources
-	
-	/declare _count	int local 0
+	/declare _count				int local 0
+	/declare _myLimit 			int local 20
 
 	/if (${Me.XTarget[1].ID}) /return
 	/if (${Group.Puller.ID} != ${Me.ID}) /return
 
-	/if (${Limit} == ${LimitLower} && ${resourceChecker} == 0) /varset Limit ${LimitUpper}
-	/if (${Limit} == ${LimitUpper} && ${resourceChecker} == 1) /varset Limit ${LimitLower}
-	/varset resourceChecker 1
+	/if (${Select[${Me.Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
+		/if (${Me.PctMana} < ${_myLimit}) {
+			/varset Limit ${LimitUpper}
+			/return FALSE
+		}
+	} else {
+		/if (${Me.PctEndurance} < ${_myLimit}) {
+			/varset Limit ${LimitUpper}
+			/return FALSE
+		}
+	}
 
-	/for _count 0 to ${Group}
+	/for _count 1 to ${Group}
 
 		/if (!${Group.Member[${_count}].Type.Equal[PC]}) /continue
 		
@@ -370,26 +385,29 @@ Sub puller_check_group_resources
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "_resPct" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Casting.ID" "_casterCasting" "int"
 
-				DEBUG Asking ${Group.Member[${_count}].DisplayName} about mana ${_resPct} < ${Limit}
+				DEBUG Asking ${Group.Member[${_count}].Class.ShortName} about mana ${_resPct} < ${Limit}
 
 			} else /if (${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctEndurance" "_resPct" "int"
 
-				DEBUG Asking ${Group.Member[${_count}].DisplayName} about endurance ${_resPct} < ${Limit}
+				DEBUG Asking ${Group.Member[${_count}].Class.ShortName} about endurance ${_resPct} < ${Limit}
 
 			}
-			/if (${_resPct} < ${Limit} || ${_casterCasting}) {
-				/varset resourceChecker 0 
-				/delay 5
+			/if (${_resPct} < ${Limit}) {
+				/varset Limit ${LimitUpper}
+				/return FALSE
 			}
-			/if (${resourceChecker} == 0) /return
+			/if (${_casterCasting}) {
+				/return FALSE
+			}
 		}
-
 	/next _count
+
+	/varset Limit ${LimitLower}
 	/if (${Defined[_casterCasting]}) /deletevar _casterCasting
 	/if (${Defined[_resPct]}) /deletevar _resPct
-/return
+/return TRUE
 |----------------------------------------------------------------------------
 |- SUB: AFKPull /varset PullTargetID ${SpawnSort[1,asc,PathLength,npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
 |---------------------------------------------------------------------------- 
@@ -422,6 +440,7 @@ sub validate_pull_start(bool _debug)
 
 Sub afk_pull
 	/declare _pullTargetID 	int local 0
+	/declare _resourceChecker 	bool local FALSE
 
 	/if (${Select[${Me.Class.ShortName},BST]}) {
 		/if (!${Me.Pet.ID}) /return FALSE
@@ -441,8 +460,9 @@ Sub afk_pull
 	}
 	
 	/call puller_check_group_resources
+	/varset _resourceChecker ${Macro.Return}
 	
-	/if (${resourceChecker} == 0) {
+	/if (!${_resourceChecker}) {
 		/call set_timers
 		/return FALSE
 	}
@@ -518,7 +538,16 @@ sub validate_chain_pull_start(bool _debug)
 	/if (${Me.Casting.ID}) /return FALSE
 	/if (!(${Group.Puller.ID} == ${Me.ID})) /return FALSE
 	/if (!${Navigation.MeshLoaded}) /return FALSE
-	/if (${Me.PctEndurance} < ${_chainPullLimit}) {
+
+	/if (${Select[${Me.Class.ShortName},SHD,PAL,BST,RNG]}) {
+		/if (${Me.PctMana} < ${_chainPullLimit}) {
+			/varset _chainPullLimit 80
+			/return FALSE
+		} else {
+			/varset _chainPullLimit 20
+			/return TRUE
+		}
+	} else /if (${Me.PctEndurance} < ${_chainPullLimit}) {
 		/varset _chainPullLimit 80
 		/return FALSE
 	} else {
@@ -917,10 +946,10 @@ Sub Gquery(string DnetName, string tmpquery, string varName, string varType)
 Sub bag_mod_rod
 	| Cursor.Name.Equal[Transvergence]
 	/if (!${Cursor.ID} ) /return
-	/if (${Cursor.Find[Transvergence]} && (${Me.FreeInventory}>1)) {
+	/if (${Cursor.Name.Equal[Transvergence]} && ${Me.FreeInventory}>1) {
 		DEBUG \aw Bagging Mod Rod
 		/autoinventory
-	} else /if (${Cursor.Find[Modulation]} && (${Me.FreeInventory}>1)) {
+	} else /if (${Cursor.Name.Equal[Modulation]} && ${Me.FreeInventory}>1) {
 		DEBUG \aw Bagging Mod Rod
 		/autoinventory
 	}
@@ -929,8 +958,8 @@ Sub bag_mod_rod
 |- SUB: ClickModRoD - 
 |-------------------------------------------------------------------------------------
 Sub use_mod_rod
-	/if (${FindItem[Transvergence].ID} && ${FindItem[Transvergence].Timer}==0 && ${Me.PctMana}<=${ModRodManaPct} && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Transvergence]}"
-	/if (${FindItem[Modulation].ID} && ${FindItem[Modulation].Timer}==0 && ${Me.PctMana}<=${ModRodManaPct} && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Modulation]}"
+	/if (${FindItem[Transvergence].ID} && ${FindItem[Transvergence].Timer}==0 && ${Me.PctMana}<=70 && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Transvergence]}"
+	/if (${FindItem[Modulation].ID} && ${FindItem[Modulation].Timer}==0 && ${Me.PctMana}<=70 && ${Me.PctHPs}>=60 ) /useitem "${FindItem[Modulation]}"
 /return 
 |----------------------------------------------------------------------------
 |- SUB: Check Plugin
@@ -1048,7 +1077,7 @@ Sub get_target
 				/if (${Stick.Active}) /stick off
 			}
 		}
-		/delay 5
+		/delay 3
 	}
 
 	/if (${Me.ID} == ${Group.MainTank.ID}) {
@@ -1064,12 +1093,12 @@ Sub get_target
 				| if mob is not mezzed then target it and get aggro
 				/target id ${_npcIDontHaveAggroOnID}
 				/delay 5 ${Target.ID} == ${_npcIDontHaveAggroOnID}
-				/delay 5
+				/delay 3
 			}
 		} else /if (${Me.ID} != ${Group.MainAssist.ID}) {
 			/assist ${Group.MainAssist.Name}
 			/delay 1s ${Me.AssistComplete} == TRUE
-			/delay 5
+			/delay 3
 		}
 	}
 
@@ -1078,7 +1107,7 @@ Sub get_target
 		| /if (${GroupAssistTarget}) 
 		/assist ${Group.MainAssist.Name}
 		/delay 1s ${Me.AssistComplete} == TRUE
-		/delay 5
+		/delay 3
 
 		/if (${_currentTarget} != ${Target.ID}) {
 			/if (${Navigation.Active}) /nav stop
@@ -1182,6 +1211,11 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			}
 		}
 	}
+
+	|**
+	if target name is the same as pets in the group then return.
+	check that powerLevel still works that they med to 80!
+	**|
 
 	| what type is it?
 	/if (${_type.Equal[FIND]}) {
@@ -1583,7 +1617,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 						/return
 					}
 				}
-				/if (${Me.SpellInCooldown} && ${_tmpID} != ${Me.ID} && ${_tmpID} != 0 && !${Spell[${_spell}].SpellType.Equal[Beneficial]}) /call global_cooldown_spells ${_tmpID}
+				/if (${Me.SpellInCooldown} && ${_tmpID} != ${Me.ID} && ${_tmpID} != 0 && !${Spell[${_spell}].SpellType.Equal[Beneficial]} && ${Target.Type.Equal[NPC]}) /call global_cooldown_spells ${_tmpID}
 				/delay 1
 				/if (${Me.Casting.ID} || ${Window[CastingWindow].Open} || ${Me.SpellInCooldown}) /goto :cast_in_progress
 
@@ -1943,7 +1977,7 @@ sub check_for_corpse(bool _debug)
 		/declare _rezNEC						string	local "Convergence"
 	}
 	
-	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]} > 2 && ${MassRezSpell.NotEqual[NULL]}) {
+	/if (${SpawnCount[pccorpse group radius ${setMaxRezRange}]} > 2 && ${MassRezSpell.NotEqual[NULL]} && ${Me.SpellReady[${MassRezSpell}]}) {
 		/call cast_rez ${Me.ID} "${MassRezSpell}"
 		/return
 	}
@@ -2154,10 +2188,9 @@ Sub get_corpses
  *	USE: /call check_hurt [DEBUG T/F] [group|pet|xtarget|self|mypet]} || ${check_hurt[DEBUG, group|pet|xtarget|self|mypet]}
  *	NOTE: shared by PAL,DRU,CLR,SHM this returns the # of "hurt" for the group check you request as the pass/fail marker
  ***|
-sub check_hurt(bool _debug, string _type, int _hpLimit)
+sub check_hurt(bool _debug, string _type, int _hpLimit, int _countGroupHeal)
 
 	/declare _count		 				int local 0
-	/declare _countGroupHeal			int local 3
 	/declare _hurtCount	 				int local 0
 	/declare _hpLimitTrue 				int local ${_hpLimit}
 
@@ -2177,10 +2210,10 @@ sub check_hurt(bool _debug, string _type, int _hpLimit)
 			/if (${Group.Member[${_count}].Distance} <= 200 && ${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
 				/varcalc _hurtCount ${_hurtCount}+1
 			}
-			/if (${_hurtCount} >= ${_countGroupHeal}) /break
+			/if (${_hurtCount} >= ${_countGroupHeal}) /return ${_hurtCount}
 
 		/next _count
-		/return ${_hurtCount}
+		/return 0
 
 	| check xtarget hurt
 	} else /if (${_type.Equal[xtarget]}) {
@@ -2433,15 +2466,15 @@ sub setup_skill_melee(bool _debug)
 
 	/if (${Select[${Me.Class.ShortName},DRU,SHM]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
-			/varset autoAssistAt 90
+			/varset autoAssistAt 100
 			/varset assistRange 55
 		} else {
-			/varset autoAssistAt 100
-			/varset assistRange 100
+			/varset autoAssistAt 98
+			/varset assistRange 150
 		}
 	}
 
-	/if (${Select[${Me.Class.ShortName},WIZ,DRU,MAG,SHM]}) {
+	/if (${Select[${Me.Class.ShortName},WIZ,MAG]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 90
 			/varset assistRange 100
@@ -2456,7 +2489,7 @@ sub setup_skill_melee(bool _debug)
 			/varset autoAssistAt 90
 			/varset assistRange 100
 		} else {
-			/varset autoAssistAt 100
+			/varset autoAssistAt 150
 			/varset assistRange 200
 		}
 	}

@@ -89,6 +89,7 @@ Sub clr_setup
 	/declare GroupElixirSpell 		string			outer NULL
 	/declare DichoSpell 			string 			outer NULL
 	/declare MendingSplash 			string 			outer NULL
+	/declare PosseSpell				string 	outer 	Gate
 	
 	/declare spellmisc 				int outer 8
 	/declare spellgem				int outer 1	

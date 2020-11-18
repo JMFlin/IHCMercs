@@ -29,6 +29,7 @@ Sub mag_setup
 	/declare BodyguardSpell			string 	outer 	NULL
     /declare ModRodSpell			string 	outer	NULL
 	/declare ShieldSpell 			string 	outer	NULL
+	/declare PosseSpell				string 	outer 	Gate
 	
 	
     /declare TwincastSpell			string 	outer	NULL

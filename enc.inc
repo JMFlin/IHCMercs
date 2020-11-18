@@ -42,8 +42,9 @@ TODO:
 Sub enc_main
 
 	/if (!${Me.XTarget}) /call enc_self_buffs
-	/if (!${doNotBuff}) /call enc_group_buffs
+	/if (!${doNotBuff} && !${timeForBuffs} && !${Me.XTarget}) /call enc_group_buffs
 	/if (!${Me.XTarget}) /call enc_check_mana
+	/if (!${Me.XTarget}) /call set_timers
 
 	/while (${Me.XTarget} && ${Mode} == 3) {
 

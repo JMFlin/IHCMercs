@@ -50,7 +50,6 @@ Sub Main
 	/call alliance_rotations
 	/call ${Me.Class.ShortName.Lower}_rotations
 	
-
 	/call WelcomeMsg
 
 	/if (${alliance_check_group[FALSE]}) /varset useAlliance TRUE
@@ -68,7 +67,6 @@ Sub Main
 	/if (${Mode} == 4) /call AFKRunAndGun
 	/if (${Mode} == 5) /call event
 	/if (${Mode} == 7) /call mode_posse_afk
-	/if (${Mode} == 8) /call go_sell
 	/if (${Mode} == 9) /call go_scribe ${getSpellsFromZone} ${minScribeLevel} ${maxScribeLevel}
 /goto :mainloop 
 /return
@@ -109,13 +107,12 @@ Sub afk_radius_camping
 		/if (${Balance}) /call balance_mob_hitpoints
 
 		/if (!${Balance}) {
-			/if (!${powerLevel} || ${Me.Level} >= 105) {
+			/if (!${powerLevel} || ${Group.Puller.ID} == ${Me.ID}) {
 				/call ${Me.Class.ShortName.Lower}_main
 			}
 		}
 
 		/if (!${Me.XTarget}) /call dummy_mode
-
 	}
 	/doevents
 /return
@@ -150,18 +147,22 @@ Sub set_mode
 /return
 
 sub misc
-
+	|/declare _newPosseXY int local ${newPosseXY}
+	|/declare _newPosseZ int local ${newPosseZ}
+	
 	| Posse configurations
 	/if (${Mode} > 0) {
 		/varset newPosseXY ${pullRadiusXY}
 		/varset newPosseZ ${pullRadiusZ}
 
 		/if (${newPosseXY} != ${oldPosseXY} || ${newPosseZ} != ${oldPosseZ}) {
-			/posse radius ${pullRadiusXY} 
-			/posse zradius ${pullRadiusZ}
-			/posse save
-			/varset oldPosseXY ${newPosseXY}
-			/varset oldPosseZ ${newPosseZ}
+			|/posse radius ${pullRadiusXY}*1.5
+			|/posse zradius ${pullRadiusZ}*1.5
+			/squelch /posse save
+			|/varcalc _newPosseXY ${newPosseXY}*1.5
+			|/varcalc _newPosseZ ${newPosseZ}*1.5
+			/varset oldPosseXY ${pullRadiusXY}
+			/varset oldPosseZ ${pullRadiusZ}
 			DEBUG Set MQ2Posse radius: ${Posse.Radius}
 		}
 	}
@@ -173,22 +174,22 @@ sub misc
 		} else /if (!${Plugin[MQ2Hud].Name.Length}) {
 			/call CheckPlugin MQ2Hud
 			/delay 5
-			/loadhud Player
-			/loadhud Posse
-			/loadhud Target
-			/loadhud Nearest
-			/loadhud XTarget
-			/loadhud General
+			/squelch /loadhud Player
+			/squelch /loadhud Posse
+			/squelch /loadhud Target
+			/squelch /loadhud Nearest
+			/squelch /loadhud XTarget
+			/squelch /loadhud General
 		}
 	} else /if (!${Plugin[MQ2Hud].Name.Length}) {
 		/call CheckPlugin MQ2Hud
 		/delay 5
-		/loadhud Player
-		/loadhud Posse
-		/loadhud Target
-		/loadhud Nearest
-		/loadhud XTarget
-		/loadhud General
+		/squelch /loadhud Player
+		/squelch /loadhud Posse
+		/squelch /loadhud Target
+		/squelch /loadhud Nearest
+		/squelch /loadhud XTarget
+		/squelch /loadhud General
 	}
 
 	| Close windows trying to get you to buy
@@ -247,7 +248,7 @@ sub get_me_out(int _tmpID)
 		/delay 2m ${Me.Zoning}
 		/delay 2m !${Me.Zoning}
 
-	} else {	
+	} else {
 
 		/if (${validate_cast[FALSE, spell, "${PosseSpell}", ${Me.ID}]}) {
 			/call core_cast2 "${PosseSpell}" spell ${Me.ID} FALSE
@@ -564,7 +565,7 @@ Sub move_to_camp
 	
 	/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
 
-	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} > ${_autoCampRadius} && ${Navigation.Active}) {
+	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} >= ${_autoCampRadius} && ${Navigation.Active}) {
 		/if (${Mode} == 0) {
 			/nav stop
 			/return
@@ -639,38 +640,46 @@ Sub dummy_mode
 	
 	/if (${Spawn[gm].ID} || ${Posse.Strangers} > 0) {
 		
+		|**
 		/call port_class_checker
 		/varset _portClassID ${Macro.Return}
 
 		/if (${_portClassID}) {
 			/varset Mode 7
-			|/varset posseZone TRUE
 			/call get_me_out ${_portClassID}
-		 } else {
-			
-			/call move_to_camp
-
-			/while (${Navigation.Active}) { 
-				/delay 5
-			}
-
-			/echo Entering Dummy Mode...
-			/delay 1s 
-			/echo PC nearby! 
-			
-			/while (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
-				/for _count 1 to ${DummyTime}
-					/echo (${_count}/${DummyTime})
-					/if (${Mode} == 0) /return
-					/if (${Zone.ID} == 202) /return
-					/if (${Zone.ID} == 344) /return
-					/if (${Zone.ID} == 345) /return
-					/if (${Me.XTarget}) /return
-					/delay 1s
-				/next _count
-				/delay 1s 
-			}
+			/delay 30s ${Select[${Zone.ShortName},PoKnowledge]}
 		}
+		**|
+		|**
+		/if (!${Select[${Zone.ShortName},PoKnowledge]}) {
+			/call go_to_pok
+		}
+		**|
+			
+		/call move_to_camp
+
+		/while (${Navigation.Active}) { 
+			/delay 5
+		}
+
+		/echo Entering Dummy Mode...
+		/delay 1s 
+		/echo PC nearby! 
+		
+		/while (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
+			/for _count 1 to ${DummyTime}
+				/echo (${_count}/${DummyTime})
+				/if (${Mode} == 0) /return
+				/if (${Zone.ID} == 344 || ${Zone.ID} == 345 || ${Zone.ID} == 202) {
+					/varset Mode 7
+					/return
+				}
+				/if (${Me.XTarget}) /return
+				/delay 1s
+			/next _count
+			/delay 1s 
+		}
+		
 	 }
 	
 
@@ -757,8 +766,8 @@ Sub go_scribe(string _zoneName, int _minLevel, int _maxLevel)
 	/declare _count int local 0
 
 	|- Scribe what you have in backpack
-	/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC,SHD,BRD,BST]}) /call ScribeTomes
-	/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG,SHD,BRD,BST]}) /call ScribeSpells
+	/if (!${Select[${Me.Class.ShortName},CLR,DRU,SHM,ENC,WIZ,MAG,NEC]}) /call ScribeTomes
+	/if (!${Select[${Me.Class.ShortName},WAR,BER,MNK,ROG]}) /call ScribeSpells
 
 	/if (!${Zone.ShortName.Equal[PoKnowledge]} && !${Zone.ShortName.Equal[GuildLobby]} && !${Zone.ShortName.Equal[GuildHall]}) /call go_to_pok
 	
@@ -885,7 +894,7 @@ Sub BuySpells(string _minLevel, int _maxLevel)
 		/varset SpellName ${Merchant.Item[${a}].Spell.Name}
 		/if (${SpellName.Find[ Rk. II ]}) /varset SpellName ${Merchant.Item[${a}].Spell.Name.Replace[ Rk. II ,]}
 		/if (${SpellName.Find[ Rk. III ]}) /varset SpellName ${Merchant.Item[${a}].Spell.Name.Replace[ Rk. III ,]}
-
+		/delay 1
 		/if (${Merchant.Item[${a}].Type.Equal[Scroll]} && ${Merchant.Item[${a}].Spell.Level} >= ${_minLevel} && ${Merchant.Item[${a}].Spell.Level} <= ${_maxLevel} && ${Math.Calc[${Merchant.Item[${a}].BuyPrice}\1000]} < ${Me.Platinum} && !${Me.Book[${Merchant.Item[${a}].Spell.Name}]} && !${FindItemCount[${Merchant.Item[${a}]}]}) {
 			/if (${Me.CombatAbility[${SpellName}]}) {
 				/echo :: I already know ${SpellName}
@@ -1023,7 +1032,7 @@ Sub BuyTomes(string _minLevel, int _maxLevel)
 		/varset SpellName ${Merchant.Item[${a}].Spell.Name}
 		/if (${SpellName.Find[ Rk. II ]}) /varset SpellName ${Merchant.Item[${a}].Spell.Name.Replace[ Rk. II ,]}
 		/if (${SpellName.Find[ Rk. III ]}) /varset SpellName ${Merchant.Item[${a}].Spell.Name.Replace[ Rk. III ,]}
-	|/echo Item ${a} is ${Merchant.Item[${a}].Spell.Name}
+		/delay 1
 
 		/if (${Merchant.Item[${a}].Type.Equal[Scroll]} && ${Merchant.Item[${a}].Spell.Level} >= ${_minLevel} && ${Merchant.Item[${a}].Spell.Level} <= ${_maxLevel} && ${Math.Calc[${Merchant.Item[${a}].BuyPrice}\1000]} < ${Me.Platinum}) {
 
@@ -1072,7 +1081,7 @@ Sub ScribeTomes
 	/declare _bag int local
 	/declare _slot int local
 	/declare _maxInvSlots int local 10
-	/declare _hasVoA int outer 0
+	/declare _hasVoA int local 0
 	/declare _invScribeSlot int local 1
 
 	/if (${Me.HaveExpansion[Veil of Alaris]}) /varset _hasVoA 1
@@ -1140,7 +1149,7 @@ Sub Event_FullInventory
 | --------------------------------------------------------------------------------------------
 Sub go_to_pok(string _destination)
 	/if (!${Select[${Zone.ShortName},PoKnowledge,moors,crescent,guildlobby,guildhall]}) /call useorigin
-	
+	/delay 5s
 	/if (${Zone.ShortName.Equal[crescent]}) {
 		/while (!${Zone.ShortName.Equal[PoKnowledge]}) {
 		
@@ -1172,6 +1181,16 @@ Sub go_to_guildhall
 	/while (!${Zone.ShortName.Equal[GuildHall]}) {
 		/if (${Zone.ShortName.Equal[PoKnowledge]}) /call guildlobby
 		/if (${Zone.ShortName.Equal[GuildLobby]}) /call guildhall
+		/delay 2
+	}
+/return
+| --------------------------------------------------------------------------------------------
+| SUB: Zone3
+| --------------------------------------------------------------------------------------------
+Sub go_to_guildlobby
+	/if (!${Select[${Zone.ShortName},GuildLobby,GuildHall,PoKnowledge,moors,crescent]}) /call go_to_pok
+	/while (!${Zone.ShortName.Equal[GuildLobby]}) {
+		/if (${Zone.ShortName.Equal[PoKnowledge]}) /call guildlobby
 		/delay 2
 	}
 /return

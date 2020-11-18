@@ -52,7 +52,8 @@ Sub bst_setup
 	/declare HHEFuryDisc		string outer NULL
 	/declare DmgModDisc			string outer NULL
 	/declare EndRegenProcDisc	string outer NULL
-	/declare Smash 				string outer NULL 
+	/declare Smash 				string outer NULL
+	/declare PosseSpell				string 	outer 	Origin
 	
 	
 |-Declare spell variables

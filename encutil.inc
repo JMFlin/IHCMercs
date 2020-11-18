@@ -69,6 +69,7 @@ Sub enc_setup
 	/declare Chromatic				string 	outer	"NULL"
 	/declare NukeSpell4				string 	outer	"NULL"
 	/declare TwincastSpell				string 	outer	NULL
+	/declare PosseSpell				string 	outer 	Gate
 	
   |-Pet
 	/declare PetSpell				string	outer	"NULL"

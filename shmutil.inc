@@ -86,6 +86,7 @@ Sub shm_setup
 	/declare CureMemberCount    	int outer 0
 	/declare CureMemberID     		int outer 0
 	/declare DruAllianceBuff 		string outer NULL
+	/declare PosseSpell				string 	outer 	Gate
 |-Special
 	/declare EpicSpiritStaff		string outer NULL
 	/declare UseEpic 				int outer 0
@@ -270,10 +271,9 @@ Sub shm_abilities
 	}
 
 	
-	|/if (${Me.AltAbility[Rejuvenation of Spirit].ID}) {
-	|	/varset RezSpell Rejuvenation of Spirit
-
-	|} else 
+	/if (${Me.AltAbility[Rejuvenation of Spirit].Rank}>=1) {
+		/varset RezSpell Rejuvenation of Spirit
+	}
 	
 	/if (${Me.Level}>=${Spell[Incarnate Anew].Level} && ${Me.Book[${Spell[Incarnate Anew].RankName}]}) {
 		/varset RezSpell ${Spell[Incarnate Anew].RankName}

@@ -30,8 +30,8 @@ Method 3
 Sub bst_main
 	
 	/if (!${Me.XTarget}) /call bst_self_buffs
-	/if (!${doNotBuff}) /call bst_group_buffs
-
+	/if (!${doNotBuff} && !${timeForBuffs}) /call bst_group_buffs
+	
 	/while (${Me.XTarget} && ${Mode} == 3) {
 		
 		/call get_target
@@ -387,7 +387,7 @@ Sub bst_group_buffs
 	}
 
 	/for _count 0 to ${Group}
-
+	
 		/if (${Group.Member[${_count}].OtherZone}) /continue
 	
 		/if (${Group.Member[${_count}].Type.Equal[Corpse]}) /continue
@@ -471,5 +471,6 @@ Sub bst_group_buffs
 		/call ${Me.Class.ShortName.Lower}_load_spellbar
 		/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Done Buffing
 	}
+	/call set_timers
 	
 /return
