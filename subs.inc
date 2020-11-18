@@ -47,7 +47,6 @@ Sub var_setup
 	/declare IllusionNum		int outer 0
 	/declare RunAndGunMedTimer	timer outer	0
 
-	/declare petFollow 			int outer 0
 	/declare illusionItem 		string outer "Bone Mask of Horror"
 
 	/declare autoCampRadius 	int outer 10
@@ -318,9 +317,9 @@ Sub Travel
 	/if (${Stick.Status.Equal[ON]}) /stick off
 	/attack off
 	/if (${Me.Pet.ID} && ${Me.Combat}) /pet back off
-	/if (${Me.Pet.ID} && !${petFollow}) {
+	/if (${Me.Pet.ID}) {
 		/pet follow
-		/varset petFollow 1
+		/delay 1s
 	}
 
 	/if (${pullAutoCampY} != 0) /varset pullAutoCampY 0
@@ -831,7 +830,6 @@ Sub check_resources(bool _debug, string _spell, string _type, int _tmpID, int _c
 |---------------------------------------------------------------------------- 
 Sub pet_attack(int _tmpID)
 	/if (!${Me.Pet.ID}) /return
-	/if (${petFollow}) /varset petFollow 0
 	/if (!${validate_combat[${_tmpID}]} ) /return
 
 	/if (!${Me.Pet.Combat}) {

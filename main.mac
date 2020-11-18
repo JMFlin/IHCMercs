@@ -78,6 +78,7 @@ Sub afk_radius_camping
     /call make_camp
     /call remove_travel_buffs
 	/if (${Target.ID}) /target clear
+	/if (${Me.Pet.ID}) /pet guard
 	/if (${Group.Puller.ID} == ${Me.ID}) /call ignore_mobs_to_pull
 	/if (${Select[${Me.Class.ShortName},CLR,SHM,DRU,BST,ENC]}) /call group_checker
 
