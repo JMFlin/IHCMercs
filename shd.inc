@@ -107,8 +107,10 @@ Sub shd_rotation(int _tmpID)
 		}
 	}
 
+	/call get_xtar_min_haters 30
+	/varset _tmpID ${Macro.Return}
 	/call use_skill_melee ${_tmpID} FALSE
-	/if (${get_xtar_min_haters[30]}) {
+	/if (${_tmpID}) {
 
 		/if (${validate_cast[FALSE, spell, "${Power}", ${_tmpID}]}) {
 			/call core_cast2 "${Power}" spell ${_tmpID} FALSE
