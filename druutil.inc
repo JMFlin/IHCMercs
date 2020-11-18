@@ -1015,6 +1015,8 @@ BALANCED:
 		/varset ShmAllianceBuff Ancient Alliance
 	}
 
+	/varset GoMNuke ${DichoSpell}
+
 	/if (${Me.AltAbility[252].Name.Find[disabled]} && ${Me.AltAbilityReady[252]}) {
 		/alt act 252
 		/delay 5

@@ -654,6 +654,8 @@ Sub shm_abilities
 	|	/varset CureSpell ${PureSpiritSpell}
 	|}
 
+	/varset GoMNuke ${ChaoticPoisonDoT}
+
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==5) /varset spellmisc 13
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==4) /varset spellmisc 12
 	/if (${Me.AltAbility[Mnemonic Retention].Rank}==3) /varset spellmisc 11

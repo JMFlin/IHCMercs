@@ -1448,6 +1448,8 @@ Sub enc_abilities
 		/varset RootSpell ${Spell[Root].RankName}
 	}
 
+	/varset GoMNuke ${DichoSpell}
+
 	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
 		/alt act 25
 		/delay 5

@@ -745,6 +745,8 @@ Sub mag_abilities
 	} else /if (${Me.Level}>=37 && ${Me.Book[${Spell[Concussion].RankName}]}) {
 		/varset JoltSpell ${Spell[Concussion].RankName}
 	}
+
+	/varset GoMNuke ${DichoSpell}
 	
 	/if (${Me.AltAbility[25].Name.Find[disabled]} && ${Me.AltAbilityReady[25]}) {
 		/alt act 25

@@ -25,8 +25,7 @@ Drogba
 		You can use Dragon Scales, Reaver's Bargain + one of the others altogether.  In fact, those 2 + Leechcurse is nice for a while.  
 		Note that to get the full benefit from Reaver's Bargain, mobs need to be hitting you for at least 25K damage.
 
-TODO
-	Spell burn
+Spell burn
 	/alt activate 1450 (first spire)
 	/alt activate 747 (visage of decay)
 	/alt activate 2034 (gift of the quick spear)
@@ -39,13 +38,17 @@ TODO
 	A Thought Leech crit can fix most of the mana/endurance penalty that you take from using Reaver's Bargain.
 	Activate Unholy Aura.
 
-	Melee burn
+Melee burn
 	/pause 8, /useitem Innoruuk's Dark Blessing (SK epic)
 	/pause 2, /alt activate 9403 (Visage of Death)
 	/alt activate 742 (Tyvl`s Resolve)
 	/pause 2, /disc claret blade rk. iii (you may need to change the rank to i or ii depending on your version of this disc)
-
 	Impenitent Influence (Pet DPS boost), Leechcurse (Increased accuracy).  The gains to accuracy from the SK epic 2.0 & Leechcurse are more apparent when Auspice isn't running.
+
+TODO
+	Unholy Guardian
+	Stream of Hatred
+	Veil of Darkness
 **|
 Sub shd_main
 
@@ -311,8 +314,15 @@ Sub shd_rotation(int _tmpID)
 				/call core_cast2 "${Touch2}" spell ${_tmpID} FALSE
 			}
 
-			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]} && ${Me.ActiveDisc.ID} == ${UnholyAuraID}) {
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]} && (${Me.ActiveDisc.ID} == ${UnholyAuraID} || ${Target.Buff[${AllianceSpell}]})) {
+				/if (${validate_cast[FALSE, spell, "${DichotomicFang}", ${_tmpID}]}) {
+					/call core_cast2 "${DichotomicFang}" spell ${_tmpID} FALSE
+				}
 				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+
+				/if (${validate_cast[FALSE, spell, "${DichotomicFang}", ${_tmpID}]}) {
+					/call core_cast2 "${DichotomicFang}" spell ${_tmpID} FALSE
+				}
 				/if (${validate_cast[FALSE, spell, "${Touch1}", ${_tmpID}]}) {
 					/call core_cast2 "${Touch1}" spell ${_tmpID} FALSE
 				}

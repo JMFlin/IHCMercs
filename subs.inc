@@ -87,7 +87,6 @@ Sub var_setup
 	
 |- core_cast2
 	/declare castReturn 		string outer NULL
-	/declare castBreak 			bool outer TRUE
 
 |- timers
 	/declare timeForMez					timer outer	0
@@ -1572,16 +1571,10 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/declare _fizzle bool local FALSE
 		/declare _fizzleCount int local 0
 		/declare _castLoop int local 1
-		/varset castReturn CAST_NOTREADY
-		/varset castBreak FALSE
 
 		| check any subs? yes.. no.. maybe??
 		/if (${SubDefined[${_sub}]}) {
 			/call ${_sub}
-			/if (${castBreak}) {
-				/varset castReturn CAST_BREAK
-				/return CAST_BREAK
-			}
 		}
 
 		| cast GOM if song proc?
@@ -1639,8 +1632,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 	} else /if (${Select[${_type},alt]}) {
 		
 		/declare _castLoop int local 1
-		/varset castReturn CAST_NOTREADY
-		/varset castBreak FALSE
 
 		| delay for aa casting
 		/delay ${Math.Calc[${Spell[${_spell}].MyCastTime.Float}+5]}s !${Me.Casting.ID}
@@ -1662,25 +1653,14 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open}) {
 					/delay 3
 				}
-						
-				| good cast
-				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
-				
-				| spell is not ready
-				/if (${Select[${castReturn},CAST_NOTREADY]}) {
-					/varcalc _castLoop ${_castLoop}-1
-					/delay 2
-				}
-
+				/break
 			}
-
 		}
 		/return
 	| item
 	} else /if (${Select[${_type},item,epicitem]}) {
 
 		/declare _castLoop int local 1
-		/varset castReturn CAST_NOTREADY
 
 		| is the item ready?
 		/if (!${FindItem[${_spell}].TimerReady}) {	
@@ -1697,20 +1677,8 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				/while (${Me.Casting.ID} || ${Window[CastingWindow].Open}) {
 					/delay 3
 				}
-					
- 				|CHECKINPUTS
-				| /call check_cast_events 2
-						
-				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
-				
-				| spell is not ready
-				/if (${Select[${castReturn},CAST_NOTREADY]}) {
-					/varcalc _castLoop ${_castLoop} - 1
-					/delay 2
-				}
-
+ 				/break
 			}
-
 		}
 		/return
 		
@@ -1729,7 +1697,6 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 		/declare _fizzle bool local FALSE
 		/declare _fizzleCount int local 0
 		/declare _castLoop int local 1
-		/varset castReturn CAST_NOTREADY
 		/varset _spell ${Spell[${_spell}].RankName}
 		
 		/if (${Me.BardSongPlaying}) /call pulse_stop core_cast_pulsestop
@@ -1782,17 +1749,7 @@ sub core_cast2(string _spell, string _type, int _tmpID, string _sub, bool _debug
 				} else {
 					/delay ${Math.Calc[${Spell[${_spell}].CastTime.Seconds}+${Math.Calc[${Spell[${_spell}].CastTime.Seconds}*.05]}]}s
 				}
- 				
- 				|CHECKINPUTS
-				| /call check_cast_events 2
-						
-				/if (${Select[${castReturn},CAST_SUCCESS]}) /break
-				
-				/if (${Select[${castReturn},CAST_NOTREADY]}) {
-				 	/varcalc _castLoop ${_castLoop}-1
-				 	/delay 2
-				}
-
+ 				/break
 			}
 		**|
 			

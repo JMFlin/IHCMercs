@@ -48,7 +48,7 @@ Sub shd_setup
 	/declare SnareSpell 	string outer NULL
 	/declare Torrent		string outer NULL
 	/declare Disruption		string outer NULL
-	/declare PosseSpell				string 	outer 	Origin
+	/declare PosseSpell		string outer Origin
 
 
 	/declare Cloak 			string outer NULL
@@ -85,6 +85,7 @@ Sub shd_load_spellbar
 		/call LoadSpellGem "${Terror2}" 7
 		/call LoadSpellGem "${Power}" 8
 		| /call LoadSpellGem "${Bond}" 8
+		|/call LoadSpellGem "${AllianceSpell}" 9
 		/call LoadSpellGem "${Denial}" 9
 		/call LoadSpellGem "${Bargain}" 10
 		/call LoadSpellGem "${Disruption}" 11
@@ -657,6 +658,8 @@ Sub shd_abilities
 		/varset AllianceSpell ${Spell[Bloodletting Alliance].RankName}
 		/varset AllianceSpellRankCheck ${Spell[Bloodletting Alliance]}
 	}
+
+	/varset GoMNuke ${DichotomicFang}
 
 	| Pull ability
 	/if (${Me.Level}>=42) {

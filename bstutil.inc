@@ -127,6 +127,8 @@ Sub bst_load_spellbar
 		/call LoadSpellGem "${SwarmPet}" 8
 		/call LoadSpellGem "${DichoSpell}" 9
 		/call LoadSpellGem "${AllianceSpell}" 10
+		/call LoadSpellGem "${AllianceSpell}" 11
+		/call LoadSpellGem "${AllianceSpell}" 12
 
 	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==4) {
 		/call LoadSpellGem "${Mending}" 1
@@ -139,6 +141,7 @@ Sub bst_load_spellbar
 		/call LoadSpellGem "${SwarmPet}" 8
 		/call LoadSpellGem "${DichoSpell}" 9
 		/call LoadSpellGem "${AllianceSpell}" 10
+		/call LoadSpellGem "${AllianceSpell}" 11
 	
 	} else /if (${Me.AltAbility[Mnemonic Retention].Rank}==3) {
 		/call LoadSpellGem "${Mending}" 1
@@ -882,6 +885,9 @@ Sub bst_abilities
 	} else /if (${Me.Level}>=${Spell[Respite].Level} && ${Me.CombatAbility[${Spell[Respite].RankName}]}) {
 		/varset EndRegenDisc ${Spell[Respite].RankName}
 	}
+
+	/declare GoMNuke ${DichoSpell}
+	/declare GoMNuke2 ${ChillDoT}
 
 	| Pull ability
 	/if (${Me.Book[${BloodDoT}]} && !${Me.Book[${SlowSpell}]}) {
