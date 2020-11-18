@@ -102,12 +102,11 @@ Sub shd_main
 
 sub spellburn
 
-	/if (${validate_cast[FALSE, alt, "Visage of Decay", ${Me.ID}]}) {
-		/call core_cast2 "Visage of Death" alt 0 FALSE
-	}
-
 	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) {
 		/call core_cast2 "Spire of the Reavers" alt 0 FALSE
+	}
+	/if (${validate_cast[FALSE, alt, "Visage of Decay", ${Me.ID}]}) {
+		/call core_cast2 "Visage of Death" alt 0 FALSE
 	}
 
 	/if (${validate_cast[FALSE, alt, "Gift of the Quick Spear", ${Me.ID}]}) {
@@ -116,6 +115,10 @@ sub spellburn
 
 	/if (${validate_cast[FALSE, alt, "Reinforced Malaise", ${Me.ID}]}) {
 		/call core_cast2 "Reinforced Malaise" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Reaver's Bargain", ${Me.ID}]}) {
+		/call core_cast2 "Reaver's Bargain" alt 0 FALSE
 	}
 
 	/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
@@ -128,10 +131,6 @@ sub spellburn
 		} else {
 			/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
 		}
-	}
-
-	/if (${validate_cast[FALSE, alt, "Reaver's Bargain", ${Me.ID}]}) {
-		/call core_cast2 "Reaver's Bargain" alt 0 FALSE
 	}
 
 	/if (${validate_cast[FALSE, alt, "Vicious Bite of Chaos", ${Target.ID}]}) {
@@ -162,8 +161,10 @@ sub meleeburn
 		}
 	}
 
-	/if (${validate_cast[FALSE, disc, "${ImpenitentInfluence}", ${Target.ID}]}) {
-		/call core_cast2 "${ImpenitentInfluence}" disc 0 FALSE
+	/if (${Me.Pet.ID}) {
+		/if (${validate_cast[FALSE, disc, "${ImpenitentInfluence}", ${Me.Pet.ID}]}) {
+			/call core_cast2 "${ImpenitentInfluence}" disc 0 FALSE
+		}
 	}
 
 	/if (${validate_cast[FALSE, alt, "Tyvl`s Resolve", ${Target.ID}]}) {
