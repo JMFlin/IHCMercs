@@ -327,39 +327,40 @@ Sub shd_abilities
 
 
 	| Terrors
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Terror of Mirenilla].Level} && ${Me.Book[${Spell[Terror of Mirenilla].RankName}]}) {
+		/varset Terror1 ${Spell[Terror of Mirenilla].RankName}
+		/varset Terror2 ${Spell[Terror of Kra'Du].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Kra'Du].Level} && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Kra'Du].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
-		/varset Terror1 ${Spell[Terror of Kra'Du].RankName}
-	} else /if (${Me.Level}>=107 && ${Me.Book[${Spell[Terror of Kra'Du].RankName}]}) {
-		/varset Terror1 ${Spell[Terror of Kra'Du].RankName}
-	} else /if (${Me.Level}>=81 && ${Me.Book[${Spell[Terror of Jelvalak].RankName}]}) {
+		/varset Terror2 ${Spell[Terror of Narus].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Narus].Level} && ${Me.Book[${Spell[Terror of Narus].RankName}]}) {
+		/varset Terror1 ${Spell[Terror of Narus].RankName}
+		/varset Terror2 ${Spell[Terror of Poira].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Poira].Level} && ${Me.Book[${Spell[Terror of Poira].RankName}]}) {
+		/varset Terror1 ${Spell[Terror of Poira].RankName}
+		/varset Terror2 ${Spell[Terror of Desalin].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Desalin].Level} && ${Me.Book[${Spell[Terror of Desalin].RankName}]}) {
+		/varset Terror1 ${Spell[Terror of Desalin].RankName}
+		/varset Terror2 ${Spell[Terror of Rerekalen].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Rerekalen].Level} && ${Me.Book[${Spell[Terror of Rerekalen].RankName}]}) {
+		/varset Terror1 ${Spell[Terror of Rerekalen].RankName}
+		/varset Terror2 ${Spell[Terror of Jelvalak].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Jelvalak].Level} && ${Me.Book[${Spell[Terror of Jelvalak].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Jelvalak].RankName}
-	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Terror of Vergalid].RankName}]}) {
+		/varset Terror2 ${Spell[Terror of Vergalid].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Vergalid].Level} && ${Me.Book[${Spell[Terror of Vergalid].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Vergalid].RankName}
-	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Terror of Discord].RankName}]}) {
+		/varset Terror2 ${Spell[Terror of Discord].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Discord].Level} && ${Me.Book[${Spell[Terror of Discord].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Discord].RankName}
-	} else /if (${Me.Level}>=59 && ${Me.Book[${Spell[Terror of Terris].RankName}]}) {
+		/varset Terror2 ${Spell[Terror of Terris].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Terris].Level} && ${Me.Book[${Spell[Terror of Terris].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Terris].RankName}
-	} else /if (${Me.Level}>=42 && ${Me.Book[${Spell[Terror of Shadows].RankName}]}) {
+		/varset Terror2 ${Spell[Terror of Shadows].RankName}
+	} else /if (${Me.Level}>=${Spell[Terror of Shadows].Level} && ${Me.Book[${Spell[Terror of Shadows].RankName}]}) {
 		/varset Terror1 ${Spell[Terror of Shadows].RankName}
-	} 
-
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Terror of Narus].RankName}]}) {
-		/varset Terror2 ${Spell[Terror of Narus].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Terror of Narus].RankName}]}) {
-		/varset Terror2 ${Spell[Terror of Narus].RankName}
-	} else /if (${Me.Level}>=${Spell[Terror of the Rerekalen].Level} && ${Me.Book[${Spell[Terror of the Rerekalen].RankName}]}) {
-		/varset Terror2 ${Spell[Terror of the Rerekalen].RankName}
-	} else /if (${Me.Level}>=76 && ${Me.Book[${Spell[Terror of the Soulbleeder].RankName}]}) {
-		/varset Terror2 ${Spell[Terror of the Soulbleeder].RankName}
-	} else /if (${Me.Level}>=63 && ${Me.Book[${Spell[Terror of Thule].RankName}]}) {
-		/varset Terror2 ${Spell[Terror of Thule].RankName}
-	} else /if (${Me.Level}>=53 && ${Me.Book[${Spell[Terror of Death].RankName}]}) {
-		/varset Terror2 ${Spell[Terror of Death].RankName}
-	} else /if (${Me.Level}>=33 && ${Me.Book[${Spell[Terror of Darkness].RankName}]}) {
 		/varset Terror2 ${Spell[Terror of Darkness].RankName}
-	}
+	} 
 
 	| Bonds
 	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Bond of Xalgoz].RankName}]}) {
@@ -384,22 +385,22 @@ Sub shd_abilities
 
 
 	| AoE Hate
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Insidious Denial].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Insidious Rejection].Level} && ${Me.Book[${Spell[Insidious Rejection].RankName}]}) {
+		/varset Denial ${Spell[Insidious Rejection].RankName}
+	} else /if (${Me.Level}>=${Spell[Insidious Denial].Level} && ${Me.Book[${Spell[Insidious Denial].RankName}]}) {
 		/varset Denial ${Spell[Insidious Denial].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Insidious Denial].RankName}]}) {
-		/varset Denial ${Spell[Insidious Denial].RankName}
-	} else /if (${Me.Level}>=84 && ${Me.Book[${Spell[Burst of Spite].RankName}]}) {
-		/varset Denial ${Spell[Burst of Spite].RankName}
-	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[Revile].RankName}]}) {
-		/varset Denial ${Spell[Revile].RankName}
-	} else /if (${Me.Level}>=74 && ${Me.Book[${Spell[Vilify].RankName}]}) {
-		/varset Denial ${Spell[Vilify].RankName}
-	} else /if (${Me.Level}>=69 && ${Me.Book[${Spell[Dread Gaze].RankName}]}) {
-		/varset Denial ${Spell[Dread Gaze].RankName}
-	} 
+	} else /if (${Me.Level}>=${Spell[Deceitful Deflection].Level} && ${Me.Book[${Spell[Deceitful Deflection].RankName}]}) {
+		/varset Denial ${Spell[Deceitful Deflection	].RankName}
+	} else /if (${Me.Level}>=${Spell[Insidious Deflection].Level} && ${Me.Book[${Spell[Insidious Deflection].RankName}]}) {
+		/varset Denial ${Spell[Insidious Deflection].RankName}
+	} else /if (${Me.Level}>=${Spell[Word of Spirit].Level} && ${Me.Book[${Spell[Word of Spirit].RankName}]}) {
+		/varset Denial ${Spell[Word of Spirit].RankName}
+	}
+
+
 
 	
-	| AoE Hate Tap
+	| AoE Hate
 	/if (${Me.Level}>=${Spell[Abhorrent Bargain].Level} && ${Me.Book[${Spell[Abhorrent Bargain].RankName}]}) {
 		/varset Bargain ${Spell[Abhorrent Bargain].RankName}
 	} else /if (${Me.Level}>=${Spell[Hateful Bargain].Level} && ${Me.Book[${Spell[Hateful Bargain].RankName}]}) {
@@ -408,7 +409,17 @@ Sub shd_abilities
 		/varset Bargain ${Spell[Distasteful Bargain].RankName}
 	} else /if (${Me.Level}>=${Spell[Repugnant Bargain].Level} && ${Me.Book[${Spell[Repugnant Bargain].RankName}]}) {
 		/varset Bargain ${Spell[Repugnant Bargain].RankName}
-	}
+	} else /if (${Me.Level}>=${Spell[Loathing].Level} && ${Me.Book[${Spell[Loathing].RankName}]}) {
+		/varset Denial ${Spell[Loathing].RankName}
+	} else /if (${Me.Level}>=${Spell[Burst of Spite].Level} && ${Me.Book[${Spell[Burst of Spite].RankName}]}) {
+		/varset Denial ${Spell[Burst of Spite].RankName}
+	} else /if (${Me.Level}>=${Spell[Revile].Level} && ${Me.Book[${Spell[Revile].RankName}]}) {
+		/varset Denial ${Spell[Revile].RankName}
+	} else /if (${Me.Level}>=${Spell[Vilify].Level} && ${Me.Book[${Spell[Vilify].RankName}]}) {
+		/varset Denial ${Spell[Vilify].RankName}
+	} else /if (${Me.Level}>=${Spell[Dread Gaze].Level} && ${Me.Book[${Spell[Dread Gaze].RankName}]}) {
+		/varset Denial ${Spell[Dread Gaze].RankName}
+	} 
 
 	
 
@@ -454,19 +465,31 @@ Sub shd_abilities
 	}
 
 	| Cloak
-	/if (${Me.Level}>=84 && ${Me.Book[${Spell[Drape of Korafax].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Drape of Iceforged].RankName} && ${Me.Book[${Spell[Drape of Iceforged].RankName}]}) {
+		/varset Cloak ${Spell[Drape of Iceforged].RankName}
+	} else /if (${Me.Level}>=${Spell[Drape of Magmaforged].RankName} && ${Me.Book[${Spell[Drape of Magmaforged].RankName}]}) {
+		/varset Cloak ${Spell[Drape of Magmaforged].RankName}
+	} else /if (${Me.Level}>=${Spell[Drape of Wrathforged].RankName} && ${Me.Book[${Spell[Drape of Wrathforged].RankName}]}) {
+		/varset Cloak ${Spell[Drape of Wrathforged].RankName}
+	} else /if (${Me.Level}>=${Spell[Drape of the Fallen].RankName} && ${Me.Book[${Spell[Drape of the Fallen].RankName}]}) {
+		/varset Cloak ${Spell[Drape of the Fallen].RankName}
+	} else /if (${Me.Level}>=${Spell[Drape of the Sepulcher].RankName} && ${Me.Book[${Spell[Drape of the Sepulcher].RankName}]}) {
+		/varset Cloak ${Spell[Drape of the Sepulcher].RankName}
+	} else /if (${Me.Level}>=${Spell[Drape of Fear].RankName} && ${Me.Book[${Spell[Drape of Fear].RankName}]}) {
+		/varset Cloak ${Spell[Drape of Fear].RankName}
+	} else /if (${Me.Level}>=${Spell[Drape of Korafax].RankName} && ${Me.Book[${Spell[Drape of Korafax].RankName}]}) {
 		/varset Cloak ${Spell[Drape of Korafax].RankName}
-	} else /if (${Me.Level}>=79 && ${Me.Book[${Spell[Drape of Corruption].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Drape of Corruption].RankName} && ${Me.Book[${Spell[Drape of Corruption].RankName}]}) {
 		/varset Cloak ${Spell[Drape of Corruption].RankName}
-	} else /if (${Me.Level}>=74 && ${Me.Book[${Spell[Cloak of Corruption].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Cloak of Corruption].RankName} && ${Me.Book[${Spell[Cloak of Corruption].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Corruption].RankName}
-	} else /if (${Me.Level}>=70 && ${Me.Book[${Spell[Cloak of Discord].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Cloak of Discord].RankName} && ${Me.Book[${Spell[Cloak of Discord].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Discord].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Cloak of Luclin].RankName} && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Luclin].RankName}
-	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Cloak of the Akheva].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Cloak of the Akheva].RankName} && ${Me.Book[${Spell[Cloak of the Akheva].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of the Akheva].RankName}
-	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Grim Aura].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Grim Aura].RankName} && ${Me.Book[${Spell[Grim Aura].RankName}]}) {
 		/varset Cloak ${Spell[Grim Aura].RankName}
 	}
 
