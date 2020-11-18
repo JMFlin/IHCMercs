@@ -1038,21 +1038,21 @@ Sub WelcomeMsg
 	/echo \awWelcome\ag
 	/echo \aw****************************
 /return
+Sub check_npc_aggro
+
+/return
 |----------------------------------------------------------------------------
 |- SUB: get_target  
 |---------------------------------------------------------------------------- 
 Sub get_target
-	/declare _npcIDontHaveAggroOnID 	int local 0
 	/declare _currentTarget 			int local 0
 	/declare _tmpID 					int local 0
 
 	| is there a target to be had?
-	|/echo Checking xtarget
-	/if (!${Me.XTarget}) /return
+	/if (!${Me.XTarget}) /return 0
 
 	| should we be balancing?
-	|/echo Checking Balance
-	/if (${Me.ID} == ${Group.MainAssist.ID} && ${Balance}) /return
+	/if (${Me.ID} == ${Group.MainAssist.ID} && ${Balance}) /return 0
 
 	| if I have a target: assist and get ready
 	/if (${Me.XTarget}) {
@@ -1062,6 +1062,28 @@ Sub get_target
 
 	/varset _currentTarget ${Target.ID}
 
+	/if (${Me.ID} == ${Group.MainTank.ID}) {
+
+		| if any npcs on xtarget have less than 100% aggro
+		/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
+
+			/varset _tmpID ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
+
+			| is the mob mezzed?
+			/if (${If[${Select[${SpawnSort[1,asc,PctAggro,xtarhater].Animation},110,26,32,71,72,111]}, 0, 1]}==1) {
+
+				| if mob is not mezzed then target it and get aggro
+				/target id ${_tmpID}
+				/delay 1s ${Target.ID} == ${_tmpID}
+				/return ${_tmpID}
+			}
+		} else /if (${Me.ID} != ${Group.MainAssist.ID}) {
+			/assist ${Group.MainAssist.Name}
+			/delay 1s ${Me.AssistComplete} == TRUE
+			/return ${_tmpID}
+		}
+	}
+
 	/if (${Me.ID} == ${Group.MainAssist.ID}) {
 
 		/call check_for_named FALSE
@@ -1069,53 +1091,37 @@ Sub get_target
 
 		/if (${_tmpID}) {
 			/target id ${_tmpID}
+			/delay 1s ${_tmpID} == ${Target.ID}
+			/return ${_tmpID}
 		} else /if (${SpawnSort[1,asc,PctHPs,xtarhater].Distance} < 200) {
-			/target id ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
+			/varset _tmpID ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
+			/target id ${_tmpID}
+			/delay 3
 
-			/if (${_currentTarget} != ${Target.ID}) {
+			/if (${_tmpID} != ${_currentTarget}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Stick.Active}) /stick off
 			}
-		}
-		/delay 3
-	}
 
-	/if (${Me.ID} == ${Group.MainTank.ID}) {
-
-		| if any npcs on xtarget have less than 100% aggro
-		/if (${SpawnSort[1,asc,PctAggro,xtarhater].PctAggro} < 100) {
-
-			/varset _npcIDontHaveAggroOnID ${SpawnSort[1,asc,PctAggro,xtarhater].ID}
-
-			| is the mob mezzed?
-			/if (${If[${Select[${SpawnSort[1,asc,PctAggro,xtarhater].Animation},110,26,32,71,72,111]}, 0, 1]}==1) {
-
-				| if mob is not mezzed then target it and get aggro
-				/target id ${_npcIDontHaveAggroOnID}
-				/delay 5 ${Target.ID} == ${_npcIDontHaveAggroOnID}
-				/delay 3
-			}
-		} else /if (${Me.ID} != ${Group.MainAssist.ID}) {
-			/assist ${Group.MainAssist.Name}
-			/delay 1s ${Me.AssistComplete} == TRUE
-			/delay 3
+			/return ${_tmpID}
 		}
 	}
 
 	| if I am not the main tank or ma assist then assist the MA
 	/if (${Me.ID} != ${Group.MainAssist.ID} && ${Me.ID} != ${Group.MainTank.ID}) {
-		| /if (${GroupAssistTarget}) 
 		/assist ${Group.MainAssist.Name}
+		/varset _tmpID ${Target.ID}
 		/delay 1s ${Me.AssistComplete} == TRUE
 		/delay 3
 
-		/if (${_currentTarget} != ${Target.ID}) {
+		/if (${_tmpID} != ${_currentTarget}) {
 			/if (${Navigation.Active}) /nav stop
 			/if (${Stick.Active}) /stick off
 		}
+		/return ${_tmpID}
 	}
 
-/return
+/return 0
 
 |-------------------------------------------------------------------------------- 
 | Sub validate_combat_buffs
@@ -2337,7 +2343,7 @@ Sub get_heal_target(int _hpLimit)
 
 		/if (${Group.Member[${_count}].Distance} > 200 || ${Group.Member[${_count}].PctHPs} > ${_hpLimit}) /continue
 
-		/if (${Group.Member[${_count}].PctHPs} < ${_hpLimit}) {
+		/if (${Group.Member[${_count}].PctHPs} <= ${_hpLimit}) {
 			/varset _worstHurtId ${Group.Member[${_count}].ID}
 			/varset _hpLimit ${Group.Member[${_count}].PctHPs}
 		}
@@ -3000,3 +3006,34 @@ sub check_for_named(bool _debug)
 	/next _count
 
 /return FALSE
+
+Sub get_xtar_haters_not_aggro(bool _debug)
+	/declare _count int local 0
+	/declare _notAggroCounter int local 0
+
+	/for _count 1 to ${Me.XTarget}
+		/if (${Me.XTarget[${_count}].ID}) /continue
+		/if (${Me.XTarget[${_count}].PctAggro} < 100) {
+			/varcalc _notAggroCounter ${_notAggroCounter}+1
+		}
+	/next _count
+/return ${_notAggroCounter}
+
+
+Sub get_xtar_min_haters(int _hateLimit)
+	/declare _minHateId		int local 0
+	/declare _count		    int local 0
+	
+	/for _count 1 to ${Me.XTarget}
+		/if (${Me.XTarget[${_count}].ID}) /continue
+
+		/if (${Me.XTarget[${_count}].Distance} > 200 || ${Me.XTarget[${_count}].PctAggro} > ${_hateLimit}) /continue
+
+		/if (${Me.XTarget[${_count}].PctAggro} <= ${_hateLimit}) {
+			/varset _minHateId ${Me.XTarget[${_count}].ID}
+			/varset _hateLimit ${Me.XTarget[${_count}].PctAggro}
+		}
+
+	/next _count
+	
+/return ${_minHateId}

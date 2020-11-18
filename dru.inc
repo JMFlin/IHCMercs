@@ -77,7 +77,6 @@ Sub dru_main
 	/if (!${Me.XTarget}) /call dru_self_buffs
 	/if (!${Me.XTarget}) /call dru_heal_spam
 	/if (!${Me.XTarget}) /call dru_mana_check
-	/if (!${Me.XTarget}) /call dru_group_heals
 	/if (!${Me.XTarget}) {
 		/if (${validate_cast[FALSE, alt, "Wrath of the Wild", ${Group.MainTank.ID}]}) {
 			/call core_cast2 "Wrath of the Wild" alt ${Group.MainTank.ID} FALSE
@@ -193,15 +192,11 @@ sub dru_rotation
 	
 	/if (${_worstHurtId}) {
 		|**
-			(Convergence of Spirit) -> Revitalization -> Adrenaline Barrage-> Curavida
+			Revitalization -> Adrenaline Barrage-> Curavida -> Convergence of Spirit
 		**|
 		
 		|** SINGLE HEALS **|
-		/if (${validate_cast[FALSE, spell, "${Curavida}", ${_worstHurtId}]}) {
-			/call core_cast2 "${Curavida}" spell ${_worstHurtId} FALSE
-			/return
-		}
-
+		
 		/if (${validate_cast[FALSE, spell, "${Revitalization}", ${_worstHurtId}]}) {
 			/call core_cast2 "${Revitalization}" spell ${_worstHurtId} FALSE
 			/return
@@ -209,6 +204,11 @@ sub dru_rotation
 
 		/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${_worstHurtId}]}) {
 			/call core_cast2 "${Adrenaline}" spell ${_worstHurtId} FALSE
+			/return
+		}
+
+		/if (${validate_cast[FALSE, spell, "${Curavida}", ${_worstHurtId}]}) {
+			/call core_cast2 "${Curavida}" spell ${_worstHurtId} FALSE
 			/return
 		}
 
@@ -223,13 +223,8 @@ sub dru_rotation
 		/call get_target
 		/if (!${Target.Type.Equal[NPC]}) /call get_target
 		/if (!${Target.Type.Equal[NPC]}) /return
-		/if (!${Me.Buff[Improved Twincast].ID}) {
-			|**
-				Spell Twincast -> Nature’s Blistering Wrath -> Horde of Polybiads -> Sunflame -> Chill of the Wildtender
-			**|
-			
+		
 		/if (${druDoSnare}) {
-			|/if (${check_hurt[FALSE, group, 80]} < 1) {
 			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
 					/call core_cast2 "${SnareSpell}" FIND ${Target.ID} FALSE
@@ -237,11 +232,15 @@ sub dru_rotation
 					/return
 				}
 			}
-			|}
 		}
 
-		/if (${Target.PctHPs} > 50) {
-			/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
+		|**
+			Spell Twincast -> Nature’s Blistering Wrath -> Horde of Polybiads -> Sunflame -> Chill of the Wildtender
+		**|
+		/if (!${Me.Buff[Improved Twincast].ID}) {
+
+			/if (${Target.PctHPs} > 50) {
+				/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) {
 					/call core_cast2 "${TwincastSpell}" spell 0 FALSE
 				}
 				
@@ -272,42 +271,34 @@ sub dru_rotation
 			}
 		}
 
-		|/if (${Me.PctMana} > ${hybridManaLimit}) {
-			|**
-				ITC -> Dicho -> Remote Sunblaze -> Cyclonic Roar -> Anabatic Roar -> Winter's Wildblaze
-			**|
-
-			/if (!${Me.Song[Twincast Effect].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Improved Twincast ${ImprovedTwincastRank}].ID}) {
-				/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
-					/call core_cast2 "Improved Twincast" alt 0 FALSE
-				}
+		|**
+			ITC -> Dicho -> Remote Sunblaze -> Cyclonic Roar -> Anabatic Roar -> Winter's Wildblaze
+		**|
+		/if (!${Me.Song[Twincast Effect].ID} && !${Me.Buff[${TwincastSpell}].ID} && !${Me.Buff[Improved Twincast ${ImprovedTwincastRank}].ID}) {
+			/if (${validate_cast[FALSE, alt, "Improved Twincast", ${Me.ID}]}) {
+				/call core_cast2 "Improved Twincast" alt 0 FALSE
 			}
-			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
-				/call core_cast2 "${Adrenaline}" spell ${Target.ID} FALSE
-				/return
-			}
-			/if (${validate_cast[FALSE, spell, "${RemoteSun}", ${Target.ID}]}) {
-				/call core_cast2 "${RemoteSun}" spell ${Target.ID} FALSE
-				/return
-			}
-			/if (${validate_cast[FALSE, spell, "${Cyclonic}", ${Target.ID}]}) {
-				/call core_cast2 "${Cyclonic}" spell ${Target.ID} FALSE
-				/return
-			}
-			
-			|/if (${check_hurt[FALSE, group, 80]} < 1) {
-			/if (${validate_cast[FALSE, spell, "${LowerCyclonic}", ${Target.ID}]}) {
-				/call core_cast2 "${LowerCyclonic}" spell ${Target.ID} FALSE
-				/return
-			}
-			/if (${validate_cast[FALSE, spell, "${Winter}", ${Target.ID}]}) {
-				/call core_cast2 "${Winter}" spell ${Target.ID} FALSE
-				/return
-			}
-			|} else {
-			|	/call dru_heal_spam
-			|}
-		|}
+		}
+		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) {
+			/call core_cast2 "${Adrenaline}" spell ${Target.ID} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${RemoteSun}", ${Target.ID}]}) {
+			/call core_cast2 "${RemoteSun}" spell ${Target.ID} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${Cyclonic}", ${Target.ID}]}) {
+			/call core_cast2 "${Cyclonic}" spell ${Target.ID} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${LowerCyclonic}", ${Target.ID}]}) {
+			/call core_cast2 "${LowerCyclonic}" spell ${Target.ID} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${Winter}", ${Target.ID}]}) {
+			/call core_cast2 "${Winter}" spell ${Target.ID} FALSE
+			/return
+		}
 	}
 /return
 
@@ -319,30 +310,13 @@ Sub dru_heal_spam
 		(Convergence of Spirit) -> Revitalization -> Adrenaline Barrage-> Curavida
 	**|
 
-	/call get_heal_target 50
-	/varset worstHurtId ${Macro.Return}
-	/if (${worstHurtId} > 0 && ${worstHurtId} == ${Group.MainTank.ID}) {
-		/if (${validate_cast[FALSE, alt, "Convergence of Spirit", ${worstHurtId}]}) {
-			/call core_cast2 "Convergence of Spirit" alt ${worstHurtId} FALSE
-		}
-	}
-
-	/call get_heal_target 60
+	/call get_heal_target 80
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${Revitalization}", ${worstHurtId}]}) {
 			/call core_cast2 "${Revitalization}" spell ${worstHurtId} FALSE
 		}
 	}
-
-	/call get_heal_target 60
-	/varset worstHurtId ${Macro.Return}
-	/if (${worstHurtId} > 0) {
-		/if (${validate_cast[FALSE, spell, "${Adrenaline}", ${worstHurtId}]}) {
-			/call core_cast2 "${Adrenaline}" spell ${worstHurtId} FALSE
-		}
-	}
-
 	/call get_heal_target 80
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
@@ -353,41 +327,6 @@ Sub dru_heal_spam
 
 /return
 
-|----------------------------------------------------------------------------
-|- SUB: HealGroup
-|---------------------------------------------------------------------------- 
-Sub dru_group_heals
-
-	/if (${check_hurt[FALSE, group, 85, 3]} >= 3) {
-		/if (${validate_cast[FALSE, alt, "Blessing of Tunare", ${Me.ID}]}) {
-			/call core_cast2 "Blessing of Tunare" alt ${Me.ID} FALSE
-		}
-	}
-
-	/if (${check_hurt[FALSE, group, 45, 1]} >= 1) {
-		/if (${validate_cast[FALSE, spell, "${Survival}", ${Me.ID}]}) {
-			/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
-		} else {
-			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
-				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
-				/call core_cast2 "${Survival}" spell ${Me.ID} FALSE
-			}
-		}
-	}
-
-	/if (${check_hurt[FALSE, group, 85, 3]} >= 3) {
-		/if (${validate_cast[FALSE, spell, "${Lunasalve}", ${Me.ID}]}) {
-			/call core_cast2 "${Lunasalve}" spell ${Me.ID} FALSE
-		}
-	}
-
-	/if (${check_hurt[FALSE, group, 35, 1]} >= 1) {
-		/if (${validate_cast[FALSE, alt, "Wildtender's Survival", ${Me.ID}]}) {
-			/call core_cast2 "Wildtender's Survival" alt ${Me.ID} FALSE
-		}
-	}
-
-/return
 |----------------------------------------------------------------------------
 |- SUB: combat_tank_buffs
 |---------------------------------------------------------------------------- 

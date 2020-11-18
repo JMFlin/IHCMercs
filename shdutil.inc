@@ -70,17 +70,35 @@ Sub shd_load_spellbar
 
 
 	/if (${Me.AltAbility[Mnemonic Retention].Rank} == 5) {
-
+		
+		/call LoadSpellGem "${Touch1}" 1
+		/call LoadSpellGem "${Touch2}" 2
+		|/call LoadSpellGem "${Touch3}" 4
+		/call LoadSpellGem "${DireTestemony}" 3
+		/call LoadSpellGem "${DichotomicFang}" 4
+		/call LoadSpellGem "${Spear}" 5
+		/call LoadSpellGem "${Terror1}" 6
+		/call LoadSpellGem "${Terror2}" 7
+		/call LoadSpellGem "${Power}" 8
+		| /call LoadSpellGem "${Bond}" 8
+		/call LoadSpellGem "${Denial}" 9
+		/call LoadSpellGem "${Bargain}" 10
+		/call LoadSpellGem "${Disruption}" 11
+		/call LoadSpellGem "${Stance}" 12
+		/call LoadSpellGem "${Skin}" 13
 
 	} else /if (${Me.AltAbility[Mnemonic Retention].Rank} == 4) {
 
 		/call LoadSpellGem "${Touch1}" 1
 		/call LoadSpellGem "${Touch2}" 2
-		/call LoadSpellGem "${Touch3}" 3
-		/call LoadSpellGem "${DireTestemony}" 4
+		|/call LoadSpellGem "${Touch3}" 4
+		/call LoadSpellGem "${DireTestemony}" 3
+		|/call LoadSpellGem "${DichotomicFang}" 4
+		/call LoadSpellGem "${Spear}" 4
 		/call LoadSpellGem "${Terror1}" 5
 		/call LoadSpellGem "${Terror2}" 6
-		/call LoadSpellGem "${Bond}" 7
+		/call LoadSpellGem "${Power}" 7
+		| /call LoadSpellGem "${Bond}" 8
 		/call LoadSpellGem "${Denial}" 8
 		/call LoadSpellGem "${Bargain}" 9
 		/call LoadSpellGem "${Disruption}" 10
@@ -101,7 +119,7 @@ Sub shd_load_spellbar
 		/call LoadSpellGem "${Touch3}" 3
 		/call LoadSpellGem "${Terror1}" 4
 		/call LoadSpellGem "${Terror2}" 5
-		/call LoadSpellGem "${Bond}" 6
+		|/call LoadSpellGem "${Bond}" 6
 		
 		/if (${Me.Book[${Spell[${Stance}].RankName}]}) {
 			/call LoadSpellGem "${Stance}" 7
@@ -128,25 +146,125 @@ Sub shd_abilities
 		/varset DichotomicFang ${Spell[Dichotomic Fang].RankName}
 	}
 
-	| Touches
-	/if (${Me.Level}>=${Spell[Touch of T'vem].Level} && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
-		/varset Touch1 ${Spell[Touch of T'vem].RankName}
-	} /if (${Me.Level}>=${Spell[Touch of Lutzen].Level} && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
-		/varset Touch1 ${Spell[Touch of Lutzen].RankName}
-	} else /if (${Me.Level}>=${Spell[Touch of Tharoff].Level} && ${Me.Book[${Spell[Touch of Tharoff].RankName}]}) {
-		/varset Touch1 ${Spell[Touch of Tharoff].RankName}
-	} else /if (${Me.Level}>=${Spell[Touch of Kildrukaun].Level} && ${Me.Book[${Spell[Touch of Kildrukaun].RankName}]}) {
-		/varset Touch1 ${Spell[Touch of Kildrukaun].RankName}
-	} else /if (${Me.Level}>=${Spell[Touch of the Wailing Three].Level} && ${Me.Book[${Spell[Touch of the Wailing Three].RankName}]}) {
-		/varset Touch1 ${Spell[Touch of the Wailing Three].RankName}
-	} else /if (${Me.Level}>=${Spell[Touch of Inruku].Level} && ${Me.Book[${Spell[Touch of Inruku].RankName}]}) {
-		/varset Touch1 ${Spell[Touch of Inruku].RankName}
-	} else /if (${Me.Level}>=60 && ${Me.Book[${Spell[Drain Soul].RankName}]}) {
-		/varset Touch1 ${Spell[Drain Soul].RankName}
-	} else /if (${Me.Level}>=47 && ${Me.Book[${Spell[Life Leech].RankName}]}) {
-		/varset Touch1 ${Spell[Life Leech].RankName}
+	| Power
+	/if (${Me.Level}>=${Spell[Protest for Power].Level} && ${Me.Book[${Spell[Protest for Power].RankName}]}) {
+		/varset Power ${Spell[Protest for Power].RankName}
+	} else /if (${Me.Level}>=${Spell[Refute for Power].Level} && ${Me.Book[${Spell[Refute for Power].RankName}]}) {
+		/varset Power ${Spell[Refute for Power].RankName}
+	} else /if (${Me.Level}>=${Spell[Impose for Power].Level} && ${Me.Book[${Spell[Impose for Power].RankName}]}) {
+		/varset Power ${Spell[Impose for Power].RankName}
+	} else /if (${Me.Level}>=${Spell[Demand for Power].Level} && ${Me.Book[${Spell[Demand for Power].RankName}]}) {
+		/varset Power ${Spell[Demand for Power].RankName}
+	} else /if (${Me.Level}>=${Spell[Provocation for Power].Level} && ${Me.Book[${Spell[Provocation for Power].RankName}]}) {
+		/varset Power ${Spell[Provocation for Power].RankName}
+	} else /if (${Me.Level}>=${Spell[Confrontation for Power].Level} && ${Me.Book[${Spell[Confrontation for Power].RankName}]}) {
+		/varset Power ${Spell[Confrontation for Power].RankName}
+	} else /if (${Me.Level}>=${Spell[Charge for Power].Level} && ${Me.Book[${Spell[Charge for Power].RankName}]}) {
+		/varset Power ${Spell[Charge for Power].RankName}
+	} else /if (${Me.Level}>=${Spell[Trial for Power].Level}  && ${Me.Book[${Spell[Trial for Power].RankName}]}) {
+		/varset Power ${Spell[Trial for Power].RankName}
+	} else /if (${Me.Level}>=${Spell[Challenge for Power].Level}  && ${Me.Book[${Spell[Challenge for Power].RankName}]}) {
+		/varset Power ${Spell[Challenge for Power].RankName}
 	} 
 
+	| Spear
+	/if (${Me.Level}>=${Spell[Spear of Cadcane].Level} && ${Me.Book[${Spell[Spear of Cadcane].RankName}]}) {
+		/varset Spear ${Spell[Spear of Cadcane].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Tylix].Level} && ${Me.Book[${Spell[Spear of Tylix].RankName}]}) {
+		/varset Spear ${Spell[Spear of Tylix].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Vizat].Level} && ${Me.Book[${Spell[Spear of Vizat].RankName}]}) {
+		/varset Spear ${Spell[Spear of Vizat].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Grelleth].Level} && ${Me.Book[${Spell[Spear of Grelleth].RankName}]}) {
+		/varset Spear ${Spell[Spear of Grelleth].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Sholoth].Level} && ${Me.Book[${Spell[Spear of Sholoth].RankName}]}) {
+		/varset Spear ${Spell[Spear of Sholoth].RankName}
+	} else /if (${Me.Level}>=${Spell[Gorgon Spear].Level} && ${Me.Book[${Spell[Gorgon Spear].RankName}]}) {
+		/varset Spear ${Spell[Gorgon Spear].RankName}
+	} else /if (${Me.Level}>=${Spell[Malarian Spear].Level} && ${Me.Book[${Spell[Malarian Spear].RankName}]}) {
+		/varset Spear ${Spell[Malarian Spear].RankName}
+	} else /if (${Me.Level}>=${Spell[Rotmarrow Spear].Level} && ${Me.Book[${Spell[Rotmarrow Spear].RankName}]}) {
+		/varset Spear ${Spell[Rotmarrow Spear].RankName}
+	} /if (${Me.Level}>=${Spell[Rotroot Spear].Level} && ${Me.Book[${Spell[Rotroot Spear].RankName}]}) {
+		/varset Spear ${Spell[Rotroot Spear].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Muram].Level} && ${Me.Book[${Spell[Spear of Muram].RankName}]}) {
+		/varset Spear ${Spell[Spear of Muram].RankName}
+	} else /if (${Me.Level}>=${Spell[Miasmic Spear].Level} && ${Me.Book[${Spell[Miasmic Spear].RankName}]}) {
+		/varset Spear ${Spell[Miasmic Spear].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Decay].Level} && ${Me.Book[${Spell[Spear of Decay].RankName}]}) {
+		/varset Spear ${Spell[Spear of Decay].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Plague].Level} && ${Me.Book[${Spell[Spear of Plague].RankName}]}) {
+		/varset Spear ${Spell[Spear of Plague].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Pain].Level} && ${Me.Book[${Spell[Spear of Pain].RankName}]}) {
+		/varset Spear ${Spell[Spear of Pain].RankName}
+	} else /if (${Me.Level}>=${Spell[Spear of Disease].Level} && ${Me.Book[${Spell[Spear of Disease].RankName}]}) {
+		/varset Spear ${Spell[Spear of Disease].RankName}
+	} 
+
+
+	| Touches
+	/if (${Me.Level}>=${Spell[Touch of Drendar].Level} && ${Me.Book[${Spell[Touch of Drendar].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Drendar].RankName}
+		/varset Touch2 ${Spell[Touch of T'vem].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of T'vem].Level} && ${Me.Book[${Spell[Touch of T'vem].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of T'vem].RankName}
+		/varset Touch2 ${Spell[Touch of Lutzen].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Lutzen].Level} && ${Me.Book[${Spell[Touch of Lutzen].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Lutzen].RankName}
+		/varset Touch2 ${Spell[Touch of Falsin].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Falsin].Level} && ${Me.Book[${Spell[Touch of Falsin].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Falsin].RankName}
+		/varset Touch2 ${Spell[Touch of Urash].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Urash].Level} && ${Me.Book[${Spell[Touch of Urash].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Urash].RankName}
+		/varset Touch2 ${Spell[Touch of Dyalgem].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Dyalgem].Level} && ${Me.Book[${Spell[Touch of Dyalgem].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Dyalgem].RankName}
+		/varset Touch2 ${Spell[Touch of Tharoff].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Tharoff].Level} && ${Me.Book[${Spell[Touch of Tharoff].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Tharoff].RankName}
+		/varset Touch2 ${Spell[Touch of Kildrukaun].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Kildrukaun].Level}  && ${Me.Book[${Spell[Touch of Kildrukaun].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Kildrukaun].RankName}
+		/varset Touch2 ${Spell[Touch of Severan].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Severan].Level}  && ${Me.Book[${Spell[Touch of Severan].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Severan].RankName}
+		/varset Touch2 ${Spell[Touch of Inruku].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Inruku].Level}  && ${Me.Book[${Spell[Touch of Inruku].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Inruku].RankName}
+		/varset Touch2 ${Spell[Touch of Innoruuk].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Innoruuk].Level}  && ${Me.Book[${Spell[Touch of Innoruuk].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Innoruuk].RankName}
+		/varset Touch2 ${Spell[Touch of Volatis].RankName}
+	} else /if (${Me.Level}>=${Spell[Touch of Volatis].Level}  && ${Me.Book[${Spell[Touch of Volatis].RankName}]}) {
+		/varset Touch1 ${Spell[Touch of Volatis].RankName}
+		/varset Touch2 ${Spell[Drain Soul].RankName}
+	} else /if (${Me.Level}>=${Spell[Drain Soul].Level}  && ${Me.Book[${Spell[Drain Soul].RankName}]}) {
+		/varset Touch1 ${Spell[Drain Soul].RankName}
+		/varset Touch2 ${Spell[Drain Spirit].RankName}
+	} else /if (${Me.Level}>=${Spell[Drain Spirit].Level}  && ${Me.Book[${Spell[Drain Spirit].RankName}]}) {
+		/varset Touch1 ${Spell[Drain Spirit].RankName}
+		/varset Touch2 ${Spell[Drain Spirit].RankName}
+	} else /if (${Me.Level}>=${Spell[Drain Soul].Level}  && ${Me.Book[${Spell[Drain Soul].RankName}]}) {
+		/varset Touch1 ${Spell[Drain Soul].RankName}
+		/varset Touch2 ${Spell[Spirit Tap].RankName}
+	} else /if (${Me.Level}>=${Spell[Spirit Tap].Level}  && ${Me.Book[${Spell[Spirit Tap].RankName}]}) {
+		/varset Touch1 ${Spell[Spirit Tap].RankName}
+		/varset Touch2 ${Spell[Siphon Life].RankName}
+	} else /if (${Me.Level}>=${Spell[Siphon Life].Level}  && ${Me.Book[${Spell[Siphon Life].RankName}]}) {
+		/varset Touch1 ${Spell[Siphon Life].RankName}
+		/varset Touch2 ${Spell[Life Leech].RankName}
+	} else /if (${Me.Level}>=${Spell[Life Leech].Level}  && ${Me.Book[${Spell[Life Leech].RankName}]}) {
+		/varset Touch1 ${Spell[Life Leech].RankName}
+		/varset Touch2 ${Spell[Lifedraw].RankName}
+	} else /if (${Me.Level}>=${Spell[Lifedraw].Level}  && ${Me.Book[${Spell[Lifedraw].RankName}]}) {
+		/varset Touch1 ${Spell[Lifedraw].RankName}
+		/varset Touch2 ${Spell[Lifespike].RankName}
+	} else /if (${Me.Level}>=${Spell[Lifetap].Level}  && ${Me.Book[${Spell[Lifetap].RankName}]}) {
+		/varset Touch1 ${Spell[Lifetap].RankName}
+	} 
+
+		
+|**
 	/if (${Me.Level}>=${Spell[Touch of Hemofax].Level} && ${Me.Book[${Spell[Touch of Hemofax].RankName}]}) {
 		/varset Touch2 ${Spell[Touch of Hemofax].RankName}
 	} else /if (${Me.Level}>=${Spell[Touch of Severan].Level} && ${Me.Book[${Spell[Touch of Severan].RankName}]}) {
@@ -160,6 +278,7 @@ Sub shd_abilities
 	} else /if (${Me.Level}>=16 && ${Me.Book[${Spell[Lifetap].RankName}]}) {
 		/varset Touch2 ${Spell[Lifetap].RankName}
 	}
+**|
 
 	/if (${Me.Level}>=100 && ${Me.Book[${Spell[Touch of Holmein].RankName}]}) {
 		/varset Touch3 ${Spell[Touch of Holmein].RankName}
@@ -193,11 +312,19 @@ Sub shd_abilities
 	}
 
 	| Dire
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Dire Testimony].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Dire Indictment].Level} && ${Me.Book[${Spell[Dire Indictment].RankName}]}) {
+		/varset DireTestemony ${Spell[Dire Indictment].RankName}
+	} else /if (${Me.Level}>=${Spell[Dire Testimony].Level} && ${Me.Book[${Spell[Dire Testimony].RankName}]}) {
 		/varset DireTestemony ${Spell[Dire Testimony].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Dire Testimony].RankName}]}) {
-		/varset DireTestemony ${Spell[Dire Testimony].RankName}
-	} else /if (${Me.Level}>=85 && ${Me.Book[${Spell[Dire Implication].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Dire Declaration].Level} && ${Me.Book[${Spell[Dire Declaration].RankName}]}) {
+		/varset DireTestemony ${Spell[Dire Declaration].RankName}
+	} else /if (${Me.Level}>=${Spell[Dire Insinuation].Level} && ${Me.Book[${Spell[Dire Insinuation].RankName}]}) {
+		/varset DireTestemony ${Spell[Dire Insinuation].RankName}
+	} else /if (${Me.Level}>=${Spell[Dire Allegation].Level} && ${Me.Book[${Spell[Dire Allegation].RankName}]}) {
+		/varset DireTestemony ${Spell[Dire Allegation].RankName}
+	} else /if (${Me.Level}>=${Spell[Dire Accusation].Level} && ${Me.Book[${Spell[Dire Accusation].RankName}]}) {
+		/varset DireTestemony ${Spell[Dire Accusation].RankName}
+	} else /if (${Me.Level}>=${Spell[Dire Implication].Level} && ${Me.Book[${Spell[Dire Implication].RankName}]}) {
 		/varset DireTestemony ${Spell[Dire Implication].RankName}
 	}
 
