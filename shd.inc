@@ -1,6 +1,52 @@
 |----------------------------------------------------------------------------
 |- SUB: shadowknight 
 |---------------------------------------------------------------------------- 
+|**
+http://forums.eqfreelance.net/index.php?topic=16303.0
+
+Alliance
+	Shadow Knight: Requires 4 lifetaps to trigger.
+
+General
+	If you are going full dps mode, move Spear & the bigger lifetaps to the front of your multibind. 
+	(Dissident>Spear>Dire>Touch of T`Vem>Touch of Lutzen>Insidious Denial>Touch of Falsin. 
+
+	For aggroing single targets, i frequently throw in 2-3 casts of any of the following:  Terrors, Spear, Dissident, Insidious Denial. 
+	It's common that i'll mix in some AA abilities such as Hates Attraction/Veil of Darkness/Stream of Hatred/Burst of Spite/Explosion of Hatred etc. 
+	My third or fourth cast is often impose, if i expect the mob to live a long time (e.g. Raid bosses). 
+	Beyond that, every cast is a fast decision between lifetap/aggro/refresh short duration buffs/DPS.  
+	That is what i consider to be my standard casting for initial aggro on a 'typical' single target, be it group or raid.
+
+Drogba
+	Forceful Rejuvenation can be instantly followed up with Dissident (or if you think you have enough time, Insidious first).
+
+	Piles
+		Discs in order of defensive benefit:  Dragon Scales Glyph / Reaver's Bargain > Mantle > Impenitent > Unholy Guardian
+		You can use Dragon Scales, Reaver's Bargain + one of the others altogether.  In fact, those 2 + Leechcurse is nice for a while.  
+		Note that to get the full benefit from Reaver's Bargain, mobs need to be hitting you for at least 25K damage.
+
+TODO
+	Spell burn
+	/alt activate 1450 (first spire)
+	/alt activate 747 (visage of decay)
+	/alt activate 2034 (gift of the quick spear)
+	/pause 3, /useitem Flowing Etheric Soulrender Breastplate
+	/alt activate 746 (reinforced malaise)
+	For more damage, you can run Glyph of Destruction too /alt activate 7019
+
+	It's useful to use the spell burn during Reaver's Bargain (or after it), as you can keep your mana up a bit better when your Bite of Chaos AA is boosted by it (be sure to be hitting that!).  
+	You also want to be using Thought Leech during the spell burn to increase the chance of it getting a high crit.  
+	A Thought Leech crit can fix most of the mana/endurance penalty that you take from using Reaver's Bargain.
+	Activate Unholy Aura.
+
+	Melee burn
+	/pause 8, /useitem Innoruuk's Dark Blessing (SK epic)
+	/pause 2, /alt activate 9403 (Visage of Death)
+	/alt activate 742 (Tyvl`s Resolve)
+	/pause 2, /disc claret blade rk. iii (you may need to change the rank to i or ii depending on your version of this disc)
+
+	Impenitent Influence (Pet DPS boost), Leechcurse (Increased accuracy).  The gains to accuracy from the SK epic 2.0 & Leechcurse are more apparent when Auspice isn't running.
+**|
 Sub shd_main
 
 	/if (!${Me.XTarget}) /call shd_self_buffs
@@ -47,17 +93,87 @@ Sub shd_main
 		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
 			/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
 		}
-
-		/if (${validate_cast[FALSE, alt, "Vicious Bite of Chaos", ${Target.ID}]}) {
-			/call core_cast2 "Vicious Bite of Chaos" alt ${Target.ID} FALSE
-		}
-
-		/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
-			/call core_cast2 "Visage of Death" alt 0 FALSE
-		}
-
+		/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) /call spellburn
+		/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) /call meleeburn
 		/call shd_mana_check
 	}
+/return
+
+
+sub spellburn
+
+	/if (${validate_cast[FALSE, alt, "Visage of Decay", ${Me.ID}]}) {
+		/call core_cast2 "Visage of Death" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) {
+		/call core_cast2 "Spire of the Reavers" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Gift of the Quick Spear", ${Me.ID}]}) {
+		/call core_cast2 "Gift of the Quick Spear" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Reinforced Malaise", ${Me.ID}]}) {
+		/call core_cast2 "Reinforced Malaise" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/delay 1s !${Me.ActiveDisc.ID}
+				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
+			}
+		} else {
+			/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
+		}
+	}
+
+	/if (${validate_cast[FALSE, alt, "Reaver's Bargain", ${Me.ID}]}) {
+		/call core_cast2 "Reaver's Bargain" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Vicious Bite of Chaos", ${Target.ID}]}) {
+		/call core_cast2 "Vicious Bite of Chaos" alt ${Target.ID} FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Thought Leech", ${Target.ID}]}) {
+		/call core_cast2 "Thought Leech" alt 0 FALSE
+	}
+
+/return
+
+sub meleeburn
+
+	/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
+		/call core_cast2 "Visage of Death" alt 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/delay 1s !${Me.ActiveDisc.ID}
+				/call core_cast2 "${LeechcurseID}" disc 0 FALSE
+			}
+		} else {
+			/call core_cast2 "${LeechcurseID}" disc 0 FALSE
+		}
+	}
+
+	/if (${validate_cast[FALSE, disc, "${ImpenitentInfluence}", ${Target.ID}]}) {
+		/call core_cast2 "${ImpenitentInfluence}" disc 0 FALSE
+	}
+
+	/if (${validate_cast[FALSE, alt, "Tyvl`s Resolve", ${Target.ID}]}) {
+		/call core_cast2 "Tyvl`s Resolve" alt ${Target.ID} FALSE
+	}
+	
+	/if (${validate_cast[FALSE, disc, "${ClaretBlade}", ${Target.ID}]}) {
+		/call core_cast2 "${ClaretBlade}" disc 0 FALSE
+	}
+
 /return
 
 Sub shd_rotation(int _tmpID)
@@ -172,7 +288,7 @@ Sub shd_rotation(int _tmpID)
 			}
 		}
 
-		/if (${Me.PctHPs} < 55) {
+		/if (${Me.PctHPs} < 60) {
 			/if (${validate_cast[FALSE, spell, "${DichotomicFang}", ${_tmpID}]}) {
 				/call core_cast2 "${DichotomicFang}" spell ${_tmpID} FALSE
 			}
@@ -449,10 +565,6 @@ Sub shd_combat_buffs(int _tmpID)
 	/if (${validate_cast[FALSE, alt, "Scourge Skin", ${Me.ID}]}) {
 		/call core_cast2 "Scourge Skin" alt 0 FALSE
 	}
-	
-	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) {
-		/call core_cast2 "Spire of the Reavers" alt 0 FALSE
-	}
 
 /return
 |----------------------------------------------------------------------------
@@ -492,29 +604,9 @@ Sub shd_disc
 		}
 	}
 
-	/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
-				/stopdisc
-				/delay 1s !${Me.ActiveDisc.ID}
-				/call core_cast2 "${LeechcurseID}" disc 0 FALSE
-			}
-		} else {
-			/call core_cast2 "${LeechcurseID}" disc 0 FALSE
-		}
-	}
+	
 
-	/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
-				/stopdisc
-				/delay 1s !${Me.ActiveDisc.ID}
-				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
-			}
-		} else {
-			/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
-		}
-	}
+	
 	
 /return
 

@@ -25,6 +25,10 @@ Sub shd_setup
 
 	/declare AllianceSpell			string	outer	NULL
 	/declare AllianceSpellRankCheck string 	outer 	NULL
+
+	/declare ClaretBlade string	outer	NULL
+	/declare ImpenitentInfluence string	outer	NULL
+	/declare PetSpell				string	outer	NULL
 |-Config Options
 	/declare ChestItemName string outer "${Me.Inventory[17].Name}"
 
@@ -142,6 +146,36 @@ Sub shd_abilities
 	} else /if (${Me.Level}>=${Spell[Dichotomic Fang].Level} && ${Me.CombatAbility[${Spell[Dichotomic Fang].RankName}]}) {
 		/varset DichotomicFang ${Spell[Dichotomic Fang].RankName}
 	}
+
+	/if (${Me.Level}>=${Spell[Minion of Drendar].Level} && ${Me.Book[${Spell[Minion of Drendar].RankName}]}) {
+		/varset PetSpell ${Spell[Minion of Drendar].RankName}
+	} else /if (${Me.Level}>=${Spell[Minion of T'Vem].Level} && ${Me.Book[${Spell[Minion of T'Vem].RankName}]}) {
+		/varset PetSpell ${Spell[Minion of T'Vem].RankName}
+	} else /if (${Me.Level}>=${Spell[Minion of Vizat].Level} && ${Me.Book[${Spell[Minion of Vizat].RankName}]}) {
+		/varset PetSpell ${Spell[Minion of Vizat].RankName}
+	} else /if (${Me.Level}>=${Spell[Minion of Grelleth].Level} && ${Me.Book[${Spell[Minion of Grelleth].RankName}]}) {
+		/varset PetSpell ${Spell[Minion of Grelleth].RankName}
+	} else /if (${Me.Level}>=${Spell[Minion of Sholoth].Level} && ${Me.Book[${Spell[Minion of Sholoth].RankName}]}) {
+		/varset PetSpell ${Spell[Minion of Sholoth].RankName}
+	} else /if (${Me.Level}>=${Spell[Minion of Fear].Level} && ${Me.Book[${Spell[Minion of Fear].RankName}]}) {
+		/varset PetSpell ${Spell[Minion of Fear].RankName}
+	} else /if (${Me.Level}>=${Spell[Minion of Sebilis].Level} && ${Me.Book[${Spell[Minion of Sebilis].RankName}]}) {
+		/varset PetSpell ${Spell[Minion of Sebilis].RankName}
+	} else /if (${Me.Level}>=${Spell[Maladroit Minion].Level} && ${Me.Book[${Spell[Maladroit Minion].RankName}]}) {
+		/varset PetSpell ${Spell[Maladroit Minion].RankName}
+	} else /if (${Me.Level}>=${Spell[Shambling Minion].Level} && ${Me.Book[${Spell[Shambling Minion].RankName}]}) {
+		/varset PetSpell ${Spell[Shambling Minion].RankName}
+	} else /if (${Me.Level}>=${Spell[Son of Decay].Level} && ${Me.Book[${Spell[Son of Decay].RankName}]}) {
+		/varset PetSpell ${Spell[Son of Decay].RankName}
+	} else /if (${Me.Level}>=${Spell[Cackling Bones].Level} && ${Me.Book[${Spell[Cackling Bones].RankName}]}) {
+		/varset PetSpell ${Spell[Cackling Bones].RankName}
+	} else /if (${Me.Level}>=${Spell[Malignant Dead].Level} && ${Me.Book[${Spell[Malignant Dead].RankName}]}) {
+		/varset PetSpell ${Spell[Malignant Dead].RankName}
+	} else /if (${Me.Level}>=${Spell[Restless Bones].Level} && ${Me.Book[${Spell[Restless Bones].RankName}]}) {
+		/varset PetSpell ${Spell[Restless Bones].RankName}
+	}
+
+	
 
 	| Power
 	/if (${Me.Level}>=${Spell[Protest for Power].Level} && ${Me.Book[${Spell[Protest for Power].RankName}]}) {
@@ -492,13 +526,15 @@ Sub shd_abilities
 	} else /if (${Me.Level}>=${Spell[Grim Aura].RankName} && ${Me.Book[${Spell[Grim Aura].RankName}]}) {
 		/varset Cloak ${Spell[Grim Aura].RankName}
 	}
-
+	
 	| Stance
-	/if (${Me.Level}>=107 && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Stormwall Stance].RankName} && ${Me.Book[${Spell[Stormwall Stance].RankName}]}) {
+		/varset Stance ${Spell[Stormwall Stance].RankName}
+	} else /if (${Me.Level}>=${Spell[Staunch Stance].RankName} && ${Me.Book[${Spell[Staunch Stance].RankName}]}) {
+		/varset Stance ${Spell[Staunch Stance].RankName}
+	} else /if (${Me.Level}>=${Spell[Defiant Stance].RankName} && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
 		/varset Stance ${Spell[Defiant Stance].RankName}
-	} else /if (${Me.Level}>=102 && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
-		/varset Stance ${Spell[Defiant Stance].RankName}
-	} else /if (${Me.Level}>=84 && ${Me.Book[${Spell[Steely Stance].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Steely Stance].RankName} && ${Me.Book[${Spell[Steely Stance].RankName}]}) {
 		/varset Stance ${Spell[Steely Stance].RankName}
 	}
 
@@ -587,6 +623,26 @@ Sub shd_abilities
 	/if (${Me.Level}>=${Spell[Withstand].Level} && ${Me.CombatAbility[${Spell[Withstand].RankName}]}) {
 		/varset Withstand ${Spell[Withstand].RankName}
 		/varset WithstandID ${Spell[Withstand].ID}
+	}
+
+	/if (${Me.Level}>=${Spell[Cerise Blade].Level} && ${Me.CombatAbility[${Spell[Cerise Blade].RankName}]}) {
+		/varset ClaretBlade ${Spell[Cerise Blade].RankName}
+	} else /if (${Me.Level}>=${Spell[Claret Blade].Level} && ${Me.CombatAbility[${Spell[Claret Blade].RankName}]}) {
+		/varset ClaretBlade ${Spell[Claret Blade].RankName}
+	} else /if (${Me.Level}>=${Spell[Carmine Blade].Level} && ${Me.CombatAbility[${Spell[Carmine Blade].RankName}]}) {
+		/varset ClaretBlade ${Spell[Carmine Blade].RankName}
+	} else /if (${Me.Level}>=${Spell[Scarlet Blade].Level} && ${Me.CombatAbility[${Spell[Scarlet Blade].RankName}]}) {
+		/varset ClaretBlade ${Spell[Scarlet Blade].RankName}
+	}
+
+	/if (${Me.Level}>=${Spell[Impenitent Influence].Level} && ${Me.CombatAbility[${Spell[Impenitent Influence].RankName}]}) {
+		/varset ImpenitentInfluence ${Spell[Impenitent Influence].RankName}
+	} else /if (${Me.Level}>=${Spell[Impudent Influence].Level} && ${Me.CombatAbility[${Spell[Impudent Influence].RankName}]}) {
+		/varset ImpenitentInfluence ${Spell[Impudent Influence].RankName}
+	} else /if (${Me.Level}>=${Spell[Impudent Influence].Level} && ${Me.CombatAbility[${Spell[Impudent Influence].RankName}]}) {
+		/varset ImpenitentInfluence ${Spell[Impudent Influence].RankName}
+	} else /if (${Me.Level}>=${Spell[Insolent Influence].Level} && ${Me.CombatAbility[${Spell[Insolent Influence].RankName}]}) {
+		/varset ImpenitentInfluence ${Spell[Insolent Influence].RankName}
 	}
 
 	/if (${Me.AltAbilityReady[Hate's Attraction]}) {
