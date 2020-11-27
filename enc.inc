@@ -48,9 +48,6 @@ Sub enc_main
 
 	/while (${Me.XTarget} && ${Mode} == 3) {
 
-		| If we have been knocked back then run back to camp
-		/call move_to_camp
-
 		| Have we assisted MA?
 		/call get_target
 
@@ -60,9 +57,12 @@ Sub enc_main
 		}
 
 		| If target is close enough then dicho
-		/if (${Navigation.PathLength[id ${Target.ID}]} <= 200) {
+		/if (${Navigation.PathLength[id ${Target.ID}]} <= 150) {
 			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 		}
+
+		| Do we have a valid target?
+		/if (!${validate_combat[${Target.ID}]}) /continue
 
 		| Before debuffing and nuking check if we have to mezz
 		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
@@ -87,9 +87,6 @@ Sub enc_main
 			}
 		}
 
-		| Do we have a valid target?
-		/if (!${validate_combat[${Target.ID}]}) /continue
-
 		| If there is a named or there are too many mobs then start burning
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call enc_burn_routine
 
@@ -113,36 +110,48 @@ Sub enc_main
 			}
 		}
 
-		| If adds verify that they are mezzed
-		/if (${Me.XTarget} > 1) /call mezz_xtarget "${AEMezSpell}" "${MezSpell}"
-
-		| If adds verify that they are debuffed
-		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
-
-		|**
-			Dicho -> ITC +IoG -> Robe Click -> Chromatic Haze -> Mindslash
-			(Dicho on Cooldown) -> Mindslash -> Mindsunder -> Strangulate
-		**|
 		/call get_target
-		/call pet_attack ${Target.ID}
-		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
-		/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
-		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
-		/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${Target.ID}]}) /call core_cast2 "${MindNukeSub}" spell ${Target.ID} FALSE
-		/if (${validate_cast[FALSE, spell, "${Drown}", ${Target.ID}]}) /call core_cast2 "${Drown}" spell ${Target.ID} FALSE
+		/call enc_rotation
+		
+		| If we have been knocked back then run back to camp
+		/call move_to_camp
 
 		| Check mana even though we are in combat
 		/call enc_check_mana
 		/call check_state
 	}
-|	/call CheckMana
-|	/if (${UseModRods}) /call ClickModRoD
-|	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	/doevents
 	/if (${Target.ID}) {
 		/target clear
 		/delay 1s
 	}
+/return
+
+Sub enc_rotation(int _tmpID)
+	|**
+		Dicho -> ITC +IoG -> Robe Click -> Chromatic Haze -> Mindslash
+		(Dicho on Cooldown) -> Mindslash -> Mindsunder -> Strangulate
+	**|
+	/call pet_attack ${_tmpID}
+
+	/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${_tmpID}]}) {
+		/call core_cast2 "${DichoSpell}" spell ${_tmpID} FALSE
+		/return
+	}
+	/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${_tmpID}]}) {
+		/call core_cast2 "${MindNukeMain}" spell ${_tmpID} FALSE
+		/return
+	}
+	/if (${validate_cast[FALSE, spell, "${MindNukeSub}", ${_tmpID}]}) {
+		/call core_cast2 "${MindNukeSub}" spell ${_tmpID} FALSE
+		/return
+	}
+
+	/if (${validate_cast[FALSE, spell, "${Drown}", ${_tmpID}]}) {
+		/call core_cast2 "${Drown}" spell ${_tmpID} FALSE
+		/return
+	}
+
 /return
 
 Sub enc_burn_routine

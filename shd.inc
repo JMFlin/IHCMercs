@@ -89,7 +89,6 @@ Sub shd_main
 			}
 		}
 
-		
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) /call spellburn
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) /call meleeburn
 		/call shd_mana_check
@@ -231,6 +230,11 @@ Sub shd_rotation(int _tmpID)
 	/varset _notAggroTarget ${Macro.Return}
 	/if (${_notAggroTarget} || ${Me.SecondaryPctAggro} >= 40) {
 		/if (!${_notAggroTarget}) /varset _notAggroTarget ${_tmpID}
+		
+		/if (${Me.AbilityReady[Taunt]} && ${Spawn[id ${_notAggroTarget}].Distance} <= 18 && ${Me.TargetOfTarget.Name.NotEqual[${Me.DisplayName}]}) {
+			/doability Taunt
+		}
+
 		/if (!${Target.Buff[${Power}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Power}", ${_notAggroTarget}]}) {
 				/call core_cast2 "${Power}" spell ${_tmpID} FALSE

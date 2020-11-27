@@ -17,15 +17,8 @@ Sub shm_main
 	/if (!${doNotBuff} && !${timeForBuffs}) /call shm_group_buffs
 	/if (!${Me.XTarget}) /call check_for_corpse FALSE
 
-	/if (${Me.PctHPs} >= 40 && ${Me.PctMana} < 70) {
-		/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
-			/call core_cast2 "Cannibalization" alt 0 FALSE
-		}
-	}
-
-	/call shm_heal_spam
-	/call shm_group_heals
-	/call shm_mana_check
+	/call shm_rotation
+	/if (${Me.PctMana} < 80) /call shm_mana_check
 
 	/while (${Me.XTarget} && ${Mode} == 3) {
 
@@ -45,38 +38,131 @@ Sub shm_main
 			}
 		}
 
-		/call shm_heal_spam
-		/call shm_group_heals
-
 		/if (!${validate_combat[${Target.ID}]}) /continue
 
-		/call pet_attack ${Target.ID}
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call shm_burn_routine
-		/call shm_combat_spam
-		/call shm_heal_spam
-		/call shm_group_heals
-		
+
+		/call pet_attack ${Target.ID}
+		/call shm_rotation
+
 		/if (${Me.XTarget} > 1) /call shm_debuff_xtarget
 
-		/if (${check_hurt[FALSE, group, 80]} < 1) {
-			/call get_target
-			/if (${Target.Named}) {
-				/if (!${Target.Buff[${ChaoticPoisonDoT}].ID} && ${Target.Type.Equal[NPC]}) {		
-					/if (${validate_cast[FALSE, spell, "${ChaoticPoisonDoT}", ${Target.ID}]}) {
-						/call core_cast2 "${ChaoticPoisonDoT}" spell ${Target.ID} FALSE
-					}
+		/if (${Me.PctMana} < 80) /call shm_mana_check
+		/call move_to_camp
+		/call check_state
+	}
+
+/return
+
+
+sub shm_rotation
+	/declare _worstHurtId int local 0
+	/declare _hurtCount int local 0
+
+	/call check_hurt FALSE group 45 1
+	/varset _hurtCount ${Macro.Return}
+
+	/if (${_hurtCount}) {
+		|** EMERGENCY HEALS **|
+
+		/if (!${Me.Buff[Ancestral Aid].ID}) {		
+			/if (${validate_cast[FALSE, alt, "Union of Spirits", ${worstHurtId}]}) {
+				/call core_cast2 "Union of Spirits" alt ${worstHurtId} FALSE
+				/return
+			}
+		}
+
+		/if (${validate_cast[FALSE, spell, "${InterventionHeal}", ${Me.ID}]}) {
+			/call core_cast2 "${InterventionHeal}" spell ${Me.ID} FALSE
+		} else {
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]}) {
+				/call core_cast2 "Forceful Rejuvenation" alt 0 FALSE
+				/call core_cast2 "${InterventionHeal}" spell ${Me.ID} FALSE
+			}
+		}
+	}
+
+	/call check_hurt FALSE group 70 3
+	/varset _hurtCount ${Macro.Return}
+	
+	/if (${_hurtCount}) {
+		|** GROUP HEALS **|
+		|**
+		/call get_target
+		/if (${validate_cast[FALSE, spell, "${TwinHealNuke}", ${Target.ID}]}) {
+			/call core_cast2 "${TwinHealNuke}" spell ${Group.MainTank.ID} FALSE
+		}
+		**|
+		/if (${validate_cast[FALSE, spell, "${AESpiritualHeal}", ${Group.MainTank.ID}]}) {
+			/call core_cast2 "${TwinHealNuke}" spell ${Group.MainTank.ID} FALSE
+			/call core_cast2 "${AESpiritualHeal}" spell ${Group.MainTank.ID} FALSE
+			/return
+		}
+		/if (${validate_cast[FALSE, spell, "${RecourseHeal}", ${Me.ID}]}) {
+			/call core_cast2 "${RecourseHeal}" spell ${Me.ID} FALSE
+			/return
+		}
+	}
+
+	/call get_heal_target 80
+	/varset _worstHurtId ${Macro.Return}
+	/if (${_worstHurtId}) {
+		|** SINGLE HEALS **|
+		/if (${validate_cast[FALSE, spell, "${RecklessHeal1}", ${worstHurtId}]}) {
+			/call core_cast2 "${RecklessHeal1}" spell ${worstHurtId} FALSE
+			/return
+		}
+		
+		/if (${validate_cast[FALSE, spell, "${RecklessHeal2}", ${worstHurtId}]}) {
+			/call core_cast2 "${RecklessHeal2}" spell ${worstHurtId} FALSE
+			/return
+		}
+
+		/if (${validate_cast[FALSE, spell, "${RecklessHeal3}", ${worstHurtId}]}) {
+			/call core_cast2 "${RecklessHeal3}" spell ${worstHurtId} FALSE
+			/return
+		}
+
+	} else /if (${Me.XTarget}) {
+		/if (${Me.PctMana} < ${hybridManaLimit}) /return
+		/call get_target
+		/if (!${Target.Type.Equal[NPC]}) /call get_target
+		/if (!${Target.Type.Equal[NPC]}) /return
+		/if (!${validate_combat[${Target.ID}]}) /return
+
+		/if (!${FindItem["Blessed Spiritstaff of the Heyokah"].TimerReady} && ${Target.Distance} <= 75) {
+			/if (${validate_cast[FALSE, item, "Blessed Spiritstaff of the Heyokah", ${Me.ID}]}) {
+				/call core_cast2 "Blessed Spiritstaff of the Heyokah" item 0 FALSE
+				/return
+			}
+		}
+
+		/if (${Target.Distance} <= 75) {
+			/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Group.MainTank.ID}]}) {
+				/call core_cast2 "${DichoSpell}" spell ${Group.MainTank.ID} FALSE
+				/return
+			}
+		}
+
+		/if (${validate_cast[FALSE, spell, "Spirit Guardian", ${Group.MainTank.ID}]}) {
+			/call core_cast2 "Spirit Guardian" spell ${Group.MainTank.ID} FALSE
+			/return
+		}
+
+		/if (${Target.Named}) {
+			/if (!${Target.Buff[${ChaoticPoisonDoT}].ID} && ${Target.Type.Equal[NPC]}) {		
+				/if (${validate_cast[FALSE, spell, "${ChaoticPoisonDoT}", ${Target.ID}]}) {
+					/call core_cast2 "${ChaoticPoisonDoT}" spell ${Target.ID} FALSE
+					/return
 				}
 			}
 		}
+	}
 
-		/if (${Me.PctHPs} >= 50 && ${Me.PctMana} < 30) {
-			/if (${validate_cast[FALSE, alt, "Cannibalization", ${Me.ID}]}) {
-				/call core_cast2 "Cannibalization" alt 0 FALSE
-			}
+	/if (!${Me.Song[${GroupRenewalHoT}].ID} && !${doNotBuff}) {
+		/if (${validate_cast[FALSE, spell, "${GroupRenewalHoT}", ${Me.ID}]}) {
+			/call core_cast2 "${GroupRenewalHoT}" spell ${Me.ID} FALSE
 		}
-		/call shm_mana_check
-		/call move_to_camp
-		/call check_state
 	}
 
 /return

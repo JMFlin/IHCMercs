@@ -20,7 +20,7 @@ Sub clr_main
 	/if (!${doNotBuff} && !${timeForBuffs}) /call clr_group_buffs
 	/if (!${Me.XTarget}) /call clr_self_buffs
 	/if (!${doNotBuff}) /call clr_combat_tank_buffs
-	/call clr_mana_check
+	/if (${Me.PctMana} < 80) /call clr_mana_check
 	/call clr_heal_spam
 
 	|!${Me.Song[${GroupElixirSpell}].ID}
@@ -74,7 +74,7 @@ Sub clr_main
 			}
 		}
 		/call clr_heal_spam_3
-		/call clr_mana_check
+		/if (${Me.PctMana} < 80) /call clr_mana_check
 		/call move_to_camp
 		/call check_state
 		|**

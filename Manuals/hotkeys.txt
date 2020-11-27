@@ -1,20 +1,10 @@
 /mqchat reset
 
-Invite
-/invite Keunayin 
-/invite Taeldayr 
-/invite Neunayin 
-/invite Uilaelr 
-/invite Utenaelr 
 
 Start
 /dgga /endmacro
 /dgga /addicted
 
-Set Roles
-/grouproles set Keunayin 1
-/grouproles set Neunayin 2
-/grouproles set Keunayin 3
 
 Travel
 /dgga /varset Mode 0
@@ -38,7 +28,6 @@ Camp Desktop
 /dgga /camp desktop
 
 Corpse Drag
-/dgga /consent Keunayin 
 /corpsedrag
 
 Corpse Drop

@@ -507,7 +507,7 @@ Sub afk_pull
 		| Don't let the area scan radius be higher than the one specified by user
 		/if (${_radiusXY} > ${pullRadiusXY}) {
 			/varset _radiusXY ${pullRadiusXY}
-		} else /if (${_radiusXY} == ${pullRadiusXY} && ${Int[${_mobsInRadius}]}==0) {
+		} else /if (${_radiusXY}==${pullRadiusXY} && ${Int[${_mobsInRadius}]}==0) {
 			DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
 			/return FALSE
 		} else /if (${Int[${_mobsInRadius}]}==0) {
@@ -664,7 +664,7 @@ Sub afk_pull
 		/if (${Navigation.Active}) {
 			/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 		}
-		/delay 3
+		/delay 5
 	}
 	
 	| If pull worked then face target, cast combat buffs and pull target towards if it is too far away
@@ -2923,7 +2923,8 @@ Sub ignore_mobs_to_pull
 Sub mezz_xtarget(string _mezAE, string _mezSingle)
 	/declare _count				 	int local 1
 	/declare _numberOfSpawn 	 	int local 0
-	/declare _mezAERange		int local 0
+	/declare _mezAERange			int local 0
+	/declare _tmpID 				int local 0
 
 	| Is there something to mez or debuff?
 	/if (!(${Me.Gem[${_mezAE}]} || ${Me.Gem[${_mezSingle}]})) /return
@@ -3011,14 +3012,15 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 			/delay 2s !${Stick.Active}
 			/attack off
 			| If not then target it
-			/target id ${Me.XTarget[${_count}].ID}
-			/delay 2s ${Me.XTarget[${_count}].ID} == ${Target.ID}
+			/varset _tmpID ${Me.XTarget[${_count}].ID}
+			/target id ${_tmpID}
+			/delay 2s ${_tmpID} == ${Target.ID}
 
-			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.Name} - ${Target.ID}
-			/delay 1s
+			/if (${verbose${Me.Class.ShortName}}) /docommand /dgt MY Target is \ar${Target.Name} - ${_tmpID}
+			/delay 5
 
-			/if (${Spawn[id ${Target.ID}].Body.Name.Equal[Giant]}) {
-				/if (!${immuneSet.Add[${Target.ID}]}) {
+			/if (${Spawn[id ${_tmpID}].Body.Name.Equal[Giant]}) {
+				/if (!${immuneSet.Add[${_tmpID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt \aw Set Add of ${_tmpID} failed.
 				}
 				/continue
@@ -3028,18 +3030,24 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 				/if (${validate_cast[FALSE, alt, "Noctambulate", ${Me.ID}]}) {
 					/call core_cast2 "Noctambulate" alt 0 FALSE
 				}
-				| If target is not tashed then tash
-				/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
-					/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
+				
+				/if (${_tmpID} == ${Target.ID}) {
+
+					| If target is not tashed then tash
+					/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
+						/if (${validate_cast[FALSE, spell, "${TashSpell}", ${_tmpID}]}) /call core_cast2 "${TashSpell}" spell ${_tmpID} FALSE
+					}
 				}
 
-				| If target is not mezzed then mez
-				/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID}) {
-					
-					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
-					/call core_cast2 "${_mezSingle}" spell ${Target.ID} FALSE
-					/call check_cast_events "${_mezSingle}" CAST_IMMUNE ${Target.ID}
-					
+				/if (${_tmpID} == ${Target.ID}) {
+
+					| If target is not mezzed then mez
+					/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID}) {
+						/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
+						/call core_cast2 "${_mezSingle}" spell ${_tmpID} FALSE
+						/call check_cast_events "${_mezSingle}" CAST_IMMUNE ${_tmpID}
+						
+					}
 				}
 			} else /if (${Select[${Me.Class.ShortName},BRD]}) {
 
@@ -3047,18 +3055,18 @@ Sub mezz_xtarget(string _mezAE, string _mezSingle)
 				
 				/call pulse_stop pulse_line_start
 				/delay 1s
-				| If target is not mezzed then mez
-				/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && ${Stick.Status.Equal[OFF]}) {
-					
-					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
-					/call core_cast2 "${_mezSingle}" pulse ${Target.ID} FALSE
-					/call check_cast_events "${_mezSingle}" CAST_IMMUNE ${Target.ID}
-					
+				/if (${_tmpID} == ${Target.ID}) {
+
+					| If target is not mezzed then mez
+					/if (!${Target.Mezzed.ID} && !${Target.Buff[${_mezSingle}].ID} && ${Stick.Status.Equal[OFF]}) {
+						/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Mezzing \ar${Target.Name} \ax with =>> \ag${_mezSingle} \ax <<=
+						/call core_cast2 "${_mezSingle}" pulse ${_tmpID} FALSE
+						/call check_cast_events "${_mezSingle}" CAST_IMMUNE ${_tmpID}
+					}
 				}
-				/call get_target
 			}
 
-			/delay 1s
+			/delay 3
 
 		/next _count
 		/if (${Defined[MATargetID]}) /deletevar MATargetID
