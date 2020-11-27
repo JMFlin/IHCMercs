@@ -191,14 +191,14 @@ Sub shd_rotation(int _tmpID)
 	/varset _notAggroCounter ${Macro.Return}
 	/if (${_notAggroCounter} > 1) {
 		
-		/if (${SpawnCount[loc ${Spawn[id ${_tmpID}].X} ${Spawn[id ${_tmpID}].Y} radius 50 zradius 50 npc targetable noalert 1]} > 1) {
+		/if (${SpawnCount[loc ${Spawn[id ${_tmpID}].X} ${Spawn[id ${_tmpID}].Y} radius 50 zradius 50 npc targetable noalert 1]} > 1 && ${Me.XTarget} > 1) {
 			/if (${validate_cast[FALSE, alt, "Explosion of Spite", ${_tmpID}]}) {
 				/call core_cast2 "Explosion of Spite" alt ${_tmpID} FALSE
 				/varset _aoeCasted TRUE
 			}
 		}
 		/if (!${_aoeCasted}) {
-			/if (${SpawnCount[NPC radius 50 zradius 50]} > 1) {
+			/if (${SpawnCount[NPC radius 50 zradius 50]} > 1 && ${Me.XTarget} > 1) {
 				/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${_tmpID}]}) {
 					/call core_cast2 "Explosion of Hatred" alt ${_tmpID} FALSE
 					/varset _aoeCasted TRUE
@@ -207,7 +207,7 @@ Sub shd_rotation(int _tmpID)
 		}
 
 		/if (!${_aoeCasted}) {
-			/if (${SpawnCount[NPC radius 40 zradius 40]} > 2) {
+			/if (${SpawnCount[NPC radius 40 zradius 40]} > 2 && ${Me.XTarget} > 1) {
 				/if (${validate_cast[FALSE, spell, "${Bargain}", ${_tmpID}]}) {
 					/call core_cast2 "${Bargain}" spell ${_tmpID} FALSE
 					/varset _aoeCasted TRUE
@@ -216,7 +216,7 @@ Sub shd_rotation(int _tmpID)
 		}
 
 		/if (!${_aoeCasted}) {
-			/if (${SpawnCount[NPC radius 50 zradius 30]} > 1) {
+			/if (${SpawnCount[NPC radius 50 zradius 30]} > 1 && ${Me.XTarget} > 1) {
 				/if (${validate_cast[FALSE, spell, "${Denial}", ${_tmpID}]}) {
 					/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Using AoE aggro with =>> \ag ${Denial} \ax <<=
 					/call core_cast2 "${Denial}" spell ${_tmpID} FALSE
