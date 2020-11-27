@@ -134,6 +134,7 @@ Sub brd_main
 		}
 		/call brd_mana_check
 		/call move_to_camp
+		/call check_state
 	}
 
 |	/if ((${Me.XTarget[1].ID} || ${KillTargetID}) && ${Target.Distance}<${assistRange} && (!${Target.Mezzed.ID} || ${AllowMezBreak})) /call AANDisc

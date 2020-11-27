@@ -141,6 +141,7 @@ Sub dru_main
 		/if (${Me.PctMana} < 80) /call dru_mana_check
 		/call move_to_camp
 		/call pet_attack ${Target.ID}
+		/call check_state
 	}
 
 	/doevents

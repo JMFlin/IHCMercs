@@ -133,6 +133,7 @@ Sub enc_main
 
 		| Check mana even though we are in combat
 		/call enc_check_mana
+		/call check_state
 	}
 |	/call CheckMana
 |	/if (${UseModRods}) /call ClickModRoD

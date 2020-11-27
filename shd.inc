@@ -94,6 +94,7 @@ Sub shd_main
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) /call meleeburn
 		/call shd_mana_check
 		/call shd_combat_buffs ${Target.ID}
+		/call check_state
 	}
 /return
 

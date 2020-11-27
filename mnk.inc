@@ -12,6 +12,7 @@ Sub mnk_main
 		/call CombatdpsMash
 		/call Defense
 		/call DoNamed
+		/call check_state
 	}
 
 	/call mnk_self_buffs

@@ -149,6 +149,7 @@ Sub wiz_main
 		
 		/call wiz_manage_aggro
 		/call wiz_mana_check
+		/call check_state
 	}
 	
 |-	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0) /call BegForCure

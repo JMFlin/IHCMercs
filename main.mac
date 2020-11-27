@@ -16,7 +16,7 @@ spawn	SecondaryPctAggroPlayer	spawninfo for secondary aggro player
 #turbo 120
 #warning
 
-#define DEBUG /echo
+#define DEBUG /if (${verbose${Me.Class.ShortName}}) /echo
 
 #include IHCMercs\subs.inc
 #include IHCMercs\events.inc
@@ -85,38 +85,51 @@ Sub afk_radius_camping
 
 	/while (${Mode} == 3) {
 
-		|/delay 1s
-		|DEBUG CYCLE START
-
-		/doevents
-
+		| Close nag windows and get mercs up if specified
 		/if (!${Me.XTarget}) /call misc
+
+		| Create campfire
 		/if (!${Me.XTarget}) /call create_campfire FALSE FALSE
 
+		| Move back to set camp spot
 		/call move_to_camp
 		
-		/if (!${powerLevel}) {
-			/if (${validate_pull_start[FALSE]}) /call afk_pull
-		} else /if (${powerLevel}) {
-			/if (${Group.Puller.ID} == ${Me.ID}) {
+		/if (${Group.Puller.ID} == ${Me.ID}) {
+			/if (!${powerLevel}) {
+				| Am I ready?
+				/if (${validate_pull_start[FALSE]}) {
+					| Is my group ready?
+					/if (${puller_check_group_resources[FALSE]}) {
+						| Just do it
+						/call afk_pull
+					} else {
+						| Set timers if group isn't ready
+						/call set_timers
+					}
+				}
+			} else /if (${powerLevel}) {
 				/if (${npcRadiusCheck} != 1) /varset npcRadiusCheck 1
 				/if (${validate_chain_pull_start[FALSE]}) /call chain_pull
 			}
 		}
 
+		| Med, auras, clear sets etc.
 		/if (!${Me.XTarget}) /call check_state FALSE
 		
 		/if (${Balance}) /call balance_mob_hitpoints
 
+		| Call class main method
 		/if (!${Balance}) {
 			/if (!${powerLevel} || ${Group.Puller.ID} == ${Me.ID}) {
 				/call ${Me.Class.ShortName.Lower}_main
 			}
 		}
 
+		| Dummy mode for near by players and gms
 		/if (!${Me.XTarget}) /call dummy_mode
+		/doevents
 	}
-	/doevents
+	
 /return
 
 Sub set_mode
@@ -307,21 +320,6 @@ sub port_class_checker(bool _debug)
 
 /return 0
 
-
-sub vendor_items
-	/if (${Spawn[merchant radius 50].ID}) {
-		/nav target id ${${Spawn[merchant radius 50].ID}
-
-		/while (${Navigation.Active}) {
-			/delay 1s
-		}
-		 
-		/target ${Spawn[merchant radius 50]}
-		/autoloot sell
-		/delay 1m  ${Window[MerchantWnd].Open}
-	}
-/return
-
 sub validate_fellowship_creation(bool _debug)
 	/declare _fellowCount int local 0
 	/declare _count int local 0
@@ -420,8 +418,9 @@ Sub check_state(bool _debug)
 			/delay 1s
 		}
 	}
+	
 	| mod rod on cursor?
-	|/if (${Cursor.ID}) /call BagModRods
+	/if (${Cursor.ID}) /call BagModRods
 	
 	| have I been knocked down?
 	/if (${Me.State.Equal[FEIGN]}) /stand

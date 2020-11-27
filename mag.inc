@@ -130,6 +130,7 @@ Sub mag_main
 		}
 		/call mag_mana_check
 		/call move_to_camp
+		/call check_state
 	}
 	
 /return

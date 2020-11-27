@@ -76,6 +76,7 @@ Sub shm_main
 		}
 		/call shm_mana_check
 		/call move_to_camp
+		/call check_state
 	}
 
 /return

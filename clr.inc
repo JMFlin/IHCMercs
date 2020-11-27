@@ -76,6 +76,7 @@ Sub clr_main
 		/call clr_heal_spam_3
 		/call clr_mana_check
 		/call move_to_camp
+		/call check_state
 		|**
 		/call Gquery ${EverQuest.Server.Lower}_${Group.MainTank.Name.Lower} "Me.Song[${SingleElixirSpell}].ID" "elixirHeal" "int"
 		

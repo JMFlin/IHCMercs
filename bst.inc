@@ -160,6 +160,7 @@ Sub bst_main
 		/call bst_mana_check
 		/call bst_pet_hp_check
 		/call move_to_camp
+		/call check_state
 	}
 
 /return
