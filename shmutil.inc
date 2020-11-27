@@ -8,6 +8,8 @@ Sub shm_setup
 |-Spells
 	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 	/declare FocusSpell				string outer NULL
 	/declare SingleFocusSpell 		string outer NULL
 	/declare RegenSpell				string outer NULL

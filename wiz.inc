@@ -59,7 +59,7 @@ Sub wiz_main
 		
 		/if (${validate_cast[FALSE, spell, "${TwincastSpell}", ${Me.ID}]}) /call core_cast2 "${TwincastSpell}" spell 0 FALSE
 		
-		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call wiz_aa_and_disc
+		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call wiz_burn_routine
 
 		/if (${Me.Buff[${TwincastSpell}].ID}) {
 			|** 
@@ -169,7 +169,7 @@ sub wiz_mana_check
 	/if (${Me.PctMana} < 80) {
 		/if (${validate_cast[FALSE, item, "${ChestItemName}", ${Me.ID}]}) /call core_cast2 "${ChestItemName}" item 0 FALSE
 	}
-	/if (${Me.PctMana} < 70) {
+	/if (${Me.PctMana} < 70 && ${Me.XTarget}) {
 		/if (${validate_cast[FALSE, spell, "${GambitSpell}", ${Me.ID}]}) /call core_cast2 "${GambitSpell}" spell 0 FALSE
 		/return
 	}

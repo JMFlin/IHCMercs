@@ -11,6 +11,8 @@ Sub shd_setup
 	/declare endregen		string outer NULL
 	/declare Aura1			string outer NULL
 	/declare Aura2			string outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 
 	/declare IchorGuardDisc	string outer NULL
 	/declare IchorGuardID	int outer 0
@@ -49,6 +51,8 @@ Sub shd_setup
 	/declare Torrent		string outer NULL
 	/declare Disruption		string outer NULL
 	/declare PosseSpell		string outer Origin
+	/declare Spear 			string outer NULL
+	/declare Power 			string outer NULL
 
 
 	/declare Cloak 			string outer NULL
@@ -500,65 +504,75 @@ Sub shd_abilities
 	}
 
 	| Cloak
-	/if (${Me.Level}>=${Spell[Drape of Iceforged].RankName} && ${Me.Book[${Spell[Drape of Iceforged].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Drape of Iceforged].Level} && ${Me.Book[${Spell[Drape of Iceforged].RankName}]}) {
 		/varset Cloak ${Spell[Drape of Iceforged].RankName}
-	} else /if (${Me.Level}>=${Spell[Drape of Magmaforged].RankName} && ${Me.Book[${Spell[Drape of Magmaforged].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Drape of Magmaforged].Level} && ${Me.Book[${Spell[Drape of Magmaforged].RankName}]}) {
 		/varset Cloak ${Spell[Drape of Magmaforged].RankName}
-	} else /if (${Me.Level}>=${Spell[Drape of Wrathforged].RankName} && ${Me.Book[${Spell[Drape of Wrathforged].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Drape of Wrathforged].Level} && ${Me.Book[${Spell[Drape of Wrathforged].RankName}]}) {
 		/varset Cloak ${Spell[Drape of Wrathforged].RankName}
-	} else /if (${Me.Level}>=${Spell[Drape of the Fallen].RankName} && ${Me.Book[${Spell[Drape of the Fallen].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Drape of the Fallen].Level} && ${Me.Book[${Spell[Drape of the Fallen].RankName}]}) {
 		/varset Cloak ${Spell[Drape of the Fallen].RankName}
-	} else /if (${Me.Level}>=${Spell[Drape of the Sepulcher].RankName} && ${Me.Book[${Spell[Drape of the Sepulcher].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Drape of the Sepulcher].Level} && ${Me.Book[${Spell[Drape of the Sepulcher].RankName}]}) {
 		/varset Cloak ${Spell[Drape of the Sepulcher].RankName}
-	} else /if (${Me.Level}>=${Spell[Drape of Fear].RankName} && ${Me.Book[${Spell[Drape of Fear].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Drape of Fear].Level} && ${Me.Book[${Spell[Drape of Fear].RankName}]}) {
 		/varset Cloak ${Spell[Drape of Fear].RankName}
-	} else /if (${Me.Level}>=${Spell[Drape of Korafax].RankName} && ${Me.Book[${Spell[Drape of Korafax].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Drape of Korafax].Level} && ${Me.Book[${Spell[Drape of Korafax].RankName}]}) {
 		/varset Cloak ${Spell[Drape of Korafax].RankName}
-	} else /if (${Me.Level}>=${Spell[Drape of Corruption].RankName} && ${Me.Book[${Spell[Drape of Corruption].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Drape of Corruption].Level} && ${Me.Book[${Spell[Drape of Corruption].RankName}]}) {
 		/varset Cloak ${Spell[Drape of Corruption].RankName}
-	} else /if (${Me.Level}>=${Spell[Cloak of Corruption].RankName} && ${Me.Book[${Spell[Cloak of Corruption].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Cloak of Corruption].Level} && ${Me.Book[${Spell[Cloak of Corruption].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Corruption].RankName}
-	} else /if (${Me.Level}>=${Spell[Cloak of Discord].RankName} && ${Me.Book[${Spell[Cloak of Discord].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Cloak of Discord].Level} && ${Me.Book[${Spell[Cloak of Discord].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Discord].RankName}
-	} else /if (${Me.Level}>=${Spell[Cloak of Luclin].RankName} && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Cloak of Luclin].Level} && ${Me.Book[${Spell[Cloak of Luclin].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of Luclin].RankName}
-	} else /if (${Me.Level}>=${Spell[Cloak of the Akheva].RankName} && ${Me.Book[${Spell[Cloak of the Akheva].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Cloak of the Akheva].Level} && ${Me.Book[${Spell[Cloak of the Akheva].RankName}]}) {
 		/varset Cloak ${Spell[Cloak of the Akheva].RankName}
-	} else /if (${Me.Level}>=${Spell[Grim Aura].RankName} && ${Me.Book[${Spell[Grim Aura].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Grim Aura].Level} && ${Me.Book[${Spell[Grim Aura].RankName}]}) {
 		/varset Cloak ${Spell[Grim Aura].RankName}
 	}
 	
 	| Stance
-	/if (${Me.Level}>=${Spell[Stormwall Stance].RankName} && ${Me.Book[${Spell[Stormwall Stance].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Stormwall Stance].Level} && ${Me.Book[${Spell[Stormwall Stance].RankName}]}) {
 		/varset Stance ${Spell[Stormwall Stance].RankName}
-	} else /if (${Me.Level}>=${Spell[Staunch Stance].RankName} && ${Me.Book[${Spell[Staunch Stance].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Staunch Stance].Level} && ${Me.Book[${Spell[Staunch Stance].RankName}]}) {
 		/varset Stance ${Spell[Staunch Stance].RankName}
-	} else /if (${Me.Level}>=${Spell[Defiant Stance].RankName} && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Defiant Stance].Level} && ${Me.Book[${Spell[Defiant Stance].RankName}]}) {
 		/varset Stance ${Spell[Defiant Stance].RankName}
-	} else /if (${Me.Level}>=${Spell[Steely Stance].RankName} && ${Me.Book[${Spell[Steely Stance].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Steely Stance].Level} && ${Me.Book[${Spell[Steely Stance].RankName}]}) {
 		/varset Stance ${Spell[Steely Stance].RankName}
 	}
 
 	| Shrouds
-	/if (${Me.Level}>=${Spell[Shroud of the Plagueborne].Level} && ${Me.Book[${Spell[Shroud of the Plagueborne].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Shroud of the Restless].Level} && ${Me.Book[${Spell[Shroud of the Restless].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Restless].RankName}
+	} else /if (${Me.Level}>=${Spell[Shroud of the Krellnakor].Level} && ${Me.Book[${Spell[Shroud of the Krellnakor].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Krellnakor].RankName}
+	} else /if (${Me.Level}>=${Spell[Shroud of the Doomscale].Level} && ${Me.Book[${Spell[Shroud of the Doomscale].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Doomscale].RankName}
+	} else /if (${Me.Level}>=${Spell[Shroud of the Darksworn].Level} && ${Me.Book[${Spell[Shroud of the Darksworn].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Darksworn].RankName}
+	} else /if (${Me.Level}>=${Spell[Shroud of the Shadeborne].Level} && ${Me.Book[${Spell[Shroud of the Shadeborne].RankName}]}) {
+		/varset HPShroud ${Spell[Shroud of the Shadeborne].RankName}
+	} else /if (${Me.Level}>=${Spell[Shroud of the Plagueborne].Level} && ${Me.Book[${Spell[Shroud of the Plagueborne].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of the Plagueborne].RankName}
-	} else /if (${Me.Level}>=82 && ${Me.Book[${Spell[Shroud of the Blightborn].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Shroud of the Blightborn].Level} && ${Me.Book[${Spell[Shroud of the Blightborn].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of the Blightborn].RankName}
-	} else /if (${Me.Level}>=77 && ${Me.Book[${Spell[Shroud of the Gloomborn].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Shroud of the Gloomborn].Level} && ${Me.Book[${Spell[Shroud of the Gloomborn].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of the Gloomborn].RankName}
-	} else /if (${Me.Level}>=72 && ${Me.Book[${Spell[Shroud of the Nightborn].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Shroud of the Nightborn].Level} && ${Me.Book[${Spell[Shroud of the Nightborn].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of the Nightborn].RankName}
-	} else /if (${Me.Level}>=67 && ${Me.Book[${Spell[Shroud of Discord].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Shroud of Discord].Level} && ${Me.Book[${Spell[Shroud of Discord].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of Discord].RankName}
-	} else /if (${Me.Level}>=65 && ${Me.Book[${Spell[Black Shroud].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Black Shroud].Level} && ${Me.Book[${Spell[Black Shroud].RankName}]}) {
 		/varset HPShroud ${Spell[Black Shroud].RankName}
-	} else /if (${Me.Level}>63 && ${Me.Book[${Spell[Shroud of Chaos].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Shroud of Chaos].Level} && ${Me.Book[${Spell[Shroud of Chaos].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of Chaos].RankName}
-	} else /if (${Me.Level}>=55 && ${Me.Book[${Spell[Shroud of Death].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Shroud of Death].Level} && ${Me.Book[${Spell[Shroud of Death].RankName}]}) {
 		/varset HPShroud ${Spell[Shroud of Death].RankName}
-	} else /if (${Me.Level}>=37 && ${Me.Book[${Spell[Scream of Death].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Scream of Death].Level} && ${Me.Book[${Spell[Scream of Death].RankName}]}) {
 		/varset HPShroud ${Spell[Scream of Death].RankName}
-	} else /if (${Me.Level}>=22 && ${Me.Book[${Spell[Vampiric Embrace].RankName}]}) {
+	} else /if (${Me.Level}>=${Spell[Vampiric Embrace].Level} && ${Me.Book[${Spell[Vampiric Embrace].RankName}]}) {
 		/varset HPShroud ${Spell[Vampiric Embrace].RankName}
 	}
 
@@ -586,8 +600,27 @@ Sub shd_abilities
 		/varset SnareSpell ${Spell[Clinging Darkness].RankName}
 	}
 
+
 	| Discs
-	/if (${Me.Level}>=${Spell[Malarian Mantle].Level} && ${Me.CombatAbility[${Spell[Malarian Mantle].RankName}]}) {
+	/if (${Me.Level}>=${Spell[Restless Mantle].Level} && ${Me.CombatAbility[${Spell[Restless Mantle].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Restless Mantle].RankName}
+		/varset IchorGuardID ${Spell[Restless Mantle].ID}
+	} else /if (${Me.Level}>=${Spell[Krellnakor Mantle].Level} && ${Me.CombatAbility[${Spell[Krellnakor Mantle].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Krellnakor Mantle].RankName}
+		/varset IchorGuardID ${Spell[Krellnakor Mantle].ID}
+	} else /if (${Me.Level}>=${Spell[Doomscale Mantle].Level} && ${Me.CombatAbility[${Spell[Doomscale Mantle].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Doomscale Mantle].RankName}
+		/varset IchorGuardID ${Spell[Doomscale Mantle].ID}
+	} else /if (${Me.Level}>=${Spell[Bonebrood Mantle].Level} && ${Me.CombatAbility[${Spell[Bonebrood Mantle].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Bonebrood Mantle].RankName}
+		/varset IchorGuardID ${Spell[Bonebrood Mantle].ID}
+	} else /if (${Me.Level}>=${Spell[Recondite Mantle].Level} && ${Me.CombatAbility[${Spell[Recondite Mantle].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Recondite Mantle].RankName}
+		/varset IchorGuardID ${Spell[Recondite Mantle].ID}
+	} else /if (${Me.Level}>=${Spell[Gorgon Mantle].Level} && ${Me.CombatAbility[${Spell[Gorgon Mantle].RankName}]}) {
+		/varset IchorGuardDisc ${Spell[Gorgon Mantle].RankName}
+		/varset IchorGuardID ${Spell[Gorgon Mantle].ID}
+	} else /if (${Me.Level}>=${Spell[Malarian Mantle].Level} && ${Me.CombatAbility[${Spell[Malarian Mantle].RankName}]}) {
 		/varset IchorGuardDisc ${Spell[Malarian Mantle].RankName}
 		/varset IchorGuardID ${Spell[Malarian Mantle].ID}
 	} else /if (${Me.Level}>=${Spell[Umbral Carapace].Level} && ${Me.CombatAbility[${Spell[Umbral Carapace].RankName}]}) {
@@ -621,7 +654,20 @@ Sub shd_abilities
 		/varset LeechcurseID ${Spell[Leechcurse Discipline].ID}
 	}
 
-	/if (${Me.Level}>=${Spell[Withstand].Level} && ${Me.CombatAbility[${Spell[Withstand].RankName}]}) {
+
+	/if (${Me.Level}>=${Spell[Repel].Level} && ${Me.CombatAbility[${Spell[Repel].RankName}]}) {
+		/varset Withstand ${Spell[Repel].RankName}
+		/varset WithstandID ${Spell[Repel].ID}
+	} else /if (${Me.Level}>=${Spell[Reprove].Level} && ${Me.CombatAbility[${Spell[Reprove].RankName}]}) {
+		/varset Withstand ${Spell[Reprove].RankName}
+		/varset WithstandID ${Spell[Reprove].ID}
+	} else /if (${Me.Level}>=${Spell[Renounce].Level} && ${Me.CombatAbility[${Spell[Renounce].RankName}]}) {
+		/varset Withstand ${Spell[Renounce].RankName}
+		/varset WithstandID ${Spell[Renounce].ID}
+	} else /if (${Me.Level}>=${Spell[Defy].Level} && ${Me.CombatAbility[${Spell[Defy].RankName}]}) {
+		/varset Withstand ${Spell[Defy].RankName}
+		/varset WithstandID ${Spell[Defy].ID}
+	} else /if (${Me.Level}>=${Spell[Withstand].Level} && ${Me.CombatAbility[${Spell[Withstand].RankName}]}) {
 		/varset Withstand ${Spell[Withstand].RankName}
 		/varset WithstandID ${Spell[Withstand].ID}
 	}
@@ -645,6 +691,14 @@ Sub shd_abilities
 	} else /if (${Me.Level}>=${Spell[Insolent Influence].Level} && ${Me.CombatAbility[${Spell[Insolent Influence].RankName}]}) {
 		/varset ImpenitentInfluence ${Spell[Insolent Influence].RankName}
 	}
+
+	/if (${Me.Level}>=${Spell[Cursed Guardian Discipline].Level} && ${Me.CombatAbility[${Spell[Cursed Guardian Discipline].RankName}]}) {
+		/varset Guardian ${Spell[Cursed Guardian Discipline].RankName}
+	} else /if (${Me.Level}>=${Spell[Unholy Guardian Discipline].Level} && ${Me.CombatAbility[${Spell[Unholy Guardian Discipline].RankName}]}) {
+		/varset Guardian ${Spell[Unholy Guardian Discipline].RankName}
+	}
+
+	
 
 	/if (${Me.AltAbilityReady[Hate's Attraction]}) {
 		/varset PullTowards Hate's Attraction
@@ -686,6 +740,10 @@ Sub shd_abilities
 	}
 	/if (${Me.AltAbility[793].Name.Find[disabled]} && ${Me.AltAbilityReady[793]}) {
 		/alt act 793
+		/delay 5
+	}
+	/if (${Me.AltAbility[970].Name.Find[disabled]} && ${Me.AltAbilityReady[970]}) {
+		/alt act 970
 		/delay 5
 	}
 

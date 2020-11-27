@@ -9,13 +9,15 @@ Sub ber_setup
 	/declare endregen				string outer NULL
 	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 	/declare DichoDisc				string outer NULL
 	/declare Dfrenzy				string outer NULL
 	/declare Dvolley				string outer NULL
 	/declare Daxethrow				string outer NULL
 	/declare Daxeof					string outer NULL
 	/declare Phantom				string outer NULL
-	/declare AllianceDisc			string outer NULL
+	/declare AllianceSpell			string outer NULL
 	/declare PreCombatDisc			string outer NULL
 	/declare AESlice				string outer NULL
 	/declare AEVicious				string outer NULL
@@ -88,10 +90,10 @@ Sub ber_abilities
 |---One off abilities
 	/if (${Me.Level}>=100 && ${Me.CombatAbility[${Spell[Phantom Assailant].RankName}]}) /varset Phantom ${Spell[Phantom Assailant].RankName}
 	/if (${Me.Level}>=110 && ${Me.CombatAbility[${Spell[Mangler's Alliance].RankName}]}) {
-		/varset AllianceDisc ${Spell[Mangler's Covenant].RankName}
+		/varset AllianceSpell ${Spell[Mangler's Covenant].RankName}
 		/varset AllianceSpellRankCheck ${Spell[Mangler's Covenant]}
 	} else /if (${Me.Level}>=105 && ${Me.CombatAbility[${Spell[Demolisher's Alliance].RankName}]}) {
-		/varset AllianceDisc ${Spell[Demolisher's Alliance].RankName}
+		/varset AllianceSpell ${Spell[Demolisher's Alliance].RankName}
 		/varset AllianceSpellRankCheck ${Spell[Demolisher's Alliance]}
 	}
 |---Cry Havoc - Crit Buff

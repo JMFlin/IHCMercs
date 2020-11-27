@@ -215,8 +215,6 @@ Sub war_get_aggro
 
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
 	/if (!${validate_combat[${Target.ID}]}) /return
-	
-	/call engage
 
 	/if (${validate_cast[FALSE, alt, "Call of Challenge", ${Target.ID}]}) /call core_cast2 "Call of Challenge" alt ${Target.ID} FALSE	
 

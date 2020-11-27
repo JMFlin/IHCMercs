@@ -8,6 +8,8 @@ Sub brd_setup
 |-Spells
 	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 	/declare PulseRegenSong			string outer NULL
 	/declare ChorusRegenSong		string outer NULL
 	/declare AEMezSong				string outer NULL

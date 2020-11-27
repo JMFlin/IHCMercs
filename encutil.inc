@@ -784,6 +784,8 @@ Sub enc_abilities
 		/varset SelfHPBuffName ${Spell[Shield of the Pellarus].RankName}
 	} else /if (${Me.Level}>=96 && ${Me.Book[${Spell[Shield of the Dauntless].RankName}]}) {
 		/varset SelfHPBuffName ${Spell[Shield of the Dauntless].RankName}
+	} else /if (${Me.Level}>=71 && ${Me.Book[${Spell[Sorcerous Shield].RankName}]}) {
+		/varset SelfHPBuffName ${Spell[Sorcerous Shield].RankName}
 	}
 |-Group Mana * Var Name: GroupMana string outer
 	/if (${Me.Level}>=110 && ${Me.Book[${Spell[Voice of Perspicacity].RankName}]}) {
@@ -1123,8 +1125,6 @@ Sub enc_abilities
 	} else /if (${Me.Level}>=97 && ${Me.Book[${Spell[Empowered Minion].RankName}]}) {
 		/varset PetBuffSpell ${Spell[Empowered Minion].RankName}
 		/varset PetBuffName "Empowered Minion"
-	} else {
-		/varset PetBuffSpell ${SingleHaste}
 	}
 |-Dicho Spell * Var Name: DichoSpell string outer
 /if (${Me.Level}>=106 && ${Me.Book[${Spell[Dissident Reinforcement].RankName}]}) {

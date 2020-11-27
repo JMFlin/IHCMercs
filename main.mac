@@ -49,7 +49,8 @@ Sub Main
 	/call ${Me.Class.ShortName.Lower}_abilities
 	/call alliance_rotations
 	/call ${Me.Class.ShortName.Lower}_rotations
-	
+	/if (${Group.Leader.ID} != ${Me.ID}) /call sys_settings
+
 	/call WelcomeMsg
 
 	/if (${alliance_check_group[FALSE]}) /varset useAlliance TRUE
@@ -144,29 +145,10 @@ Sub set_mode
 
  	/docommand /dgt  Previous mode \ar ${PreviousModeName} \ax Current mode \ag ${ModeName}
 	/varset PreviousMode ${Mode}
-	
+
 /return
 
 sub misc
-	|/declare _newPosseXY int local ${newPosseXY}
-	|/declare _newPosseZ int local ${newPosseZ}
-	
-	| Posse configurations
-	/if (${Mode} > 0) {
-		/varset newPosseXY ${pullRadiusXY}
-		/varset newPosseZ ${pullRadiusZ}
-
-		/if (${newPosseXY} != ${oldPosseXY} || ${newPosseZ} != ${oldPosseZ}) {
-			|/posse radius ${pullRadiusXY}*1.5
-			|/posse zradius ${pullRadiusZ}*1.5
-			/squelch /posse save
-			|/varcalc _newPosseXY ${newPosseXY}*1.5
-			|/varcalc _newPosseZ ${newPosseZ}*1.5
-			/varset oldPosseXY ${pullRadiusXY}
-			/varset oldPosseZ ${pullRadiusZ}
-			DEBUG Set MQ2Posse radius: ${Posse.Radius}
-		}
-	}
 
 	| Only have hud on group leader
 	/if (${Group}) {
@@ -236,53 +218,24 @@ sub misc
 
 sub get_me_out(int _tmpID)
 
-	/if (!${Me.ID} != ${_tmpID}) {
+	/if (${Me.ID} != ${_tmpID}) {
 
 		/if (${Navigation.Active}) /nav stop
 		/if (${Stick.Status.Equal[ON]}) /stick off
-		/if (${Spawn[id ${_tmpID}].Distance3D} > 190) /nav id ${_tmpID}
-
+		/if (${Spawn[id ${_tmpID}].Distance3D} > 90) /nav id ${_tmpID}
 		/while (${Navigation.Active}) {
 			/delay 1s
 		}
-		
-		/delay 2m ${Me.Zoning}
-		/delay 2m !${Me.Zoning}
-
 	} else {
-
 		/if (${validate_cast[FALSE, spell, "${PosseSpell}", ${Me.ID}]}) {
-			/call core_cast2 "${PosseSpell}" spell ${Me.ID} FALSE
+			/call core_cast2 "${PosseSpell}" spell 0 FALSE
 		}
-		/delay 2m ${Me.Zoning}
-		/delay 2m !${Me.Zoning}
 	}
+	/delay 2m ${Me.Zoning}
+	/delay 2m !${Me.Zoning}
 	
 /return
 
-Sub go_sell
-	/declare _nearestMerchant 			int local 0
-
-	/if (${Spawn[merchant radius 700].ID}) {
-		
-		/varset _nearestMerchant ${NearestSpawn[1, merchant radius 700].ID}
-		
-		/nav id ${_nearestMerchant}
-
-		/while (${Navigation.Active}) {
-			/delay 1s
-		}
-		
-		/target id ${_nearestMerchant}
-		/autoloot sell
-		/delay 1m  ${Window[MerchantWnd].Open}
-		/delay 5s
-		/if (${Mode} == 8) /varset Mode 0
-		/return TRUE
-	}
-	/delay 3
-
-/return FALSE
 
 sub mode_posse_afk
 	/declare _haveSold 					bool local FALSE
@@ -309,8 +262,9 @@ sub mode_posse_afk
 			/return
 		}
 		/if (!${_haveSold}) {
-			/call go_sell
-			/varset _haveSold ${Macro.Return}
+			/selltomerchant
+			/delay 3
+			/varset _haveSold TRUE
 		}
 
 		/if (${_returnToFellowshipTimer} == 0) {
@@ -461,7 +415,10 @@ Sub check_state(bool _debug)
 	
 	| clear target
 	/if (${Target.Type.Equal[Corpse]} || ${Target.PctHPs} <= 0 || ${Target.ID} == ${Me.Pet.ID}) {
-		/if (${Target.ID}) /target clear
+		/if (${Target.ID}) {
+			/target clear
+			/delay 1s
+		}
 	}
 	| mod rod on cursor?
 	|/if (${Cursor.ID}) /call BagModRods
@@ -540,42 +497,85 @@ Sub check_state(bool _debug)
 	}
 
 |		/call check_illusion FALSE ${illusionItem}
-	/if (${Me.Standing} && !${Me.Casting.ID} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) /sit
+	/if (${Me.Standing} && !${Me.Casting.ID} && (${Me.PctMana} < 90 || ${Me.PctEndurance} < 90)) {
+		/sit
+		/delay 1s
+	}
 	
 /return
 
 Sub move_to_camp
-	/declare _autoCampRadius int local ${autoCampRadius}
+	|**
+	Scenarios
+		1. Target is fleeing then we don't want to return to camp as melees
+		2. We don't have line of sight on out group memebers ex: we are fighting behind a tree
+		3. If we are melee with a short camp radius we don't want to run back and forth
+		4. If we are main tank we want to pull mob to camp if it is not fleeing and is too far away
+		5. We don't want to move to camp if we are casting a heal
+		6. If we get knocked away from camp we want to run back
+	**|
+
+	/declare _autoCampRadius 	int local ${autoCampRadius}
+	/declare _count 			int local 0
+	/declare _losChecker 		bool local TRUE
+	| If we are moving then return
+	/if (${Navigation.Active}) /nav off
+
+	| If casting return
+	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
+
+	| Don't move to camp if target is low on health and running away
+	/if (${Target.Fleeing} && ${Target.PctHPs} < 25) /return
 
 	| Melee are sticking to target so no need to move to camp
 	/if (${Me.XTarget} && ${Group.MainTank.ID} != ${Me.ID}) {
-		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) /varset _autoCampRadius 120
+		/if (${Select[${Me.Class.ShortName},WAR,SHD,PAL,BER,BRD,ROG,MNK,BST]}) /varset _autoCampRadius 70
 	}
 	/if (${Me.XTarget} && ${Group.MainTank.ID} == ${Me.ID}) {
-		/varset _autoCampRadius 20
+		/varset _autoCampRadius 40
 	}
 	
-	| if casting return
-	/if (${Me.Casting.ID} && ${Select[${Me.Class.ShortName},SHM,DRU,CLR]}) /return
+	| If we are in a group and we are close and have los to a group member then return else move to camp
+	/if (${Group}) {
+		/for _count 1 to ${Group}
+			/if (!${Spawn[pc id ${Group.Member[${_count}].ID}].LineOfSight}) {
+				/varset _losChecker FALSE
+				/break
+			}
+		/next _count
+	}
+	/if (!${_losChecker}) /return
 
-	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} < ${_autoCampRadius}) /return
+	| If we are at camp then return
+	/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} <= ${_autoCampRadius}) /return
 
-	/if (${Navigation.Active}) /return
-
+	| If we have engaged then stick off
 	/if (${Stick.Status.Equal[ON]}) /stick off
 	
+	| Run to camp
 	/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
-
-	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} >= ${_autoCampRadius} && ${Navigation.Active}) {
+	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} > ${_autoCampRadius} && ${Navigation.Active}) {
 		/if (${Mode} == 0) {
 			/nav stop
 			/return
 		}
-		/varset _autoCampRadius ${autoCampRadius} * ${Int[${Me.Speed}]} / 100
+		/if (${Int[${Me.Speed}]}) {
+			| Adjust _autoCampRadius by run speed so we don't glide back and forth at camp
+			/varset _autoCampRadius ${autoCampRadius} * ${Int[${Me.Speed}]} / 100
+		}
 		/delay 3
 	}
-
 	/if (${Navigation.Active}) /nav stop
+
+	| Face target if we have one
+	/if (${Target.ID}) /face fast
+	/if (${Group.MainTank.ID} == ${Me.ID}) {
+		/if (${Target.Distance3D} > 50 && ${Target.Type.Equal[NPC]}) {
+			/if (${validate_cast[FALSE, alt, "${PullTowards}", ${Target.ID}]}) {
+				/call core_cast2 "${PullTowards}" alt ${Target.ID} FALSE
+			}
+		}
+	}
 	
 /return
 
@@ -641,46 +641,46 @@ Sub dummy_mode
 	
 	/if (${Spawn[gm].ID} || ${Posse.Strangers} > 0) {
 		
-		|**
 		/call port_class_checker
 		/varset _portClassID ${Macro.Return}
-
-		/if (${_portClassID}) {
+		|- ${_portClassID}
+		/if (FALSE) {
 			/varset Mode 7
 			/call get_me_out ${_portClassID}
-			/delay 30s ${Select[${Zone.ShortName},PoKnowledge]}
-		}
-		**|
-		|**
-		/if (!${Select[${Zone.ShortName},PoKnowledge]}) {
-			/call go_to_pok
-		}
-		**|
-			
-		/call move_to_camp
+			/delay 30s ${Select[${Zone.ShortName},PoKnowledge,GuildHall,GuildLobby,Cresent]}
+		} else {
 
-		/while (${Navigation.Active}) { 
-			/delay 5
-		}
+			|**
+			/if (!${Select[${Zone.ShortName},PoKnowledge]}) {
+				/call go_to_pok
+			}
+			**|
+				
+			/call move_to_camp
 
-		/echo Entering Dummy Mode...
-		/delay 1s 
-		/echo PC nearby! 
-		
-		/while (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
-			/for _count 1 to ${DummyTime}
-				/echo (${_count}/${DummyTime})
-				/if (${Mode} == 0) /return
-				/if (${Zone.ID} == 344 || ${Zone.ID} == 345 || ${Zone.ID} == 202) {
-					/varset Mode 7
-					/return
-				}
-				/if (${Me.XTarget}) /return
-				/delay 1s
-			/next _count
+			/while (${Navigation.Active}) { 
+				/delay 5
+			}
+
+			/echo Entering Dummy Mode...
 			/delay 1s 
+			/echo PC nearby! 
+			
+			/while (${Spawn[gm].ID} || (${Posse.Strangers} > 0 && !${Me.XTarget})) { 
+				/for _count 1 to ${DummyTime}
+					/echo (${_count}/${DummyTime})
+					/if (${Mode} == 0) /return
+					/if (${Zone.ID} == 344 || ${Zone.ID} == 345 || ${Zone.ID} == 202) {
+						/varset Mode 7
+						/return
+					}
+					/if (${Me.XTarget}) /return
+					/delay 1s
+				/next _count
+				/delay 1s 
+			}
+			
 		}
-		
 	 }
 	
 
@@ -689,6 +689,7 @@ Sub dummy_mode
 sub group_checker
 	/declare _count int local
 
+	| We could use https://www.macroquest2.com/wiki/index.php/DataType:targettype
 	/for _count 0 to ${Group}
 
 		/if (${Select[${Group.Member[${_count}].Class.ShortName},SHM]} && ${Select[${Me.Class.ShortName},BST]} && !${bstDoNotBuffShm}) {
@@ -723,16 +724,288 @@ sub group_checker
 /return
 
 
+
+
+Sub sys_settings
+
+	| ctrl + o
+	/while (!${Window[OptionsWindow].Open}) {
+		/invoke ${Window[OptionsWindow].DoOpen}
+		/delay 5
+	}
+
+	| Options -> General
+	/if (!${Window[OptionsWindow].Child[OGP_AutoConsentGroupCheckBox].Checked}) {
+		/echo Auto consenting group
+		/notify OptionsWindow OGP_AutoConsentGroupCheckBox leftmouseup
+		/delay 1
+	}
+
+	/if (!${Window[OptionsWindow].Child[OGP_AutoConsentGuildCheckBox].Checked}) {
+		/echo Auto consenting guild
+		/notify OptionsWindow OGP_AutoConsentGuildCheckBox leftmouseup
+		/delay 1
+	}
+
+	/if (!${Window[OptionsWindow].Child[OGP_AutoConsentRaidCheckBox].Checked}) {
+		/echo Auto consenting raid
+		/notify OptionsWindow OGP_AutoConsentRaidCheckBox leftmouseup
+		/delay 1
+	}
+
+	| Options -> Display
+	/while (!${Window[AdvancedDisplayOptionsWindow].Open}) {
+		/invoke ${Window[AdvancedDisplayOptionsWindow].DoOpen}
+		/delay 5
+	}
+
+	| Options -> Display, first bunch of checkboxes
+	/if (${Window[OptionsWindow].Child[ODP_PCNamesCheckBox].Checked}) {
+		/echo Hiding PC names
+		/notify OptionsWindow ODP_PCNamesCheckBox leftmouseup
+		/delay 1
+	}
+	/if (${Window[OptionsWindow].Child[ODP_NPCNamesCheckBox].Checked}) {
+		/echo Hiding NPC names
+		/notify OptionsWindow ODP_NPCNamesCheckBox leftmouseup
+		/delay 1
+	}
+	/if (${Window[OptionsWindow].Child[ODP_PetNamesCheckBox].Checked}) {
+		/echo Hiding Pet names
+		/notify OptionsWindow ODP_PetNamesCheckBox leftmouseup
+		/delay 1
+	}
+	/if (${Window[OptionsWindow].Child[ODP_MercNamesCheckBox].Checked}) {
+		/echo Hiding Merc names
+		/notify OptionsWindow ODP_MercNamesCheckBox leftmouseup
+		/delay 1
+	}
+	/if (${Window[OptionsWindow].Child[ODP_ShowPetOwnerNames].Checked}) {
+		/echo Hiding Pet Owner names
+		/notify OptionsWindow ODP_ShowPetOwnerNames leftmouseup
+		/delay 1
+	}
+	/if (${Window[OptionsWindow].Child[ODP_ShowMercOwnerNames].Checked}) {
+		/echo Hiding Merc Owner names
+		/notify OptionsWindow ODP_ShowMercOwnerNames leftmouseup
+		/delay 1
+	}
+	/if (${Window[OptionsWindow].Child[ODP_ShowTargetRingCheckbox].Checked}) {
+		/echo Hiding Target Ring
+		/notify OptionsWindow ODP_ShowTargetRingCheckbox leftmouseup
+		/delay 1
+	}
+	/if (${Window[OptionsWindow].Child[ODP_ShowTargetHealthCheckbox].Checked}) {
+		/echo Hiding Target Health
+		/notify OptionsWindow ODP_ShowTargetHealthCheckbox leftmouseup
+		/delay 1
+	}
+	/if (${Window[OptionsWindow].Child[ODP_LevelOfDetailCheckbox].Checked}) {
+		/echo Disabling Level of Detail
+		/notify OptionsWindow ODP_LevelOfDetailCheckbox leftmouseup
+		/delay 1
+	}
+	/if (!${Window[OptionsWindow].Child[ODP_ShowHelmCheckbox].Checked}) {
+		/echo Showing My Helm
+		/notify OptionsWindow ODP_ShowHelmCheckbox leftmouseup
+		/delay 1
+	}
+	/if (!${Window[OptionsWindow].Child[ODP_ShowPreLuclinMounts].Checked}) {
+		/echo Showing Pre-Luclin Mounts
+		/notify OptionsWindow ODP_ShowPreLuclinMounts leftmouseup
+		/delay 1
+	}
+	
+	| Options -> Display, combo boxes at the top right
+	/if (1 != ${Window[OptionsWindow].Child[ODP_LoadScreenCombobox].GetCurSel}) {
+		/echo Setting Load Screen to None
+		/invoke ${Window[OptionsWindow].Child[ODP_LoadScreenCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_SkyCombobox].GetCurSel}) {
+		/echo Setting Sky Type to Off
+		/invoke ${Window[OptionsWindow].Child[ODP_SkyCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_NewArmorFilterCombobox].GetCurSel}) {
+		/echo Setting New Armor to None
+		/invoke ${Window[OptionsWindow].Child[ODP_NewArmorFilterCombobox].Select[1]}
+		/delay 1
+	}
+	
+	| Far Clip Plane = 20%. Valid values are 0 - 20, corresponding to a clip plane of 0 - 100%
+	/echo Setting Far Clip Plane to 20%
+	/notify OptionsWindow ODP_ClipPlaneSlider newvalue 4
+	/delay 1
+
+	| Options -> Display, particle effects
+	/if (1 != ${Window[OptionsWindow].Child[ODP_SpellParticlesNearClipCombobox].GetCurSel}) {
+		/echo Setting Spell -> Near Clip to Near
+		/invoke ${Window[OptionsWindow].Child[ODP_SpellParticlesNearClipCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_SpellParticlesDensityCombobox].GetCurSel}) {
+		/echo Setting Spell -> Density to Off
+		/invoke ${Window[OptionsWindow].Child[ODP_SpellParticlesDensityCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_SpellParticlesFilterCombobox].GetCurSel}) {
+		/echo Setting Spell -> On For to My Spells
+		/invoke ${Window[OptionsWindow].Child[ODP_SpellParticlesFilterCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_EnvironmentParticlesNearClipCombobox].GetCurSel}) {
+		/echo Setting Env -> Near Clip to Near
+		/invoke ${Window[OptionsWindow].Child[ODP_EnvironmentParticlesNearClipCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_EnvironmentParticlesDensityCombobox].GetCurSel}) {
+		/echo Setting Env -> Density to Off
+		/invoke ${Window[OptionsWindow].Child[ODP_EnvironmentParticlesDensityCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_ActorParticlesNearClipCombobox].GetCurSel}) {
+		/echo Setting Player -> Near Clip to Near
+		/invoke ${Window[OptionsWindow].Child[ODP_ActorParticlesNearClipCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_ActorParticlesDensityCombobox].GetCurSel}) {
+		/echo Setting Player -> Density to Off
+		/invoke ${Window[OptionsWindow].Child[ODP_ActorParticlesDensityCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[OptionsWindow].Child[ODP_ActorParticlesFilterCombobox].GetCurSel}) {
+		/echo Setting Player -> On For to Me
+		/invoke ${Window[OptionsWindow].Child[ODP_ActorParticlesFilterCombobox].Select[1]}
+		/delay 1
+	}
+
+	| LOD Bias = Very Low
+	/echo Setting LOD Bias to Very Low
+	/notify OptionsWindow ODP_LODBiasSlider newvalue 0
+	/delay 1
+
+	| Advanced Options, combo boxes
+	/if (1 != ${Window[AdvancedDisplayOptionsWindow].Child[ADOW_SkyReflectionSizeCombobox].GetCurSel}) {
+		/echo Setting Dynamic Sky Reflection Size to Tiny (32)
+		/invoke ${Window[AdvancedDisplayOptionsWindow].Child[ADOW_SkyReflectionSizeCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[AdvancedDisplayOptionsWindow].Child[ADOW_SkyUpdateIntervalCombobox].GetCurSel}) {
+		/echo Setting Sky Reflection Update Interval to Once per minute
+		/invoke ${Window[AdvancedDisplayOptionsWindow].Child[ADOW_SkyUpdateIntervalCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[AdvancedDisplayOptionsWindow].Child[ADOW_TerrainTextureQualityCombobox].GetCurSel}) {
+		/echo Setting Terrain Texture Quality to Minimum
+		/invoke ${Window[AdvancedDisplayOptionsWindow].Child[ADOW_TerrainTextureQualityCombobox].Select[1]}
+		/delay 1
+	}
+	/if (1 != ${Window[AdvancedDisplayOptionsWindow].Child[ADOW_MemoryModeCombobox].GetCurSel}) {
+		/echo Setting Memory Mode to Least Memory Usage
+		/invoke ${Window[AdvancedDisplayOptionsWindow].Child[ADOW_MemoryModeCombobox].Select[1]}
+		/delay 1
+	}
+
+	| Advanced Options, checkboxes
+	|**
+	/if (${Window[AdvancedDisplayOptionsWindow].Child[ADOW_WaterSwapCheckbox].Checked}) {
+		/echo Disabling new water in old zones
+		/notify AdvancedDisplayOptionsWindow ADOW_WaterSwapCheckbox leftmouseup
+		/delay 1
+	}
+	
+	/if (!${Window[AdvancedDisplayOptionsWindow].Child[ADOW_VertexShadersCheckbox].Checked}) {
+		/echo Enabling hw Vertex Shaders
+		/notify AdvancedDisplayOptionsWindow ADOW_VertexShadersCheckbox leftmouseup
+		/delay 1
+	}
+	**|
+	/if (!${Window[AdvancedDisplayOptionsWindow].Child[ADOW_20PixelShadersCheckbox].Checked}) {
+		/echo Enabling 2.0 Pixel Shaders
+		/notify AdvancedDisplayOptionsWindow ADOW_20PixelShadersCheckbox leftmouseup
+		/delay 1
+	}
+	/if (${Window[AdvancedDisplayOptionsWindow].Child[ADOW_AdvancedLightingCheckbox].Checked}) {
+		/echo Disabling Advanced Lighting
+		/notify AdvancedDisplayOptionsWindow ADOW_AdvancedLightingCheckbox leftmouseup
+		/delay 1
+	}
+	/if (${Window[AdvancedDisplayOptionsWindow].Child[ADOW_ShadowsCheckbox].Checked}) {
+		/echo Disabling Shadows
+		/notify AdvancedDisplayOptionsWindow ADOW_ShadowsCheckbox leftmouseup
+		/delay 1
+	}
+	/if (${Window[AdvancedDisplayOptionsWindow].Child[ADOW_FloraCheckbox].Checked}) {
+		/echo Disabling Radial Flora
+		/notify AdvancedDisplayOptionsWindow ADOW_FloraCheckbox leftmouseup
+		/delay 1
+	}
+	/if (${Window[AdvancedDisplayOptionsWindow].Child[ADOW_StreamItemTexturesCheckbox].Checked}) {
+		/echo Disabling Stream Item Textures
+		/notify AdvancedDisplayOptionsWindow ADOW_StreamItemTexturesCheckbox leftmouseup
+		/delay 1
+	}
+	/if (!${Window[AdvancedDisplayOptionsWindow].Child[ADOW_DisableTattoosCheckbox].Checked}) {
+		/echo Disabling Tattoos
+		/notify AdvancedDisplayOptionsWindow ADOW_DisableTattoosCheckbox leftmouseup
+		/delay 1
+	}
+	/if (${Window[AdvancedDisplayOptionsWindow].Child[ADOW_EnablePostEffectsCheckbox].Checked}) {
+		/echo Disabling Post Bloom Effects
+		/notify AdvancedDisplayOptionsWindow ADOW_EnablePostEffectsCheckbox leftmouseup
+		/delay 1
+	}
+	/if (${Window[AdvancedDisplayOptionsWindow].Child[ADOW_EnableBloomCheckbox].Checked}) {
+		/echo Disabling Bloom Lighting
+		/notify AdvancedDisplayOptionsWindow ADOW_EnableBloomCheckbox leftmouseup
+		/delay 1
+	}
+
+	| Shadow Clip Plane = 0%. Valid values are 0 - 100
+	/echo Setting Shadow Clip Plane to 0%
+	/notify AdvancedDisplayOptionsWindow ADOW_ShadowClipPlaneSlider newvalue 0
+	/delay 1
+	
+	| Actor Clip Plane = 20%. Valid values are 0 - 100
+	/echo Setting Actor Clip Plane to 20%
+	/notify AdvancedDisplayOptionsWindow ADOW_ActorClipPlaneSlider newvalue 20
+	/delay 1
+
+	| Max Foreground FPS = 30. Valid values are 0 - 100, corresponding to an fps of 0 - 150
+	/echo Setting Foreground FPS to 20
+	/notify AdvancedDisplayOptionsWindow ADOW_MaxFPSSlider newvalue 20
+	/delay 1
+	
+	| Max Background FPS = 30. Valid values are 0 - 100, corresponding to an fps of 0 - 150. Slightly different to foreground FPS for some reason
+	/echo Setting Background FPS to 10
+	/notify AdvancedDisplayOptionsWindow ADOW_MaxBGFPSSlider newvalue 10
+	/delay 1
+
+	/while (${Window[OptionsWindow].Open}) {
+		/invoke ${Window[OptionsWindow].DoClose}
+		/delay 5
+	}
+
+	/while (${Window[AdvancedDisplayOptionsWindow].Open}) {
+		/invoke ${Window[AdvancedDisplayOptionsWindow].DoClose}
+		/delay 5
+	}
+	
+	/echo \agSettings changed!
+   
+/return
+
+
+
+
+
 | --------------------------------------------------------------------------------------------
 | SUB: Main
 | --------------------------------------------------------------------------------------------
 Sub go_scribe(string _zoneName, int _minLevel, int _maxLevel)
 	|**
 	TODO
-		MinLevel
-		MaxLevel
-		As Aliases for input ie /scribeminlevel /zone Argath
-
 		EasternWastesTwoButton
 
 		spells and translocation AAs and items
@@ -746,6 +1019,9 @@ Sub go_scribe(string _zoneName, int _minLevel, int _maxLevel)
 
 	/declare _getSpellsFromZone string local 0
 
+	|**
+		TBM and TDS spells
+	**|
 	/if (${_zoneName.Equal[All]}) {
 		/declare _getSpellsFromZoneList[7] string local 0
 		/varset _getSpellsFromZoneList[1] PoKnowledge
@@ -755,9 +1031,17 @@ Sub go_scribe(string _zoneName, int _minLevel, int _maxLevel)
 		/varset _getSpellsFromZoneList[5] Lceanium
 		/varset _getSpellsFromZoneList[6] Overthere
 		/varset _getSpellsFromZoneList[7] Stratos
-	} else {
+	} else /if (${_minLevel} >= 105) {
+		/declare _getSpellsFromZoneList[2] string local 0
+		|/varset _getSpellsFromZoneList[1] ${_zoneName}
+		/varset _getSpellsFromZoneList[1] Lceanium
+		/varset _getSpellsFromZoneList[2] Overthere
+		
+	} else /if (${_minLevel} >= 110) {
 		/declare _getSpellsFromZoneList[1] string local 0
-		/varset _getSpellsFromZoneList[1] ${_zoneName}
+		|/varset _getSpellsFromZoneList[1] ${_zoneName}
+		/varset _getSpellsFromZoneList[1] Overthere
+		
 	}
 	
 	/declare DoLoop int local 0

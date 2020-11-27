@@ -22,6 +22,8 @@ Sub mnk_setup
 	/declare Storm					string outer NULL
 	/declare Aura1			string outer NULL
 	/declare Aura2			string outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 	/declare PosseSpell				string 	outer 	Origin
 	
 

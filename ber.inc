@@ -67,6 +67,10 @@ Sub ber_main
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
 		/call engage
+		
+		/if (${validate_cast[FALSE, alt, "Drawn to Blood", ${Me.ID}]}) {
+			/call core_cast2 "Drawn to Blood" alt 0 FALSE
+		}
 
 		/if (!${Me.Combat}) {
 			/if (${validate_cast[FALSE, disc, ${PreCombatDisc}, ${Target.ID}]}) /call core_cast2 ${PreCombatDisc} disc ${Target.ID} FALSE
@@ -240,7 +244,7 @@ Sub ber_combat
 	}
 
 	/call use_skill_melee FALSE ${Target.ID}
-	/if (!${Target.Snared.ID} && ${FindItemCount[${SnareAxeName}]} > 0 && !${immuneSet.Contains[${Target.ID}]}  && ${doSnare}) {
+	/if (!${Target.Snared.ID} && ${FindItemCount[${SnareAxeName}]} > 0 && !${immuneSet.Contains[${Target.ID}]}  && ${berDoSnare}) {
 		/if (${validate_cast[FALSE, disc, "${Snare}", ${Target.ID}]}) {
 			/call core_cast2 "${Snare}" disc ${Target.ID} FALSE
 			/call check_cast_events "${Snare}" CAST_IMMUNE ${Target.ID}
@@ -253,7 +257,7 @@ Sub ber_combat
 	|}
 	
 	/if (${Target.Named} || ${Target.PctHPs} > 90) {
-		/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceDisc}" ${Target.ID}
+		/if (${useAlliance} && ${allianceTurn}) /call cast_alliance "${AllianceSpell}" ${Target.ID}
 	}
 
 	|/if (${FindItem[${ChestItemName}].ID} && !${FindItem[${ChestCombatCast}].TimerReady}) {
@@ -269,6 +273,9 @@ Sub ber_combat
 	/if (${SpawnCount[npc radius 40 zradius 15 targetable playerstate 4]} < 2) {
 		/if (${validate_cast[FALSE, disc, "${AESlice}", ${Target.ID}]}) /call core_cast2 "${AESlice}" disc ${Target.ID} FALSE
 	}
+	/if (${SpawnCount[npc radius 40 zradius 15 targetable playerstate 4]} < 2) {
+		/if (${validate_cast[FALSE, alt, "Rampage", ${Target.ID}]}) /call core_cast2 "Rampage" alt ${Target.ID} FALSE
+	}
 	/doevents
 	/if (${Target.Type.Equal[Corpse]} || !${Target.ID} || !${Me.XTarget[1].ID} || !${Target.Type.Equal[NPC]}) /return
 
@@ -278,8 +285,11 @@ Sub ber_combat
 	|}
 
 	/if (!${Target.Buff[Sarnak Finesse].ID}) {
-		/if (${validate_cast[FALSE, alt, "Braxi's Howl", ${Target.ID}]}) /call core_cast2 "Braxi's Howl" alt ${Target.ID} FALSE
-		/if (${validate_cast[FALSE, disc, "${DichoDisc}", ${Target.ID}]}) /call core_cast2 "${DichoDisc}" disc ${Target.ID} FALSE
+		/if (${validate_cast[FALSE, disc, "${DichoDisc}", ${Target.ID}]}) {
+			/if (${validate_cast[FALSE, alt, "Braxi's Howl", ${Target.ID}]}) {
+				/call core_cast2 "Braxi's Howl" alt ${Target.ID} FALSE
+			}
+			/call core_cast2 "${DichoDisc}" disc ${Target.ID} FALSE
 	}
 
 	/if (${validate_cast[FALSE, alt, "Binding Axe", ${Target.ID}]}) /call core_cast2 "Binding Axe" alt ${Target.ID} FALSE

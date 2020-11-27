@@ -9,6 +9,7 @@ Sub wiz_setup
 |-Declare AA and Spell variables
   |-Buffs
 	/declare SelfHPBuff				string	outer	NULL
+	/declare SelfHPBuffName 		string outer NULL
 	/declare ACPyromancy			string	outer	NULL
 	/declare FamiliarBuff			string	outer	NULL
 	/declare SelfRune1				string	outer	NULL
@@ -17,6 +18,8 @@ Sub wiz_setup
   |-DPS
   	/declare Aura1					string outer NULL
 	/declare Aura2					string outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 	/declare AllianceSpell			string	outer	NULL
 	/declare AllianceSpellRankCheck string 	outer 	NULL
 	/declare DichoSpell				string 	outer	NULL

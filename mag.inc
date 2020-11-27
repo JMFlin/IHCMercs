@@ -1,5 +1,5 @@
 |----------------------------------------------------------------------------
-|- SUB: wiz_main
+|- SUB: mag_main
 |----------------------------------------------------------------------------
 Sub mag_main
 
@@ -137,20 +137,29 @@ Sub mag_main
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
 Sub mag_pet_hp_check
+
+	/if (${Me.PctHPs} < 60) {
+		/if (${validate_cast[FALSE, alt, "Shield of the Elements", ${Me.ID}]}) {
+			/call core_cast2 "Shield of the Elements" alt 0 FALSE
+		}
+	}
 	/if (${Me.Pet.ID} < 50) {
 		/if (${validate_cast[FALSE, alt, "Companion's Shielding", ${Me.Pet.ID}]}) {
 			/call core_cast2 "Companion's Shielding" alt 0 FALSE
+			/return
 		}
 	}
 	/if (${Me.Pet.ID} < 20) {
 		/if (${validate_cast[FALSE, alt, "Second Wind Ward", ${Me.Pet.ID}]}) {
 			/call core_cast2 "Second Wind Ward" alt 0 FALSE
+			/return
 		}
 	}
 
 	/if (${Me.Pet.ID} < 70) {
 		/if (${validate_cast[FALSE, alt, "Mend Companion", ${Me.Pet.ID}]}) {
 			/call core_cast2 "Mend Companion" alt 0 FALSE
+			/return
 		}
 	}
 
@@ -159,7 +168,7 @@ Sub mag_pet_hp_check
 |- SUB: AANDisc
 |---------------------------------------------------------------------------- 
 Sub mag_mana_check
-	/if (${Me.PctMana} < 25) {
+	/if (${Me.PctMana} < 50) {
 		/if (${validate_cast[FALSE, alt, "Elemental Conversion", ${Me.ID}]}) {
 			/call core_cast2 "Elemental Conversion" alt 0 FALSE
 		}
@@ -251,21 +260,28 @@ Sub mag_self_buff_check(bool _debug)
 			}
 		}
 
-		/if (!${Me.Pet.Buff[${Me.AltAbility[Velocity].Rank}]}) {
+		/if (!${Me.Pet.Buff[Velocity]} && !${Me.Pet.Buff[Spirit of Tala'Tak]}) {
 			/if (${validate_cast[FALSE, alt, "Velocity", ${Me.Pet.ID}]}) {
 				/call core_cast2 "Velocity" alt 0 FALSE
 			}
 		}
 
-		/if (!${Me.Pet.Buff[${Me.AltAbility[Host in the Shell].Rank}]}) {
+		/if (!${Me.Pet.Buff[Host in the Shell]}) {
 			/if (${validate_cast[FALSE, alt, "Host in the Shell", ${Me.Pet.ID}]}) {
 				/call core_cast2 "Host in the Shell" alt 0 FALSE
 			}
 		}
 
-		/if (!${Me.Pet.Buff[${Me.AltAbility[Companion's Aegis].Rank}]}) {
+| 
+		/if (!${Me.Pet.Buff[Companion's Aegis]}) {
 			/if (${validate_cast[FALSE, alt, "Companion's Aegis", ${Me.Pet.ID}]}) {
 				/call core_cast2 "Companion's Aegis" alt 0 FALSE
+			}
+		}
+
+		/if (!${Me.Pet.Buff[Second Wind Ward]}) {
+			/if (${validate_cast[FALSE, alt, "Second Wind Ward", ${Me.Pet.ID}]}) {
+				/call core_cast2 "Second Wind Ward" alt 0 FALSE
 			}
 		}
 	}

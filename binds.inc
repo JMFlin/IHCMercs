@@ -12,6 +12,8 @@ Sub Bind_Settings(string _setMode, int _pullRadiusXY, int _pullRadiusZ, int _npc
 		/varset pullRadiusZ ${_pullRadiusZ}
 		/varset npcRadiusCheck ${_npcRadiusCheck}
 		/mapfilter CastRadius ${_pullRadiusXY}
+		/squelch /posse radius ${_pullRadiusXY}
+		/squelch /posse zradius ${_pullRadiusZ}
 	}
 	/if (${_setMode.Equal[event]}) /varset Mode 5
 	/if (${_setMode.Equal[raid]}) /varset Mode 6
@@ -374,9 +376,8 @@ Sub Bind_LazyLobbyRez
 
 
 
-#bind AutoSell /selltomerchant
+#bind AutoSell /autosell
 Sub Bind_AutoSell
-    |- /if (!${Select[${Zone.ShortName},GuildLobby,GuildHall,PoKnowledge,moors,crescent]})
 	
 	/if (${Select[${Zone.ShortName},GuildLobby]}) {
 		/declare MerchantA	     	string local   "A Disciple of Luclin"
@@ -388,9 +389,14 @@ Sub Bind_AutoSell
 		/if (${_randNum} > 30 && ${_randNum} <= 40) /declare MerchantA 		    string local   "Glena Quok"
 		/if (${_randNum} > 40 && ${_randNum} <= 50) /declare MerchantA 		    string local   "Sirekoth Eshe"
 	} else {
-		/echo ${Zone.ShortName} is not a supported zone for selling
-		/return
+		/if (!${Spawn[merchant radius 1500].ID}) {
+			/echo No merchants in radius of 1500
+			/return
+		}
+		|- DisplayName
+		/varset MerchantA ${NearestSpawn[1, merchant radius 700].CleanName}
 	}
+
 	/if (${Navigation.Active}) /nav stop
 	/squelch /target clear
 	/delay 10
@@ -456,9 +462,7 @@ Sub Bind_NavTo(string _to)
     /if (${_to.Equal[me]}) {
         /dga /nav id ${Me.ID}
     } else /if (${_to.Equal[target]}) {
-		/dgga /assist ${Me.ID}
-		/dgga /attack off
-        /dgga /nav id ${Target.ID}
+        /nav id ${Target.ID}
     }
 	/while (${Navigation.Active}) {
 		/delay 1s
@@ -490,4 +494,16 @@ Sub Bind_DragAll
 		}
 	}
 
+/return
+
+#bind   IncreasePosse   /increaseposse
+Sub Bind_IncreasePosse
+	/declare xy int local 0
+	/declare z int local 0
+
+	/varcalc xy ${Posse.Radius}+50
+	/varcalc z ${Posse.ZRadius}+10
+
+	/posse radius ${xy}
+	/posse zradius ${z}
 /return

@@ -34,7 +34,7 @@ Sub var_setup
 |	/declare numoftargets		int outer 0
 |	/declare ChaseAssist		int outer 0		
 	|- IHC macro's common variables
-	/declare BurnMobCount		int outer 2
+	/declare BurnMobCount		int outer 3
 	/declare NoDisease			int outer 0
 	/declare NoCorruption		int outer 0
 	/declare NoPoison			int outer 0
@@ -49,7 +49,7 @@ Sub var_setup
 
 	/declare illusionItem 		string outer "Bone Mask of Horror"
 
-	/declare autoCampRadius 	int outer 10
+	/declare autoCampRadius 	int outer 40
 
 |- Rezzing
 	/declare setCombatRadius	int outer 50
@@ -184,6 +184,7 @@ Sub var_setup
 	/declare wizDoSnare 		bool outer False
 	/declare druDoSnare 		bool outer False
 	/declare shdDoSnare 		bool outer False
+	/declare berDoSnare			bool outer FALSE
 
 |- Stuns
 	/declare berDoStun 			bool outer False
@@ -273,7 +274,10 @@ Sub remove_travel_buffs
 |- SUB: engage
 |---------------------------------------------------------------------------- 
 Sub engage
-
+	|**
+		1. Casters should engage when mob is in camp and below threshold
+		2. Melee should engage when mob is in camp and below threshold
+	**|
 	/if (!${validate_combat[${Target.ID}]}) /return
 	/if (!${validate_target_distance[FALSE]}) /return
 	| if target is not an NPC then don't engage
@@ -360,30 +364,33 @@ Sub puller_check_group_resources
 	/if (${Group.Puller.ID} != ${Me.ID}) /return
 
 	/if (${Select[${Me.Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
-		/if (${Me.PctMana} < ${_myLimit}) {
+		/if (${Me.PctMana} < ${_myLimit} && ${Me.PctMana} < ${Limit}) {
 			/varset Limit ${LimitUpper}
 			/return FALSE
 		}
 	} else {
-		/if (${Me.PctEndurance} < ${_myLimit}) {
+		/if (${Me.PctEndurance} < ${_myLimit} && ${Me.PctEndurance} < ${Limit}) {
 			/varset Limit ${LimitUpper}
 			/return FALSE
 		}
 	}
 
-	/for _count 1 to ${Group}
+	/for _count 0 to ${Group}
 
 		/if (!${Group.Member[${_count}].Type.Equal[PC]}) /continue
 		
 		/if (${Group.Member[${_count}].Distance} < 100 && !${Group.Member[${_count}].OtherZone}) {
 
 			/if (${Select[${Group.Member[${_count}].Class.ShortName},CLR,SHM,NEC,ENC,WIZ,MAG,DRU,SHD,PAL,BST]}) {
-
-
+				
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.PctMana" "_resPct" "int"
 				/call Gquery ${EverQuest.Server.Lower}_${Group.Member[${_count}].Name.Lower} "Me.Casting.ID" "_casterCasting" "int"
-
+				/if (${_casterCasting}) {
+					DEBUG Asking ${Group.Member[${_count}].Class.ShortName} is casting
+					/return FALSE
+				}
 				DEBUG Asking ${Group.Member[${_count}].Class.ShortName} about mana ${_resPct} < ${Limit}
+
 
 			} else /if (${Select[${Group.Member[${_count}].Class.ShortName},WAR,ROG,BER,MNK]}) {
 
@@ -396,9 +403,7 @@ Sub puller_check_group_resources
 				/varset Limit ${LimitUpper}
 				/return FALSE
 			}
-			/if (${_casterCasting}) {
-				/return FALSE
-			}
+			
 		}
 	/next _count
 
@@ -480,7 +485,7 @@ Sub afk_pull
 				/delay 1s
 			}
 		}
-	
+		|**
 		/if (!${Me.Buff[${promisedSpell}].ID}) {
 			
 			DEBUG Begging for ${promisedSpell}
@@ -490,6 +495,7 @@ Sub afk_pull
 			/squelch /dex ${Group.Cleric.Name.Lower} /cast "${promisedSpell}"
 			/delay 2s
 		}
+		**|
 	}
 	
 	/while (!${Me.XTarget}) {
@@ -506,30 +512,43 @@ Sub afk_pull
 		/delay 1
 	}
 
-    /nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
-	
+	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} >= 25) {
+		/if (!${Navigation.Active}) {
+			/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
+		}
+		/if (${Navigation.Active}) {
+			/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
+		}
+		/delay 1
+	}
+
+	|**
+	 /nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
 	/while (${Navigation.Active}) {
 		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
 		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} < 10 && ${Navigation.Active}) /nav stop
 		/delay 1
 	}
+	**|
 	
 	/if (!${Me.XTarget}) {
 		/target clear
     } else /if (${Target.ID} && ${Me.XTarget}) {
-		/face fast
-		/call ${Me.Class.ShortName.Lower}_combat_buffs
-		/if (${Target.Distance3D} > 70) {
+		/delay 3
+		/if (${Target.ID}) /face fast
+		/if (${Target.Distance3D} > 100) {
+			/call ${Me.Class.ShortName.Lower}_combat_buffs
+		}
+		/if (${Target.Distance3D} > 100 && ${Defined[${PullTowards}]}) {
 			/if (${validate_cast[FALSE, alt, "${PullTowards}", ${Target.ID}]}) /call core_cast2 "${PullTowards}" alt ${Target.ID} FALSE
 		}
 	}
-	
+	/delay 3
+	/if (${Target.ID}) /face fast
 	/if (${Defined[_pullTargetID]}) /deletevar _pullTargetID
-	/delay 5
  /return
 
 sub validate_chain_pull_start(bool _debug)
-	/declare _chainPullLimit 	int local 20
 
 	/if (${Posse.Strangers} > 0) /return FALSE
 	/if (${Me.XTarget}) /return FALSE
@@ -538,18 +557,18 @@ sub validate_chain_pull_start(bool _debug)
 	/if (!${Navigation.MeshLoaded}) /return FALSE
 
 	/if (${Select[${Me.Class.ShortName},SHD,PAL,BST,RNG]}) {
-		/if (${Me.PctMana} < ${_chainPullLimit}) {
-			/varset _chainPullLimit 80
+		/if (${Me.PctMana} < ${Limit}) {
+			/varset Limit 80
 			/return FALSE
 		} else {
-			/varset _chainPullLimit 20
+			/varset Limit 20
 			/return TRUE
 		}
-	} else /if (${Me.PctEndurance} < ${_chainPullLimit}) {
-		/varset _chainPullLimit 80
+	} else /if (${Me.PctEndurance} < ${Limit}) {
+		/varset Limit 80
 		/return FALSE
 	} else {
-		/varset _chainPullLimit 20
+		/varset Limit 20
 		/return TRUE
 	}
 
@@ -572,25 +591,27 @@ sub validate_chain_pull_start(bool _debug)
 		/delay 1
 	}
 
-	/if (!${Navigation.Active}) {
-    	/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
-	}
-
-	/while (${Navigation.Active}) {
-		/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
-		/if (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} < 10 && ${Navigation.Active}) /nav stop
+	/while (${Math.Distance[${Me.Y},${Me.X},${Me.Z}:${pullAutoCampY},${pullAutoCampX},${pullAutoCampZ}]} >= 10) {
+		/if (!${Navigation.Active}) {
+			/nav locxyz ${pullAutoCampX} ${pullAutoCampY} ${pullAutoCampZ}
+		}
+		/if (${Navigation.Active}) {
+			/if (${Me.Pet.ID} && ${Me.Pet.Combat}) /pet back
+		}
 		/delay 1
 	}
 	
 	/if (!${Me.XTarget}) /target clear
-    /if (${Target.ID} && ${Me.XTarget}) /face fast
 	/if (${Defined[_pullTargetID]}) /deletevar _pullTargetID
-	/if (${Me.XTarget}) /call ${Me.Class.ShortName.Lower}_combat_buffs
-	/delay 5
+	/if (${Target.Distance3D} > 100) {
+		/call ${Me.Class.ShortName.Lower}_combat_buffs
+	}
+	/delay 3
+	/face fast
  /return
 
 
-Sub get_pull_target_melee_range
+Sub get_pull_target_melee_range(int _tmpID)
 	/if (${Spawn[id ${_tmpID}].Distance} > ${pullDistance} || !${Spawn[id ${_tmpID}].LineOfSight}) {
 		
 		/nav id ${_tmpID}
@@ -630,6 +651,7 @@ Sub get_pull_target(int _tmpID)
 			/if (!${Me.XTarget}) /call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
 			/if (${cannotCast}) {
 				/varset cannotCast FALSE
+				/if (${Navigation.Active}) /nav stop
 				/return
 			}
 		}
@@ -658,15 +680,17 @@ Sub get_pull_target(int _tmpID)
 				/if (!${Me.XTarget}) /call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
 				/if (${cannotCast}) {
 					/varset cannotCast FALSE
+					/if (${Navigation.Active}) /nav stop
 					/return
 				}
 			}
+			/delay 3
 			/if (!${Me.XTarget}) {
 				/if (${Spawn[id ${_tmpID}].Distance} < 20) /call get_close_target
 				/if (!${Me.XTarget}) /goto :tag_target
 			}
 			/if (${Me.XTarget}) {
-				/nav stop
+				/if (${Navigation.Active}) /nav stop
 				/break
 			}
 		} else /if (${Spawn[id ${_tmpID}].LineOfSight} && ${Spawn[id ${_tmpID}].Distance} < ${pullDistance}) {
@@ -680,6 +704,7 @@ Sub get_pull_target(int _tmpID)
 				/if (!${Me.XTarget}) /call check_cast_events "${pullAbility}" CANNOT_HIT ${_tmpID}
 				/if (${cannotCast}) {
 					/varset cannotCast FALSE
+					/if (${Navigation.Active}) /nav stop
 					/return
 				}
 			}
@@ -736,7 +761,7 @@ Sub validate_single_pull(int _tmpID)
 	/declare locX			int	local	${Spawn[id ${_tmpID}].X}
 	/declare locY			int	local	${Spawn[id ${_tmpID}].Y}
 	/declare _addCount		int local	${SpawnCount[loc ${locX} ${locY} radius ${npcRadiusCheck} zradius 20 npc targetable noalert 1]}
-	
+
 	/if (${_addCount} > 1) /return FALSE
 
 /return TRUE
@@ -745,23 +770,51 @@ Sub set_pull_target
 	/declare _count 		int local 1
 	/declare _pullMob 		int local 0
 	/declare _mobsInRadius 	int local 0
+	/declare _mobsInRadiusChecker bool local FALSE
 	/declare _pullTargetID 	int local 0
 	/declare _pathLength 	int local 999
+	/declare _radiusXY		int local 100
 
 	/if (${Me.XTarget[1].ID}) {
 		/varset _pullTargetID ${Me.XTarget[1].ID}
 		/return ${_pullTargetID}
 	}
-
 	/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 loc ${pullAutoCampX} ${pullAutoCampY} radius ${pullRadiusXY} zradius ${pullRadiusZ}]}
+	|**
+	/while (!${_mobsInRadius}) {
+		/varset _mobsInRadius ${SpawnCount[npc targetable noalert 1 loc ${pullAutoCampX} ${pullAutoCampY} radius ${_radiusXY} zradius ${pullRadiusZ}]}
+		
+		/if (${_mobsInRadius}) {
+			/for _count 1 to ${_mobsInRadius}
+				/varset _pullMob ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${_radiusXY} zradius ${pullRadiusZ}].ID}
+			
+				/if (${Navigation.PathExists[id ${_pullMob}]}) {
+					/varset _mobsInRadiusChecker TRUE
+					/break
+				} else {
+					/varcalc _count ${_count}+1
+					/continue
+				}
+			/next _count
+		}
 
-	/if (${_mobsInRadius} == 0) {
-		DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
-		/return 0
+		/if (${_mobsInRadiusChecker}) {
+			/if (${_radiusXY} > ${pullRadiusXY}) {
+				/varset _radiusXY ${pullRadiusXY}
+			} else /if (${_radiusXY} == ${pullRadiusXY} && ${Int[${_mobsInRadius}]}==0) {
+				DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
+				/return 0
+			} else /if (${Int[${_mobsInRadius}]}==0) {
+				/varcalc _radiusXY ${_radiusXY}*1.3
+			} else {
+				/break
+			}
+		}
 	}
-
+	**|
+	
 	/while (${_count} <= ${_mobsInRadius}) {
-
+		/delay 3
 		/if (${Me.XTarget}) /return ${Me.XTarget[1].ID}
 
 		/varset _pullMob ${NearestSpawn[${_count}, npc targetable noalert 1 radius ${pullRadiusXY} zradius ${pullRadiusZ}].ID}
@@ -785,7 +838,6 @@ Sub set_pull_target
 		}
 
 		/varcalc _count ${_count} + 1
-		/delay 3
 	}
 
 	DEBUG Set ${Spawn[id ${_pullTargetID}].DisplayName} as pull target
@@ -1090,7 +1142,7 @@ Sub get_target
 			/target id ${_tmpID}
 			/delay 1s ${_tmpID} == ${Target.ID}
 			/return ${_tmpID}
-		} else /if (${SpawnSort[1,asc,PctHPs,xtarhater].Distance} < 200) {
+		} else /if (${SpawnSort[1,asc,PctHPs,xtarhater].Distance} < 100) {
 			/varset _tmpID ${SpawnSort[1,asc,PctHPs,xtarhater].ID}
 			/target id ${_tmpID}
 			/delay 3
@@ -1179,7 +1231,11 @@ sub validate_combat(int _tmpID)
 			}
 
 			/if (${Group.MainTank.ID} != ${Me.ID}) {
-				/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 15 zradius 15 npc targetable]}) /return FALSE
+				/if (${Navigation.PathLength[id ${_tmpID}]} < 200) {
+					/if (!${SpawnCount[loc ${Spawn[id ${Group.MainTank.ID}].X} ${Spawn[id ${Group.MainTank.ID}].Y} radius 50 zradius 40 npc targetable noalert 1]}) /return FALSE
+				} else {
+					/return
+				}
 			}
 		}
 	} 
@@ -1204,6 +1260,8 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 		/if (!${Spawn[id ${_tmpID}].ID}) /return FALSE
 	}
 	
+	/if (${Spawn[id ${_tmpID}].PctHPs}==0) /return FALSE
+
 	| line of sight?
 	/if (!${_type.Equal[item]}) {
 		/if (!${Spell[${_spell}].SpellType.Equal[Beneficial]}) {
@@ -1291,9 +1349,10 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 				/if (!${Me.Song[Twincast Effect].ID}) {
 					/if (${Me.Song[${_spell}].ID}) /return FALSE
 				}
-				/if (!${validate_self_buff[${_spell}]}) /return FALSE
 			}
 		}
+
+		/if (!${validate_self_buff[${_tmpID}, ${_spell}]}) /return FALSE
 		
 		/if (!${Bool[${Me.Book[${_spell}]}]}) /return FALSE
 		
@@ -1316,8 +1375,9 @@ Sub validate_cast(bool _debug, string _type, string _spell, int _tmpID)
 			/if (!${Spell[${_spell}].NewStacks}) /return FALSE
 			/if (${Me.Buff[${_spell}].ID}) /return FALSE
 			/if (${Me.Song[${_spell}].ID}) /return FALSE
-			/if (!${validate_self_buff[${_spell}]}) /return FALSE
 		}
+
+		/if (!${validate_self_buff[${_tmpID}, ${_spell}]}) /return FALSE
 
 		| if not instant cast spell
 		/if (${Spell[${_spell}].MyCastTime.Float} > 0) {
@@ -1464,63 +1524,97 @@ sub validate_self_buff(int _tmpID, string _spell)
 	29=XXIX
 	30=XXX
 **|	
-	/if (${Me.Buff[${_spell} I].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} II].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} III].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} IIII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} IV].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} VI].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} VII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} VIII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} IIX].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} X].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XI].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XIII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XIV].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XV].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XVI].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XVII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XVIII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XIX].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XX].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XXI].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XXII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XXIII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XXIV].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XXVI].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XXVIII].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XXIX].ID}) /return FALSE
-	/if (${Me.Buff[${_spell} XXX].ID}) /return FALSE
+	/if (${_tmpID} == ${Me.ID}) {
+		/if (${Me.Buff[${_spell}].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} I].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} II].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} III].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} IIII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} IV].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} VI].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} VII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} VIII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} IIX].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} X].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XI].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XIII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XIV].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XV].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XVI].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XVII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XVIII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XIX].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XX].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XXI].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XXII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XXIII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XXIV].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XXVI].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XXVIII].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XXIX].ID}) /return FALSE
+		/if (${Me.Buff[${_spell} XXX].ID}) /return FALSE
 
-	/if (${Me.Song[${_spell} I].ID}) /return FALSE
-	/if (${Me.Song[${_spell} II].ID}) /return FALSE
-	/if (${Me.Song[${_spell} III].ID}) /return FALSE
-	/if (${Me.Song[${_spell} IIII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} IV].ID}) /return FALSE
-	/if (${Me.Song[${_spell} VI].ID}) /return FALSE
-	/if (${Me.Song[${_spell} VII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} VIII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} IIX].ID}) /return FALSE
-	/if (${Me.Song[${_spell} X].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XI].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XIII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XIV].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XV].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XVI].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XVII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XVIII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XIX].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XX].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XXI].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XXII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XXIII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XXIV].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XXVI].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XXVIII].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XXIX].ID}) /return FALSE
-	/if (${Me.Song[${_spell} XXX].ID}) /return FALSE
+		/if (${Me.Song[${_spell}].ID}) /return FALSE
+		/if (${Me.Song[${_spell} I].ID}) /return FALSE
+		/if (${Me.Song[${_spell} II].ID}) /return FALSE
+		/if (${Me.Song[${_spell} III].ID}) /return FALSE
+		/if (${Me.Song[${_spell} IIII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} IV].ID}) /return FALSE
+		/if (${Me.Song[${_spell} VI].ID}) /return FALSE
+		/if (${Me.Song[${_spell} VII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} VIII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} IIX].ID}) /return FALSE
+		/if (${Me.Song[${_spell} X].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XI].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XIII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XIV].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XV].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XVI].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XVII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XVIII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XIX].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XX].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XXI].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XXII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XXIII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XXIV].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XXVI].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XXVIII].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XXIX].ID}) /return FALSE
+		/if (${Me.Song[${_spell} XXX].ID}) /return FALSE
+	} else {
+		/if (${Target.Buff[${_spell}].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} I].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} II].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} III].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} IIII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} IV].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} VI].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} VII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} VIII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} IIX].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} X].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XI].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XIII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XIV].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XV].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XVI].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XVII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XVIII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XIX].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XX].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XXI].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XXII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XXIII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XXIV].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XXVI].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XXVIII].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XXIX].ID}) /return FALSE
+		/if (${Target.Buff[${_spell} XXX].ID}) /return FALSE
+	}
 	
 /return TRUE
 
@@ -2409,18 +2503,18 @@ sub setup_skill_melee(bool _debug)
 	/if (${Select[${Me.Class.ShortName},BER,BRD,MNK,ROG,BST]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 90
-			/varset assistRange 100
+			/varset assistRange 150
 		} else {
-			/varset autoAssistAt 99
-			/varset assistRange 100
+			/varset autoAssistAt 98
+			/varset assistRange 150
 		}
 	}
 	/if (${Select[${Me.Class.ShortName},WAR,PAL,SHD]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 90
-			/varset assistRange 100
+			/varset assistRange 150
 		} else {
-			/varset autoAssistAt 100
+			/varset autoAssistAt 150
 			/varset assistRange 55
 		}
 	}
@@ -2435,7 +2529,7 @@ sub setup_skill_melee(bool _debug)
 		}
 	}
 
-	/if (${Select[${Me.Class.ShortName},WIZ,MAG]}) {
+	/if (${Select[${Me.Class.ShortName},WIZ,MAG,NEC]}) {
 		/if (${powerLevel} && ${Me.ID} != ${Group.MainTank.ID}) {
 			/varset autoAssistAt 90
 			/varset assistRange 100
@@ -2962,33 +3056,32 @@ sub check_for_named(bool _debug)
 
 /return FALSE
 
-Sub get_xtar_haters_not_aggro(bool _debug)
+Sub get_xtar_no_aggro_aoe(bool _debug)
 	/declare _count int local 0
 	/declare _notAggroCounter int local 0
 
 	/for _count 1 to ${Me.XTarget}
-		/if (${Me.XTarget[${_count}].ID}) /continue
+		/if (!${Me.XTarget[${_count}].ID}) /continue
 		/if (${Me.XTarget[${_count}].PctAggro} < 100) {
 			/varcalc _notAggroCounter ${_notAggroCounter}+1
 		}
 	/next _count
 /return ${_notAggroCounter}
 
+Sub get_xtar_no_aggro(bool _debug)
+	/declare _tmpID		int local 0
+	/declare _count		int local 0
 
-Sub get_xtar_min_haters(int _hateLimit)
-	/declare _minHateId		int local 0
-	/declare _count		    int local 0
-	
 	/for _count 1 to ${Me.XTarget}
-		/if (${Me.XTarget[${_count}].ID}) /continue
-
-		/if (${Me.XTarget[${_count}].Distance} > 200 || ${Me.XTarget[${_count}].PctAggro} > ${_hateLimit}) /continue
-
-		/if (${Me.XTarget[${_count}].PctAggro} <= ${_hateLimit}) {
-			/varset _minHateId ${Me.XTarget[${_count}].ID}
-			/varset _hateLimit ${Me.XTarget[${_count}].PctAggro}
+		/if (!${Me.XTarget[${_count}].ID}) /continue
+		/if (${Me.XTarget[${_count}].Distance} >= 200) /continue
+		/if (${Me.XTarget[${_count}].PctAggro} < 100) {
+			/varset _tmpID ${Me.XTarget[${_count}].ID}
+			/target id ${_tmpID}
+			/delay 1s ${Target.ID}==${_tmpID}
+			/call engage
+			/call use_skill_melee ${_tmpID} FALSE
+			/return ${_tmpID}
 		}
-
 	/next _count
-	
-/return ${_minHateId}
+/return ${_tmpID}

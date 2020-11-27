@@ -8,6 +8,8 @@ Sub bst_setup
 
 	/declare Aura1				string outer NULL
 	/declare Aura2				string outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 |-Spells
 	/declare SwarmPet			string outer NULL
 	/declare FrozenNuke			string outer NULL

@@ -31,13 +31,13 @@ Sub shm_main
 
 		/call get_target
 		/if (${Target.Named}) {
-			/if (!${Target.Maloed.ID} && !${Target.Buff[${MaloName}].ID}) {
+			/if (!${Target.Maloed.ID} && !${Target.Buff[${MaloName}].ID} && ${Target.Type.Equal[NPC]}) {
 				/if (${validate_cast[FALSE, FIND, "${Malo}", ${Target.ID}]}) /call core_cast2 "${Malo}" FIND ${Target.ID} FALSE
 			}
 		}
 		
 		/call get_target
-		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]}) {		
+		/if (!${Target.Slowed.ID} && !${Target.Buff[${SlowSpell}].ID} && !${immuneSet.Contains[${Target.ID}]} && ${Target.Type.Equal[NPC]}) {		
 			/if (${validate_cast[FALSE, FIND, "${SlowSpell}", ${Target.ID}]}) {
 				/if (${verbose${Me.Class.ShortName}}) /docommand /dgt Slowing \ar ${Target.Name} \ax with =>> \ag ${SlowSpell} \ax <<=
 				/call core_cast2 "${SlowSpell}" FIND ${Target.ID} FALSE
@@ -61,7 +61,7 @@ Sub shm_main
 		/if (${check_hurt[FALSE, group, 80]} < 1) {
 			/call get_target
 			/if (${Target.Named}) {
-				/if (!${Target.Buff[${ChaoticPoisonDoT}].ID}) {		
+				/if (!${Target.Buff[${ChaoticPoisonDoT}].ID} && ${Target.Type.Equal[NPC]}) {		
 					/if (${validate_cast[FALSE, spell, "${ChaoticPoisonDoT}", ${Target.ID}]}) {
 						/call core_cast2 "${ChaoticPoisonDoT}" spell ${Target.ID} FALSE
 					}
@@ -93,7 +93,7 @@ Sub shm_heal_spam
 		}
 	}
 
-	/call get_heal_target 90
+	/call get_heal_target 85
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${RecklessHeal2}", ${worstHurtId}]}) {
@@ -101,7 +101,7 @@ Sub shm_heal_spam
 		}
 	}
 
-	/call get_heal_target 90
+	/call get_heal_target 85
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${RecklessHeal3}", ${worstHurtId}]}) {
@@ -581,6 +581,7 @@ Sub shm_self_buffs
 			/call core_cast2 "${PetSpell}" spell 0 FALSE
 			/varset CastCheck 1
 		}
+		/if (${Me.Pet.ID}) /pet guard
 	}
 	/if (${validate_cast[FALSE, alt, "Preincarnation", ${Me.ID}]}) {
 		/call core_cast2 "Preincarnation" alt 0 FALSE

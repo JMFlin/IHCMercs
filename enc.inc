@@ -71,7 +71,7 @@ Sub enc_main
 		/if (${Me.XTarget} > 1) /call enc_debuff_xtarget
 
 		| Tash target if not tashed
-		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID}) {
+		/if (!${Target.Tashed.ID} && !${Target.Buff[${TashSpell}].ID} && ${Target.Type.Equal[NPC]}) {
 			/if (${validate_cast[FALSE, spell, "${TashSpell}", ${Target.ID}]}) /call core_cast2 "${TashSpell}" spell ${Target.ID} FALSE
 		}
 
@@ -89,9 +89,6 @@ Sub enc_main
 
 		| Do we have a valid target?
 		/if (!${validate_combat[${Target.ID}]}) /continue
-
-		| Send the pet in
-		/call pet_attack
 
 		| If there is a named or there are too many mobs then start burning
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call enc_burn_routine
@@ -127,6 +124,7 @@ Sub enc_main
 			(Dicho on Cooldown) -> Mindslash -> Mindsunder -> Strangulate
 		**|
 		/call get_target
+		/call pet_attack ${Target.ID}
 		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
 		/if (${validate_cast[FALSE, spell, "${MindNukeMain}", ${Target.ID}]}) /call core_cast2 "${MindNukeMain}" spell ${Target.ID} FALSE
 		/if (${validate_cast[FALSE, spell, "${DichoSpell}", ${Target.ID}]}) /call core_cast2 "${DichoSpell}" spell ${Target.ID} FALSE
@@ -140,7 +138,10 @@ Sub enc_main
 |	/if (${UseModRods}) /call ClickModRoD
 |	/if ((${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID} || ${Me.Snared.ID} || ${Me.Mezzed.ID} || ${Me.Charmed.ID}) && ${BegTimer}==0 && ${DoGroupBeg}) /call BegForCure
 	/doevents
-	
+	/if (${Target.ID}) {
+		/target clear
+		/delay 1s
+	}
 /return
 
 Sub enc_burn_routine
@@ -186,7 +187,7 @@ Sub enc_burn_routine
 |---------------------------------------------------------------------------- 
 Sub enc_debuff_xtarget
 	/declare _count int local 1
-
+	/attack off
 	/for _count 1 to ${Me.XTarget}
 
 		/if (${debuffSet.Contains[${Me.XTarget[${_count}].ID}]}) /continue
@@ -294,6 +295,7 @@ Sub enc_self_buffs
 			/call core_cast2 "${PetSpell}" spell 0 FALSE
 			/varset CastCheck 1
 		}
+		/if (${Me.Pet.ID}) /pet guard
 	}
 
 	/if (${Me.Pet.ID} && !${Me.Pet.Buff[${PetBuffSpell}]} && !${Me.Pet.Buff[${PetBuffName}]}) {

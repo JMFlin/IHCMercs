@@ -56,7 +56,6 @@ Burning
 
 TODO:
 	AAs:
-		Rejuvenation of Spirit
 		Vortex of Ro
 		Wall of Wind
 		Wildtender's Unity
@@ -67,6 +66,11 @@ TODO:
 		Glistening Frost
 
 	Add SpellSet for Dots vs Nukes
+
+	Raid
+		Rotation for Spirit of Bear (and Swam of Fireflies)
+	
+	Cures
 **|
 
 Sub dru_main
@@ -101,43 +105,42 @@ Sub dru_main
 		/if (${validate_cast[FALSE, alt, "Spirit of the Great Wolf", ${Me.ID}]}) {
 			/call core_cast2 "Spirit of the Great Wolf" alt 0 FALSE
 		}
-		/call get_target
-		/if (!${validate_combat[${Target.ID}]}) /return
-		/call pet_attack ${Target.ID}
 	} else {
 		/return
 	}
 
 	/while (${Me.XTarget} && ${Mode} == 3) {
 
+		/call get_target
 		/if (${check_for_named[FALSE]} || ${Me.XTarget}>=${BurnMobCount}) /call dru_burn_routine
 
-		/if (!${Target.Buff[${Me.AltAbility[Season's Wrath].Rank}].ID}) {
+		/if (!${Target.Buff[${Me.AltAbility[Season's Wrath].Rank}].ID} && ${Target.Type.Equal[NPC]}) {
 			/if (${validate_cast[FALSE, alt, "Season's Wrath", ${Target.ID}]}) {
 				/call core_cast2 "Season's Wrath" alt ${Target.ID} FALSE
 			}
 		}
 
 		/if (${Target.Named}) { 
-			/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID}) {
+			/if (!${Target.Buff[${SingleFrostAtkDebuff}].ID} && ${Target.Type.Equal[NPC]}) {
 				/if (${validate_cast[FALSE, spell, "${SingleFrostAtkDebuff}", ${Target.ID}]}) {
 					/call core_cast2 "${SingleFrostAtkDebuff}" spell ${Target.ID} FALSE
 				}
 			}
 		}
 
-		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID} && !${immuneSet.Contains[${Target.ID}]}) {
+		/if (!${Target.Buff[${SingleFireAtkDebuff}].ID} && !${Target.Buff[${SingleFireAtkDebuffName}].ID} && !${immuneSet.Contains[${Target.ID}]} && ${Target.Type.Equal[NPC]}) {
 			/if (${validate_cast[FALSE, FIND, "${SingleFireAtkDebuffSpell}", ${Target.ID}]}) {
 				/call core_cast2 "${SingleFireAtkDebuffSpell}" FIND ${Target.ID} FALSE
 				/call check_cast_events "${SingleFireAtkDebuffSpell}" CAST_IMMUNE ${Target.ID}
 			}
 		}
-
+		
 		/call dru_rotation
 		
 		/if (${Me.XTarget} > 1) /call dru_debuff_xtarget
 		/if (${Me.PctMana} < 80) /call dru_mana_check
 		/call move_to_camp
+		/call pet_attack ${Target.ID}
 	}
 
 	/doevents
@@ -196,7 +199,10 @@ sub dru_rotation
 		**|
 		
 		|** SINGLE HEALS **|
-		
+		/if (${validate_cast[FALSE, alt, "Convergence of Spirit", ${_worstHurtId}]}) {
+			/call core_cast2 "Convergence of Spirit" alt ${_worstHurtId} FALSE
+		}
+
 		/if (${validate_cast[FALSE, spell, "${Revitalization}", ${_worstHurtId}]}) {
 			/call core_cast2 "${Revitalization}" spell ${_worstHurtId} FALSE
 			/return
@@ -211,19 +217,14 @@ sub dru_rotation
 			/call core_cast2 "${Curavida}" spell ${_worstHurtId} FALSE
 			/return
 		}
-
-		/if (${validate_cast[FALSE, alt, "Convergence of Spirit", ${_worstHurtId}]}) {
-			/call core_cast2 "Convergence of Spirit" alt ${_worstHurtId} FALSE
-			/return
-		}
-
 		
 	} else /if (${Me.XTarget}) {
 		/if (${Me.PctMana} < ${hybridManaLimit}) /return
 		/call get_target
 		/if (!${Target.Type.Equal[NPC]}) /call get_target
 		/if (!${Target.Type.Equal[NPC]}) /return
-		
+		/if (!${validate_combat[${Target.ID}]}) /return
+
 		/if (${druDoSnare}) {
 			/if (!${Target.Snared.ID} && !${immuneSet.Contains[${Target.ID}]}) {
 				/if (${validate_cast[FALSE, FIND, "${SnareSpell}", ${Target.ID}]}) {
@@ -237,6 +238,7 @@ sub dru_rotation
 		|**
 			Spell Twincast -> Nature’s Blistering Wrath -> Horde of Polybiads -> Sunflame -> Chill of the Wildtender
 		**|
+
 		/if (!${Me.Buff[Improved Twincast].ID}) {
 
 			/if (${Target.PctHPs} > 50) {
@@ -479,8 +481,10 @@ Sub dru_self_buffs
 	/if (${validate_cast[FALSE, alt, "Preincarnation", ${Me.ID}]}) {
 		/call core_cast2 "Preincarnation" alt 0 FALSE
 	}
-	/if (${validate_cast[FALSE, alt, "Spirit of Eagles", ${Me.ID}]}) {
-		/call core_cast2 "Spirit of Eagles" alt 0 FALSE
+	/if (!${Me.Buff[Spirit of Eagles].ID} && !${Me.Buff[Flight of Eagles].ID}) {
+		/if (${validate_cast[FALSE, alt, "Spirit of Eagles", ${Me.ID}]}) {
+			/call core_cast2 "Spirit of Eagles" alt 0 FALSE
+		}
 	}
 
 	/if (${CastCheck}) {

@@ -187,6 +187,7 @@ Sub bst_self_buffs
 			/call core_cast2 "${PetSpell}" spell ${Me.ID} FALSE
 			/varset CastCheck 1
 		}
+		/if (${Me.Pet.ID}) /pet guard
 	}
 
 	/if (${Me.Pet.ID}) {

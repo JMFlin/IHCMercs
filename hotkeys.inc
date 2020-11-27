@@ -52,7 +52,7 @@ Sub Page1
     /hotbutton RestartSelf 14 3:0:/addicted
 
     /hotbutton TravelSelf 14 1:0:/addict travel
-    /hotbutton AfkPullSelf 14 1:0:/addict afkfight 500 20 10
+    /hotbutton AfkPullSelf 14 1:0:/addict afkfight 800 120 10
     /hotbutton EventSelf 14 1:0:/addict event
 
     /hotbutton ScribeSelf 14 1:0:/scribelevels ${minScribeLevel} ${maxScribeLevel}
@@ -61,8 +61,8 @@ Sub Page1
     /hotbutton RestartSelf 14 2:0:/pause 10
     /hotbutton ScribeSelf 14 3:0:/addict scribe
 
-    /hotbutton NavToMeSelf 14 1:0:/dga /navto me
-    /hotbutton NavToTarget 14 1:0:/dgga /navto target
+    /hotbutton NavToTarget 14 1:0:/navto target
+
     /hotbutton TravelGLSelf 14 1:0:/traveltozone "guild lobby"
     /hotbutton TravelGHSelf 14 1:0:/traveltozone "guild hall"
     /hotbutton TravelPoKSelf 14 1:0:/traveltozone "plane of knowledge"
@@ -91,9 +91,11 @@ Sub Page2
     /hotbutton RestartGroup 5 2:0:/pause 10
     /hotbutton RestartGroup 5 3:0:/dgga /addicted
 
+    /hotbutton CampGroup 5 3:0:/dgga /camp desktop
+
     /hotbutton TravelGroup 5 1:0:/dgga /addict travel
-    /hotbutton AfkPullGroup 5 1:0:/dgga /addict afkfight 300 40 65
-    /hotbutton eventGroup 5 1:0:/dgga /addict event
+    /hotbutton AfkPullGroup 5 1:0:/dgga /addict afkfight 800 120 10
+    /hotbutton EventGroup 5 1:0:/dgga /addict event
     /hotbutton RaidGroup 5 1:0:/dgga /addict raid
 
     /hotbutton ScribeGroup 5 1:0:/dgga /scribezone All
@@ -115,19 +117,14 @@ Sub Page2
     /hotbutton NudgeFwd 5 1:0:/dgga /keypress forward hold
     /hotbutton NudgeFwd 5 2:0:/dgga /delay 10
     /hotbutton NudgeFwd 5 3:0:/dgga /keypress forward
-    
-    | NEAREST SPAWN NPC BIND HERE
-    /hotbutton VendorGroup 5 1:0:/dgga /assist ${Me.ID}
-    /hotbutton VendorGroup 5 2:0:/dgga /attack off
-    /hotbutton VendorGroup 5 2:0:/dgga /click right target
-    /hotbutton VendorGroup 5 3:0:/dgga /autoloot sell
 
     /hotbutton TravelGLGroup 5 1:0:/dgga /traveltozone "guild lobby"
     /hotbutton TravelGHGroup 5 1:0:/dgga /traveltozone "guild hall"
     /hotbutton TravelPoKGroup 5 1:0:/dgga /traveltozone "plane of knowledge"
 
     /hotbutton LobbyRezGroup 5 1:0:/dgga /lazylobbyrez
-    /hotbutton SellMerchGroup 5 1:0:/dgga /selltomerchant
+    /hotbutton SellToMerchant 5 1:0:/dgga autosell
+    /hotbutton IncreasePosse 5 1:0:/dgga increaseposse
 
 /return
 

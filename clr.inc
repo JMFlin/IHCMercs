@@ -21,6 +21,7 @@ Sub clr_main
 	/if (!${Me.XTarget}) /call clr_self_buffs
 	/if (!${doNotBuff}) /call clr_combat_tank_buffs
 	/call clr_mana_check
+	/call clr_heal_spam
 
 	|!${Me.Song[${GroupElixirSpell}].ID}
 	/if (${Me.Poisoned.ID} || ${Me.Diseased.ID} || ${Me.Cursed.ID} || ${Me.Corrupted.ID}) {
@@ -122,7 +123,7 @@ Sub clr_self_buffs
 |---------------------------------------------------------------------------- 
 Sub clr_heal_spam
 
-	/call get_heal_target 90
+	/call get_heal_target 85
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${worstHurtId}]}) {
@@ -130,7 +131,7 @@ Sub clr_heal_spam
 		}
 	}
 
-	/call get_heal_target 90
+	/call get_heal_target 85
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${worstHurtId}]}) {
@@ -169,7 +170,7 @@ Sub clr_heal_spam
 |---------------------------------------------------------------------------- 
 Sub clr_heal_spam_2
 
-	/call get_heal_target 90
+	/call get_heal_target 85
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${Remedy1}", ${worstHurtId}]}) {
@@ -177,7 +178,7 @@ Sub clr_heal_spam_2
 		}
 	}
 
-	/call get_heal_target 90
+	/call get_heal_target 85
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${Remedy2}", ${worstHurtId}]}) {
@@ -185,7 +186,7 @@ Sub clr_heal_spam_2
 		}
 	}
 
-	/call get_heal_target 90
+	/call get_heal_target 85
 	/varset worstHurtId ${Macro.Return}
 	/if (${worstHurtId} > 0) {
 		/if (${validate_cast[FALSE, spell, "${Remedy3}", ${worstHurtId}]}) {

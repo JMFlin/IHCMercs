@@ -24,6 +24,8 @@ Sub war_setup
 	/declare endregen		string outer NULL
 	/declare Aura1			string outer NULL
 	/declare Aura2			string outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 	/declare ItemOoWBP		string outer NULL
 	/declare ItemDipPapers	string outer NULL
 	/declare BastionDisc		string outer NULL
@@ -320,6 +322,10 @@ Sub war_abilities
 		/delay 2s
 	}
 
+	/if (${Me.AltAbilityReady[Warlord's Grasp]}) {
+		/varset PullTowards Warlord's Grasp
+	}
+
 	/if (${FindItem[Gladiator's Plate Chestguard of War].ID}) /varset ItemOoWBP Gladiator's Plate Chestguard of War
 	/if (${FindItem[Diplomatic Papers].ID}) /varset ItemDipPapers Diplomatic Papers
 
@@ -331,29 +337,3 @@ Sub war_abilities
 		/varset pullDistance 55
 	}
 /return
-|----------------------------------------------------------------------------
-|-SUB: BIND DefenseDisc - 
-|----------------------------------------------------------------------------
-Sub Bind_DefenseDisc
-	/if (${Me.CombatAbilityReady[${meleemit}]}) {
-		/if (${Me.Buff[Night's Endless Terror].ID}) {
-			/docommand /removebuff "Night's Endless Terror"
-			/delay 5
-			/call DiscQueue "${meleemit}"
-		} else { 
-			/call DiscQueue "${meleemit}"
-		}
-	} else {
-		/echo \ar COOL DOWN \ag >> \aw ${meleemit} \ag << 
-	}
-/return 
-|----------------------------------------------------------------------------
-|-SUB: BIND FortitudeDisc - 
-|----------------------------------------------------------------------------
-Sub Bind_FortitudeDisc
-	/if (${Me.CombatAbilityReady[${missall}]}) {
-		/call DiscQueue "${missall}"
-	} else {
-		/echo \ar COOL DOWN \ag >> \aw ${missall} \ag << 
-	}
-/return 

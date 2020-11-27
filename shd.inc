@@ -47,8 +47,8 @@ Melee burn
 
 TODO
 	Unholy Guardian
-	Stream of Hatred
-	Veil of Darkness
+	Stream of Hatred (Cone hate...)
+	
 **|
 Sub shd_main
 
@@ -70,12 +70,12 @@ Sub shd_main
 			}
 		}
 
-		/call shd_combat_buffs ${Target.ID}
 		/call shd_rotation ${Target.ID}
 		/call shd_disc
 
 		/if (!${validate_combat[${Target.ID}]}) /continue
-		
+		/call engage
+		/call pet_attack
 		/call use_skill_melee ${Target.ID} FALSE
 
 		/if (${Target.Named} || ${Target.PctHPs} > 90) {
@@ -89,21 +89,30 @@ Sub shd_main
 			}
 		}
 
-		/if (${validate_cast[FALSE, spell, "${Spear}", ${Target.ID}]}) {
-			/call core_cast2 "${Spear}" spell ${Target.ID} FALSE
-		}
-
-		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${Target.ID}]}) {
-			/call core_cast2 "Chattering Bones" alt ${Target.ID} FALSE
-		}
+		
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) /call spellburn
 		/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) /call meleeburn
 		/call shd_mana_check
+		/call shd_combat_buffs ${Target.ID}
 	}
 /return
 
 
 sub spellburn
+
+	/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
+		/if (${Me.ActiveDisc.ID}) {
+			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
+				/stopdisc
+				/delay 1s !${Me.ActiveDisc.ID}
+				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
+			}
+		} else {
+			/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
+		}
+	} else {
+		/return
+	}
 
 	/if (${validate_cast[FALSE, alt, "Spire of the Reavers", ${Me.ID}]}) {
 		/call core_cast2 "Spire of the Reavers" alt 0 FALSE
@@ -124,33 +133,17 @@ sub spellburn
 		/call core_cast2 "Reaver's Bargain" alt 0 FALSE
 	}
 
-	/if (${validate_cast[FALSE, disc, "${UnholyAuraDisc}", ${Me.ID}]}) {
-		/if (${Me.ActiveDisc.ID}) {
-			/if (${Me.ActiveDisc.ID} != ${DeflectionID} && ${Me.ActiveDisc.ID} != ${LeechcurseID} && ${Me.ActiveDisc.ID} != ${UnholyAuraID} && ${Me.ActiveDisc.ID} != ${IchorGuardID}) {
-				/stopdisc
-				/delay 1s !${Me.ActiveDisc.ID}
-				/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
-			}
-		} else {
-			/call core_cast2 "${UnholyAuraDisc}" disc 0 FALSE
-		}
-	}
-
 	/if (${validate_cast[FALSE, alt, "Vicious Bite of Chaos", ${Target.ID}]}) {
 		/call core_cast2 "Vicious Bite of Chaos" alt ${Target.ID} FALSE
 	}
 
 	/if (${validate_cast[FALSE, alt, "Thought Leech", ${Target.ID}]}) {
-		/call core_cast2 "Thought Leech" alt 0 FALSE
+		/call core_cast2 "Thought Leech" alt ${Target.ID} FALSE
 	}
 
 /return
 
 sub meleeburn
-
-	/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
-		/call core_cast2 "Visage of Death" alt 0 FALSE
-	}
 
 	/if (${validate_cast[FALSE, disc, "${LeechcurseID}", ${Me.ID}]}) {
 		/if (${Me.ActiveDisc.ID}) {
@@ -162,6 +155,12 @@ sub meleeburn
 		} else {
 			/call core_cast2 "${LeechcurseID}" disc 0 FALSE
 		}
+	} else {
+		/return
+	}
+
+	/if (${validate_cast[FALSE, alt, "Visage of Death", ${Me.ID}]}) {
+		/call core_cast2 "Visage of Death" alt 0 FALSE
 	}
 
 	/if (${Me.Pet.ID}) {
@@ -170,8 +169,8 @@ sub meleeburn
 		}
 	}
 
-	/if (${validate_cast[FALSE, alt, "Tyvl`s Resolve", ${Target.ID}]}) {
-		/call core_cast2 "Tyvl`s Resolve" alt ${Target.ID} FALSE
+	/if (${validate_cast[FALSE, alt, "Ty`vl's Resolve", ${Target.ID}]}) {
+		/call core_cast2 "Ty`vl's Resolve" alt ${Target.ID} FALSE
 	}
 	
 	/if (${validate_cast[FALSE, disc, "${ClaretBlade}", ${Target.ID}]}) {
@@ -183,13 +182,13 @@ sub meleeburn
 Sub shd_rotation(int _tmpID)
 	/declare _notAggroCounter int local 0
 	/declare _aoeCasted bool local FALSE
+	/declare _notAggroTarget int local 0
 
 	/if (!${_tmpID}) /return
 	/if (${Group.MainTank.ID} != ${Me.ID}) /return
 
-	/call get_xtar_haters_not_aggro ${verboseSHD}
+	/call get_xtar_no_aggro_aoe ${verboseSHD}
 	/varset _notAggroCounter ${Macro.Return}
-		
 	/if (${_notAggroCounter} > 1) {
 		
 		/if (${SpawnCount[loc ${Spawn[id ${_tmpID}].X} ${Spawn[id ${_tmpID}].Y} radius 50 zradius 50 npc targetable noalert 1]} > 1) {
@@ -227,54 +226,59 @@ Sub shd_rotation(int _tmpID)
 		}
 	}
 
-	/call get_xtar_min_haters 30
-	/varset _tmpID ${Macro.Return}
-	/call use_skill_melee ${_tmpID} FALSE
-	/if (${_tmpID}) {
+	/call get_xtar_no_aggro FALSE
+	/varset _notAggroTarget ${Macro.Return}
+	/if (${_notAggroTarget} || ${Me.SecondaryPctAggro} >= 40) {
+		/if (!${_notAggroTarget}) /varset _notAggroTarget ${_tmpID}
+		/if (!${Target.Buff[${Power}].ID}) {
+			/if (${validate_cast[FALSE, spell, "${Power}", ${_notAggroTarget}]}) {
+				/call core_cast2 "${Power}" spell ${_tmpID} FALSE
+			}
+		}
 
-		/if (${validate_cast[FALSE, spell, "${Power}", ${_tmpID}]}) {
-			/call core_cast2 "${Power}" spell ${_tmpID} FALSE
+		/if (${validate_cast[FALSE, spell, "${Terror1}", ${_notAggroTarget}]}) {
+			/call core_cast2 "${Terror1}" spell ${_notAggroTarget} FALSE
 			/return
 		}
 
-		/if (${validate_cast[FALSE, spell, "${Terror1}", ${_tmpID}]}) {
-			/call core_cast2 "${Terror1}" spell ${_tmpID} FALSE
+		/if (${validate_cast[FALSE, spell, "${Terror2}", ${_notAggroTarget}]}) {
+			/call core_cast2 "${Terror2}" spell ${_notAggroTarget} FALSE
 			/return
 		}
 
-		/if (${validate_cast[FALSE, spell, "${Terror2}", ${_tmpID}]}) {
-			/call core_cast2 "${Terror2}" spell ${_tmpID} FALSE
+		/if (${validate_cast[FALSE, spell, "${Spear}", ${_tmpID}]}) {
+			/call core_cast2 "${Spear}" spell ${_tmpID} FALSE
 			/return
 		}
 		
 		/if (${Me.TargetOfTarget.Name.NotEqual[${Me.CleanName}]}) {
-			/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${_tmpID}]}) {
-				/call core_cast2 "Ageless Enmity" alt ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, alt, "Ageless Enmity", ${_notAggroTarget}]}) {
+				/call core_cast2 "Ageless Enmity" alt ${_notAggroTarget} FALSE
 				/return
 			}
 		}
 		
 		/if (${Me.SecondaryPctAggro} > 30) {
-			/if (${validate_cast[FALSE, alt, "Projection of Doom", ${_tmpID}]} && ${Me.SecondaryPctAggro} >= 30) {
-				/call core_cast2 "Projection of Doom" alt ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, alt, "Projection of Doom", ${_notAggroTarget}]} && ${Me.SecondaryPctAggro} >= 30) {
+				/call core_cast2 "Projection of Doom" alt ${_notAggroTarget} FALSE
 				/return
 			}
 		}
 
-		/if (${validate_cast[FALSE, alt, "Hate's Attraction", ${_tmpID}]}) {
-			/call core_cast2 "Hate's Attraction" alt ${_tmpID} FALSE
+		/if (${validate_cast[FALSE, alt, "Hate's Attraction", ${_notAggroTarget}]}) {
+			/call core_cast2 "Hate's Attraction" alt ${_notAggroTarget} FALSE
 			/return
 		}
 		
 		/if (${Me.SecondaryPctAggro} > 30) {
-			/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${_tmpID}]}) {
-				/call core_cast2 "Explosion of Hatred" alt ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, alt, "Explosion of Hatred", ${_notAggroTarget}]}) {
+				/call core_cast2 "Explosion of Hatred" alt ${_notAggroTarget} FALSE
 				/return
 			}
 		}
 		/if (${Me.SecondaryPctAggro} > 30) {
-			/if (${validate_cast[FALSE, alt, "Explosion of Spite", ${_tmpID}]}) {
-				/call core_cast2 "Explosion of Spite" alt ${_tmpID} FALSE
+			/if (${validate_cast[FALSE, alt, "Explosion of Spite", ${_notAggroTarget}]}) {
+				/call core_cast2 "Explosion of Spite" alt ${_notAggroTarget} FALSE
 				/return
 			}
 		}
@@ -306,15 +310,17 @@ Sub shd_rotation(int _tmpID)
 		}
 		**|
 
-		/if (${Me.ActiveDisc.ID} == ${UnholyAuraID} || ${Target.Buff[${AllianceSpell}]}) {
+		/if (${Me.ActiveDisc.ID} == ${UnholyAuraID} || ${Target.Buff[${AllianceSpell}].ID}) {
 			/if (${validate_cast[FALSE, spell, "${Touch1}", ${_tmpID}]}) {
 				/call core_cast2 "${Touch1}" spell ${_tmpID} FALSE
+				/return
 			}
 			/if (${validate_cast[FALSE, spell, "${Touch2}", ${_tmpID}]}) {
 				/call core_cast2 "${Touch2}" spell ${_tmpID} FALSE
+				/return
 			}
 
-			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]} && (${Me.ActiveDisc.ID} == ${UnholyAuraID} || ${Target.Buff[${AllianceSpell}]})) {
+			/if (${validate_cast[FALSE, alt, "Forceful Rejuvenation", ${Me.ID}]} && (${Me.ActiveDisc.ID} == ${UnholyAuraID} || ${Target.Buff[${AllianceSpell}].ID})) {
 				/if (${validate_cast[FALSE, spell, "${DichotomicFang}", ${_tmpID}]}) {
 					/call core_cast2 "${DichotomicFang}" spell ${_tmpID} FALSE
 				}
@@ -346,6 +352,16 @@ Sub shd_rotation(int _tmpID)
 			}
 		}
 
+		/if (${validate_cast[FALSE, spell, "${Spear}", ${_tmpID}]}) {
+			/call core_cast2 "${Spear}" spell ${_tmpID} FALSE
+			/return
+		}
+
+		/if (${validate_cast[FALSE, alt, "Chattering Bones", ${_tmpID}]}) {
+			/call core_cast2 "Chattering Bones" alt ${_tmpID} FALSE
+			/return
+		}
+
 	}
 
 /return
@@ -373,7 +389,7 @@ Sub shd_lifetap_spam(int _tmpID, bool _debug)
 		}
 	}
 
-	/if (${Me.ActiveDisc.ID} == ${UnholyAuraID} || ${Target.Buff[${AllianceSpell}]}) {
+	/if (${Me.ActiveDisc.ID} == ${UnholyAuraID} || ${Target.Buff[${AllianceSpell}].ID}) {
 		/if (${validate_cast[FALSE, spell, "${Touch1}", ${_tmpID}]}) {
 			/call core_cast2 "${Touch1}" spell ${_tmpID} FALSE
 		}
@@ -520,6 +536,7 @@ Sub shd_self_buffs
 			/call core_cast2 "${PetSpell}" spell 0 FALSE
 			/varset _castCheck 1
 		}
+		/if (${Me.Pet.ID}) /pet guard
 	}
 
 	/if (${Me.XTarget}) /return
@@ -590,6 +607,12 @@ Sub shd_combat_buffs(int _tmpID)
 |---------------------------------------------------------------------------- 
 Sub shd_disc
 
+	/if (${Me.PctHPs} < 55 && ${Me.ActiveDisc.ID} != ${DeflectionID}) {
+		/if (${validate_cast[FALSE, alt, "Shield Flash", ${Me.ID}]}) {
+			/call core_cast2 "Shield Flash" alt 0 FALSE
+		}
+	}
+
 	/if (${Me.XTarget} > 2 || ${check_for_named[FALSE]} || ${Target.Level} > (${Me.Level}+3) || ${Me.PctHPs} < 30) {
 
 		/if (${validate_cast[FALSE, disc, "${DeflectionDisc}", ${Me.ID}]}) {
@@ -620,11 +643,12 @@ Sub shd_disc
 		/if (${validate_cast[FALSE, alt, "Harm Touch", ${Target.ID}]}) {
 			/call core_cast2 "Harm Touch" alt ${Target.ID} FALSE
 		}
+		/if (${validate_cast[FALSE, alt, "Veil of Darkness", ${Target.ID}]}) {
+			/call core_cast2 "Veil of Darkness" alt ${Target.ID} FALSE
+		}
+		
+		
 	}
-
-	
-
-	
 	
 /return
 

@@ -51,6 +51,8 @@ Sub clr_setup
 	/declare HPBuff			        string          outer NULL
 	/declare Aura1					string 			outer NULL
 	/declare Aura2					string 			outer NULL
+	/declare Aura1Name string outer NULL
+	/declare Aura2Name string outer NULL
 	/declare DivineBuff		        string          outer NULL
 	/declare PromisedTimer			timer			outer 0
 	/declare GroupBuffRecast    	int 			outer 0
@@ -132,7 +134,7 @@ Sub clr_load_spellbar
 		/call LoadSpellGem "${SyllableSpell}" 12
 		/call LoadSpellGem "${GroupWordSpell}" 13
 
-	} /if (${Me.AltAbility[Mnemonic Retention].Rank} == 4) {
+	} else /if (${Me.AltAbility[Mnemonic Retention].Rank} == 4) {
 		/call LoadSpellGem "${MendingSplash}" 1
 		
 		/call LoadSpellGem "${DichoSpell}" 2
