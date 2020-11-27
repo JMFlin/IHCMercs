@@ -509,7 +509,7 @@ Sub afk_pull
 			/varset _radiusXY ${pullRadiusXY}
 		} else /if (${_radiusXY} == ${pullRadiusXY} && ${Int[${_mobsInRadius}]}==0) {
 			DEBUG Mobs in radius: ${Int[${_mobsInRadius}]}
-			/return 0
+			/return FALSE
 		} else /if (${Int[${_mobsInRadius}]}==0) {
 
 			| Increase radius by a factor of 1.3 if no targets in current radius
@@ -518,6 +518,8 @@ Sub afk_pull
 		
 		| For mobs found in the area do some sanity checks
 		/for _count 1 to ${Int[${_mobsInRadius}]}
+
+			| Start off with scanning a smaller area and increase it if not adequate mobs are found
 			/varset _pullMob ${Int[${NearestSpawn[${_count}, npc targetable noalert 1 radius ${_radiusXY} zradius ${pullRadiusZ}].ID}]}
 
 			| Nav path check
@@ -549,10 +551,14 @@ Sub afk_pull
 			}
 
 		/next _count
-	}
 
-	| If we didn't end up with a target to pull then return
-	/if (!${_pullTargetID}) /return FALSE
+		| Increase radius by a factor of 1.3 if no targets in current radius
+		/if (!${_pullTargetID}) {
+			/varcalc _radiusXY ${_radiusXY}*1.3
+		} else {
+			/break
+		}
+	}
 	
 	|/if (${pullAbility.Equal[Melee]}) /call get_pull_target_melee_range ${_pullTargetID}
 
